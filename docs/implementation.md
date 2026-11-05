@@ -51,3 +51,11 @@ This is not a ten-minute soak, a human balance test, or Windows/Web/controller v
 - Test entry points and play controls are documented in the project README.
 
 The original design document remains a proposal/history record. Current behavior and validation are described here and in the README.
+
+## Menu cleanup — 2026-11-05
+
+The project instructions now require: “Avoid unnecessary secondary labels and descriptions. Let the layout do the explaining.”
+
+Title retains the name and Play button. Pause uses Resume/Restart buttons and two directly operable settings. Results retain kills, best and Retry/Menu. Promotional copy, duplicated key legends, prototype identifiers, headshot summary and the countdown slogan have been removed. Shortcut hints live in button tooltips; existing keyboard shortcuts remain functional.
+
+Godot import passed. A temporary engine-side GUI check sent viewport mouse events through the real button hitboxes and verified Play, Resume, Retry, Menu, motion switching and sensitivity changes. Title, preparation, pause and results were rendered; title/pause were also inspected at a 960×540 window size. Screenshots are in `artifacts/menus/`. No combat rules changed.

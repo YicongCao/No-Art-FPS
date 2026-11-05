@@ -23,7 +23,8 @@ Alternatively, import `project.godot` in Godot 4.7.2 and press F6/F5 as appropri
 - R: reload. Empty magazines reload automatically; reserve ammunition is unlimited.
 - Escape: pause / resume. Losing focus also pauses.
 - Enter on results or pause: retry. Escape on results: title.
-- In pause: `-` / `+` adjust mouse sensitivity; M reduces camera motion.
+- Pause menu: use Resume/Restart, the sensitivity slider, and the camera-motion toggle. `-` / `+` and M remain available as shortcuts.
+- Results: Retry and Menu are clickable; Enter and Escape still work.
 
 Head hits kill a normal target in one shot; body hits take three. Every kill is worth one. Three armor hits cause a one-second respawn while the round clock keeps running. Armor regenerates after avoiding damage. The local best and settings are stored in Godot's `user://record.cfg`; QA runs do not overwrite them.
 

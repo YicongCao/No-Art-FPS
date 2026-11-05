@@ -186,23 +186,34 @@ func pause_run() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("pause"):
 		if state in ["RUNNING","READY"]:pause_run()
-		elif state == "PAUSED":
-			state = previous_state
-			player.enabled = state == "RUNNING"
-			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-		elif state == "RESULTS":
-			state = "TITLE"
-			clear_round()
-			player.reset_position()
+		elif state == "PAUSED":menu_action("resume")
+		elif state == "RESULTS":menu_action("menu")
 	elif event.is_action_pressed("restart") and state in ["TITLE","RESULTS","PAUSED"]:start_run()
-	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and state == "TITLE":
-		if hud.start_rect().has_point(hud.get_local_mouse_position()):start_run()
 	elif event.is_action_pressed("reload") and state == "RUNNING":reload_weapon()
 	elif event is InputEventKey and event.pressed and state == "PAUSED":
 		if event.physical_keycode == KEY_MINUS:player.sensitivity = maxf(.0006,player.sensitivity-.0002)
 		if event.physical_keycode in [KEY_EQUAL,KEY_PLUS]:player.sensitivity = minf(.006,player.sensitivity+.0002)
 		if event.physical_keycode == KEY_M:reduced_motion = not reduced_motion
 		save_record()
+
+func menu_action(action: String) -> void:
+	match action:
+		"play", "retry":
+			if state in ["TITLE","RESULTS","PAUSED"]:start_run()
+		"resume":
+			if state != "PAUSED":return
+			state = previous_state
+			player.enabled = state == "RUNNING"
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		"menu":
+			if state != "RESULTS":return
+			state = "TITLE"
+			clear_round()
+			player.reset_position()
+		"motion":
+			if state != "PAUSED":return
+			reduced_motion = not reduced_motion
+			save_record()
 
 func _physics_process(delta: float) -> void:
 	if state == "READY":
