@@ -1,0 +1,17 @@
+{
+  "canvas_resolution": "(1440.0, 810.0)",
+  "device": "Apple M5",
+  "draw_calls": 407.0,
+  "enemy_count": 10,
+  "fps_cap": 0,
+  "frames": 3432,
+  "max_frame_ms": 80.1941212121212,
+  "note": "Short automated stress sample; includes engine/process scheduling, not GPU timer queries. Not a ten-minute soak or cross-platform result.",
+  "p50_frame_ms": 2.77777777777778,
+  "p95_frame_ms": 3.33333333333333,
+  "p99_frame_ms": 4.19209523809524,
+  "render_resolution": "(1138.0, 640.0)",
+  "renderer": "Compatibility / OpenGL on Metal",
+  "sample_seconds": 10,
+  "vsync": false
+}
