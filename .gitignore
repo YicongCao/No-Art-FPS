@@ -1,0 +1,8 @@
+.godot/
+.DS_Store
+*.blend1
+*.blend2
+builds/
+logs/
+artifacts/local/
+docs/design/reference/

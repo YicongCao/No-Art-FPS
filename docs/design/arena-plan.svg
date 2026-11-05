@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="920" viewBox="0 0 1440 920">
+<rect width="1440" height="920" fill="#f6f2e9"/>
+<style>text{font-family:"PingFang SC","Noto Sans CJK SC",sans-serif;fill:#243440}.title{font-size:36px;font-weight:700}.body{font-size:23px}.small{font-size:18px}.label{font-size:20px;font-weight:600}</style>
+<defs><marker id="a" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0 L6 3.5 L0 7" fill="none" stroke="#754c87" stroke-width="1.4"/></marker></defs>
+<text x="70" y="67" class="title">No-Art-FPS / 首版 playbox 地图</text>
+<text x="70" y="108" class="body">36 × 28 m · 双环地面路线 + 一个双入口高台 · 设计示意，尚未试玩验证</text>
+<rect x="70" y="160" width="720" height="560" fill="#f2d084" stroke="#243440" stroke-width="2"/>
+<path d="M110 160 V720" stroke="#e3c174" stroke-width="1"/>
+<path d="M150 160 V720" stroke="#e3c174" stroke-width="1"/>
+<path d="M190 160 V720" stroke="#e3c174" stroke-width="1"/>
+<path d="M230 160 V720" stroke="#e3c174" stroke-width="1"/>
+<path d="M270 160 V720" stroke="#e3c174" stroke-width="1"/>
+<path d="M310 160 V720" stroke="#e3c174" stroke-width="1"/>
+<path d="M350 160 V720" stroke="#e3c174" stroke-width="1"/>
+<path d="M390 160 V720" stroke="#e3c174" stroke-width="1"/>
+<path d="M430 160 V720" stroke="#e3c174" stroke-width="1"/>
+<path d="M470 160 V720" stroke="#e3c174" stroke-width="1"/>
+<path d="M510 160 V720" stroke="#e3c174" stroke-width="1"/>
+<path d="M550 160 V720" stroke="#e3c174" stroke-width="1"/>
+<path d="M590 160 V720" stroke="#e3c174" stroke-width="1"/>
+<path d="M630 160 V720" stroke="#e3c174" stroke-width="1"/>
+<path d="M670 160 V720" stroke="#e3c174" stroke-width="1"/>
+<path d="M710 160 V720" stroke="#e3c174" stroke-width="1"/>
+<path d="M750 160 V720" stroke="#e3c174" stroke-width="1"/>
+<path d="M70 200 H790" stroke="#e3c174" stroke-width="1"/>
+<path d="M70 240 H790" stroke="#e3c174" stroke-width="1"/>
+<path d="M70 280 H790" stroke="#e3c174" stroke-width="1"/>
+<path d="M70 320 H790" stroke="#e3c174" stroke-width="1"/>
+<path d="M70 360 H790" stroke="#e3c174" stroke-width="1"/>
+<path d="M70 400 H790" stroke="#e3c174" stroke-width="1"/>
+<path d="M70 440 H790" stroke="#e3c174" stroke-width="1"/>
+<path d="M70 480 H790" stroke="#e3c174" stroke-width="1"/>
+<path d="M70 520 H790" stroke="#e3c174" stroke-width="1"/>
+<path d="M70 560 H790" stroke="#e3c174" stroke-width="1"/>
+<path d="M70 600 H790" stroke="#e3c174" stroke-width="1"/>
+<path d="M70 640 H790" stroke="#e3c174" stroke-width="1"/>
+<path d="M70 680 H790" stroke="#e3c174" stroke-width="1"/>
+<rect x="150" y="220" width="160" height="80" fill="#b6bac9" stroke="#243440" stroke-width="2"/>
+<rect x="310" y="220" width="240" height="80" fill="#5b7fc8" stroke="#243440" stroke-width="2"/>
+<rect x="550" y="220" width="160" height="80" fill="#b6bac9" stroke="#243440" stroke-width="2"/>
+<text x="430" y="268.0" class="label" text-anchor="middle">高台 +3 m</text>
+<text x="230" y="268.0" class="label" text-anchor="middle">坡道 →</text>
+<text x="630" y="268.0" class="label" text-anchor="middle">← 坡道</text>
+<rect x="410" y="320" width="60" height="60" fill="#243440" stroke="#243440" stroke-width="2"/>
+<text x="482" y="360" class="small">挡视线</text>
+<rect x="270" y="400" width="120" height="120" fill="#4d7d70" stroke="#243440" stroke-width="2"/>
+<text x="330" y="468.0" class="label" text-anchor="middle">容器 A</text>
+<rect x="470" y="460" width="120" height="120" fill="#b65745" stroke="#243440" stroke-width="2"/>
+<text x="530" y="528.0" class="label" text-anchor="middle">容器 B</text>
+<rect x="170" y="460" width="40" height="20" fill="#e5e0d2" stroke="#243440" stroke-width="2"/>
+<rect x="650" y="520" width="40" height="20" fill="#e5e0d2" stroke="#243440" stroke-width="2"/>
+<rect x="390" y="620" width="40" height="20" fill="#e5e0d2" stroke="#243440" stroke-width="2"/>
+<polyline points="130.0,360.0 130.0,640.0 270.0,640.0" fill="none" stroke="#754c87" stroke-width="4" stroke-dasharray="10 8" marker-end="url(#a)"/>
+<polyline points="270.0,640.0 330.0,660.0 670.0,660.0 730.0,600.0 730.0,380.0" fill="none" stroke="#754c87" stroke-width="4" stroke-dasharray="10 8" marker-end="url(#a)"/>
+<polyline points="210.0,380.0 330.0,340.0 370.0,360.0 430.0,440.0 430.0,580.0 330.0,620.0" fill="none" stroke="#754c87" stroke-width="4" stroke-dasharray="10 8" marker-end="url(#a)"/>
+<circle cx="70" cy="340" r="17" fill="#e5e0d2" stroke="#243440" stroke-width="3"/>
+<text x="70" y="347" class="label" text-anchor="middle">1</text>
+<circle cx="70" cy="600" r="17" fill="#e5e0d2" stroke="#243440" stroke-width="3"/>
+<text x="70" y="607" class="label" text-anchor="middle">2</text>
+<circle cx="790" cy="340" r="17" fill="#e5e0d2" stroke="#243440" stroke-width="3"/>
+<text x="790" y="347" class="label" text-anchor="middle">3</text>
+<circle cx="790" cy="600" r="17" fill="#e5e0d2" stroke="#243440" stroke-width="3"/>
+<text x="790" y="607" class="label" text-anchor="middle">4</text>
+<circle cx="270" cy="720" r="17" fill="#e5e0d2" stroke="#243440" stroke-width="3"/>
+<text x="270" y="727" class="label" text-anchor="middle">5</text>
+<circle cx="630" cy="720" r="17" fill="#e5e0d2" stroke="#243440" stroke-width="3"/>
+<text x="630" y="727" class="label" text-anchor="middle">6</text>
+<circle cx="430" cy="680" r="15" fill="#243440"/>
+<text x="455" y="687" class="small">起点</text>
+<text x="430" y="770" class="label" text-anchor="middle">36 m</text>
+<text x="30" y="445" class="label">28 m</text>
+<text x="70" y="815" class="small">每小格 2 m；图中块体均为实心。入口外预留隐藏预备区。</text>
+<text x="850" y="193" class="title">路线与交战</text>
+<text x="850" y="240" class="body">外圈：持续跑动，不进死胡同</text>
+<text x="850" y="278" class="body">中央：错位遮挡，穿插换目标</text>
+<text x="850" y="316" class="body">高台：两侧可上，不能看遍全场</text>
+<text x="850" y="354" class="body">主要交战距离：8–20 m</text>
+<text x="850" y="392" class="body">主要通道净宽：3–4 m</text>
+<text x="850" y="461" class="title">六个入口 / 动态补员</text>
+<text x="850" y="509" class="body">入口 1–6：遮挡后出生，走入场地</text>
+<text x="850" y="547" class="body">距离、视线、导航可达均需检查</text>
+<text x="850" y="585" class="body">同时目标数起始按 4 → 6 → 8</text>
+<text x="850" y="623" class="body">头部轮廓清楚，转身能找到目标</text>
+<text x="850" y="708" class="title">先验证的三个问题</text>
+<text x="850" y="752" class="body">① 是否经常连续 2 秒找不到目标？</text>
+<text x="850" y="790" class="body">② 是否站在某个角落就能刷最高分？</text>
+<text x="850" y="828" class="body">③ 换弹时是否自然发生转移？</text>
+<text x="70" y="886" class="small">提案 v0.1 · 2026-11-05 · 颜色表示区域与结构，不代表最终材质</text>
+</svg>
