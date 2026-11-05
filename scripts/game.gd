@@ -39,6 +39,8 @@ var pending_spawn: Dictionary = {}
 var nav_ready = false
 var rng = RandomNumberGenerator.new()
 var qa_mode = false
+var music: AudioStreamPlayer
+var music_volume = .7
 
 func _ready() -> void:
 	process_physics_priority = -100
@@ -86,7 +88,11 @@ func _ready() -> void:
 		var voice = AudioStreamPlayer.new()
 		add_child(voice)
 		audio_voices.append(voice)
+	music = AudioStreamPlayer.new()
+	music.stream = preload("res://assets/music/sixty.wav")
+	add_child(music)
 	load_record()
+	set_music_volume(music_volume)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	await get_tree().physics_frame
 	await get_tree().physics_frame
@@ -111,6 +117,7 @@ func load_record() -> void:
 		best = int(cfg.get_value("score","best",0))
 		player.sensitivity = clampf(float(cfg.get_value("settings","sensitivity",.0022)),.0006,.006)
 		reduced_motion = bool(cfg.get_value("settings","reduced_motion",false))
+		music_volume = clampf(float(cfg.get_value("settings","music_volume",.7)),0,1)
 
 func save_record() -> void:
 	if qa_mode:return
@@ -118,6 +125,7 @@ func save_record() -> void:
 	cfg.set_value("score","best",best)
 	cfg.set_value("settings","sensitivity",player.sensitivity)
 	cfg.set_value("settings","reduced_motion",reduced_motion)
+	cfg.set_value("settings","music_volume",music_volume)
 	cfg.save("user://record.cfg")
 
 func start_run() -> void:
@@ -158,9 +166,12 @@ func clear_round() -> void:
 		effects.remove_child(node)
 		node.queue_free()
 	for voice in audio_voices:voice.stop()
+	if music:music.stop()
 
 func begin_running() -> void:
 	state = "RUNNING"
+	music.stream_paused = false
+	music.play()
 	rules.start()
 	player.enabled = true
 	# Deliberate opening target set when the countdown ends. Reinforcements use hidden gates.
@@ -170,6 +181,7 @@ func begin_running() -> void:
 
 func finish_run() -> void:
 	state = "RESULTS"
+	music.stop()
 	rules.active = false
 	player.enabled = false
 	player.velocity = Vector3.ZERO
@@ -226,6 +238,7 @@ func menu_action(action: String) -> void:
 			save_record()
 
 func _physics_process(delta: float) -> void:
+	if music:music.stream_paused = state == "PAUSED"
 	if state == "READY":
 		ready_time -= delta
 		if ready_time <= 0:begin_running()
@@ -455,3 +468,7 @@ func play_sound(key: String, volume: float = -10, pitch: float = 1) -> void:
 	voice.volume_db = volume
 	voice.pitch_scale = pitch
 	voice.play()
+
+func set_music_volume(value: float) -> void:
+	music_volume = clampf(value,0,1)
+	if music:music.volume_db = linear_to_db(maxf(.0001,music_volume))-8.0

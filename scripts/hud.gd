@@ -14,6 +14,7 @@ var menu_state = ""
 var menu_size = Vector2.ZERO
 var sensitivity_slider: HSlider
 var motion_button: Button
+var music_slider: HSlider
 const WHITE = Color("fff8e8")
 const INK = Color("243440")
 const GOLD = Color("f2d084")
@@ -51,6 +52,7 @@ func _process(delta: float) -> void:
 	if game and game.state == "PAUSED":
 		sensitivity_slider.set_value_no_signal(game.player.sensitivity)
 		motion_button.text = "LOW" if game.reduced_motion else "FULL"
+		music_slider.set_value_no_signal(game.music_volume)
 	queue_redraw()
 
 func label(text: String, pos: Vector2, font_size: int, color: Color = WHITE, center: bool = false) -> void:
@@ -111,6 +113,18 @@ func rebuild_menu() -> void:
 			game.save_record())
 		menu.add_child(sensitivity_slider)
 		motion_button = menu_button("",Rect2(c.x+80,c.y+98,120,44),"motion",false,"M")
+		music_slider = HSlider.new()
+		music_slider.name = "Music"
+		music_slider.position = Vector2(c.x+10,c.y+164)
+		music_slider.size = Vector2(190,28)
+		music_slider.min_value = 0
+		music_slider.max_value = 1
+		music_slider.step = .05
+		music_slider.value = game.music_volume
+		music_slider.value_changed.connect(func(value):
+			game.set_music_volume(value)
+			game.save_record())
+		menu.add_child(music_slider)
 
 func _draw() -> void:
 	if game == null:return
@@ -132,6 +146,7 @@ func _draw() -> void:
 		draw_rect(Rect2(Vector2.ZERO,size),Color(.06,.09,.12,.76))
 		label("Sensitivity",Vector2(c.x-200,c.y+65),20)
 		label("Camera motion",Vector2(c.x-200,c.y+128),20)
+		label("Music",Vector2(c.x-200,c.y+185),20)
 		return
 	var seconds = ceili(game.rules.remaining())
 	var time_text = "%02d:%02d"%[seconds/60,seconds%60]
