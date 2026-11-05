@@ -52,6 +52,66 @@ func _ready() -> void:
 	assert(game.rules.kills==0)
 	for item in game.arena.barrels:assert(not item.spent and item.fuse<0 and item.collision_layer==1 and item.visual.visible)
 	print("COMBAT_BARREL_RESET_PASS")
+	game.begin_running()
+	game.clear_round()
+	game.player.enabled = false
+	game.player.position = Vector3(18,.05,0)
+	game.invulnerable = 0
+	var rusher = game.spawn_enemy(Vector3(18,0,5),true)
+	rusher.attack = 0
+	await get_tree().create_timer(.12).timeout
+	assert(rusher.fast and rusher.rush_state=="WINDUP" and rusher.charge_marker.visible)
+	assert(not rusher.visual.find_child("EnemyGun",true,false).visible)
+	game.state = "PAUSED"
+	var warning = rusher.rush_time
+	await get_tree().create_timer(.3).timeout
+	assert(rusher.rush_time==warning)
+	game.state = "RUNNING"
+	game.player.position.x = 22
+	await get_tree().create_timer(1.5).timeout
+	assert(game.health==100 and absf(rusher.position.x-18)<.2,"Sidestep must dodge locked-direction charge")
+	assert(rusher.rush_state=="RECOVER" and game.bullets.is_empty())
+	print("COMBAT_RUSH_DODGE_PAUSE_PASS")
+	game.clear_round()
+	game.player.position = Vector3(18,.05,0)
+	game.invulnerable = 0
+	rusher = game.spawn_enemy(Vector3(18,0,4),true)
+	rusher.attack = 0
+	await get_tree().create_timer(1.3).timeout
+	assert(game.health==58 and rusher.rush_state=="RECOVER","Contact deals one 42-point hit")
+	await get_tree().create_timer(.3).timeout
+	assert(game.health==58)
+	print("COMBAT_RUSH_CONTACT_PASS")
+	game.clear_round()
+	game.health = 100
+	game.invulnerable = 0
+	rusher = game.spawn_enemy(Vector3(18,0,5),true)
+	rusher.attack = 0
+	await get_tree().create_timer(.1).timeout
+	assert(rusher.rush_state=="WINDUP")
+	var blocker = StaticBody3D.new()
+	var blocker_shape = CollisionShape3D.new()
+	blocker_shape.shape = box
+	blocker.add_child(blocker_shape)
+	game.add_child(blocker)
+	blocker.position = Vector3(18,1.5,2.5)
+	await get_tree().create_timer(1.2).timeout
+	assert(game.health==100 and rusher.position.z>2.5 and rusher.rush_state=="RECOVER")
+	blocker.queue_free()
+	print("COMBAT_RUSH_WALL_PASS")
+	game.clear_round()
+	rusher = game.spawn_enemy(Vector3(18,0,5),true)
+	rusher.attack = 0
+	await get_tree().create_timer(.1).timeout
+	assert(rusher.rush_state=="WINDUP")
+	var before = game.rules.kills
+	rusher.take_hit(true)
+	assert(rusher.dead and not rusher.charge_marker.visible and game.rules.kills==before+1)
+	await get_tree().create_timer(1).timeout
+	assert(game.health==100)
+	print("COMBAT_RUSH_INTERRUPT_PASS")
+	if DisplayServer.get_name()!="headless":await showcase()
+	game.state = "RESULTS"
 	game.clear_round()
 	await get_tree().create_timer(.25).timeout
 	print("COMBAT_CHECK_PASS")
@@ -67,3 +127,25 @@ func aim(target: Vector3) -> void:
 	game.player.rotation.y = atan2(-dir.x,-dir.z)
 	game.player.pitch = asin(dir.y)
 	game.player.camera.rotation.x = game.player.pitch
+
+func showcase() -> void:
+	game.start_run()
+	game.begin_running()
+	game.clear_round()
+	game.player.enabled = false
+	game.player.position = Vector3(0,.05,8)
+	game.invulnerable = 999
+	var rusher = game.spawn_enemy(Vector3(-5,0,3),true)
+	rusher.set_physics_process(false)
+	rusher.start_charge()
+	rusher.visual.position.y = -.12
+	stationary(Vector3(-6.8,0,5))
+	await get_tree().physics_frame
+	aim(Vector3(-6,1.1,4))
+	await get_tree().create_timer(.1).timeout
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://artifacts/combat-warning.png")
+	game.arena.barrels[0].explode()
+	await get_tree().create_timer(.07).timeout
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://artifacts/combat-explosion.png")

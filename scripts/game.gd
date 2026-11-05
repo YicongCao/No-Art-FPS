@@ -194,7 +194,7 @@ func begin_running() -> void:
 	player.enabled = true
 	# Deliberate opening target set when the countdown ends. Reinforcements use hidden gates.
 	for p in [Vector3(-4,0,1.5),Vector3(2,0,-5),Vector3(11,0,1),Vector3(-13,0,-5),Vector3(30,0,3),Vector3(30,0,-10),Vector3(-4,3.1,-11),Vector3(4,3.1,-11)]:
-		spawn_enemy(p,false)
+		spawn_enemy(p,p==Vector3(11,0,1))
 	play_sound("tick",-10)
 
 func finish_run() -> void:
@@ -308,8 +308,8 @@ func live_enemies() -> Array:
 func spawn_enemy(pos: Vector3, fast: bool) -> Node3D:
 	var enemy = Enemy.new()
 	enemy.game = self
-	enemy.fast = fast
 	enemy.home_zone = arena.enemy_zone(pos)
+	enemy.fast = fast and enemy.home_zone=="yard"
 	enemy.position = pos+Vector3(0,.05,0)
 	enemies.add_child(enemy)
 	return enemy
@@ -335,7 +335,8 @@ func update_spawns(delta: float) -> void:
 			var screen = player.camera.unproject_position(p+Vector3(0,1,0))
 			var visible_now = not player.camera.is_position_behind(p) and get_viewport().get_visible_rect().has_point(screen)
 			if p.distance_to(player.position)>8 and (blocked or not visible_now) and live_enemies().size()<population_target() and zone_population(arena.enemy_zone(p))<zone_capacity(arena.enemy_zone(p)):
-				spawn_enemy(p,rules.elapsed>20 and rng.randf()<.3)
+				var rushers = live_enemies().filter(func(e):return e.fast).size()
+				spawn_enemy(p,rules.elapsed>8 and rushers<(2 if rules.elapsed<40 else 3) and rng.randf()<.35)
 			pending_spawn.clear()
 		return
 	spawn_time -= delta
