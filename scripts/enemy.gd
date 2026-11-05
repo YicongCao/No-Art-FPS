@@ -6,6 +6,8 @@ var agent: NavigationAgent3D
 var health = 3
 var dead = false
 var fast = false
+var home_zone = "yard"
+var patrol_offset = 0
 var age = 0.0
 var think = 0.0
 var attack = 1.8
@@ -53,6 +55,9 @@ func _ready() -> void:
 	agent.radius = .38
 	add_child(agent)
 	attack += randf()*.8
+	if home_zone!="yard":
+		var posts = game.arena.patrol_points(home_zone)
+		patrol_offset = 0 if position.distance_to(posts[0])<position.distance_to(posts[1]) else 1
 
 func _physics_process(delta: float) -> void:
 	if dead:
@@ -75,7 +80,14 @@ func _physics_process(delta: float) -> void:
 		if distance < 13:
 			var angle = age*.35+float(get_instance_id()%7)
 			offset = Vector3(cos(angle),0,sin(angle))*(6 if fast else 8)
-		agent.target_position = game.player.global_position+offset
+		if home_zone=="yard":
+			agent.target_position = game.player.global_position+offset
+		elif game.arena.enemy_zone(game.player.global_position)==home_zone and distance>6:
+			agent.target_position = game.player.global_position
+		else:
+			# Patrol the occupied floor instead of draining every room toward the player.
+			var posts = game.arena.patrol_points(home_zone)
+			agent.target_position = posts[(int(age/8)+patrol_offset)%posts.size()]
 	var next = agent.get_next_path_position()
 	var dir = next-global_position
 	dir.y = 0

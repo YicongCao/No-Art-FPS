@@ -26,6 +26,8 @@ Alternatively, import `project.godot` in Godot 4.7.2 and press F6/F5 as appropri
 - Pause menu: use Resume/Restart, the sensitivity and music-volume sliders, and the camera-motion toggle. `-` / `+` and M remain available as shortcuts.
 - Results: Retry and Menu are clickable; Enter and Escape still work.
 
+Enemy targets rise from 8 to 10 to 12 across the three 20-second phases. Two patrols occupy the warehouse and two occupy the upper deck, with reserved reinforcement slots; other enemies roam the yard. Reinforcements appear outside direct view and at least eight metres away.
+
 Head hits kill a normal target in one shot; body hits take three. Every kill is worth one. The rifle holds 20 rounds and reloads automatically with unlimited reserves. Health is hidden; a gradual dark-red screen-edge vignette warns of danger. After five seconds without a hit, health recovers gradually. Defeat causes a one-second respawn while the round clock keeps running. A strictly higher kill count displays NEW RECORD at results. Only the highest kill count is retained as a score record. The local best and settings are stored in Godot's `user://record.cfg`; QA runs do not overwrite them.
 
 ## Build the original assets
@@ -50,16 +52,17 @@ godot --path . -- --qa
 godot --path . -- --qa --benchmark
 godot --path . -- --qa --feedback
 godot --path . -- --qa --expansion
+godot --headless --path . -- --qa --population
 ```
 
-The first command tests score and timer boundaries. `--check` exercises normal collision movement on both ramps, live head/body raycasts, wall blocking, pause, reload, respawn, and ten restarts. `--qa` runs a real-time full-minute automatic aiming session, with scripted viewpoint changes. The short benchmark runs ten enemies with VSync disabled. These flags are development-only test helpers, not normal gameplay modes.
+The first command tests score and timer boundaries. `--check` exercises normal collision movement on both ramps, live head/body raycasts, wall blocking, pause, reload, respawn, and ten restarts. `--qa` runs a real-time full-minute automatic aiming session, with scripted viewpoint changes. `--population` checks patrol retention, regional reinforcements, population caps and safe spawn distances/visibility. The short benchmark runs twelve enemies with VSync disabled. These flags are development-only test helpers, not normal gameplay modes.
 
-Latest update: [expanded map, feedback and music](docs/updates/2026-11-05-expanded-playbox.md). MIDI: [sixty.mid](assets/music/sixty.mid).
+Latest update: [enemy population and regional patrols](docs/updates/2026-11-06-enemy-population.md). Previous update: [expanded map, feedback and music](docs/updates/2026-11-05-expanded-playbox.md). MIDI: [sixty.mid](assets/music/sixty.mid).
 
 Results and screenshots: [implementation and validation notes](docs/implementation.md). Design background: [initial playbox plan](docs/design/No-Art-FPS-playbox-plan.md).
 
 ## Local workflow
 
-Each completed implementation stage is committed locally. No remote is configured by this task.
+Each completed implementation stage is committed locally. Every new commit is immediately pushed to `git@github.com:YicongCao/No-Art-FPS.git`; push failures are reported while preserving local commits.
 
 Keep the original Blender sources and reproducible asset scripts alongside the Godot project. Validate rendered output after material, lighting or geometry changes.

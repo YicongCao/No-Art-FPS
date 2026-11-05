@@ -61,7 +61,7 @@ func _process(delta: float) -> void:
 			game.player.position = Vector3(3,3.2,-11)
 		if t==34 and not captured.has("ground"):
 			captured["ground"] = true
-			game.player.position = Vector3(-12,.05,1)
+			game.player.position = Vector3(30,.05,7)
 		if t==48 and not captured.has("return"):
 			captured["return"] = true
 			game.player.reset_position()

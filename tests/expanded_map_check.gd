@@ -13,7 +13,7 @@ func _ready() -> void:
 	for point in game.arena.spawn_points:
 		var path = NavigationServer3D.map_get_path(game.arena.nav.get_navigation_map(),point,Vector3(0,0,10.5),true)
 		assert(path.size()>1 and path[-1].distance_to(Vector3(0,0,10.5))<1,"Spawn must connect to yard: "+str(point))
-	print("EXPANSION_NAV_PASS: all ten spawn points including warehouse connect to yard")
+	print("EXPANSION_NAV_PASS: all spawn points including warehouse and deck connect to yard")
 	# Enter the warehouse through the loading bay and through a side door.
 	for entry in [Vector3(30,.05,12),Vector3(21,.05,4)]:
 		game.player.position = entry

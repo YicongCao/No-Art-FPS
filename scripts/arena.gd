@@ -3,10 +3,19 @@ extends Node3D
 var nav: NavigationRegion3D
 var materials: Dictionary = {}
 var boxes: Dictionary = {}
-var spawn_points: Array[Vector3] = [Vector3(-23,0,-15),Vector3(11,0,-20),Vector3(-23,0,9),Vector3(11,0,10),Vector3(-10,0,21),Vector3(8,0,21),Vector3(26,0,17),Vector3(30,0,3),Vector3(30,0,-10),Vector3(19,0,-18)]
+var spawn_points: Array[Vector3] = [Vector3(-23,0,-15),Vector3(11,0,-20),Vector3(-23,0,9),Vector3(11,0,10),Vector3(-10,0,21),Vector3(8,0,21),Vector3(26,0,17),Vector3(30,0,3),Vector3(30,0,-10),Vector3(19,0,-18),Vector3(-4,3.1,-11),Vector3(4,3.1,-11)]
 var traffic_lights: Array[Node3D] = []
 var traffic_phase = -1
 const PALETTE = {"sand":"d5b471", "pavement":"c4bfb2", "net":"668579", "cream":"e5e0d2", "ink":"243440", "red":"b65745", "green":"4d7d70", "purple":"754c87", "blue":"304f9d", "yellow":"e9ba50", "asphalt":"59626a", "timber":"a97c4b", "light":"fff5d3"}
+
+func enemy_zone(point: Vector3) -> String:
+	if point.y>2.5 and point.z<-8 and point.x>-12 and point.x<9:return "deck"
+	if point.x>24 and point.x<36 and point.z>-16 and point.z<9:return "warehouse"
+	return "yard"
+
+func patrol_points(zone: String) -> Array[Vector3]:
+	if zone=="deck":return [Vector3(-4,3.1,-11),Vector3(4,3.1,-11)]
+	return [Vector3(30,0,3),Vector3(30,0,-10)]
 
 func _ready() -> void:
 	for key in PALETTE:

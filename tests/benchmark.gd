@@ -11,10 +11,10 @@ func _ready() -> void:
 	game.start_run()
 	game.begin_running()
 	game.spawn_time = 999
-	for p in [Vector3(-14,0,9),Vector3(14,0,9),Vector3(-15,0,-8),Vector3(15,0,-10),Vector3(-9,0,12),Vector3(9,0,12)]:game.spawn_enemy(p,false)
+	for p in [Vector3(-14,0,9),Vector3(14,0,9),Vector3(-15,0,-8),Vector3(15,0,-10)]:game.spawn_enemy(p,false)
 	game.invulnerable = 999
 	game.player.enabled = false
-	print("BENCHMARK_START: 10 enemies, uncapped; actual render dimensions recorded; 3 second warmup + 10 second sample")
+	print("BENCHMARK_START: 12 enemies, uncapped; actual render dimensions recorded; 3 second warmup + 10 second sample")
 
 func _process(delta: float) -> void:
 	if done:return

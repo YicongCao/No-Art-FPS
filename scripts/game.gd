@@ -118,6 +118,7 @@ func _ready() -> void:
 		if "--benchmark" in OS.get_cmdline_user_args():test_path = "res://tests/benchmark.gd"
 		if "--feedback" in OS.get_cmdline_user_args():test_path = "res://tests/feedback_check.gd"
 		if "--expansion" in OS.get_cmdline_user_args():test_path = "res://tests/expanded_map_check.gd"
+		if "--population" in OS.get_cmdline_user_args():test_path = "res://tests/population_check.gd"
 		var qa = load(test_path).new()
 		qa.game = self
 		add_child(qa)
@@ -189,7 +190,7 @@ func begin_running() -> void:
 	rules.start()
 	player.enabled = true
 	# Deliberate opening target set when the countdown ends. Reinforcements use hidden gates.
-	for p in [Vector3(-4,0,1.5),Vector3(2,0,-5),Vector3(11,0,1),Vector3(-13,0,-5)]:
+	for p in [Vector3(-4,0,1.5),Vector3(2,0,-5),Vector3(11,0,1),Vector3(-13,0,-5),Vector3(30,0,3),Vector3(30,0,-10),Vector3(-4,3.1,-11),Vector3(4,3.1,-11)]:
 		spawn_enemy(p,false)
 	play_sound("tick",-10)
 
@@ -305,9 +306,19 @@ func spawn_enemy(pos: Vector3, fast: bool) -> Node3D:
 	var enemy = Enemy.new()
 	enemy.game = self
 	enemy.fast = fast
+	enemy.home_zone = arena.enemy_zone(pos)
 	enemy.position = pos+Vector3(0,.05,0)
 	enemies.add_child(enemy)
 	return enemy
+
+func population_target() -> int:
+	return 8 if rules.elapsed<20 else (10 if rules.elapsed<40 else 12)
+
+func zone_population(zone: String) -> int:
+	return live_enemies().filter(func(e):return e.home_zone==zone).size()
+
+func zone_capacity(zone: String) -> int:
+	return population_target()-4 if zone=="yard" else 2
 
 func update_spawns(delta: float) -> void:
 	for i in range(spawn_cooldowns.size()):spawn_cooldowns[i] = maxf(0,spawn_cooldowns[i]-delta)
@@ -320,18 +331,20 @@ func update_spawns(delta: float) -> void:
 			var blocked = not get_world_3d().direct_space_state.intersect_ray(query).is_empty()
 			var screen = player.camera.unproject_position(p+Vector3(0,1,0))
 			var visible_now = not player.camera.is_position_behind(p) and get_viewport().get_visible_rect().has_point(screen)
-			if p.distance_to(player.position)>8 and (blocked or not visible_now) and live_enemies().size()<10:
+			if p.distance_to(player.position)>8 and (blocked or not visible_now) and live_enemies().size()<population_target() and zone_population(arena.enemy_zone(p))<zone_capacity(arena.enemy_zone(p)):
 				spawn_enemy(p,rules.elapsed>20 and rng.randf()<.3)
 			pending_spawn.clear()
 		return
 	spawn_time -= delta
-	var target = 4 if rules.elapsed<20 else (6 if rules.elapsed<40 else 8)
+	var target = population_target()
 	if spawn_time>0 or live_enemies().size()>=target:return
-	spawn_time = .4
+	spawn_time = .2
 	var choices: Array[int] = []
 	for i in range(arena.spawn_points.size()):
 		var p: Vector3 = arena.spawn_points[i]
 		if spawn_cooldowns[i]>0 or p.distance_to(player.position)<8:continue
+		var zone = arena.enemy_zone(p)
+		if zone_population(zone)>=zone_capacity(zone):continue
 		var path = NavigationServer3D.map_get_path(arena.nav.get_navigation_map(),p,player.position,true)
 		if path.size()<2:continue
 		var query = PhysicsRayQueryParameters3D.create(player.camera.global_position,p+Vector3(0,1,0),1)
@@ -340,12 +353,15 @@ func update_spawns(delta: float) -> void:
 		var visible_target = not player.camera.is_position_behind(p) and get_viewport().get_visible_rect().has_point(screen_point)
 		if occluded or not visible_target:choices.append(i)
 	if choices.is_empty():return
+	# Fill missing patrol posts first; reserve their slots even while they are visible.
+	var patrol_choices = choices.filter(func(i):return arena.enemy_zone(arena.spawn_points[i])!="yard")
+	if not patrol_choices.is_empty():choices.assign(patrol_choices)
 	choices.sort_custom(func(a,b):return arena.spawn_points[a].distance_squared_to(player.position)<arena.spawn_points[b].distance_squared_to(player.position))
 	var index = choices[rng.randi_range(0,mini(2,choices.size()-1))]
 	var pos: Vector3 = arena.spawn_points[index]
-	spawn_cooldowns[index] = 2.5
-	pending_spawn = {"pos":pos,"delay":.55}
-	spark(pos+Vector3(0,.1,0),Color("f2d084"),.25,.55)
+	spawn_cooldowns[index] = 1.6
+	pending_spawn = {"pos":pos,"delay":.4}
+	spark(pos+Vector3(0,.1,0),Color("f2d084"),.25,.4)
 
 func shoot() -> void:
 	if state!="RUNNING" or not rules.active or fire_time>0 or reload_time>0 or respawn_time>0:return
