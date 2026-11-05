@@ -3,8 +3,10 @@ extends Node3D
 var nav: NavigationRegion3D
 var materials: Dictionary = {}
 var boxes: Dictionary = {}
-var spawn_points: Array[Vector3] = [Vector3(-15,0,-9),Vector3(15,0,-9),Vector3(-15,0,9),Vector3(15,0,9),Vector3(-9,0,12),Vector3(9,0,12)]
-const PALETTE = {"sand":"d5b471", "pavement":"c4bfb2", "net":"668579", "cream":"e5e0d2", "ink":"243440", "red":"b65745", "green":"4d7d70", "purple":"754c87", "blue":"304f9d", "yellow":"e9ba50"}
+var spawn_points: Array[Vector3] = [Vector3(-23,0,-15),Vector3(11,0,-20),Vector3(-23,0,9),Vector3(11,0,10),Vector3(-10,0,21),Vector3(8,0,21),Vector3(26,0,17),Vector3(30,0,3),Vector3(30,0,-10),Vector3(19,0,-18)]
+var traffic_lights: Array[Node3D] = []
+var traffic_phase = -1
+const PALETTE = {"sand":"d5b471", "pavement":"c4bfb2", "net":"668579", "cream":"e5e0d2", "ink":"243440", "red":"b65745", "green":"4d7d70", "purple":"754c87", "blue":"304f9d", "yellow":"e9ba50", "asphalt":"59626a", "timber":"a97c4b", "light":"fff5d3"}
 
 func _ready() -> void:
 	for key in PALETTE:
@@ -73,6 +75,14 @@ func stairs(x: float, start_z: float, height: float, length: float, width: float
 	cs.shape = shape
 	body.add_child(cs)
 	add_child(body)
+	for side in [-1,1]:
+		var edge_x = x+side*(width*.5-.04)
+		var bottom = Vector3(edge_x,0,start_z)
+		var top = Vector3(edge_x,height,start_z-length)
+		for i in range(6):
+			var point = bottom.lerp(top,float(i)/5)
+			solid(point+Vector3(0,.57,0),Vector3(.09,1.14,.09),"purple",true)
+		for y in [.42,1.10]:beam(bottom+Vector3.UP*y,top+Vector3.UP*y,.095,"purple",true)
 
 func sign_text(value: String, pos: Vector3, size: int = 70, yaw: float = 0) -> void:
 	var label = Label3D.new()
@@ -87,7 +97,7 @@ func sign_text(value: String, pos: Vector3, size: int = 70, yaw: float = 0) -> v
 	add_child(label)
 
 func build() -> void:
-	solid(Vector3(0,-.25,0),Vector3(38,.5,30),"sand")
+	solid(Vector3(6,-.25,0),Vector3(64,.5,48),"sand")
 	# Cream pavement connects the starting plaza and central shooting lane.
 	solid(Vector3(-1,.008,4),Vector3(7,.015,20),"pavement",false)
 	solid(Vector3(4,.01,8),Vector3(15,.018,4),"pavement",false)
@@ -127,33 +137,22 @@ func build() -> void:
 	for p in [Vector3(-13,0,-2),Vector3(12,0,3),Vector3(-4,0,10)]:
 		solid(p+Vector3(0,.55,0),Vector3(1.5,1.1,1.2),"yellow")
 		solid(p+Vector3(0,1.13,0),Vector3(1.56,.08,1.26),"cream",false)
-	# Fence: a physical boundary, with airy structure rather than a solid sky-blocking wall.
-	for side in [-1,1]:
-		collider(Vector3(side*18,2.5,0),Vector3(.18,5,29))
-		for z in range(-14,15,3):solid(Vector3(side*17.9,1.4,z),Vector3(.12,2.8,.12),"blue",false)
-		for y in [.5,1.4,2.5]:solid(Vector3(side*17.85,y,0),Vector3(.07,.07,28),"blue",false)
-		for x in range(-18,19,3):solid(Vector3(x,1.4,side*14),Vector3(.12,2.8,.12),"blue",false)
-		for y in [.5,1.4,2.5]:solid(Vector3(0,y,side*14),Vector3(36,.07,.07),"blue",false)
-		# Invisible boundary collision; visible short curb.
-		var boundary = StaticBody3D.new()
-		var cs = CollisionShape3D.new()
-		var shape = BoxShape3D.new()
-		shape.size = Vector3(36,5,.2)
-		cs.shape = shape
-		boundary.add_child(cs)
-		boundary.position = Vector3(0,2.5,side*14)
-		add_child(boundary)
-		chain_link(Vector3(-18,0,side*14),Vector3(18,0,side*14))
-		chain_link(Vector3(side*18,0,-14),Vector3(side*18,0,14))
+	street()
+	warehouse()
+	# Expanded perimeter has no collision walls across the old map boundary.
+	fence(Vector3(-26,0,-24),Vector3(38,0,-24))
+	fence(Vector3(-26,0,24),Vector3(38,0,24))
+	fence(Vector3(-26,0,-24),Vector3(-26,0,24))
+	fence(Vector3(38,0,-24),Vector3(38,0,24))
 	# Exterior scenery is deliberately simple, pale and sparse.
 	solid(Vector3(0,-.8,0),Vector3(120,1,120),"cream",false)
 	for i in range(18):
-		var x = -29+(i%9)*7
-		var z = -22 if i<9 else 23
+		var x = -31+(i%9)*9
+		var z = -30 if i<9 else 31
 		model("tree",Vector3(x,0,z),float(i),Vector3.ONE*(.8+float(i%3)*.3))
 	for i in range(8):
 		model("cloud",Vector3(-30+i*9,10+float(i%3)*2,-30-float(i%2)*8),0,Vector3.ONE*(1.0+float(i%3)*.3))
-	for p in [Vector3(-15,0,3),Vector3(14,0,-2),Vector3(-14,0,-12)]:
+	for p in [Vector3(-15,0,3),Vector3(23,0,-19),Vector3(-20,0,-12),Vector3(13,0,-12),Vector3(13,0,8),Vector3(23,0,22),Vector3(-10,0,21),Vector3(-23,0,15)]:
 		solid(p+Vector3(0,2.7,0),Vector3(.1,5.4,.1),"ink",false)
 		solid(p+Vector3(.3,5.35,0),Vector3(.7,.12,.15),"cream",false)
 	solid(Vector3(-6,2.45,-1.56),Vector3(1.9,.4,.03),"yellow",false)
@@ -209,3 +208,120 @@ func chain_link(a: Vector3, b: Vector3) -> void:
 				var basis = Basis.looking_at(p.direction_to(q))*Basis.from_scale(Vector3(.018,.018,p.distance_to(q)))
 				boxes["net"].append(Transform3D(basis,(p+q)*.5))
 			u += .8
+
+func beam(a: Vector3, b: Vector3, width: float, color: String, collision: bool = false) -> void:
+	var basis = Basis.looking_at(a.direction_to(b))
+	var length = a.distance_to(b)
+	boxes[color].append(Transform3D(basis*Basis.from_scale(Vector3(width,width,length)),(a+b)*.5))
+	if collision:
+		var body = StaticBody3D.new()
+		var shape = CollisionShape3D.new()
+		var box = BoxShape3D.new()
+		box.size = Vector3(width,width,length)
+		shape.shape = box
+		body.add_child(shape)
+		body.transform = Transform3D(basis,(a+b)*.5)
+		add_child(body)
+
+func fence(a: Vector3, b: Vector3) -> void:
+	var direction = a.direction_to(b)
+	var length = a.distance_to(b)
+	var count = ceili(length/3)
+	for i in range(count+1):
+		solid(a.lerp(b,float(i)/count)+Vector3.UP*1.4,Vector3(.12,2.8,.12),"blue",false)
+	for h in [.4,2.5]:beam(a+Vector3.UP*h,b+Vector3.UP*h,.07,"blue")
+	collider((a+b)*.5+Vector3.UP*2.5,(b-a).abs()+Vector3(.18,5,.18))
+	chain_link(a,b)
+
+func street() -> void:
+	# Two streets form a T junction: low curbs are visual, so movement stays step-free.
+	solid(Vector3(18,.025,0),Vector3(8,.03,48),"asphalt",false)
+	solid(Vector3(6,.028,17),Vector3(64,.03,7),"asphalt",false)
+	for x in [13.8,22.2]:
+		solid(Vector3(x,.09,-5.25),Vector3(.25,.18,37.5),"cream",false)
+		solid(Vector3(x,.09,22.25),Vector3(.25,.18,3.5),"cream",false)
+	for z in [13.3,20.7]:
+		solid(Vector3(-6,.09,z),Vector3(39.6,.18,.25),"cream",false)
+		solid(Vector3(30,.09,z),Vector3(15.6,.18,.25),"cream",false)
+	for z in range(-22,10,4):solid(Vector3(18,.049,z),Vector3(.12,.014,1.8),"yellow",false)
+	for x in range(-23,35,4):
+		if x<13 or x>23:solid(Vector3(x,.05,17),Vector3(1.8,.014,.12),"yellow",false)
+	for i in range(8):solid(Vector3(14.5+i,.05,11.5),Vector3(.5,.014,2.7),"cream",false)
+	for i in range(7):solid(Vector3(25,.055,14+i),Vector3(2.7,.014,.5),"cream",false)
+	solid(Vector3(18,.052,9.7),Vector3(7.6,.015,.22),"cream",false)
+	for index in range(4):
+		var positions = [Vector3(13,0,9.2),Vector3(23,0,21.5),Vector3(23,0,-12),Vector3(13,0,-4)]
+		var signal_node = model("traffic_light",positions[index],PI if index%2==0 else 0.0)
+		traffic_lights.append(signal_node)
+		collider(positions[index]+Vector3(0,1.6,0),Vector3(.25,3.2,.25))
+	for p in [Vector3(-21,0,-18),Vector3(-21,0,-6),Vector3(-21,0,5),Vector3(-21,0,21),Vector3(32,0,21),Vector3(9,0,-21)]:
+		solid(p+Vector3(0,.25,0),Vector3(2.1,.5,2.1),"cream",true)
+		model("tree",p+Vector3(0,.5,0),0,Vector3.ONE*1.2)
+		collider(p+Vector3(0,1.2,0),Vector3(.4,1.8,.4))
+	for p in [Vector3(-18,0,-13),Vector3(-18.9,0,-13.5),Vector3(-19.5,0,-12.5),Vector3(11,0,-17),Vector3(10,0,-17),Vector3(25,0,11),Vector3(26,0,11),Vector3(34,0,11),Vector3(-11,0,10.8),Vector3(29,0,-20)]:
+		model("barrel",p)
+		collider(p+Vector3(0,.6,0),Vector3(.78,1.2,.78))
+	for p in [Vector3(-18,0,2),Vector3(29,0,11),Vector3(9,0,-17)]:
+		model("forklift",p,.35)
+		collider(p+Vector3(0,.8,0),Vector3(2,1.6,2.6))
+	# Distribute readable cover without sealing routes to the street.
+	container("red",Vector3(-18,0,-16),true)
+	container("green",Vector3(-18,0,9))
+	container("purple",Vector3(4,0,-20))
+
+func warehouse() -> void:
+	# An actual hollow 12 x 25 m building. West has two five-metre doors, south a six-metre loading bay.
+	solid(Vector3(30,.019,-3.5),Vector3(12,.025,25),"pavement",false)
+	solid(Vector3(36,2.7,-3.5),Vector3(.3,5.4,25),"green")
+	solid(Vector3(30,2.7,-16),Vector3(12,5.4,.3),"green")
+	for segment in [Vector2(-16,-11.5),Vector2(-6.5,1.5),Vector2(6.5,9)]:
+		solid(Vector3(24,2.7,(segment.x+segment.y)*.5),Vector3(.3,5.4,segment.y-segment.x),"cream")
+	for z in [-9.0,4.0]:
+		solid(Vector3(24,4.65,z),Vector3(.35,1.5,5),"green")
+		for dz in [-2.5,2.5]:solid(Vector3(23.8,1.9,z+dz),Vector3(.14,3.8,.16),"yellow")
+	for x in [25.5,34.5]:solid(Vector3(x,2.7,9),Vector3(3,5.4,.3),"green")
+	solid(Vector3(30,4.65,9),Vector3(6,1.5,.3),"cream")
+	for x in [27,33]:solid(Vector3(x,1.9,9.2),Vector3(.16,3.8,.14),"yellow")
+	# Roof sections leave a long skylight; columns and rafters remain visible from inside.
+	for x in [26.1,33.9]:solid(Vector3(x,5.5,-3.5),Vector3(4.2,.22,25.4),"blue")
+	for z in [-15,-9,-3,3,8]:
+		solid(Vector3(30,5.15,z),Vector3(12,.18,.18),"ink",false)
+		for x in [24.35,35.65]:solid(Vector3(x,2.7,z),Vector3(.18,5.4,.18),"blue",true)
+	for p in [Vector3(27,0,-13),Vector3(33.5,0,-12),Vector3(33,0,-4),Vector3(27,0,-2),Vector3(33,0,4)]:
+		model("pallet",p)
+		for level in range(2):
+			for dx in [-.58,.58]:model("crate",p+Vector3(dx,.32+level*1.1,0))
+		collider(p+Vector3(0,1.26,0),Vector3(2.3,2.52,1.2))
+	for p in [Vector3(26.5,0,-5),Vector3(34,0,0)]:
+		model("pallet",p)
+		model("steel_bundle",p+Vector3(0,.35,0))
+		model("steel_bundle",p+Vector3(0,1.02,0))
+		collider(p+Vector3(0,.85,0),Vector3(1.3,1.7,3.2))
+	for z in [-11,-3,5]:
+		solid(Vector3(30,4.9,z),Vector3(2,.06,.3),"light",false)
+		var light = OmniLight3D.new()
+		light.position = Vector3(30,4.5,z)
+		light.light_color = Color("ffe4ae")
+		light.light_energy = .4
+		light.omni_range = 7
+		light.shadow_enabled = false
+		add_child(light)
+	solid(Vector3(30,4.55,9.18),Vector3(3.6,.55,.06),"yellow",false)
+	sign_text("WAREHOUSE",Vector3(30,4.55,9.23),55)
+
+func _process(_delta: float) -> void:
+	# Static scenery remains quiet; only the traffic lenses change every few seconds.
+	var phase = int(Time.get_ticks_msec()/1000)%12
+	var key = 0 if phase<5 else (1 if phase<6 else (2 if phase<11 else 1))
+	if key==traffic_phase:return
+	traffic_phase = key
+	for index in range(traffic_lights.size()):
+		for color in ["red","yellow","green"]:
+			var lamp = traffic_lights[index].find_child("lamp_"+color,true,false)
+			if lamp==null:continue
+			var active = (color=="yellow" and key==1) or (color=="green" and key==(0 if index%2==0 else 2)) or (color=="red" and key==(2 if index%2==0 else 0))
+			var material = StandardMaterial3D.new()
+			material.albedo_color = Color(PALETTE[color]) if active else Color("253039")
+			if active:
+				material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+			lamp.material_override = material

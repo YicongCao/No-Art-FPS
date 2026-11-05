@@ -183,6 +183,37 @@ for p,scale in [((0,0,0),(1.5,.6,.65)),((-.8,-.1,0),(.8,.5,.6)),((.7,.05,0),(.9,
     finish_obj(o,'puff','cream')
 export('cloud',True)
 
+begin('pallet')
+for z in [-.55,0,.55]:box('runner',(0,.12,z),(1.3,.24,.15),'yellow')
+for x in [-.57,-.28,0,.28,.57]:box('slat',(x,.27,0),(.22,.08,1.4),'cream')
+export('pallet',True)
+
+begin('crate')
+box('cargo',(0,.55,0),(1.1,1.1,1.1),'yellow',.025)
+for y in [.09,1.01]:
+    for z in [-.56,.56]:box('brace',(0,y,z),(1.15,.13,.07),'cream')
+for x in [-.48,.48]:
+    for z in [-.56,.56]:box('strap',(x,.55,z),(.07,1.1,.035),'ink')
+box('label',(0,.7,-.58),(.32,.22,.02),'cream')
+export('crate',True)
+
+begin('steel_bundle')
+for y in [.12,.34,.56]:
+    for x in [-.45,-.15,.15,.45]:box('beam',(x,y,0),(.25,.18,3.2),'blue')
+for z in [-1.1,1.1]:
+    box('strap_top',(0,.67,z),(1.22,.035,.09),'cream')
+    for x in [-.62,.62]:box('strap_side',(x,.35,z),(.035,.65,.09),'cream')
+export('steel_bundle',True)
+
+begin('traffic_light')
+cyl('pole',(0,1.65,0),.07,3.3,'ink',8)
+box('foot',(0,.1,0),(.38,.2,.38),'cream',.02)
+box('head',(0,3.4,0),(.48,1.30,.32),'ink',.025)
+for i,color in enumerate(['red','yellow','green']):
+    cyl('lamp_'+color,(0,3.78-i*.38,-.19),.135,.07,color,12,'z')
+    box('hood',(0,3.95-i*.38,-.23),(.37,.06,.32),'ink')
+export('traffic_light')
+
 bpy.ops.object.select_all(action='DESELECT')
 bpy.context.scene.unit_settings.system='METRIC'
 bpy.context.scene['README']='Original No-Art-FPS kit. Game-space units are meters. Rebuild with tools/build_assets.py.'

@@ -96,7 +96,15 @@ func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	await get_tree().physics_frame
 	await get_tree().physics_frame
-	nav_ready = true
+	# Baking and server synchronization are separate. Do not expose a playable round
+	# until the actual navigation map contains the walkable starting plaza.
+	for attempt in range(300):
+		var closest = NavigationServer3D.map_get_closest_point(get_world_3d().navigation_map,Vector3(0,0,10.5))
+		if closest.distance_to(Vector3(0,0,10.5))<1.0:
+			nav_ready = true
+			break
+		await get_tree().physics_frame
+	if not nav_ready:push_error("Navigation map failed to synchronize")
 	if "--capture" in OS.get_cmdline_user_args():
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png("res://artifacts/title.png")
@@ -106,6 +114,7 @@ func _ready() -> void:
 		if "--check" in OS.get_cmdline_user_args():test_path = "res://tests/interaction_check.gd"
 		if "--benchmark" in OS.get_cmdline_user_args():test_path = "res://tests/benchmark.gd"
 		if "--feedback" in OS.get_cmdline_user_args():test_path = "res://tests/feedback_check.gd"
+		if "--expansion" in OS.get_cmdline_user_args():test_path = "res://tests/expanded_map_check.gd"
 		var qa = load(test_path).new()
 		qa.game = self
 		add_child(qa)
@@ -144,7 +153,9 @@ func start_run() -> void:
 	invulnerable = 1
 	since_damage = 0
 	respawn_time = 0
-	spawn_cooldowns = [0,0,0,0,0,0]
+	spawn_cooldowns.clear()
+	spawn_cooldowns.resize(arena.spawn_points.size())
+	spawn_cooldowns.fill(0.0)
 	pending_spawn.clear()
 	last_tick = 60
 	new_record = false
@@ -326,7 +337,8 @@ func update_spawns(delta: float) -> void:
 		var visible_target = not player.camera.is_position_behind(p) and get_viewport().get_visible_rect().has_point(screen_point)
 		if occluded or not visible_target:choices.append(i)
 	if choices.is_empty():return
-	var index = choices[rng.randi_range(0,choices.size()-1)]
+	choices.sort_custom(func(a,b):return arena.spawn_points[a].distance_squared_to(player.position)<arena.spawn_points[b].distance_squared_to(player.position))
+	var index = choices[rng.randi_range(0,mini(2,choices.size()-1))]
 	var pos: Vector3 = arena.spawn_points[index]
 	spawn_cooldowns[index] = 2.5
 	pending_spawn = {"pos":pos,"delay":.55}
