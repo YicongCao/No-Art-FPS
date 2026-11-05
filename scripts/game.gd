@@ -64,6 +64,7 @@ func _ready() -> void:
 	sun.directional_shadow_max_distance = 65
 	add_child(sun)
 	arena = Arena.new()
+	arena.game = self
 	add_child(arena)
 	arena.bake_navigation()
 	player = Player.new()
@@ -82,7 +83,7 @@ func _ready() -> void:
 	hud = Hud.new()
 	hud.game = self
 	layer.add_child(hud)
-	for key in ["shot","hit","kill","headshot","reload","hurt","tick","end"]:
+	for key in ["shot","hit","kill","headshot","reload","hurt","tick","end","fuse","explosion","charge"]:
 		sounds[key] = load("res://assets/audio/"+key+".wav")
 	for i in range(12):
 		var voice = AudioStreamPlayer.new()
@@ -119,6 +120,7 @@ func _ready() -> void:
 		if "--feedback" in OS.get_cmdline_user_args():test_path = "res://tests/feedback_check.gd"
 		if "--expansion" in OS.get_cmdline_user_args():test_path = "res://tests/expanded_map_check.gd"
 		if "--population" in OS.get_cmdline_user_args():test_path = "res://tests/population_check.gd"
+		if "--combat" in OS.get_cmdline_user_args():test_path = "res://tests/combat_check.gd"
 		var qa = load(test_path).new()
 		qa.game = self
 		add_child(qa)
@@ -173,6 +175,7 @@ func start_run() -> void:
 	if not qa_mode:Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func clear_round() -> void:
+	for barrel in arena.barrels:barrel.reset()
 	bullets.clear()
 	for node in enemies.get_children():
 		enemies.remove_child(node)
@@ -395,7 +398,10 @@ func shoot() -> void:
 	if not result.is_empty():
 		var collider = result.collider
 		var enemy = collider.get_meta("enemy",null) if collider is Area3D else (collider if collider.has_method("take_hit") else null)
-		if enemy!=null:
+		if collider.has_method("ignite"):
+			collider.ignite()
+			hud.hit = .12
+		elif enemy!=null:
 			rules.hits += 1
 			hud.hit = .12
 			play_sound("hit",-14)
@@ -444,11 +450,11 @@ func update_bullets(delta: float) -> void:
 			bullets.remove_at(i)
 		else:b.node.global_position = to
 
-func damage_player() -> void:
+func damage_player(amount: float = 34.0) -> void:
 	if state!="RUNNING" or respawn_time>0:return
 	since_damage = 0
 	if invulnerable>0:return
-	health = maxf(0,health-34.0)
+	health = maxf(0,health-amount)
 	invulnerable = .65
 	since_damage = 0
 	hud.damage = .8
@@ -505,3 +511,55 @@ func play_sound(key: String, volume: float = -10, pitch: float = 1) -> void:
 func set_music_volume(value: float) -> void:
 	music_volume = clampf(value,0,1)
 	if music:music.volume_db = linear_to_db(maxf(.0001,music_volume))-8.0
+
+func play_world_sound(key: String, pos: Vector3, volume: float) -> void:
+	var voice = AudioStreamPlayer3D.new()
+	voice.stream = sounds[key]
+	voice.volume_db = volume
+	voice.unit_size = 6
+	voice.max_distance = 32
+	effects.add_child(voice)
+	voice.global_position = pos
+	voice.finished.connect(voice.queue_free)
+	voice.play()
+
+func blast_clear(from: Vector3, to: Vector3, excluded: Array[RID]) -> bool:
+	var ray = PhysicsRayQueryParameters3D.create(from,to,1,excluded)
+	return get_world_3d().direct_space_state.intersect_ray(ray).is_empty()
+
+func barrel_blast(center: Vector3, radius: float, source: StaticBody3D) -> void:
+	if state!="RUNNING" or not rules.active:return
+	play_world_sound("explosion",center,-5)
+	for enemy in live_enemies():
+		var target = enemy.global_position+Vector3.UP
+		var distance = center.distance_to(target)
+		if distance<=radius and blast_clear(center,target,[source.get_rid()]):
+			enemy.take_damage(3 if distance<=3.2 else (2 if distance<4.2 else 1))
+	var player_target = player.global_position+Vector3.UP
+	var player_distance = center.distance_to(player_target)
+	if player_distance<=radius and blast_clear(center,player_target,[source.get_rid()]):
+		damage_player(lerpf(60,15,player_distance/radius))
+	for barrel in arena.barrels:
+		if barrel==source or barrel.spent:continue
+		var target = barrel.global_position+Vector3.UP*.65
+		if center.distance_to(target)<=radius and blast_clear(center,target,[source.get_rid(),barrel.get_rid()]):barrel.ignite(.25)
+	# Low-poly fire and debris leave the centre readable; no full-screen flash.
+	spark(center,Color("fff1b7"),1.2,.25)
+	for i in range(8):
+		var direction = Vector3(cos(i*TAU/8),.25+float(i%3)*.2,sin(i*TAU/8))
+		spark(center+direction*.7,Color("ef7833"),.65,.45)
+		trace(center+direction,center+direction*2.2,Color("573e37"),.12,.4)
+	var ring = MeshInstance3D.new()
+	var torus = TorusMesh.new()
+	torus.inner_radius = .85
+	torus.outer_radius = 1.0
+	torus.rings = 24
+	torus.ring_segments = 6
+	ring.mesh = torus
+	ring.material_override = effect_material(Color("f6bc62"))
+	ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	effects.add_child(ring)
+	ring.global_position = center-Vector3.UP*.5
+	var tween = ring.create_tween()
+	tween.tween_property(ring,"scale",Vector3(radius,.15,radius),.35)
+	tween.tween_callback(ring.queue_free)

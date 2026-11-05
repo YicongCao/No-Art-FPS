@@ -121,8 +121,11 @@ func can_see_player() -> bool:
 	return get_world_3d().direct_space_state.intersect_ray(query).is_empty()
 
 func take_hit(is_head: bool) -> void:
+	take_damage(3 if is_head else 1,is_head)
+
+func take_damage(amount: int, is_head: bool = false) -> void:
 	if dead or not game.rules.active:return
-	health -= 3 if is_head else 1
+	health -= amount
 	hurt = .2
 	if health <= 0:
 		dead = true

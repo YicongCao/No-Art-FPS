@@ -1,5 +1,8 @@
 extends Node3D
 
+const Barrel = preload("res://scripts/explosive_barrel.gd")
+var game: Node
+var barrels: Array[Node3D] = []
 var nav: NavigationRegion3D
 var materials: Dictionary = {}
 var boxes: Dictionary = {}
@@ -41,6 +44,13 @@ func collider(pos: Vector3, size: Vector3) -> void:
 	body.add_child(shape)
 	body.position = pos
 	add_child(body)
+
+func explosive_barrel(pos: Vector3) -> void:
+	var barrel = Barrel.new()
+	barrel.game = game
+	barrel.position = pos
+	add_child(barrel)
+	barrels.append(barrel)
 
 func model(kind: String, pos: Vector3, yaw: float = 0.0, size: Vector3 = Vector3.ONE) -> Node3D:
 	var node = load("res://assets/models/" + kind + ".glb").instantiate()
@@ -141,8 +151,7 @@ func build() -> void:
 	model("forklift",Vector3(-2,0,-1),-.25)
 	collider(Vector3(-2,.7,-1),Vector3(1.7,1.4,2.5))
 	for p in [Vector3(-8,0,5),Vector3(-8.9,0,5.5),Vector3(10,0,5),Vector3(2,0,-6)]:
-		model("barrel",p)
-		collider(p+Vector3(0,.55,0),Vector3(.7,1.1,.7))
+		explosive_barrel(p)
 	for p in [Vector3(-13,0,-2),Vector3(12,0,3),Vector3(-4,0,10)]:
 		solid(p+Vector3(0,.55,0),Vector3(1.5,1.1,1.2),"yellow")
 		solid(p+Vector3(0,1.13,0),Vector3(1.56,.08,1.26),"cream",false)
@@ -268,8 +277,7 @@ func street() -> void:
 		model("tree",p+Vector3(0,.5,0),0,Vector3.ONE*1.2)
 		collider(p+Vector3(0,1.2,0),Vector3(.4,1.8,.4))
 	for p in [Vector3(-18,0,-13),Vector3(-18.9,0,-13.5),Vector3(-19.5,0,-12.5),Vector3(11,0,-17),Vector3(10,0,-17),Vector3(25,0,11),Vector3(26,0,11),Vector3(34,0,11),Vector3(-11,0,10.8),Vector3(29,0,-20)]:
-		model("barrel",p)
-		collider(p+Vector3(0,.6,0),Vector3(.78,1.2,.78))
+		explosive_barrel(p)
 	for p in [Vector3(-18,0,2),Vector3(29,0,11),Vector3(9,0,-17)]:
 		model("forklift",p,.35)
 		collider(p+Vector3(0,.8,0),Vector3(2,1.6,2.6))
@@ -279,6 +287,7 @@ func street() -> void:
 	container("purple",Vector3(4,0,-20))
 
 func warehouse() -> void:
+	for p in [Vector3(28.5,0,-7),Vector3(29.5,0,-7.7)]:explosive_barrel(p)
 	# An actual hollow 12 x 25 m building. West has two five-metre doors, south a six-metre loading bay.
 	solid(Vector3(30,.019,-3.5),Vector3(12,.025,25),"pavement",false)
 	solid(Vector3(36,2.7,-3.5),Vector3(.3,5.4,25),"green")
