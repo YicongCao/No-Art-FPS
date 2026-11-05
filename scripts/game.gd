@@ -91,7 +91,10 @@ func _ready() -> void:
 		get_viewport().get_texture().get_image().save_png("res://artifacts/title.png")
 		get_tree().quit()
 	if qa_mode:
-		var qa = load("res://tests/playtest.gd").new()
+		var test_path = "res://tests/playtest.gd"
+		if "--check" in OS.get_cmdline_user_args():test_path = "res://tests/interaction_check.gd"
+		if "--benchmark" in OS.get_cmdline_user_args():test_path = "res://tests/benchmark.gd"
+		var qa = load(test_path).new()
 		qa.game = self
 		add_child(qa)
 
@@ -151,7 +154,7 @@ func begin_running() -> void:
 	state = "RUNNING"
 	rules.start()
 	player.enabled = true
-	# Initial visible targets are placed before live play, not popped into combat.
+	# Deliberate opening target set when the countdown ends. Reinforcements use hidden gates.
 	for p in [Vector3(-4,0,1.5),Vector3(2,0,-5),Vector3(11,0,1),Vector3(-13,0,-5)]:
 		spawn_enemy(p,false)
 	play_sound("tick",-10)
@@ -264,7 +267,12 @@ func update_spawns(delta: float) -> void:
 		pending_spawn.delay -= delta
 		if pending_spawn.delay<=0:
 			var p: Vector3 = pending_spawn.pos
-			if p.distance_to(player.position)>7 and live_enemies().size()<10:
+			# The player can turn during the warning: recheck visibility before materializing.
+			var query = PhysicsRayQueryParameters3D.create(player.camera.global_position,p+Vector3(0,1,0),1)
+			var blocked = not get_world_3d().direct_space_state.intersect_ray(query).is_empty()
+			var screen = player.camera.unproject_position(p+Vector3(0,1,0))
+			var visible_now = not player.camera.is_position_behind(p) and get_viewport().get_visible_rect().has_point(screen)
+			if p.distance_to(player.position)>8 and (blocked or not visible_now) and live_enemies().size()<10:
 				spawn_enemy(p,rules.elapsed>20 and rng.randf()<.3)
 			pending_spawn.clear()
 		return

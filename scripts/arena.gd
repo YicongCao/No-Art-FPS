@@ -4,7 +4,7 @@ var nav: NavigationRegion3D
 var materials: Dictionary = {}
 var boxes: Dictionary = {}
 var spawn_points: Array[Vector3] = [Vector3(-15,0,-9),Vector3(15,0,-9),Vector3(-15,0,9),Vector3(15,0,9),Vector3(-9,0,12),Vector3(9,0,12)]
-const PALETTE = {"sand":"f2d084", "cream":"e5e0d2", "ink":"243440", "red":"b65745", "green":"4d7d70", "purple":"754c87", "blue":"304f9d", "yellow":"e9ba50"}
+const PALETTE = {"sand":"d5b471", "pavement":"c4bfb2", "net":"668579", "cream":"e5e0d2", "ink":"243440", "red":"b65745", "green":"4d7d70", "purple":"754c87", "blue":"304f9d", "yellow":"e9ba50"}
 
 func _ready() -> void:
 	for key in PALETTE:
@@ -50,9 +50,8 @@ func rail(a: Vector3, b: Vector3, color: String = "purple") -> void:
 		solid(p+Vector3(0,.6,0),Vector3(.09,1.2,.09),color,false)
 	var mid = (a+b)*.5
 	var dim = (b-a).abs()+Vector3(.1,.08,.1)
-	for h in [.45,1.15]:solid(mid+Vector3(0,h,0),dim,color,false)
-	# Thin barrier keeps the player on the platform without complex mesh collisions.
-	collider(mid+Vector3(0,.48,0),(b-a).abs()+Vector3(.08,.96,.08))
+	for h in [.45,1.15]:solid(mid+Vector3(0,h,0),dim,color,true)
+
 
 func stairs(x: float, start_z: float, height: float, length: float, width: float) -> void:
 	var count = 16
@@ -90,8 +89,8 @@ func sign_text(value: String, pos: Vector3, size: int = 70, yaw: float = 0) -> v
 func build() -> void:
 	solid(Vector3(0,-.25,0),Vector3(38,.5,30),"sand")
 	# Cream pavement connects the starting plaza and central shooting lane.
-	solid(Vector3(-1,.008,4),Vector3(7,.015,20),"cream",false)
-	solid(Vector3(4,.01,8),Vector3(15,.018,4),"cream",false)
+	solid(Vector3(-1,.008,4),Vector3(7,.015,20),"pavement",false)
+	solid(Vector3(4,.01,8),Vector3(15,.018,4),"pavement",false)
 	for z in [-4,0,4,8,12]:solid(Vector3(-1,.022,z),Vector3(6.8,.015,.025),"sand",false)
 	container("green",Vector3(5,0,-.5),true)
 	container("cream",Vector3(5,2.9,-.5),true)
@@ -105,9 +104,9 @@ func build() -> void:
 	for x in [-5,-1,3]:
 		solid(Vector3(x,1.3,-8.97),Vector3(2.0,2.6,.06),"cream",false)
 		solid(Vector3(x+1,1.4,-8.92),Vector3(.06,2.8,.08),"ink",false)
-	stairs(-8,-2,3,7,2.6)
-	stairs(9,-2,3,7,2.6)
-	solid(Vector3(-7.1,3,-10),Vector3(2,.2,2),"purple")
+	stairs(-11,-1.5,3,7,2.6)
+	stairs(7.6,-2,3,7,2.2)
+	solid(Vector3(-8.8,3,-9.7),Vector3(5.6,.2,2.6),"purple")
 	solid(Vector3(7.1,3,-10),Vector3(2,.2,2),"purple")
 	rail(Vector3(-6.5,3.1,-8.85),Vector3(6.5,3.1,-8.85))
 	rail(Vector3(-6.5,3.1,-13),Vector3(6.5,3.1,-13))
@@ -144,7 +143,10 @@ func build() -> void:
 		boundary.add_child(cs)
 		boundary.position = Vector3(0,2.5,side*14)
 		add_child(boundary)
+		chain_link(Vector3(-18,0,side*14),Vector3(18,0,side*14))
+		chain_link(Vector3(side*18,0,-14),Vector3(side*18,0,14))
 	# Exterior scenery is deliberately simple, pale and sparse.
+	solid(Vector3(0,-.8,0),Vector3(120,1,120),"cream",false)
 	for i in range(18):
 		var x = -29+(i%9)*7
 		var z = -22 if i<9 else 23
@@ -171,6 +173,7 @@ func batch_boxes() -> void:
 		for i in range(multi.instance_count):multi.set_instance_transform(i,boxes[color][i])
 		var instance = MultiMeshInstance3D.new()
 		instance.multimesh = multi
+		if color == "net":instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		add_child(instance)
 
 func bake_navigation() -> void:
@@ -190,3 +193,19 @@ func bake_navigation() -> void:
 	for child in get_children():
 		if child is StaticBody3D:child.reparent(nav)
 	nav.bake_navigation_mesh(false)
+
+func chain_link(a: Vector3, b: Vector3) -> void:
+	var direction = a.direction_to(b)
+	var length = a.distance_to(b)
+	var height = 2.15
+	for sign in [-1.0,1.0]:
+		var u = -height
+		while u<length:
+			var low = maxf(0,-u)
+			var high = minf(height,length-u)
+			if high>low:
+				var p = a+direction*(u+low)+Vector3.UP*(.3+(low if sign>0 else height-low))
+				var q = a+direction*(u+high)+Vector3.UP*(.3+(high if sign>0 else height-high))
+				var basis = Basis.looking_at(p.direction_to(q))*Basis.from_scale(Vector3(.018,.018,p.distance_to(q)))
+				boxes["net"].append(Transform3D(basis,(p+q)*.5))
+			u += .8
