@@ -176,12 +176,12 @@ func batch_boxes() -> void:
 func bake_navigation() -> void:
 	nav = NavigationRegion3D.new()
 	var mesh = NavigationMesh.new()
-	mesh.agent_radius = .38
-	mesh.agent_height = 1.85
-	mesh.agent_max_climb = .35
+	mesh.agent_radius = .5
+	mesh.agent_height = 2.0
+	mesh.agent_max_climb = .25
 	mesh.agent_max_slope = 40
 	mesh.cell_size = .25
-	mesh.cell_height = .15
+	mesh.cell_height = .25
 	mesh.geometry_parsed_geometry_type = NavigationMesh.PARSED_GEOMETRY_STATIC_COLLIDERS
 	mesh.geometry_source_geometry_mode = NavigationMesh.SOURCE_GEOMETRY_ROOT_NODE_CHILDREN
 	nav.navigation_mesh = mesh

@@ -53,9 +53,15 @@ func _process(delta: float) -> void:
 	recoil = move_toward(recoil,0,delta*6)
 	bob += delta*minf(Vector2(velocity.x,velocity.z).length(),7)*1.4
 	var movement = minf(Vector2(velocity.x,velocity.z).length()/7,1)
+	if game and game.reduced_motion:movement = 0
 	camera.rotation.x = pitch+recoil*.018
 	gun.position = gun_origin+Vector3(sin(bob)*.008,cos(bob*2)*.007,0)*movement+Vector3(0,0,recoil*.06)
 	gun.rotation.x = recoil*.04
+	if game and game.reload_time>0:
+		var reload_phase = sin((1-game.reload_time/.9)*PI)
+		gun.position.y -= reload_phase*.18
+		gun.rotation.z = reload_phase*-.25
+	else:gun.rotation.z = 0
 
 func reset_position() -> void:
 	position = Vector3(0,.05,10.5)
