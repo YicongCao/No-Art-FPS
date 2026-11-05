@@ -1,5 +1,7 @@
 # No-Art-FPS local playbox — 2026-11-05
 
+**Latest behavior and verification:** [expanded playbox update](updates/2026-11-05-expanded-playbox.md). The sections below preserve the initial implementation history; the latest update supersedes the old armor, map and visual-pass descriptions.
+
 Implemented in Godot 4.7.2 with an original Blender 5.2.2 LTS asset kit. The source video is used as a visual reference, not as game code or imported art.
 
 ## Current playable scope

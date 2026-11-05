@@ -67,5 +67,6 @@ func shot(filename: String, eye: Vector3, target: Vector3) -> void:
 	game.player.pitch = asin(direction.y)
 	await get_tree().process_frame
 	await get_tree().process_frame
+	await get_tree().create_timer(.2).timeout
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://artifacts/"+filename+".png")

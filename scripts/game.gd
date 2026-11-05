@@ -99,6 +99,9 @@ func _ready() -> void:
 	# Baking and server synchronization are separate. Do not expose a playable round
 	# until the actual navigation map contains the walkable starting plaza.
 	for attempt in range(300):
+		if NavigationServer3D.map_get_iteration_id(get_world_3d().navigation_map)==0:
+			await get_tree().physics_frame
+			continue
 		var closest = NavigationServer3D.map_get_closest_point(get_world_3d().navigation_map,Vector3(0,0,10.5))
 		if closest.distance_to(Vector3(0,0,10.5))<1.0:
 			nav_ready = true
@@ -426,7 +429,9 @@ func update_bullets(delta: float) -> void:
 		else:b.node.global_position = to
 
 func damage_player() -> void:
-	if state!="RUNNING" or invulnerable>0 or respawn_time>0:return
+	if state!="RUNNING" or respawn_time>0:return
+	since_damage = 0
+	if invulnerable>0:return
 	health = maxf(0,health-34.0)
 	invulnerable = .65
 	since_damage = 0

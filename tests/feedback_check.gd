@@ -4,10 +4,19 @@ var game: Node
 func _ready() -> void:
 	game.start_run()
 	game.begin_running()
-	game.clear_round()
 	game.spawn_time = 999
 	game.set_physics_process(false)
 	game.player.enabled = false
+	assert(game.music.playing and is_equal_approx(game.music.stream.get_length(),60.0))
+	game.pause_run()
+	game._physics_process(.1)
+	assert(game.music.stream_paused)
+	game.menu_action("resume")
+	game._physics_process(.01)
+	assert(not game.music.stream_paused)
+	game.player.enabled = false
+	print("FEEDBACK_MUSIC_PASS")
+	game.clear_round()
 	# A hit cancels healing; five full seconds must elapse before gradual recovery.
 	game.health = 32
 	game.since_damage = 0
@@ -23,6 +32,11 @@ func _ready() -> void:
 	assert(game.health==36)
 	game._physics_process(2)
 	assert(game.health>36 and game.health<100)
+	game.since_damage = 4.8
+	game.invulnerable = .4
+	var protected_health = game.health
+	game.damage_player()
+	assert(game.since_damage==0 and game.health==protected_health)
 	print("FEEDBACK_HEAL_PASS")
 	# A full magazine delivers twenty shots, then reloads without reserve depletion.
 	game.ammo = 20
@@ -52,7 +66,7 @@ func _ready() -> void:
 	game.best = 12
 	game.rules.kills = 13
 	game.finish_run()
-	assert(game.new_record and game.best==13)
+	assert(game.new_record and game.best==13 and not game.music.playing)
 	game.finish_run()
 	assert(not game.new_record and game.best==13)
 	game.rules.kills = 0
@@ -66,12 +80,17 @@ func _ready() -> void:
 	game.rules.kills = 13
 	game.health = 16
 	game.player.reset_position()
+	await get_tree().process_frame
+	game.hud.set_process(false)
 	game.hud.health_shade = .85
 	game.hud.time_pulse = .7
 	game.hud.kill_pop = .25
+	game.hud._process(0)
+	game.hud.queue_redraw()
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://artifacts/feedback.png")
+	game.hud.set_process(true)
 	game.best = 12
 	game.finish_run()
 	await get_tree().process_frame

@@ -36,4 +36,8 @@ func _process(delta: float) -> void:
 		file.store_string(JSON.stringify(report,"  "))
 		file.close()
 		print("BENCHMARK_PASS ",JSON.stringify(report))
+		game.set_physics_process(false)
+		game.clear_round()
+		await get_tree().process_frame
+		await get_tree().process_frame
 		get_tree().quit()
