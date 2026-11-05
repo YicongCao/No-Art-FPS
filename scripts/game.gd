@@ -14,11 +14,16 @@ var rules = Rules.new()
 var state = "TITLE"
 var previous_state = "RUNNING"
 var ready_time = 3.0
-var ammo = 30
+const MAGAZINE_SIZE = 20
+const MAX_HEALTH = 100.0
+const HEAL_DELAY = 5.0
+const HEAL_RATE = 12.0
+var ammo = MAGAZINE_SIZE
 var reload_time = 0.0
 var fire_time = 0.0
 var spawn_time = 0.0
-var armor = 3
+var health = MAX_HEALTH
+var new_record = false
 var invulnerable = 0.0
 var since_damage = 0.0
 var respawn_time = 0.0
@@ -94,6 +99,7 @@ func _ready() -> void:
 		var test_path = "res://tests/playtest.gd"
 		if "--check" in OS.get_cmdline_user_args():test_path = "res://tests/interaction_check.gd"
 		if "--benchmark" in OS.get_cmdline_user_args():test_path = "res://tests/benchmark.gd"
+		if "--feedback" in OS.get_cmdline_user_args():test_path = "res://tests/feedback_check.gd"
 		var qa = load(test_path).new()
 		qa.game = self
 		add_child(qa)
@@ -122,17 +128,20 @@ func start_run() -> void:
 	rules.active = false
 	state = "READY"
 	ready_time = 3.0
-	ammo = 30
+	ammo = MAGAZINE_SIZE
 	reload_time = 0
 	fire_time = 0
 	spawn_time = 0
-	armor = 3
+	health = MAX_HEALTH
 	invulnerable = 1
 	since_damage = 0
 	respawn_time = 0
 	spawn_cooldowns = [0,0,0,0,0,0]
 	pending_spawn.clear()
 	last_tick = 60
+	new_record = false
+	hud.time_pulse = 0
+	hud.health_shade = 0
 	player.reset_position()
 	player.enabled = false
 	hud.hit = 0
@@ -164,6 +173,7 @@ func finish_run() -> void:
 	rules.active = false
 	player.enabled = false
 	player.velocity = Vector3.ZERO
+	new_record = rules.kills > best
 	best = maxi(best,rules.kills)
 	save_record()
 	pending_spawn.clear()
@@ -227,9 +237,8 @@ func _physics_process(delta: float) -> void:
 		return
 	invulnerable = maxf(0,invulnerable-delta)
 	since_damage += delta
-	if armor<3 and since_damage>=4.5 and respawn_time<=0:
-		armor += 1
-		since_damage = 3
+	if health<MAX_HEALTH and since_damage>=HEAL_DELAY and respawn_time<=0:
+		health = minf(MAX_HEALTH,health+HEAL_RATE*delta)
 	if respawn_time>0:
 		respawn_time -= delta
 		if respawn_time<=0:
@@ -245,20 +254,21 @@ func _physics_process(delta: float) -> void:
 					safest = candidate
 			player.position = safest
 			player.enabled = true
-			armor = 3
-			ammo = 30
+			health = MAX_HEALTH
+			ammo = MAGAZINE_SIZE
 			reload_time = 0
 			invulnerable = 1.5
 	fire_time = maxf(0,fire_time-delta)
 	if reload_time>0:
 		reload_time -= delta
-		if reload_time<=0:ammo = 30
+		if reload_time<=0:ammo = MAGAZINE_SIZE
 	if Input.is_action_pressed("fire") and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:shoot()
 	update_spawns(delta)
 	update_bullets(delta)
 	var seconds = ceili(rules.remaining())
 	if seconds<=10 and seconds!=last_tick:
 		last_tick = seconds
+		hud.time_pulse = 1.0
 		play_sound("tick",-12)
 
 func live_enemies() -> Array:
@@ -351,13 +361,13 @@ func shoot() -> void:
 	if ammo==0:reload_weapon()
 
 func reload_weapon() -> void:
-	if ammo>=30 or reload_time>0 or respawn_time>0 or state!="RUNNING":return
+	if ammo>=MAGAZINE_SIZE or reload_time>0 or respawn_time>0 or state!="RUNNING":return
 	reload_time = .9
 	play_sound("reload",-8)
 
 func on_kill(enemy: Node3D, headshot: bool) -> void:
 	if rules.record_kill(enemy.get_instance_id(),headshot):
-		hud.kill_pop = .3
+		hud.kill_pop = .5
 		play_sound("headshot" if headshot else "kill",-7)
 
 func enemy_shoot(origin: Vector3) -> void:
@@ -392,12 +402,12 @@ func update_bullets(delta: float) -> void:
 
 func damage_player() -> void:
 	if state!="RUNNING" or invulnerable>0 or respawn_time>0:return
-	armor -= 1
+	health = maxf(0,health-34.0)
 	invulnerable = .65
 	since_damage = 0
 	hud.damage = .8
 	play_sound("hurt",-8)
-	if armor<=0:
+	if health<=0:
 		respawn_time = 1.0
 		player.enabled = false
 		player.velocity = Vector3.ZERO

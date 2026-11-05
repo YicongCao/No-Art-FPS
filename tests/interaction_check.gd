@@ -31,7 +31,7 @@ func _ready() -> void:
 	game.reload_weapon()
 	assert(game.reload_time>0)
 	await get_tree().create_timer(1.0).timeout
-	assert(game.ammo==30 and game.reload_time<=0)
+	assert(game.ammo==20 and game.reload_time<=0)
 	print("QA_PAUSE_RELOAD_PASS")
 	# Head and body rays use the live physics shapes, not a direct damage shortcut.
 	for head in [true,false]:
@@ -65,7 +65,7 @@ func _ready() -> void:
 		game.damage_player()
 	assert(game.respawn_time>0 and not game.player.enabled)
 	await get_tree().create_timer(1.2).timeout
-	assert(game.player.enabled and game.armor==3 and game.rules.elapsed>elapsed_before)
+	assert(game.player.enabled and game.health==100 and game.rules.elapsed>elapsed_before)
 	print("QA_RESPAWN_PASS")
 	game.clear_round()
 	await get_tree().process_frame
@@ -93,7 +93,7 @@ func _ready() -> void:
 		enemy.look_at(Vector3(game.player.position.x,enemy.position.y,game.player.position.z))
 	game.rules.elapsed = 13
 	game.rules.kills = 12
-	game.ammo = 24
+	game.ammo = 16
 	await get_tree().process_frame
 	await capture("showcase-ground")
 	game.player.position = Vector3(-8.5,3.2,-9.5)
