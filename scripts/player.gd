@@ -9,6 +9,7 @@ var bob = 0.0
 var gun_origin = Vector3(.25,-.32,-.66)
 var sensitivity = .0022
 var game: Node
+var outline: MeshInstance3D
 
 func _ready() -> void:
 	collision_layer = 2
@@ -32,6 +33,22 @@ func _ready() -> void:
 	gun.scale = Vector3.ONE*.70
 	for n in gun.find_children("*","MeshInstance3D",true,false):
 		n.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+
+	# Full-screen depth/color edges cover all opaque scenery, actors and the viewmodel.
+	# No second mesh shell: hard-edged Blender models keep their seams closed.
+	outline = MeshInstance3D.new()
+	outline.name = "ComicOutline"
+	var quad = QuadMesh.new()
+	quad.size = Vector2(2,2)
+	outline.mesh = quad
+	outline.extra_cull_margin = 16384
+	outline.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var ink = ShaderMaterial.new()
+	ink.shader = preload("res://assets/shaders/comic_outline.gdshader")
+	ink.render_priority = -128
+	outline.material_override = ink
+	camera.add_child(outline)
+	outline.position.z = -.1
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and enabled:
