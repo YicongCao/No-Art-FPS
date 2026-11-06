@@ -14,9 +14,11 @@ def arch_x(name,x,y0,y1,z0,width,height,color='sand'):
 
 # Mid connects the lower CT yard to B. A winding western tunnel links back to long.
 # B and mid are original extensions; the source A-site proportions remain intact.
-box('floor_mid',-52,-4,-38,-30,-4,-3.5,'sand')
+box('floor_mid',-48,-4,-38,-30,-4,-3.5,'sand')
 box('floor_mid_approach',-52,-25,-30,-22,-4,-3.5,'sand')
-box('floor_b_site',-84,-52,-64,-38,-4,-3.5,'sand')
+# Partition the courtyard around the cream connector: no coincident top faces.
+box('floor_b_site',-84,-52,-64,-44,-4,-3.5,'sand')
+box('floor_b_site_west',-84,-68,-44,-38,-4,-3.5,'sand')
 box('floor_b_to_mid',-68,-48,-44,-30,-4,-3.5,'cream')
 box('floor_tunnel',-84,-76,-38,6,-4,-3.5,'sand')
 g.add_wedge('tunnel_ascent',-84,-76,-22,-3.5,6,0,-4,mats['cream'])

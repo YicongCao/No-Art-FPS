@@ -49,6 +49,17 @@ architecture=[o for o in bpy.data.objects if o.type=='MESH']
 for o in architecture:
     o['solid']=not any(k in o.name for k in ['strap','band','shutter','pot','capstone'])
     o['region']='short' if o.location.x<-14 and o.location.y<0 else ('court' if o.location.y<-12 else 'site')
+# Horizontal floor slabs may meet at edges, but must not overlap at one height.
+floors=[o for o in architecture if o.name.startswith('floor_')]
+for i,a in enumerate(floors):
+    ab=g._mesh_bounds(a)
+    for b in floors[i+1:]:
+        bb=g._mesh_bounds(b)
+        if abs(ab[5]-bb[5])>1e-5:continue
+        overlap_x=min(ab[1],bb[1])-max(ab[0],bb[0])
+        overlap_y=min(ab[3],bb[3])-max(ab[2],bb[2])
+        assert overlap_x<=1e-5 or overlap_y<=1e-5, f'Coplanar floors: {a.name} / {b.name}'
+print('FLOOR_GEOMETRY_PASS: no overlapping horizontal slab tops')
 OUT=ROOT/'assets/models/dust_flavor';OUT.mkdir(exist_ok=True)
 def export(objects,path):
     bpy.ops.object.select_all(action='DESELECT')

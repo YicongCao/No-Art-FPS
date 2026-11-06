@@ -92,6 +92,7 @@ godot --headless --path . --script tests/defuse_rules_test.gd
 godot --headless --path . --script tests/map_scene_test.gd
 godot --path . -- --mission --qa --mission-check
 godot --path . -- --mission --qa --dust-revision
+godot --path . -- --mission --qa --floor-render
 godot --path . -- --mission --qa --mission-route --expanded-loop
 godot --path . -- --mission --qa --mission-route --live-patrols
 godot --path . -- --qa --check
@@ -126,7 +127,7 @@ The final fifteen seconds enable DESTROY rounds. At one second remaining, every 
 
 `--results-ui` exercises both icon buttons with actual viewport mouse events, checks new/best and three-digit score layouts at 1280×720 and 960×540, and verifies retry completes loading. The four original imagegen assets and exact prompts are in [assets/ui/results/README.md](assets/ui/results/README.md).
 
-Latest update: [expanded Dust mission, radar and defuse ring](docs/updates/2026-11-06-dust-map-revision.md). Earlier: [Dust-flavor defuse mission](docs/updates/2026-11-06-defuse-mission.md), [map scene migration](docs/updates/2026-11-06-map-scene-migration.md). Earlier: [cartridge insertion audio](docs/updates/2026-11-06-cartridge-audio.md). Earlier: [title styling and stair landing fix](docs/updates/2026-11-06-title-and-stair-landings.md), [FIRE title and magazine loading transition](docs/updates/2026-11-06-fire-loading-transition.md). Next directions: [shooting feedback and combat pressure](docs/design/shooting-feel-next.md). Earlier: [sequential reload](docs/updates/2026-11-06-cartridge-reload.md), [five-second respawn](docs/updates/2026-11-06-seams-and-respawn.md), [wall graffiti](docs/updates/2026-11-06-wall-graffiti.md), [pool terrace](docs/updates/2026-11-06-poolside-playbox.md). MIDI: [sixty.mid](assets/music/sixty.mid).
+Latest update: [floor stability fix](docs/updates/2026-11-06-dust-floor-stability.md). Earlier: [expanded Dust mission, radar and defuse ring](docs/updates/2026-11-06-dust-map-revision.md). Earlier: [Dust-flavor defuse mission](docs/updates/2026-11-06-defuse-mission.md), [map scene migration](docs/updates/2026-11-06-map-scene-migration.md). Earlier: [cartridge insertion audio](docs/updates/2026-11-06-cartridge-audio.md). Earlier: [title styling and stair landing fix](docs/updates/2026-11-06-title-and-stair-landings.md), [FIRE title and magazine loading transition](docs/updates/2026-11-06-fire-loading-transition.md). Next directions: [shooting feedback and combat pressure](docs/design/shooting-feel-next.md). Earlier: [sequential reload](docs/updates/2026-11-06-cartridge-reload.md), [five-second respawn](docs/updates/2026-11-06-seams-and-respawn.md), [wall graffiti](docs/updates/2026-11-06-wall-graffiti.md), [pool terrace](docs/updates/2026-11-06-poolside-playbox.md). MIDI: [sixty.mid](assets/music/sixty.mid).
 
 Player-facing copy for review: [game text inventory](docs/review/game-text-review.md), with current strings, display conditions, source locations and menu screenshots.
 

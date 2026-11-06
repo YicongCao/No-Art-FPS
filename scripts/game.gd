@@ -190,6 +190,7 @@ func _ready() -> void:
 		if "--multikill" in OS.get_cmdline_user_args():test_path = "res://tests/multikill_check.gd"
 		if "--reload-audio" in OS.get_cmdline_user_args():test_path = "res://tests/reload_audio_check.gd"
 		if "--finale" in OS.get_cmdline_user_args():test_path = "res://tests/finale_check.gd"
+		if "--floor-render" in OS.get_cmdline_user_args():test_path = "res://tests/floor_render_check.gd"
 		if "--dust-revision" in OS.get_cmdline_user_args():test_path = "res://tests/dust_revision_check.gd"
 		if "--mission-route" in OS.get_cmdline_user_args():test_path = "res://tests/mission_route_check.gd"
 		if "--mission-check" in OS.get_cmdline_user_args():test_path = "res://tests/mission_check.gd"
