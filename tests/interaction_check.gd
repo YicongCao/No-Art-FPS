@@ -38,6 +38,7 @@ func _ready() -> void:
 	# Head and body rays use the live physics shapes, not a direct damage shortcut.
 	for head in [true,false]:
 		var enemy = game.spawn_enemy(Vector3(0,0,5),false)
+		enemy.rotation.y = PI
 		enemy.set_physics_process(false)
 		await get_tree().physics_frame
 		var before = game.rules.kills
@@ -45,7 +46,16 @@ func _ready() -> void:
 			aim(enemy.position+Vector3(0,1.7 if head else 1.1,0))
 			game.fire_time = 0
 			game.shoot()
-			if not head and i<2:assert(game.rules.kills==before)
+			if not head and i<2:
+				assert(game.rules.kills==before and enemy.health==2-i)
+				assert(enemy.visual.rotation.x>0 and enemy.armor_hit.get_shader_parameter("flash")>0)
+				if i==0:await capture("body-hit-flash")
+				enemy.update_body_hit(enemy.BODY_HIT_DURATION)
+				assert(enemy.visual.rotation.x==0 and enemy.armor_hit.get_shader_parameter("flash")==0)
+				assert(enemy.armor_hit.get_shader_parameter("damage_level")==i+1)
+				if i==1:
+					await get_tree().create_timer(.18).timeout
+					await capture("body-hit-damage")
 		assert(game.rules.kills==before+1,"Raycast damage must kill exactly once")
 		enemy.take_hit(true)
 		assert(game.rules.kills==before+1)

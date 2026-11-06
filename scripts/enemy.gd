@@ -4,7 +4,9 @@ var game: Node
 var patrol_brain: Node
 var visual: Node3D
 var agent: NavigationAgent3D
-var health = 3
+const MAX_HEALTH = 3
+const BODY_HIT_DURATION = .16
+var health = MAX_HEALTH
 var dead = false
 var fast = false
 var container_room: Node3D
@@ -31,6 +33,8 @@ var windup = 0.0
 var death_time = 0.0
 var walk_phase = 0.0
 var hurt = 0.0
+var body_hit_time = 0.0
+var armor_hit: ShaderMaterial
 var limbs: Array[Node3D] = []
 var limb_origins: Array[Vector3] = []
 var head_area: Area3D
@@ -103,6 +107,8 @@ func _ready() -> void:
 		patrol_offset = 1 if position.distance_to(posts[0])<position.distance_to(posts[1]) else 0
 
 func _physics_process(delta: float) -> void:
+	if game.state=="RUNNING" and body_hit_time>0:
+		update_body_hit(delta)
 	if dead:
 		death_time += delta
 		visual.rotation.z = lerpf(visual.rotation.z,1.48,delta*9)
@@ -210,7 +216,24 @@ func can_see_player() -> bool:
 	return get_world_3d().direct_space_state.intersect_ray(query).is_empty()
 
 func take_hit(is_head: bool) -> void:
-	take_damage(3 if is_head else 1,is_head)
+	var previous_health = health
+	take_damage(MAX_HEALTH if is_head else 1,is_head)
+	if not is_head and health<previous_health:
+		if armor_hit==null:
+			armor_hit = ShaderMaterial.new()
+			armor_hit.shader = preload("res://assets/shaders/armor_hit.gdshader")
+			for part in ["Torso","Vest"]:
+				var panel = visual.find_child(part,true,false) as MeshInstance3D
+				if panel:panel.material_overlay = armor_hit
+		armor_hit.set_shader_parameter("damage_level",mini(MAX_HEALTH-health,2))
+		body_hit_time = BODY_HIT_DURATION
+		update_body_hit(0)
+
+func update_body_hit(delta: float) -> void:
+	body_hit_time = maxf(0,body_hit_time-delta)
+	var strength = body_hit_time/BODY_HIT_DURATION
+	armor_hit.set_shader_parameter("flash",strength*strength)
+	visual.rotation.x = .23*strength*strength
 
 func ignite() -> void:
 	if dead:return

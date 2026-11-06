@@ -859,9 +859,11 @@ func resolve_shot(result: Dictionary, origin: Vector3, target: Vector3, burning:
 			rules.hits += 1
 			hud.hit = .12
 			play_sound("hit",-14)
-			enemy.take_hit(collider is Area3D)
+			var is_head = collider is Area3D
+			enemy.take_hit(is_head)
 			if burning and not enemy.dead:enemy.ignite()
-			spark(target,Color("f2d084"),.07,.12)
+			if is_head:spark(target,Color("f2d084"),.07,.12)
+			else:spark(target,Color("ed9957"),.12,.16)
 		else:spark(target,Color("e5e0d2"),.045,.1)
 
 func update_player_bullets(delta: float) -> void:
