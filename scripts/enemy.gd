@@ -15,6 +15,10 @@ var rush_direction = Vector3.ZERO
 var knife_arm: Node3D
 var knife: Node3D
 var slash_hit = false
+const CLOSE_SHOT_RANGE = 8.0
+var dodge_direction = Vector3.ZERO
+var dodge_time = 0.0
+var dodge_cooldown = 0.0
 var orange: StandardMaterial3D
 var age = 0.0
 var think = 0.0
@@ -107,6 +111,7 @@ func _physics_process(delta: float) -> void:
 		agent.velocity = Vector3.ZERO
 		return
 	age += delta
+	dodge_cooldown = maxf(0,dodge_cooldown-delta)
 	hurt = maxf(0,hurt-delta)
 	if fast:
 		process_rusher(delta)
@@ -192,6 +197,35 @@ func can_see_player() -> bool:
 func take_hit(is_head: bool) -> void:
 	take_damage(3 if is_head else 1,is_head)
 
+func evade_shot(origin: Vector3) -> void:
+	if not fast or dead or game.state!="RUNNING" or global_position.distance_to(origin)<=CLOSE_SHOT_RANGE:return
+	if dodge_cooldown>0 or rush_state=="DODGE":return
+	var forward = global_position-origin
+	forward.y = 0
+	var side = forward.normalized().cross(Vector3.UP)
+	for sign in [1.0,-1.0]:
+		var direction = side*sign
+		var shape = CapsuleShape3D.new()
+		shape.radius = .33
+		shape.height = 1.8
+		var query = PhysicsShapeQueryParameters3D.new()
+		query.shape = shape
+		query.transform.origin = global_position+Vector3.UP*.9
+		query.motion = direction*1.6
+		query.collision_mask = 1|4
+		query.exclude = [get_rid()]
+		var space = get_world_3d().direct_space_state
+		var travel = space.cast_motion(query)
+		var ahead = global_position+direction*1.6
+		var ground = PhysicsRayQueryParameters3D.create(ahead+Vector3.UP*.3,ahead-Vector3.UP*.7,1)
+		if travel[0]<.95 or space.intersect_ray(ground).is_empty():continue
+		dodge_direction = direction
+		dodge_time = .16
+		dodge_cooldown = .28
+		rush_state = "DODGE"
+		game.play_world_sound("hit",global_position+Vector3.UP,-19)
+		return
+
 func take_damage(amount: int, is_head: bool = false) -> void:
 	if dead or not game.rules.active:return
 	health -= amount
@@ -228,6 +262,14 @@ func process_rusher(delta: float) -> void:
 	var direction = Vector3.ZERO
 	var speed = 0.0
 	match rush_state:
+		"DODGE":
+			dodge_time -= delta
+			direction = dodge_direction
+			speed = 10.0
+			visual.rotation.z = -dodge_direction.dot(global_basis.x)*.22
+			if dodge_time<=0:
+				rush_state = "CHASE"
+				think = 0
 		"CHASE":
 			think -= delta
 			if think<=0:
@@ -276,5 +318,5 @@ func process_rusher(delta: float) -> void:
 		if limbs[i].name!="RightArm":limbs[i].rotation.x = sin(walk_phase+float(i%2)*PI)*.55*minf(movement/5.8,1)
 	if rush_state=="CHASE":knife_arm.rotation.x = -.25+sin(walk_phase)*.18
 	visual.position.y = -.12 if rush_state=="WINDUP" else absf(sin(walk_phase))*.035
-	visual.rotation.z = sin(age*40)*hurt*.25
+	if rush_state!="DODGE":visual.rotation.z = sin(age*40)*hurt*.25
 	if global_position.y < -5:queue_free()

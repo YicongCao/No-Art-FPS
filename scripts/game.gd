@@ -34,6 +34,7 @@ var respawn_time = 0.0
 var best = 0
 var reduced_motion = false
 var bullets: Array[Dictionary] = []
+var player_bullets: Array[Dictionary] = []
 var sounds: Dictionary = {}
 var audio_voices: Array[AudioStreamPlayer] = []
 var audio_index = 0
@@ -138,6 +139,7 @@ func _ready() -> void:
 		if "--graffiti" in OS.get_cmdline_user_args():test_path = "res://tests/graffiti_check.gd"
 		if "--respawn" in OS.get_cmdline_user_args():test_path = "res://tests/respawn_check.gd"
 		if "--loading" in OS.get_cmdline_user_args():test_path = "res://tests/loading_check.gd"
+		if "--dodge" in OS.get_cmdline_user_args():test_path = "res://tests/dodge_check.gd"
 		var qa = load(test_path).new()
 		qa.game = self
 		add_child(qa)
@@ -248,6 +250,7 @@ func prepare_loaded_run(ticket: int) -> void:
 	if ticket!=load_ticket:return
 	opening_prepared = false
 	bullets.clear()
+	player_bullets.clear()
 	for voice in audio_voices:voice.stop()
 	var old_nodes = enemies.get_children()+effects.get_children()
 	for i in range(old_nodes.size()):
@@ -341,6 +344,7 @@ func clear_round() -> void:
 	for barrel in arena.barrels:barrel.reset()
 	for room in arena.containers:room.reset()
 	bullets.clear()
+	player_bullets.clear()
 	for node in enemies.get_children():
 		enemies.remove_child(node)
 		node.queue_free()
@@ -379,6 +383,9 @@ func finish_run() -> void:
 	for bullet in bullets:
 		if is_instance_valid(bullet.node):bullet.node.queue_free()
 	bullets.clear()
+	for bullet in player_bullets:
+		if is_instance_valid(bullet.node):bullet.node.queue_free()
+	player_bullets.clear()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	play_sound("end",-7)
 
@@ -469,6 +476,7 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_pressed("fire") and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:shoot()
 	update_spawns(delta)
 	update_bullets(delta)
+	update_player_bullets(delta)
 	var seconds = ceili(rules.remaining())
 	if seconds<=10 and seconds!=last_tick:
 		last_tick = seconds
@@ -574,22 +582,65 @@ func shoot() -> void:
 	if not blockage.is_empty() and blockage.position.distance_to(target)>.12:
 		target = blockage.position
 		result = {}
-	trace(muzzle,target,Color("fff1b7"),.025,.045)
+	var shot_enemy = enemy_from_hit(result)
+	if shot_enemy and shot_enemy.fast and origin.distance_to(shot_enemy.global_position)>Enemy.CLOSE_SHOT_RANGE:
+		shot_enemy.evade_shot(origin)
+		var projectile = MeshInstance3D.new()
+		var mesh = SphereMesh.new()
+		mesh.radius = .04
+		mesh.height = .08
+		projectile.mesh = mesh
+		projectile.material_override = effect_material(Color("fff1b7"))
+		effects.add_child(projectile)
+		projectile.global_position = origin
+		player_bullets.append({"node":projectile,"velocity":origin.direction_to(target)*65,"life":1.4,"origin":origin})
+	else:
+		trace(muzzle,target,Color("fff1b7"),.025,.045)
+		resolve_shot(result,origin,target)
 	spark(muzzle,Color("ffe19a"),.1,.035)
+	if ammo==0:reload_weapon()
+
+func enemy_from_hit(result: Dictionary) -> Node3D:
+	if result.is_empty():return null
+	var collider = result.collider
+	return collider.get_meta("enemy",null) if collider is Area3D else (collider if collider.has_method("take_hit") else null)
+
+func resolve_shot(result: Dictionary, origin: Vector3, target: Vector3) -> void:
 	if not result.is_empty():
 		var collider = result.collider
-		var enemy = collider.get_meta("enemy",null) if collider is Area3D else (collider if collider.has_method("take_hit") else null)
+		var enemy = enemy_from_hit(result)
 		if collider.has_method("ignite"):
 			collider.ignite()
 			hud.hit = .12
 		elif enemy!=null:
+			if enemy.fast and origin.distance_to(enemy.global_position)>Enemy.CLOSE_SHOT_RANGE:
+				enemy.evade_shot(origin)
+				spark(target,Color("fff1b7"),.11,.1)
+				return
 			rules.hits += 1
 			hud.hit = .12
 			play_sound("hit",-14)
 			enemy.take_hit(collider is Area3D)
 			spark(target,Color("f2d084"),.07,.12)
 		else:spark(target,Color("e5e0d2"),.045,.1)
-	if ammo==0:reload_weapon()
+
+func update_player_bullets(delta: float) -> void:
+	for i in range(player_bullets.size()-1,-1,-1):
+		var b = player_bullets[i]
+		if not is_instance_valid(b.node):
+			player_bullets.remove_at(i)
+			continue
+		var from: Vector3 = b.node.global_position
+		var to: Vector3 = from+b.velocity*delta
+		var query = PhysicsRayQueryParameters3D.create(from,to,1|4|8)
+		query.collide_with_areas = true
+		var hit = get_world_3d().direct_space_state.intersect_ray(query)
+		b.life -= delta
+		if not hit.is_empty() or b.life<=0:
+			resolve_shot(hit,b.origin,hit.position if not hit.is_empty() else to)
+			b.node.queue_free()
+			player_bullets.remove_at(i)
+		else:b.node.global_position = to
 
 func reload_weapon() -> void:
 	if ammo>=MAGAZINE_SIZE or reload_time>0 or respawn_time>0 or state!="RUNNING":return
