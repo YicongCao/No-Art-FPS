@@ -76,6 +76,7 @@ godot --path . -- --qa --movement
 godot --path . -- --qa --magazine
 godot --path . -- --qa --containers
 godot --path . -- --qa --terrace
+godot --path . -- --qa --routes
 godot --path . -- --qa --graffiti
 godot --path . -- --qa --respawn
 godot --path . -- --qa --loading
@@ -83,11 +84,11 @@ godot --path . -- --qa --loading
 
 The first command tests score and timer boundaries. `--check` exercises normal collision movement on both ramps, live head/body raycasts, wall blocking, pause, reload, respawn, and ten restarts. `--qa` runs a real-time full-minute automatic aiming session, with scripted viewpoint changes. `--population` checks patrol retention, regional reinforcements, population caps and safe spawn distances/visibility. The short benchmark runs twelve enemies with VSync disabled. These flags are development-only test helpers, not normal gameplay modes.
 
-`--movement` checks that every opening outdoor black guard moves, twelve enemies can cross opposing lanes without overlapping or getting stuck, pause freezes avoidance movement, and occupied spawn slots are rechecked after their warning. `--containers` covers automatic doors, captive guards, entry and reset. `--terrace` checks poolside navigation, walking into/out of the pool, and palm collisions.
+`--movement` checks that every opening outdoor black guard moves, twelve enemies can cross opposing lanes without overlapping or getting stuck, pause freezes avoidance movement, and occupied spawn slots are rechecked after their warning. `--containers` covers automatic doors, captive guards, entry and reset. `--terrace` checks poolside navigation, walking into/out of the pool, and palm collisions. `--routes` walks both complete stair-to-terrace routes in both directions without jumping, then crosses the purple/cream seams slowly.
 
 `--magazine` counts rendered cartridges during firing and sequential loading, checks seating/return timing and exactly 54 ticks per reload, automatic/manual reload, pause, death cancellation and restart, then verifies the HUD in a 960×540 window.
 
-Latest update: [FIRE title and magazine loading transition](docs/updates/2026-11-06-fire-loading-transition.md). Next directions: [shooting feedback and combat pressure](docs/design/shooting-feel-next.md). Earlier: [sequential reload](docs/updates/2026-11-06-cartridge-reload.md), [five-second respawn](docs/updates/2026-11-06-seams-and-respawn.md), [wall graffiti](docs/updates/2026-11-06-wall-graffiti.md), [pool terrace](docs/updates/2026-11-06-poolside-playbox.md). MIDI: [sixty.mid](assets/music/sixty.mid).
+Latest update: [title styling and stair landing fix](docs/updates/2026-11-06-title-and-stair-landings.md). Earlier: [FIRE title and magazine loading transition](docs/updates/2026-11-06-fire-loading-transition.md). Next directions: [shooting feedback and combat pressure](docs/design/shooting-feel-next.md). Earlier: [sequential reload](docs/updates/2026-11-06-cartridge-reload.md), [five-second respawn](docs/updates/2026-11-06-seams-and-respawn.md), [wall graffiti](docs/updates/2026-11-06-wall-graffiti.md), [pool terrace](docs/updates/2026-11-06-poolside-playbox.md). MIDI: [sixty.mid](assets/music/sixty.mid).
 
 Player-facing copy for review: [game text inventory](docs/review/game-text-review.md), with current strings, display conditions, source locations and menu screenshots.
 

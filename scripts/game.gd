@@ -138,6 +138,7 @@ func _ready() -> void:
 		if "--magazine" in OS.get_cmdline_user_args():test_path = "res://tests/magazine_check.gd"
 		if "--containers" in OS.get_cmdline_user_args():test_path = "res://tests/container_check.gd"
 		if "--terrace" in OS.get_cmdline_user_args():test_path = "res://tests/terrace_check.gd"
+		if "--routes" in OS.get_cmdline_user_args():test_path = "res://tests/stair_route_check.gd"
 		if "--graffiti" in OS.get_cmdline_user_args():test_path = "res://tests/graffiti_check.gd"
 		if "--respawn" in OS.get_cmdline_user_args():test_path = "res://tests/respawn_check.gd"
 		if "--loading" in OS.get_cmdline_user_args():test_path = "res://tests/loading_check.gd"

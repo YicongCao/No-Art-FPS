@@ -207,8 +207,10 @@ func build() -> void:
 	for x in [-5,-1,3]:
 		solid(Vector3(x,1.3,-8.97),Vector3(2.0,2.6,.06),"cream",false)
 		solid(Vector3(x+1,1.4,-8.92),Vector3(.06,2.8,.08),"ink",false)
-	stairs(-11,-1.5,3,7,2.6)
-	stairs(7.6,-2,3,7,2.2)
+	# Ramp tops meet the actual 3.1 m walking surface at each landing front.
+	# The old 3.0 m ramps ended underneath the slab, exposing a vertical lip.
+	stairs(-11,-1.5,3.1,6.9,2.6)
+	stairs(7.6,-2,3.1,6.8,2.2)
 	solid(Vector3(-10.3,3,-9.7),Vector3(2.6,.2,2.6),"purple")
 	rail(Vector3(-6.5,3.1,-8.85),Vector3(6.5,3.1,-8.85))
 	pool_terrace()
