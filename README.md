@@ -6,6 +6,8 @@ A colorful low-poly FPS built with Godot and Blender. Score as many kills as you
 
 ![No-Art-FPS gameplay in the container yard](artifacts/showcase-ground.png)
 
+[Watch the full automated QA run (uncut MP4)](artifacts/qa-run.mp4)
+
 ## Play locally
 
 Open `project.godot` in Godot 4.7.2 and press **F5**, or run `./tools/run.sh` with Godot on your PATH.
