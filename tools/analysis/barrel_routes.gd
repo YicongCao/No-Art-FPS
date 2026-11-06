@@ -13,7 +13,7 @@ func _ready() -> void:
 		var zone = game.arena.enemy_zone(source)
 		for target in destinations:
 			if zone!="yard" and game.arena.enemy_zone(target)!=zone:continue
-			# Include the approach and both flanking offsets used by the black guards.
+			# Approximate lateral approaches with two nearby offsets around each player anchor.
 			for offset in [Vector3.ZERO,Vector3(5,0,0),Vector3(-5,0,0)]:
 				var goal = target+offset if zone=="yard" else target
 				var path = NavigationServer3D.map_get_path(game.arena.nav.get_navigation_map(),source,goal,true)

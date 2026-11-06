@@ -21,6 +21,7 @@ var previous_state = "RUNNING"
 const MAGAZINE_SIZE = 20
 const DESTROY_DURATION = 15.0
 const FINALE_DURATION = 1.0
+const ENEMY_BULLET_SPEED = 80.0
 const MAX_HEALTH = 100.0
 const HEAL_DELAY = 5.0
 const HEAL_RATE = 12.0
@@ -198,6 +199,7 @@ func _ready() -> void:
 		if "--results-ui" in OS.get_cmdline_user_args():test_path = "res://tests/results_ui_check.gd"
 		if "--blast-range" in OS.get_cmdline_user_args():test_path = "res://tests/barrel_range_check.gd"
 		if "--barrel-routes" in OS.get_cmdline_user_args():test_path = "res://tools/analysis/barrel_routes.gd"
+		if "--awareness" in OS.get_cmdline_user_args():test_path = "res://tests/awareness_check.gd"
 		var qa = load(test_path).new()
 		qa.game = self
 		add_child(qa)
@@ -896,28 +898,31 @@ func on_kill(enemy: Node3D, headshot: bool) -> void:
 		play_sound("headshot" if headshot else "kill",-7,minf(1.25,1+(kill_group_count-1)*.08))
 
 func enemy_shoot(origin: Vector3) -> void:
-	if state!="RUNNING" or respawn_time>0:return
+	if state!="RUNNING" or not rules.active or respawn_time>0:return
 	var target = player.global_position+Vector3(0,1.1,0)+Vector3(rng.randf_range(-.25,.25),0,rng.randf_range(-.25,.25))
-	var mesh = MeshInstance3D.new()
-	var sphere = SphereMesh.new()
-	sphere.radius = .08
-	sphere.height = .16
-	mesh.mesh = sphere
-	mesh.material_override = effect_material(Color("ffbc65"))
-	effects.add_child(mesh)
-	mesh.global_position = origin
-	bullets.append({"node":mesh,"velocity":origin.direction_to(target)*13,"life":3.0})
+	# The projectile has collision state only; short grey segments show its path.
+	var shot = Node3D.new()
+	shot.name = "EnemyShot"
+	effects.add_child(shot)
+	shot.global_position = origin
+	bullets.append({"node":shot,"velocity":origin.direction_to(target)*ENEMY_BULLET_SPEED,"life":.8})
 
 func update_bullets(delta: float) -> void:
+	if state!="RUNNING" or not rules.active:return
 	for i in range(bullets.size()-1,-1,-1):
 		var b = bullets[i]
 		if not is_instance_valid(b.node):
 			bullets.remove_at(i)
 			continue
 		var from: Vector3 = b.node.global_position
-		var to: Vector3 = from+b.velocity*delta
+		var to: Vector3 = from+b.velocity*minf(delta,maxf(b.life,0))
 		var query = PhysicsRayQueryParameters3D.create(from,to,1|2)
 		var hit = get_world_3d().direct_space_state.intersect_ray(query)
+		var end: Vector3 = hit.position if not hit.is_empty() else to
+		if from.distance_squared_to(end)>.0001:
+			var trail = trace(from,end,Color(.65,.68,.71,.7),.025,.075)
+			# Draw after the opaque comic outline pass so thin grey trails stay grey.
+			trail.material_override.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		b.life -= delta
 		if not hit.is_empty() or b.life<=0:
 			if not hit.is_empty() and hit.collider==player:damage_player()
@@ -999,7 +1004,7 @@ func spark(pos: Vector3, color: Color, radius: float, duration: float) -> void:
 	tween.tween_property(node,"scale",Vector3.ONE*.05,duration)
 	tween.tween_callback(node.queue_free)
 
-func trace(from: Vector3, to: Vector3, color: Color, width: float, duration: float) -> void:
+func trace(from: Vector3, to: Vector3, color: Color, width: float, duration: float) -> MeshInstance3D:
 	var node = MeshInstance3D.new()
 	var mesh = BoxMesh.new()
 	mesh.size = Vector3(width,width,maxf(.01,from.distance_to(to)))
@@ -1012,6 +1017,7 @@ func trace(from: Vector3, to: Vector3, color: Color, width: float, duration: flo
 	var tween = node.create_tween()
 	tween.tween_interval(duration)
 	tween.tween_callback(node.queue_free)
+	return node
 
 func play_sound(key: String, volume: float = -10, pitch: float = 1) -> void:
 	var voice = audio_voices[audio_index%audio_voices.size()]

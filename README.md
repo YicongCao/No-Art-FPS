@@ -57,7 +57,9 @@ Both stairs lead to a larger pool terrace with loungers, parasols and a loop aro
 
 Large spray-painted lettering marks the red container, yard wall and warehouse. The artwork is blended into the actual opaque wall material, with mipmaps for stable viewing at a distance; generation prompts are in [assets/graffiti/README.md](assets/graffiti/README.md).
 
-Red-and-yellow barrels ignite when shot, warn for 0.65 seconds and explode within five metres; solid cover blocks blast damage, and nearby barrels chain. Orange enemies carry knives and rapidly approach, then raise their weapon before a close-range chop. Sidestep, back away, shoot them during windup, or use solid cover to block the slash.
+Red-and-yellow barrels ignite when shot, warn for 0.65 seconds and explode within 7.5 metres; solid cover blocks blast damage, and nearby barrels chain. Yard barrel positions follow sampled navigation approach routes, with shifts limited to 2.5 metres. Orange enemies carry knives and rapidly approach, then raise their weapon before a close-range chop. Sidestep, back away, shoot them during windup, or use solid cover to block the slash.
+
+Rear threats within 24 metres and direct sight share three small SVG direction markers; close threats turn red. Black guards fire invisible 80 m/s projectiles with short grey trails and swept collision. Their existing firing warning remains.
 
 Head hits kill a normal target in one shot; body hits take three. Every kill is worth one. The rifle holds 20 rounds and reloads automatically with unlimited reserves. Health is hidden; a gradual dark-red screen-edge vignette warns of danger. After five seconds without a hit, health recovers gradually. Defeat causes a five-second respawn while the round clock keeps running. A central skull and shrinking ring show the wait; each completed respawn adds a skull at the top right. Deaths reset on a new round and are not saved. A strictly higher kill count highlights the results trophy. Only the highest kill count is retained as a score record. The local best and settings are stored in Godot's `user://record.cfg`; QA runs do not overwrite them.
 
@@ -102,6 +104,8 @@ godot --path . -- --qa --feedback
 godot --path . -- --qa --expansion
 godot --headless --path . -- --qa --population
 godot --path . -- --qa --combat
+godot --headless --path . -- --qa --blast-range
+godot --path . -- --qa --awareness
 godot --path . -- --qa --movement
 godot --path . -- --qa --magazine
 godot --headless --path . -- --qa --reload-audio
@@ -127,7 +131,7 @@ The final fifteen seconds enable DESTROY rounds. At one second remaining, every 
 
 `--results-ui` exercises both icon buttons with actual viewport mouse events, checks new/best and three-digit score layouts at 1280×720 and 960×540, and verifies retry completes loading. The four original imagegen assets and exact prompts are in [assets/ui/results/README.md](assets/ui/results/README.md).
 
-Latest update: [bright Dust style and cacti](docs/updates/2026-11-06-dust-bright-style.md), following the [imagegen concept](docs/art/dust-color-concept.md). Earlier: [floor stability fix](docs/updates/2026-11-06-dust-floor-stability.md). Earlier: [expanded Dust mission, radar and defuse ring](docs/updates/2026-11-06-dust-map-revision.md). Earlier: [Dust-flavor defuse mission](docs/updates/2026-11-06-defuse-mission.md), [map scene migration](docs/updates/2026-11-06-map-scene-migration.md). Earlier: [cartridge insertion audio](docs/updates/2026-11-06-cartridge-audio.md). Earlier: [title styling and stair landing fix](docs/updates/2026-11-06-title-and-stair-landings.md), [FIRE title and magazine loading transition](docs/updates/2026-11-06-fire-loading-transition.md). Next directions: [shooting feedback and combat pressure](docs/design/shooting-feel-next.md). Earlier: [sequential reload](docs/updates/2026-11-06-cartridge-reload.md), [five-second respawn](docs/updates/2026-11-06-seams-and-respawn.md), [wall graffiti](docs/updates/2026-11-06-wall-graffiti.md), [pool terrace](docs/updates/2026-11-06-poolside-playbox.md). MIDI: [sixty.mid](assets/music/sixty.mid).
+Latest update: [barrel placement and combat awareness](docs/updates/2026-11-06-combat-awareness.md). Earlier: [bright Dust style and cacti](docs/updates/2026-11-06-dust-bright-style.md), following the [imagegen concept](docs/art/dust-color-concept.md). Earlier: [floor stability fix](docs/updates/2026-11-06-dust-floor-stability.md). Earlier: [expanded Dust mission, radar and defuse ring](docs/updates/2026-11-06-dust-map-revision.md). Earlier: [Dust-flavor defuse mission](docs/updates/2026-11-06-defuse-mission.md), [map scene migration](docs/updates/2026-11-06-map-scene-migration.md). Earlier: [cartridge insertion audio](docs/updates/2026-11-06-cartridge-audio.md). Earlier: [title styling and stair landing fix](docs/updates/2026-11-06-title-and-stair-landings.md), [FIRE title and magazine loading transition](docs/updates/2026-11-06-fire-loading-transition.md). Next directions: [shooting feedback and combat pressure](docs/design/shooting-feel-next.md). Earlier: [sequential reload](docs/updates/2026-11-06-cartridge-reload.md), [five-second respawn](docs/updates/2026-11-06-seams-and-respawn.md), [wall graffiti](docs/updates/2026-11-06-wall-graffiti.md), [pool terrace](docs/updates/2026-11-06-poolside-playbox.md). MIDI: [sixty.mid](assets/music/sixty.mid).
 
 Player-facing copy for review: [game text inventory](docs/review/game-text-review.md), with current strings, display conditions, source locations and menu screenshots.
 
