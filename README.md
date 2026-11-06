@@ -44,7 +44,7 @@ Red-and-yellow barrels ignite when shot, warn for 0.65 seconds and explode withi
 
 Head hits kill a normal target in one shot; body hits take three. Every kill is worth one. The rifle holds 20 rounds and reloads automatically with unlimited reserves. Health is hidden; a gradual dark-red screen-edge vignette warns of danger. After five seconds without a hit, health recovers gradually. Defeat causes a five-second respawn while the round clock keeps running. A central skull and shrinking ring show the wait; each completed respawn adds a skull at the top right. Deaths reset on a new round and are not saved. A strictly higher kill count displays NEW RECORD at results. Only the highest kill count is retained as a score record. The local best and settings are stored in Godot's `user://record.cfg`; QA runs do not overwrite them.
 
-The lower-right magazine shows twenty cartridges in one horizontal row. Each accepted shot splits and ejects the front cartridge at the right, then feeds the remaining rounds forward. Reloading pushes the missing cartridges in one by one; once full, the magazine dips and snaps back into place. The entire sequence still takes 0.9 seconds, with firing available only after completion. Ammo numbers, the progress bar and the RELOADING label have been removed. Low camera-motion mode also reduces shell travel/spin and the final seating dip.
+The lower-right magazine shows twenty cartridges in one horizontal row. Each accepted shot splits and ejects the front cartridge at the right, then feeds the remaining rounds forward. Reloading pushes the missing cartridges in one by one; once full, the magazine dips and snaps back into place. Each cartridge clicks as it seats, both during the loading screen and gameplay reloads. The entire sequence still takes 0.9 seconds, with firing available only after completion. Ammo numbers, the progress bar and the RELOADING label have been removed. Low camera-motion mode also reduces shell travel/spin and the final seating dip.
 
 ## Build the original assets
 
@@ -57,7 +57,7 @@ blender --background --python tools/build_music.py
 godot --headless --path . --editor --import
 ```
 
-`art_source/no_art_kit.blend` is an editable asset library with the models laid out separately. Its source script makes fourteen GLBs, including four container colors, a rifle with hands, the enemy, forklift, barrel, tree, cloud, pallet, crate, steel bundle and traffic light. Audio includes eleven original effects and an original 60-second MIDI composition rendered for runtime playback. The HUD uses bundled SIL-OFL Rajdhani Bold; its license is in assets/fonts/. The magazine uses a bundled imagegen sprite atlas; its generation prompt and source details are in [assets/ui/README.md](assets/ui/README.md).
+`art_source/no_art_kit.blend` is an editable asset library with the models laid out separately. Its source script makes fourteen GLBs, including four container colors, a rifle with hands, the enemy, forklift, barrel, tree, cloud, pallet, crate, steel bundle and traffic light. Audio includes twelve original effects and an original 60-second MIDI composition rendered for runtime playback. The HUD uses bundled SIL-OFL Rajdhani Bold; its license is in assets/fonts/. The magazine uses a bundled imagegen sprite atlas; its generation prompt and source details are in [assets/ui/README.md](assets/ui/README.md).
 
 The yard is assembled in `scripts/arena.gd`; static collisions also supply the runtime navigation bake. Repeated box scenery and fence lattice are batched by material. The reference recording and extracted reference frames stay local and are Git-ignored.
 
@@ -74,6 +74,7 @@ godot --headless --path . -- --qa --population
 godot --path . -- --qa --combat
 godot --path . -- --qa --movement
 godot --path . -- --qa --magazine
+godot --headless --path . -- --qa --reload-audio
 godot --path . -- --qa --containers
 godot --path . -- --qa --terrace
 godot --path . -- --qa --routes
@@ -88,7 +89,9 @@ The first command tests score and timer boundaries. `--check` exercises normal c
 
 `--magazine` counts rendered cartridges during firing and sequential loading, checks seating/return timing and exactly 54 ticks per reload, automatic/manual reload, pause, death cancellation and restart, then verifies the HUD in a 960×540 window.
 
-Latest update: [title styling and stair landing fix](docs/updates/2026-11-06-title-and-stair-landings.md). Earlier: [FIRE title and magazine loading transition](docs/updates/2026-11-06-fire-loading-transition.md). Next directions: [shooting feedback and combat pressure](docs/design/shooting-feel-next.md). Earlier: [sequential reload](docs/updates/2026-11-06-cartridge-reload.md), [five-second respawn](docs/updates/2026-11-06-seams-and-respawn.md), [wall graffiti](docs/updates/2026-11-06-wall-graffiti.md), [pool terrace](docs/updates/2026-11-06-poolside-playbox.md). MIDI: [sixty.mid](assets/music/sixty.mid).
+`--reload-audio` checks actual audio voices against seated cartridges for full and partial reloads, pause/death/deadline/reset, and loading's 17+3 rounds, suspension and cancellation. Rendered `--loading` and `--magazine` checks also verify the sound count; `--magazine` saves a local audio-mixer recording to `artifacts/local/cartridge-reload.wav`.
+
+Latest update: [cartridge insertion audio](docs/updates/2026-11-06-cartridge-audio.md). Earlier: [title styling and stair landing fix](docs/updates/2026-11-06-title-and-stair-landings.md), [FIRE title and magazine loading transition](docs/updates/2026-11-06-fire-loading-transition.md). Next directions: [shooting feedback and combat pressure](docs/design/shooting-feel-next.md). Earlier: [sequential reload](docs/updates/2026-11-06-cartridge-reload.md), [five-second respawn](docs/updates/2026-11-06-seams-and-respawn.md), [wall graffiti](docs/updates/2026-11-06-wall-graffiti.md), [pool terrace](docs/updates/2026-11-06-poolside-playbox.md). MIDI: [sixty.mid](assets/music/sixty.mid).
 
 Player-facing copy for review: [game text inventory](docs/review/game-text-review.md), with current strings, display conditions, source locations and menu screenshots.
 

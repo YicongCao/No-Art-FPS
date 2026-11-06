@@ -20,4 +20,5 @@ write('end',.7,lambda t:(math.sin(2*math.pi*440*t)+math.sin(2*math.pi*660*t))*.2
 write('fuse',.65,lambda t:math.sin(2*math.pi*(600*t+450*t*t))*.22*(.25+.75*max(0,math.sin(t*55))))
 write('explosion',.7,lambda t:(random.uniform(-1,1)*.65+math.sin(2*math.pi*(65*t-30*t*t))*.5)*math.exp(-t*7))
 write('charge',.75,lambda t:(math.sin(2*math.pi*(220*t+400*t*t))*.3+math.sin(2*math.pi*660*t)*.08)*min(1,t*30)*math.exp(-t*1.8))
-print('Eleven original WAV effects generated')
+write('cartridge_insert',.032,lambda t:(random.uniform(-1,1)*.42+math.sin(2*math.pi*1600*t)*.28+math.sin(2*math.pi*3100*t)*.12)*math.exp(-t*180))
+print('Twelve original WAV effects generated')

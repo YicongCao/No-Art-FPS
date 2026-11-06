@@ -123,15 +123,31 @@ func _ready() -> void:
 	game.player.enabled = false
 	game.spawn_time = 999
 	game.ammo = 0
+	for voice in game.audio_voices:voice.stop()
+	var recorder = AudioEffectRecord.new()
+	var effect_slot = AudioServer.get_bus_effect_count(0)
+	AudioServer.add_bus_effect(0,recorder)
+	recorder.set_recording_active(true)
 	game.reload_weapon()
+	var audio_start = game.audio_index
 	for tick in range(53):
 		game._physics_process(1.0/60.0)
+		assert(game.audio_index-audio_start==int(game.hud.reload_rounds_fed()),"Reload clicks follow the rendered cartridge count")
 		await get_tree().physics_frame
 		assert(game.ammo==0 and game.reload_time>0,"Reload cannot complete before .9 seconds")
 		if tick==23:await capture("reload-small-window")
 	game._physics_process(1.0/60.0)
 	assert(game.ammo==20 and game.reload_time==0,"Reload completes in exactly 54 ticks")
+	assert(game.audio_index-audio_start==20,"Every loaded cartridge sounds once")
 	await check_pixels(20)
+	await get_tree().create_timer(.12).timeout
+	recorder.set_recording_active(false)
+	var recording = recorder.get_recording()
+	assert(recording.get_data().size()>0,"Audio mixer must produce the reload recording")
+	DirAccess.make_dir_recursive_absolute("res://artifacts/local")
+	assert(recording.save_to_wav("res://artifacts/local/cartridge-reload.wav")==OK)
+	AudioServer.remove_bus_effect(0,effect_slot)
+	print("RELOAD_AUDIO_RECORDING_PASS: artifacts/local/cartridge-reload.wav")
 	game.state = "RESULTS"
 	game.clear_round()
 	await get_tree().create_timer(.25).timeout

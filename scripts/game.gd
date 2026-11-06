@@ -98,7 +98,7 @@ func _ready() -> void:
 	hud = Hud.new()
 	hud.game = self
 	layer.add_child(hud)
-	for key in ["shot","hit","kill","headshot","reload","hurt","tick","end","fuse","explosion","charge"]:
+	for key in ["shot","hit","kill","headshot","reload","hurt","tick","end","fuse","explosion","charge","cartridge_insert"]:
 		sounds[key] = load("res://assets/audio/"+key+".wav")
 	for i in range(12):
 		var voice = AudioStreamPlayer.new()
@@ -148,6 +148,7 @@ func _ready() -> void:
 		if "--dodge" in OS.get_cmdline_user_args():test_path = "res://tests/dodge_check.gd"
 		if "--destroy" in OS.get_cmdline_user_args():test_path = "res://tests/destroy_check.gd"
 		if "--multikill" in OS.get_cmdline_user_args():test_path = "res://tests/multikill_check.gd"
+		if "--reload-audio" in OS.get_cmdline_user_args():test_path = "res://tests/reload_audio_check.gd"
 		var qa = load(test_path).new()
 		qa.game = self
 		add_child(qa)
@@ -348,7 +349,9 @@ func cancel_loading() -> void:
 
 func _process(delta: float) -> void:
 	if state!="LOADING":return
+	var previous_rounds = loading.rounds
 	loading.advance(delta)
+	play_cartridge_insertions(previous_rounds,loading.rounds)
 	if loading.phase=="DONE":
 		begin_running()
 		hud.sync_loading_cover()
@@ -490,8 +493,11 @@ func _physics_process(delta: float) -> void:
 			invulnerable = 1.5
 	fire_time = maxf(0,fire_time-delta)
 	if reload_time>0:
+		var previous_rounds = hud.reload_rounds_fed()
 		reload_time = maxf(0,reload_time-delta)
 		if reload_time<.000001:reload_time = 0
+		var fed = hud.reload_rounds_fed() if reload_time>0 else float(MAGAZINE_SIZE-reload_start_ammo)
+		play_cartridge_insertions(previous_rounds,fed)
 		if reload_time<=0:ammo = MAGAZINE_SIZE
 	if Input.is_action_pressed("fire") and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:shoot()
 	update_spawns(delta)
@@ -676,6 +682,12 @@ func reload_weapon() -> void:
 	reload_start_ammo = ammo
 	reload_time = RELOAD_DURATION
 	play_sound("reload",-8)
+
+func play_cartridge_insertions(previous: float, current: float) -> void:
+	# Use the same whole-round boundaries as both magazine animations.
+	# No independent audio timer can continue after a pause or cancellation.
+	for _i in range(int(previous),int(current)):
+		play_sound("cartridge_insert",-12)
 
 func on_kill(enemy: Node3D, headshot: bool) -> void:
 	if rules.record_kill(enemy.get_instance_id(),headshot):
