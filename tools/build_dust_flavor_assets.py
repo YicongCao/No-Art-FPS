@@ -30,7 +30,7 @@ g.add_box('pit_slope_rail_e',-14.1,-13.9,2,6,-3.5,1.0,mats['cream'])
 g.add_box('pit_slope_rail_w',-22.2,-22,2,6,-3.5,1.0,mats['cream'])
 # Original low-poly mission props, separate and movable in Godot.
 for name,x,y,z,s in [('site_crate',0,4,0,1.6),('site_crate_high',0,4,1.6,1.6),('site_cover',8,-5,0,1.3),('short_cover',-29,-8,2.5,1.2),('court_cover',2,-34,-3.5,1.5),('long_crate',-39,12,0,1.3)]:
-    g.add_box(name,x-s/2,x+s/2,y-s/2,y+s/2,z,z+s,mats['timber'])
+    g.add_box(name,x-s/2,x+s/2,y-s/2,y+s/2,z,z+s,mats['yellow'])
     for h in [.12,s-.12]:g.add_box(name+'_strap',x-s/2-.02,x+s/2+.02,y-s/2-.025,y+s/2+.025,z+h-.05,z+h+.05,mats['cream'])
 for x,y,z in [(-23,13,0),(8,-38,-3.5),(-35,-10,2.5)]:
     g.add_cyl_axis('pot',(x,y,z+.45),.34,.9,mats['red'],axis='z',verts=8)

@@ -82,7 +82,7 @@ box('SafetyFoundation',-90,29,-70,26,-5,-4,'sand')
 for name,vals in [('WestBoundary',(-89,-88,-69,25,-4,7)),('EastBoundary',(27,28,-69,25,-4,9)),('NorthBoundary',(-89,28,24,25,-4,8)),('SouthBoundary',(-89,28,-69,-68,-4,6))]:box(name,*vals,'sand')
 # Original village dressing kept as separate, low-detail pieces.
 def crate(name,x,y,z,size=1.6):
-    box(name,x-size/2,x+size/2,y-size/2,y+size/2,z,z+size,'timber')
+    box(name,x-size/2,x+size/2,y-size/2,y+size/2,z,z+size,'yellow')
     for h in [.12,size-.12]:box(name+'_strap',x-size/2-.025,x+size/2+.025,y-size/2-.03,y+size/2+.03,z+h,z+h+.12,'cream')
 for i,p in enumerate([(-79,-59,-2.6),(-79,-59,-1),(-72,-48,-3.5),(-61,-59,-3.5),(-61,-59,-1.9),(-56,-42,-3.5),(-24,-34,-3.5),(-15,-32,-3.5),(-81,-18,-3),(-58,12,0),(2,8,0),(8,7,0)]):crate('cargo_'+str(i),*p)
 # Blue shutters and stone trim repeat across façades, without surface noise.
@@ -98,11 +98,28 @@ for i,(x,y,z,c) in enumerate([(-34,13.5,0,'green'),(-61,-63.5,-3.5,'red'),(-12,-
     for dx in [-1.3,1.3]:box('table_leg',x+dx-.06,x+dx+.06,y-1.2,y-.65,z,z+.8,'timber')
     for dx in [-1,0,1]:
         g.add_cyl_axis('clay_pot',(x+dx,y-1,z+1.18),.22,.45,mats['red'],axis='z',verts=8)
-# Palm silhouettes have trunk, broad angular fronds and coconuts.
-for i,(x,y,z) in enumerate([(-85,9,0),(-71,-63,-3.5),(-12,-33,-3.5),(13,12,0),(-63,20,0)]):
-    g.add_cyl_axis('palm_trunk',(x,y,z+2.3),.18,4.6,mats['timber'],axis='z',verts=7)
-    for n in range(7):
-        a=n*math.tau/7
-        tip=(x+math.cos(a)*2.4,y+math.sin(a)*2.4,z+3.7)
-        side=(-math.sin(a)*.38,math.cos(a)*.38)
-        g.add_mesh('palm_frond',[(x,y,z+4.7),(x+math.cos(a)*1.3+side[0],y+math.sin(a)*1.3+side[1],z+4.4),tip,(x+math.cos(a)*1.3-side[0],y+math.sin(a)*1.3-side[1],z+4.4)],[(0,1,2),(0,2,3)],mats['green'])
+# Original cacti replace every tropical silhouette. Beds sit against boundaries.
+def cactus(name,x,y,z,height=3.4,paddle=False):
+    box(name+'_bed',x-1.05,x+1.05,y-.75,y+.75,z,z+.2,'cream')
+    box(name+'_soil',x-.96,x+.96,y-.66,y+.66,z+.2,z+.24,'sand')
+    base=z+.24
+    if paddle:
+        for i,(dx,dz,scale) in enumerate([(0,.55,.65),(-.45,1.2,.45),(.48,1.4,.5),(0,1.85,.4)]):
+            bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1,radius=1,location=(x+dx,y,base+dz))
+            obj=bpy.context.object;obj.name=name+'_pad_'+str(i)
+            obj.scale=(scale,.2,scale*1.25);g.apply_all(obj);g.assign(obj,mats['green']);g.ALL.append(obj)
+    else:
+        g.add_cyl_axis(name+'_trunk',(x,y,base+height*.5),.26,height,mats['green'],axis='z',verts=7)
+        for i,(side,h) in enumerate([(-1,height*.4),(1,height*.62)]):
+            g.add_cyl_axis(name+'_arm_'+str(i),(x+side*.45,y,base+h),.20,.9,mats['green'],axis='x',verts=7)
+            g.add_cyl_axis(name+'_upright_'+str(i),(x+side*.9,y,base+h+.45),.20,.95,mats['green'],axis='z',verts=7)
+        # Short sparse ribs are geometry, no high-frequency spine texture.
+        for dx in [-.11,.11]:box(name+'_rib',x+dx-.018,x+dx+.018,y-.26,y-.245,base+.15,base+height-.15,'yellow')
+    g.add_cyl_axis(name+'_pot',(x+.65,y+.28,base+.3),.2,.6,mats['red'],axis='z',verts=7)
+for i,(x,y,z,paddle) in enumerate([(-85,9,0,False),(-72,-62,-3.5,True),(-12,-33,-3.5,False),(13,12,0,True),(-63,20,0,True),(-53.5,-61,-3.5,False)]):
+    cactus('cactus_'+str(i),x,y,z,3.1 if i%2==0 else 3.7,paddle)
+# Faceted cream cloud models are instanced by Godot outside navigation geometry.
+# Match the concept's broad teal-and-cream canopy without changing its footprint.
+for i,(x,y,z) in enumerate([(-34,13.5,0),(-61,-63.5,-3.5),(-12,-38,-3.5)]):
+    for stripe in range(6):
+        box('canopy_stripe_'+str(i)+'_'+str(stripe),x-3+stripe,x-2+stripe,y-2,y+.2,z+3.19,z+3.22,'cream' if stripe%2==0 else 'green')

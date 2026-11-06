@@ -43,11 +43,11 @@ func generate() -> void:
 		copy.mesh = mesh.mesh
 		copy.material_override = palette[mesh.mesh.surface_get_material(0).resource_name]
 		wrapper.add_child(copy)
-		if "wall" in str(mesh.name).to_lower() or str(mesh.name).begins_with("B_") or "Boundary" in str(mesh.name) or "tunnel_rib" in str(mesh.name):
-			copy.material_override = load("res://assets/materials/dust_plaster.tres")
+		copy.material_override = palette[style_color(str(mesh.name),mesh.mesh.surface_get_material(0).resource_name)]
 		var no_collision = str(mesh.name).begins_with("stair_")
-		for word in ["strap","band","shutter","pot","capstone"]:
+		for word in ["strap","band","shutter","pot","capstone","canopy_stripe","cactus"]:
 			if word in str(mesh.name):no_collision = true
+		if "cactus" in str(mesh.name) and ("_bed" in str(mesh.name) or "_trunk" in str(mesh.name)):no_collision = false
 		if not no_collision:
 			var body = StaticBody3D.new()
 			body.name = "Collision"
@@ -89,6 +89,13 @@ func generate() -> void:
 	map.add_to_group("dust_navigation",true)
 	nav.navigation_mesh = nm
 	nav.bake_navigation_mesh(false)
+	# Same low-poly cloud asset as the original yard; never part of walkable nav.
+	for cloud_data in [[Vector3(-82,10,70),1.5],[Vector3(-57,11,72),1.8],[Vector3(-47,12,-18),1.6],[Vector3(16,12,-22),1.4],[Vector3(-12,11,44),1.7]]:
+		var cloud = load("res://assets/models/cloud.glb").instantiate()
+		cloud.name = "Cloud"
+		map.add_child(cloud)
+		cloud.position = cloud_data[0]
+		cloud.scale = Vector3.ONE*cloud_data[1]
 	# Large wall markings are attached graphics, never floating C4 text.
 	for sign_data in [["a",Vector3(8,1.8,-13.72),0.0],["b",Vector3(-59,-1.3,63.72),PI]]:
 		var sign = MeshInstance3D.new();sign.name = "SiteMark_"+sign_data[0]
@@ -166,3 +173,23 @@ func generate() -> void:
 	assert(ResourceSaver.save(packed,"res://scenes/maps/dust_flavor.tscn")==OK)
 	print("DUST_SCENE_SAVED: static collision/nav, 8 authored patrols, 3 objectives")
 	quit()
+
+func style_color(name: String, original: String) -> String:
+	# One authored building has one major color; trim and accents stay independent.
+	if "capstone" in name or "_sill" in name or name=="b_window_sill":return "cream"
+	if "_strap" in name:return "cream"
+	if "_dome" in name:return "cream"
+	if "_tower" in name:return "yellow"
+	if name.begins_with("cactus"):return original
+	if name=="b_window_wall" or name=="b_wall_w":return "red"
+	if name=="b_wall_n":return "green"
+	if name=="b_wall_e":return "purple"
+	if name.begins_with("B_north"):return "green"
+	if name.begins_with("B_west") or name.begins_with("B_ctwest"):return "red"
+	if name.begins_with("B_southwest"):return "purple"
+	if name.begins_with("B_south"):return "cream"
+	if name.begins_with("B_east"):return "cream"
+	if "mid_wall" in name:return "green" if name.ends_with("n") else "cream"
+	if name=="mid_double_doors":return "red"
+	if "_cap" in name or "_lintel" in name:return "cream"
+	return original
