@@ -126,6 +126,17 @@ func label(text: String, pos: Vector2, font_size: int, color: Color = WHITE, cen
 	draw_string(font,pos+Vector2(0,1),text,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size,Color(0.08,.12,.15,.32))
 	draw_string(font,pos,text,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size,color)
 
+func stopwatch(pos: Vector2, color: Color) -> void:
+	for shadow in [true,false]:
+		var center = pos+Vector2(0,1) if shadow else pos
+		var ink = Color(.08,.12,.15,.32) if shadow else color
+		draw_arc(center,10,0,TAU,40,ink,2.4,true)
+		draw_line(center+Vector2(0,-10),center+Vector2(0,-15),ink,2.4,true)
+		draw_line(center+Vector2(-4,-15),center+Vector2(4,-15),ink,2.4,true)
+		draw_line(center+Vector2(8,-8),center+Vector2(11,-11),ink,2.4,true)
+		draw_line(center,center+Vector2(0,-6),ink,2.2,true)
+		draw_line(center,center+Vector2(4,2),ink,2.2,true)
+
 func menu_button(text: String, rect: Rect2, action: String, primary: bool = false, shortcut: String = "") -> Button:
 	var button = Button.new()
 	button.name = action
@@ -220,6 +231,8 @@ func _draw() -> void:
 	var timer_scale = 1.0+sin(time_pulse*PI)*.22
 	var timer_color = WHITE.lerp(Color("ff3e40"),minf(1,time_pulse*2)) if seconds<=10 else WHITE
 	draw_set_transform(timer_center,0,Vector2.ONE*timer_scale)
+	var timer_half_width = font.get_string_size(time_text,HORIZONTAL_ALIGNMENT_LEFT,-1,38).x*.5
+	stopwatch(Vector2(-timer_half_width-23,2),timer_color)
 	label(time_text,Vector2(0,13),38,timer_color,true)
 	if time_pulse>0 and seconds<=10:
 		draw_arc(Vector2.ZERO,30+(1-time_pulse)*24,0,TAU,48,Color(1,.12,.15,time_pulse*.6),2)
