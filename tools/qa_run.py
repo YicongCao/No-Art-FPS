@@ -9,6 +9,6 @@ except subprocess.TimeoutExpired as error:
     raise
 Path('logs').mkdir(exist_ok=True)
 Path('logs/latest-check.log').write_text(result.stdout)
-print(result.stdout)
+print(result.stdout if len(result.stdout)<16000 else result.stdout[:8000]+"\n... full log: logs/latest-check.log ...\n"+result.stdout[-4000:])
 if result.returncode or 'ERROR:' in result.stdout:
     raise SystemExit(1)

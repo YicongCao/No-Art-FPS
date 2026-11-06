@@ -1,0 +1,19 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://assets/shaders/wall_paint.gdshader" id="1_2hfxg"]
+[ext_resource type="Texture2D" path="res://assets/graffiti/warehouse.png" id="2_erso6"]
+[ext_resource type="Texture2D" path="res://assets/graffiti/sixty-yard.png" id="3_07v1t"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_2hfxg")
+shader_parameter/base_color = Color(0.8980392, 0.8784314, 0.8235294, 1)
+shader_parameter/paint_count = 2
+shader_parameter/artwork_0 = ExtResource("2_erso6")
+shader_parameter/artwork_1 = ExtResource("3_07v1t")
+shader_parameter/paint_center_0 = Vector3(23.85, 2.75, -2.5)
+shader_parameter/paint_center_1 = Vector3(0, 1.48, -8.94)
+shader_parameter/paint_normal_0 = Vector3(-1, 0, 0)
+shader_parameter/paint_normal_1 = Vector3(0, 0, 1)
+shader_parameter/paint_size_0 = Vector2(6.7, 4.05)
+shader_parameter/paint_size_1 = Vector2(7.1, 2.35)

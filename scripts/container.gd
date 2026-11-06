@@ -1,7 +1,7 @@
 extends Node3D
 
 var game: Node
-var paint: Material
+@export var paint: Material
 var doors: Array[Node3D] = []
 var shapes: Array[CollisionShape3D] = []
 var opening = false
@@ -9,14 +9,23 @@ var progress = 0.0
 var occupant: Node3D
 
 func _ready() -> void:
-	var visual = preload("res://assets/models/container_openable.glb").instantiate()
-	add_child(visual)
+	var visual = get_node_or_null("Visual")
+	if visual==null:
+		visual = preload("res://assets/models/container_openable.glb").instantiate()
+		visual.name = "Visual"
+		add_child(visual)
 	for mesh in visual.find_children("*","MeshInstance3D",true,false):
 		if mesh.mesh.surface_get_material(0).resource_name=="paint":mesh.material_override = paint
 	for door_name in ["DoorLeft","DoorRight"]:
 		var pivot = visual.find_child(door_name,true,false)
 		doors.append(pivot)
-		var body = AnimatableBody3D.new()
+		var body = pivot.get_node_or_null("DoorCollision")
+		if body!=null:
+			shapes.append(body.get_child(0))
+			body.set_meta("container",self)
+			continue
+		body = AnimatableBody3D.new()
+		body.name = "DoorCollision"
 		body.sync_to_physics = false
 		body.collision_layer = 1
 		body.collision_mask = 0
@@ -29,7 +38,9 @@ func _ready() -> void:
 		shape.position = Vector3(0,1.4,.675 if doors.size()==1 else -.675)
 		body.add_child(shape)
 		shapes.append(shape)
+	if has_node("InteriorLight"):return
 	var light = OmniLight3D.new()
+	light.name = "InteriorLight"
 	light.position = Vector3(.6,2.3,0)
 	light.light_color = Color("ffe4ae")
 	light.light_energy = .45
@@ -44,14 +55,14 @@ func reset() -> void:
 	for shape in shapes:shape.disabled = false
 
 func open() -> void:
-	if game.state!="RUNNING" or opening:return
+	if game==null or game.state!="RUNNING" or opening:return
 	opening = true
 	# Swing outside the doorway; disable moving colliders to avoid pushing actors.
 	for shape in shapes:shape.disabled = true
 	game.play_world_sound("reload",to_global(Vector3(3,1.4,0)),-10)
 
 func _physics_process(delta: float) -> void:
-	if game.state!="RUNNING" or not visible:return
+	if game==null or game.state!="RUNNING" or not visible:return
 	if not opening:
 		var local_player = to_local(game.player.global_position)
 		# Trigger only in front of this doorway, not through its sides or roof.
