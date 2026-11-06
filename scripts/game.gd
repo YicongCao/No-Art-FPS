@@ -49,6 +49,7 @@ var loading = LoadingTransition.new()
 var load_ticket = 0
 var opening_prepared = false
 var enemy_model: PackedScene
+var title_frame_ready = false
 
 func _ready() -> void:
 	process_physics_priority = -100
@@ -117,6 +118,7 @@ func _ready() -> void:
 			break
 		await get_tree().physics_frame
 	if not nav_ready:push_error("Navigation map failed to synchronize")
+	await capture_opening_frame()
 	if "--capture" in OS.get_cmdline_user_args():
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png("res://artifacts/title.png")
@@ -148,6 +150,27 @@ func load_record() -> void:
 		player.sensitivity = clampf(float(cfg.get_value("settings","sensitivity",.0022)),.0006,.006)
 		reduced_motion = bool(cfg.get_value("settings","reduced_motion",false))
 		music_volume = clampf(float(cfg.get_value("settings","music_volume",.7)),0,1)
+
+func spawn_opening_actor(index: int) -> Node3D:
+	var actor = spawn_enemy(OPENING_POSITIONS[index],index==1)
+	actor.look_at(Vector3(player.position.x,actor.position.y,player.position.z))
+	return actor
+
+func capture_opening_frame() -> void:
+	# Render the same frozen starting composition the loader will prepare.
+	# Capture before any UI, movement or damage so it is a clean gameplay frame.
+	if DisplayServer.get_name()=="headless":
+		title_frame_ready = true
+		return
+	hud.hide()
+	for i in range(OPENING_POSITIONS.size()):spawn_opening_actor(i)
+	for i in [0,2]:arena.containers[i].add_guard()
+	opening_prepared = true
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	hud.set_title_frame(get_viewport().get_texture().get_image())
+	title_frame_ready = true
+	hud.show()
 
 func save_record() -> void:
 	if qa_mode:return
@@ -198,7 +221,7 @@ func reset_run_state() -> void:
 	hud.reset_magazine()
 
 func request_run() -> void:
-	if state not in ["TITLE","RESULTS","PAUSED"]:return
+	if not title_frame_ready or state not in ["TITLE","RESULTS","PAUSED"]:return
 	load_ticket += 1
 	state = "LOADING"
 	loading = LoadingTransition.new()
@@ -274,8 +297,7 @@ func prepare_loaded_run(ticket: int) -> void:
 	# Instantiate and render one actor per frame before gameplay to warm
 	# imported meshes/materials without a single eight-enemy creation burst.
 	for i in range(OPENING_POSITIONS.size()):
-		var actor = spawn_enemy(OPENING_POSITIONS[i],i==1)
-		actor.look_at(Vector3(player.position.x,actor.position.y,player.position.z))
+		spawn_opening_actor(i)
 		loading.report(.4+float(i+1)/8*.5)
 		await loading_frame()
 		if ticket!=load_ticket:return

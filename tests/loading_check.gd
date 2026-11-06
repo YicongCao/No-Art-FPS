@@ -26,9 +26,22 @@ func _ready() -> void:
 	print("LOADING_MODEL_WAIT_CAP_PASS")
 	await get_tree().process_frame
 	await capture("title-fire")
+	assert(game.title_frame_ready and game.hud.title_frame!=null)
+	captures["opening-frame"] = game.hud.title_frame.get_image()
+	var title_background = background_patch(captures["title-fire"])
+	# The title must retain the captured starting frame even when the underlying
+	# 3D camera is moved; loading preparation must remain hidden behind it too.
+	game.player.rotation.y = .5
+	await get_tree().process_frame
+	await capture("title-frozen-check")
+	assert(title_background.compute_image_metrics(background_patch(captures["title-frozen-check"]),false)["mean"]<.01)
+	captures.erase("title-frozen-check")
+	game.player.rotation.y = 0
 	# Exercise the actual text button hitbox, rather than directly firing its signal.
 	var button = game.hud.fire_button
 	assert(button is Button and button.text=="FIRE" and button.get_theme_constant("outline_size")==6)
+	assert(button.get_theme_color("font_color")==Color.WHITE and button.get_theme_color("font_outline_color")==Color.BLACK)
+	assert(button.get_theme_stylebox("normal").border_width_left==2)
 	var point = button.get_global_rect().get_center()
 	var motion = InputEventMouseMotion.new()
 	motion.position = point
@@ -68,8 +81,8 @@ func _ready() -> void:
 		if phase=="FILL" and not seen.has("FILL"):
 			await capture("loading-fill")
 			first_cover_ms = float(last_capture_time-start_time)/1000.0
-			var image = get_viewport().get_texture().get_image()
-			assert(image.get_pixel(4,4).is_equal_approx(image.get_pixel(image.get_width()-5,image.get_height()-5)),"Loading background is solid")
+			assert(title_background.compute_image_metrics(background_patch(captures["loading-fill"]),false)["mean"]<.01,"Title and loading share the same image and black opacity")
+			assert(game.hud.loading_cover.material.get_shader_parameter("shade_opacity")==game.hud.TITLE_SHADE_OPACITY)
 			seen["FILL"] = true
 		elif phase=="SEAT" and loader.phase_time>.1 and not seen.has(phase):
 			assert(loader.rounds==20 and loader.work_complete)
@@ -121,7 +134,10 @@ func _ready() -> void:
 	escape.pressed = true
 	game._unhandled_input(escape)
 	await get_tree().create_timer(.2).timeout
-	assert(game.state=="TITLE" and game.enemies.get_child_count()==0 and not game.hud.loading_cover.visible)
+	assert(game.state=="TITLE" and game.enemies.get_child_count()==0 and game.hud.loading_cover.visible)
+	await capture("title-return-check")
+	assert(title_background.compute_image_metrics(background_patch(captures["title-return-check"]),false)["mean"]<.01,"Returning to title restores the same first-frame background")
+	captures.erase("title-return-check")
 	# Early click while nav is still pending, plus focus suspension and safe reentry.
 	game.nav_ready = false
 	game.request_run()
@@ -146,10 +162,14 @@ func _ready() -> void:
 	game.clear_round()
 	for filename in captures:captures[filename].save_png("res://artifacts/"+filename+".png")
 	await get_tree().create_timer(.3).timeout
-	print("LOADING_CHECK_PASS: button, staged prep, 17-round cap, wipe then dock, immediate GO/input/timer, fade/pause, retry/cancel, early click, focus, resize")
+	print("LOADING_CHECK_PASS: white outlined button, frozen first frame/shared shade, staged prep, 17-round cap, wipe then dock, immediate GO/input/timer, fade/pause, retry/cancel, early click, focus, resize")
 	get_tree().quit()
 
 func capture(filename: String) -> void:
 	await RenderingServer.frame_post_draw
 	last_capture_time = Time.get_ticks_usec()
 	captures[filename] = get_viewport().get_texture().get_image()
+
+func background_patch(image: Image) -> Image:
+	# Outside both the title text and the central loading magazine.
+	return image.get_region(Rect2i(int(image.get_width()*.72),int(image.get_height()*.16),120,90))

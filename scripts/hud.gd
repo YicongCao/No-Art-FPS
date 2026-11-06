@@ -21,6 +21,8 @@ var sensitivity_slider: HSlider
 var motion_button: Button
 var music_slider: HSlider
 var fire_button: Button
+var title_frame: ImageTexture
+const TITLE_SHADE_OPACITY = .55
 const WHITE = Color("fff8e8")
 const INK = Color("243440")
 const GOLD = Color("f2d084")
@@ -127,10 +129,16 @@ func loading_magazine_rect() -> Rect2:
 
 func sync_loading_cover() -> void:
 	if not is_instance_valid(loading_cover):return
-	loading_cover.visible = game.state=="LOADING"
-	vignette.visible = game.state!="LOADING"
-	loading_cover.material.set_shader_parameter("progress",game.loading.reveal_progress())
+	loading_cover.visible = game.state in ["TITLE","LOADING"] and title_frame!=null
+	vignette.visible = game.state not in ["TITLE","LOADING"]
+	loading_cover.material.set_shader_parameter("progress",game.loading.reveal_progress() if game.state=="LOADING" else 0.0)
 	loading_cover.material.set_shader_parameter("viewport_size",size)
+
+func set_title_frame(image: Image) -> void:
+	title_frame = ImageTexture.create_from_image(image)
+	loading_cover.material.set_shader_parameter("opening_frame",title_frame)
+	loading_cover.material.set_shader_parameter("shade_opacity",TITLE_SHADE_OPACITY)
+	sync_loading_cover()
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -253,12 +261,17 @@ func rebuild_menu() -> void:
 		fire_button.name = "fire"
 		fire_button.add_theme_font_size_override("font_size",68)
 		fire_button.add_theme_constant_override("outline_size",6)
-		fire_button.add_theme_color_override("font_outline_color",INK)
+		fire_button.add_theme_color_override("font_outline_color",Color.BLACK)
 		for color_name in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]:
-			fire_button.add_theme_color_override(color_name,Color("f46d9b"))
-		fire_button.add_theme_color_override("font_hover_color",Color("ffadd0"))
+			fire_button.add_theme_color_override(color_name,Color.WHITE)
 		for style_name in ["normal","hover","pressed","focus"]:
-			fire_button.add_theme_stylebox_override(style_name,StyleBoxEmpty.new())
+			var style = StyleBoxFlat.new()
+			style.bg_color = Color.TRANSPARENT
+			if style_name=="hover":style.bg_color = Color(1,1,1,.08)
+			if style_name=="pressed":style.bg_color = Color(1,1,1,.16)
+			style.set_border_width_all(3 if style_name=="focus" else 2)
+			style.border_color = Color.WHITE
+			fire_button.add_theme_stylebox_override(style_name,style)
 		fire_button.pivot_offset = fire_button.size*.5
 		fire_button.button_down.connect(func():fire_button.scale = Vector2.ONE*.96)
 		fire_button.button_up.connect(func():fire_button.scale = Vector2.ONE)
@@ -306,16 +319,11 @@ func _draw() -> void:
 		draw_magazine_body(loading_magazine_rect(),count,16*incoming,incoming)
 		return
 	if state == "TITLE":
-		draw_rect(Rect2(0,0,size.x*.43,size.y),Color(.055,.08,.10,.86))
 		var words = ["NO","ART","FPS"]
-		var colors = [Color("f46d9b"),Color("43cfde"),Color("ffe78e")]
 		for i in range(words.size()):
-			var pos = Vector2(254,220+i*150)
-			pos.x -= font.get_string_size(words[i],HORIZONTAL_ALIGNMENT_LEFT,-1,160).x*.5
-			draw_string_outline(font,pos,words[i],HORIZONTAL_ALIGNMENT_LEFT,-1,160,7,INK)
-			draw_string(font,pos,words[i],HORIZONTAL_ALIGNMENT_LEFT,-1,160,colors[i])
-		if is_instance_valid(fire_button) and fire_button.has_focus():
-			draw_line(Vector2(140,size.y-68),Vector2(368,size.y-68),GOLD,2,true)
+			var pos = Vector2(104,220+i*150)
+			draw_string_outline(font,pos,words[i],HORIZONTAL_ALIGNMENT_LEFT,-1,160,7,Color.BLACK)
+			draw_string(font,pos,words[i],HORIZONTAL_ALIGNMENT_LEFT,-1,160,Color.WHITE)
 		return
 	if state == "RESULTS":
 		draw_rect(Rect2(Vector2.ZERO,size),Color(.06,.09,.12,.80))

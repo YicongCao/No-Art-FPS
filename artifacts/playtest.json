@@ -1,12 +1,12 @@
 {
   "baseline_nodes": 2031,
   "duration_game_seconds": 60.0,
-  "frames": 3351,
-  "headshots": 87,
-  "kills": 87,
-  "node_count_at_end": 1986,
+  "frames": 3411,
+  "headshots": 84,
+  "kills": 84,
+  "node_count_at_end": 1951,
   "note": "Automated perfect-aim test with scripted repositioning; not human gameplay or long-run validation. Frame intervals include a 60 fps cap.",
   "p95_frame_ms": 16.6666666666667,
-  "p99_frame_ms": 30.1463333333331,
-  "shots": 158
+  "p99_frame_ms": 16.6666666666667,
+  "shots": 171
 }
