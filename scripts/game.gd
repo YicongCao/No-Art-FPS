@@ -121,6 +121,7 @@ func _ready() -> void:
 		if "--expansion" in OS.get_cmdline_user_args():test_path = "res://tests/expanded_map_check.gd"
 		if "--population" in OS.get_cmdline_user_args():test_path = "res://tests/population_check.gd"
 		if "--combat" in OS.get_cmdline_user_args():test_path = "res://tests/combat_check.gd"
+		if "--movement" in OS.get_cmdline_user_args():test_path = "res://tests/movement_check.gd"
 		var qa = load(test_path).new()
 		qa.game = self
 		add_child(qa)
@@ -323,6 +324,12 @@ func zone_population(zone: String) -> int:
 func zone_capacity(zone: String) -> int:
 	return population_target()-4 if zone=="yard" else 2
 
+func spawn_is_clear(point: Vector3) -> bool:
+	for enemy in live_enemies():
+		var offset = enemy.global_position-point
+		if absf(offset.y)<1.8 and Vector2(offset.x,offset.z).length()<1.4:return false
+	return true
+
 func update_spawns(delta: float) -> void:
 	for i in range(spawn_cooldowns.size()):spawn_cooldowns[i] = maxf(0,spawn_cooldowns[i]-delta)
 	if not pending_spawn.is_empty():
@@ -334,7 +341,7 @@ func update_spawns(delta: float) -> void:
 			var blocked = not get_world_3d().direct_space_state.intersect_ray(query).is_empty()
 			var screen = player.camera.unproject_position(p+Vector3(0,1,0))
 			var visible_now = not player.camera.is_position_behind(p) and get_viewport().get_visible_rect().has_point(screen)
-			if p.distance_to(player.position)>8 and (blocked or not visible_now) and live_enemies().size()<population_target() and zone_population(arena.enemy_zone(p))<zone_capacity(arena.enemy_zone(p)):
+			if p.distance_to(player.position)>8 and spawn_is_clear(p) and (blocked or not visible_now) and live_enemies().size()<population_target() and zone_population(arena.enemy_zone(p))<zone_capacity(arena.enemy_zone(p)):
 				var rushers = live_enemies().filter(func(e):return e.fast).size()
 				spawn_enemy(p,rules.elapsed>8 and rushers<(2 if rules.elapsed<40 else 3) and rng.randf()<.35)
 			pending_spawn.clear()
@@ -346,7 +353,7 @@ func update_spawns(delta: float) -> void:
 	var choices: Array[int] = []
 	for i in range(arena.spawn_points.size()):
 		var p: Vector3 = arena.spawn_points[i]
-		if spawn_cooldowns[i]>0 or p.distance_to(player.position)<8:continue
+		if spawn_cooldowns[i]>0 or p.distance_to(player.position)<8 or not spawn_is_clear(p):continue
 		var zone = arena.enemy_zone(p)
 		if zone_population(zone)>=zone_capacity(zone):continue
 		var path = NavigationServer3D.map_get_path(arena.nav.get_navigation_map(),p,player.position,true)
