@@ -56,36 +56,39 @@ func _ready() -> void:
 	game.clear_round()
 	game.player.enabled = false
 	game.player.position = Vector3(18,.05,0)
+	game.health = 100
 	game.invulnerable = 0
-	var rusher = game.spawn_enemy(Vector3(18,0,5),true)
+	var rusher = game.spawn_enemy(Vector3(18,0,9),true)
 	rusher.attack = 0
-	await get_tree().create_timer(.12).timeout
-	assert(rusher.fast and rusher.rush_state=="WINDUP" and rusher.charge_marker.visible)
-	assert(not rusher.visual.find_child("EnemyGun",true,false).visible)
+	await get_tree().create_timer(.8).timeout
+	assert(rusher.position.z<5,"Knife enemy must quickly close distance")
+	assert(rusher.knife.visible and not rusher.visual.find_child("EnemyGun",true,false).visible)
+	for frame in range(120):
+		if rusher.rush_state=="WINDUP":break
+		await get_tree().physics_frame
+	assert(rusher.rush_state=="WINDUP")
 	game.state = "PAUSED"
 	var warning = rusher.rush_time
 	await get_tree().create_timer(.3).timeout
 	assert(rusher.rush_time==warning)
 	game.state = "RUNNING"
 	game.player.position.x = 22
-	await get_tree().create_timer(1.5).timeout
-	assert(game.health==100 and absf(rusher.position.x-18)<.2,"Sidestep must dodge locked-direction charge")
-	assert(rusher.rush_state=="RECOVER" and game.bullets.is_empty())
-	print("COMBAT_RUSH_DODGE_PAUSE_PASS")
+	await get_tree().create_timer(.7).timeout
+	assert(game.health==100 and rusher.rush_state=="RECOVER","Sidestep must dodge the locked slash")
+	print("COMBAT_KNIFE_APPROACH_DODGE_PAUSE_PASS")
 	game.clear_round()
 	game.player.position = Vector3(18,.05,0)
-	game.invulnerable = 0
-	rusher = game.spawn_enemy(Vector3(18,0,4),true)
+	rusher = game.spawn_enemy(Vector3(18,0,1.5),true)
 	rusher.attack = 0
-	await get_tree().create_timer(1.3).timeout
-	assert(game.health==58 and rusher.rush_state=="RECOVER","Contact deals one 42-point hit")
-	await get_tree().create_timer(.3).timeout
-	assert(game.health==58)
-	print("COMBAT_RUSH_CONTACT_PASS")
+	await get_tree().create_timer(.85).timeout
+	assert(game.health==66 and rusher.rush_state=="RECOVER","One slash deals one 34-point hit")
+	await get_tree().create_timer(.15).timeout
+	assert(game.health==66 and game.bullets.is_empty())
+	print("COMBAT_KNIFE_HIT_PASS")
 	game.clear_round()
 	game.health = 100
 	game.invulnerable = 0
-	rusher = game.spawn_enemy(Vector3(18,0,5),true)
+	rusher = game.spawn_enemy(Vector3(18,0,1.5),true)
 	rusher.attack = 0
 	await get_tree().create_timer(.1).timeout
 	assert(rusher.rush_state=="WINDUP")
@@ -94,22 +97,22 @@ func _ready() -> void:
 	blocker_shape.shape = box
 	blocker.add_child(blocker_shape)
 	game.add_child(blocker)
-	blocker.position = Vector3(18,1.5,2.5)
-	await get_tree().create_timer(1.2).timeout
-	assert(game.health==100 and rusher.position.z>2.5 and rusher.rush_state=="RECOVER")
+	blocker.position = Vector3(18,1.5,.75)
+	await get_tree().create_timer(.75).timeout
+	assert(game.health==100,"Solid cover must block knife damage")
 	blocker.queue_free()
-	print("COMBAT_RUSH_WALL_PASS")
+	print("COMBAT_KNIFE_COVER_PASS")
 	game.clear_round()
-	rusher = game.spawn_enemy(Vector3(18,0,5),true)
+	rusher = game.spawn_enemy(Vector3(18,0,1.5),true)
 	rusher.attack = 0
 	await get_tree().create_timer(.1).timeout
 	assert(rusher.rush_state=="WINDUP")
 	var before = game.rules.kills
 	rusher.take_hit(true)
-	assert(rusher.dead and not rusher.charge_marker.visible and game.rules.kills==before+1)
-	await get_tree().create_timer(1).timeout
+	assert(rusher.dead and game.rules.kills==before+1)
+	await get_tree().create_timer(.75).timeout
 	assert(game.health==100)
-	print("COMBAT_RUSH_INTERRUPT_PASS")
+	print("COMBAT_KNIFE_INTERRUPT_PASS")
 	if DisplayServer.get_name()!="headless":await showcase()
 	game.state = "RESULTS"
 	game.clear_round()
@@ -137,7 +140,8 @@ func showcase() -> void:
 	game.invulnerable = 999
 	var rusher = game.spawn_enemy(Vector3(-5,0,3),true)
 	rusher.set_physics_process(false)
-	rusher.start_charge()
+	rusher.start_slash()
+	rusher.knife_arm.rotation.x = -2.1
 	rusher.visual.position.y = -.12
 	stationary(Vector3(-6.8,0,5))
 	await get_tree().physics_frame
@@ -149,3 +153,17 @@ func showcase() -> void:
 	await get_tree().create_timer(.07).timeout
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://artifacts/combat-explosion.png")
+	game.clear_round()
+	game.player.position = Vector3(18,.05,0)
+	rusher = game.spawn_enemy(Vector3(18,0,-3.2),true)
+	rusher.set_physics_process(false)
+	rusher.start_slash()
+	rusher.knife_arm.rotation.x = -2.35
+	aim(rusher.position+Vector3(0,1.3,0))
+	await get_tree().create_timer(.1).timeout
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://artifacts/knife-raised.png")
+	rusher.knife_arm.rotation.x = -.35
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://artifacts/knife-slash.png")

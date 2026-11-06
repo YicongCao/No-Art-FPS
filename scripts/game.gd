@@ -123,6 +123,7 @@ func _ready() -> void:
 		if "--combat" in OS.get_cmdline_user_args():test_path = "res://tests/combat_check.gd"
 		if "--movement" in OS.get_cmdline_user_args():test_path = "res://tests/movement_check.gd"
 		if "--magazine" in OS.get_cmdline_user_args():test_path = "res://tests/magazine_check.gd"
+		if "--containers" in OS.get_cmdline_user_args():test_path = "res://tests/container_check.gd"
 		var qa = load(test_path).new()
 		qa.game = self
 		add_child(qa)
@@ -179,6 +180,7 @@ func start_run() -> void:
 
 func clear_round() -> void:
 	for barrel in arena.barrels:barrel.reset()
+	for room in arena.containers:room.reset()
 	bullets.clear()
 	for node in enemies.get_children():
 		enemies.remove_child(node)
@@ -196,8 +198,10 @@ func begin_running() -> void:
 	rules.start()
 	player.enabled = true
 	# Deliberate opening target set when the countdown ends. Reinforcements use hidden gates.
-	for p in [Vector3(-4,0,1.5),Vector3(2,0,-5),Vector3(11,0,1),Vector3(-13,0,-5),Vector3(30,0,3),Vector3(30,0,-10),Vector3(-4,3.1,-11),Vector3(4,3.1,-11)]:
+	for p in [Vector3(-4,0,1.5),Vector3(11,0,1),Vector3(30,0,3),Vector3(30,0,-10),Vector3(-4,3.1,-11),Vector3(4,3.1,-11)]:
 		spawn_enemy(p,p==Vector3(11,0,1))
+	# Two existing yard slots start inside the green and purple containers.
+	for i in [0,2]:arena.containers[i].add_guard()
 	play_sound("tick",-10)
 
 func finish_run() -> void:

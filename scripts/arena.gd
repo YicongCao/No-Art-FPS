@@ -1,8 +1,10 @@
 extends Node3D
 
 const Barrel = preload("res://scripts/explosive_barrel.gd")
+const ContainerRoom = preload("res://scripts/container.gd")
 var game: Node
 var barrels: Array[Node3D] = []
+var containers: Array[Node3D] = []
 var nav: NavigationRegion3D
 var materials: Dictionary = {}
 var boxes: Dictionary = {}
@@ -61,8 +63,26 @@ func model(kind: String, pos: Vector3, yaw: float = 0.0, size: Vector3 = Vector3
 	return node
 
 func container(color: String, pos: Vector3, turn: bool = false) -> void:
-	model("container_"+color,pos,PI/2 if turn else 0.0)
-	collider(pos+Vector3(0,1.45,0),Vector3(2.8,2.9,6) if turn else Vector3(6,2.9,2.8))
+	if pos.y>1:
+		model("container_"+color,pos,PI/2 if turn else 0.0)
+		collider(pos+Vector3(0,1.45,0),Vector3(2.8,2.9,6) if turn else Vector3(6,2.9,2.8))
+		return
+	var room = ContainerRoom.new()
+	room.game = game
+	room.paint = materials[color]
+	room.position = pos
+	room.rotation.y = -PI/2 if turn else 0.0
+	add_child(room)
+	containers.append(room)
+	# Shell colliders are baked; hinged doors live outside the static nav geometry.
+	for panel in [
+		[Vector3(0,-.04,0),Vector3(6,.08,2.8)],
+		[Vector3(0,2.85,0),Vector3(6,.1,2.8)],
+		[Vector3(-2.95,1.4,0),Vector3(.1,2.8,2.8)],
+		[Vector3(0,1.4,-1.35),Vector3(6,2.8,.1)],
+		[Vector3(0,1.4,1.35),Vector3(6,2.8,.1)]]:
+		var extent: Vector3 = panel[1]
+		collider(room.to_global(panel[0]),Vector3(extent.z,extent.y,extent.x) if turn else extent)
 
 func rail(a: Vector3, b: Vector3, color: String = "purple") -> void:
 	var n = int(a.distance_to(b)/1.6)+1

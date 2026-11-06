@@ -6,12 +6,15 @@ var agent: NavigationAgent3D
 var health = 3
 var dead = false
 var fast = false
+var container_room: Node3D
 var home_zone = "yard"
 var patrol_offset = 0
 var rush_state = "CHASE"
 var rush_time = 0.0
 var rush_direction = Vector3.ZERO
-var charge_marker: MeshInstance3D
+var knife_arm: Node3D
+var knife: Node3D
+var slash_hit = false
 var orange: StandardMaterial3D
 var age = 0.0
 var think = 0.0
@@ -57,15 +60,15 @@ func _ready() -> void:
 			var mesh = visual.find_child(part,true,false)
 			if mesh:mesh.material_override = orange
 		visual.find_child("EnemyGun",true,false).hide()
-		charge_marker = MeshInstance3D.new()
-		var strip = BoxMesh.new()
-		strip.size = Vector3(.22,.025,8.125)
-		charge_marker.mesh = strip
-		charge_marker.material_override = game.effect_material(Color("ffb24a"))
-		charge_marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		add_child(charge_marker)
-		charge_marker.position = Vector3(0,.04,-4.0625)
-		charge_marker.hide()
+		knife_arm = Node3D.new()
+		visual.add_child(knife_arm)
+		knife_arm.position = Vector3(.3,1.4,0)
+		for part in ["RightArm","RightHand"]:
+			visual.find_child(part,true,false).reparent(knife_arm)
+		knife = preload("res://assets/models/knife.glb").instantiate()
+		knife_arm.add_child(knife)
+		knife.position = Vector3(0,-.46,-.18)
+		knife.rotation.x = PI
 	for part in ["LeftLeg","RightLeg","LeftArm","RightArm"]:
 		var limb = visual.find_child(part,true,false)
 		if limb:
@@ -99,6 +102,10 @@ func _physics_process(delta: float) -> void:
 		if death_time > 1.4:queue_free()
 		return
 	if game.state != "RUNNING":return
+	if is_instance_valid(container_room) and container_room.progress<1:
+		velocity = Vector3.ZERO
+		agent.velocity = Vector3.ZERO
+		return
 	age += delta
 	hurt = maxf(0,hurt-delta)
 	if fast:
@@ -172,17 +179,11 @@ func steer_around_neighbors(desired: Vector3) -> Vector3:
 func apply_safe_velocity(safe_velocity: Vector3) -> void:
 	# Navigation callbacks also arrive while menus or test fixtures freeze actors.
 	if dead or game.state!="RUNNING" or not is_physics_processing():return
+	if is_instance_valid(container_room) and container_room.progress<1:return
 	if not fast or rush_state=="CHASE":
 		velocity.x = safe_velocity.x
 		velocity.z = safe_velocity.z
-	# A telegraphed charge stays straight; body collisions stop it at other actors.
 	move_and_slide()
-	if fast and rush_state=="CHARGE":
-		var offset = game.player.global_position-global_position
-		if Vector2(offset.x,offset.z).length()<.95 and absf(offset.y)<1.2 and can_see_player():
-			game.damage_player(42)
-			recover_charge()
-		elif is_on_wall():recover_charge()
 
 func can_see_player() -> bool:
 	var query = PhysicsRayQueryParameters3D.create(global_position+Vector3(0,1.4,0),game.player.global_position+Vector3(0,1.1,0),1)
@@ -198,26 +199,24 @@ func take_damage(amount: int, is_head: bool = false) -> void:
 	if health <= 0:
 		dead = true
 		agent.avoidance_enabled = false
-		if charge_marker:charge_marker.hide()
 		collision_layer = 0
 		collision_mask = 0
 		head_area.collision_layer = 0
 		game.on_kill(self,is_head)
 
-func start_charge() -> void:
+func start_slash() -> void:
 	rush_state = "WINDUP"
-	rush_time = .75
+	rush_time = .4
 	rush_direction = game.player.global_position-global_position
 	rush_direction.y = 0
 	rush_direction = rush_direction.normalized()
 	rotation.y = atan2(-rush_direction.x,-rush_direction.z)
-	charge_marker.show()
+	slash_hit = false
 	game.play_world_sound("charge",global_position+Vector3.UP,-9)
 
 func recover_charge() -> void:
 	rush_state = "RECOVER"
-	rush_time = .9
-	charge_marker.hide()
+	rush_time = .65
 	velocity.x = 0
 	velocity.z = 0
 	orange.albedo_color = Color("f17c28")
@@ -237,34 +236,35 @@ func process_rusher(delta: float) -> void:
 			direction = agent.get_next_path_position()-global_position
 			direction.y = 0
 			direction = direction.normalized() if direction.length()>.15 else Vector3.ZERO
-			speed = 3.4
+			speed = 5.8
 			if direction.length_squared()>.01:rotation.y = lerp_angle(rotation.y,atan2(-direction.x,-direction.z),delta*10)
-			if attack<=0 and distance<10 and absf(to_player.y)<1.2 and game.respawn_time<=0 and can_see_player():
-				start_charge()
+			if attack<=0 and distance<1.85 and absf(to_player.y)<1.0 and game.respawn_time<=0 and can_see_player():
+				start_slash()
 				speed = 0
 		"WINDUP":
 			rush_time -= delta
 			orange.albedo_color = Color("fff1b7") if int(rush_time*12)%2==0 else Color("f17c28")
+			knife_arm.rotation.x = lerpf(0,-2.35,clampf(1-rush_time/.4,0,1))
 			if rush_time<=0:
-				rush_state = "CHARGE"
-				rush_time = .65
-				charge_marker.hide()
+				rush_state = "SLASH"
+				rush_time = .24
 				orange.albedo_color = Color("f17c28")
-		"CHARGE":
+		"SLASH":
 			rush_time -= delta
-			direction = rush_direction
-			speed = 12.5
-			# Stop at ledges instead of charging off the upper deck.
-			var ahead = global_position+direction*.8
-			var ground = PhysicsRayQueryParameters3D.create(ahead+Vector3.UP*.4,ahead-Vector3.UP*.9,1)
-			if rush_time<=0 or get_world_3d().direct_space_state.intersect_ray(ground).is_empty():
-				recover_charge()
-				speed = 0
+			var swing = clampf(1-rush_time/.24,0,1)
+			knife_arm.rotation.x = lerpf(-2.35,.65,swing)
+			if swing>=.45 and not slash_hit:
+				slash_hit = true
+				var flat = Vector3(to_player.x,0,to_player.z)
+				if flat.length()<2.1 and absf(to_player.y)<1 and rush_direction.dot(flat.normalized())>.5 and can_see_player():
+					game.damage_player(34)
+			if rush_time<=0:recover_charge()
 		"RECOVER":
 			rush_time -= delta
+			knife_arm.rotation.x = .65*maxf(0,rush_time/.65)
 			if rush_time<=0:
 				rush_state = "CHASE"
-				attack = 1.2
+				attack = .15
 	velocity.x = direction.x*speed
 	velocity.z = direction.z*speed
 	if not is_on_floor():velocity.y -= 20*delta
@@ -272,7 +272,9 @@ func process_rusher(delta: float) -> void:
 	agent.velocity = steer_around_neighbors(desired) if rush_state=="CHASE" else desired
 	var movement = Vector2(get_real_velocity().x,get_real_velocity().z).length()
 	walk_phase += delta*movement*3
-	for i in range(limbs.size()):limbs[i].rotation.x = sin(walk_phase+float(i%2)*PI)*.55*minf(movement/3.4,1)
+	for i in range(limbs.size()):
+		if limbs[i].name!="RightArm":limbs[i].rotation.x = sin(walk_phase+float(i%2)*PI)*.55*minf(movement/5.8,1)
+	if rush_state=="CHASE":knife_arm.rotation.x = -.25+sin(walk_phase)*.18
 	visual.position.y = -.12 if rush_state=="WINDUP" else absf(sin(walk_phase))*.035
 	visual.rotation.z = sin(age*40)*hurt*.25
 	if global_position.y < -5:queue_free()

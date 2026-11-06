@@ -10,7 +10,7 @@ func _ready() -> void:
 	game.set_physics_process(false)
 	game.player.enabled = false
 	game.invulnerable = 999
-	var guards = game.live_enemies().filter(func(e):return not e.fast)
+	var guards = game.live_enemies().filter(func(e):return not e.fast and not is_instance_valid(e.container_room))
 	var starts: Array[Vector3] = []
 	var travelled: Array[float] = []
 	for enemy in guards:

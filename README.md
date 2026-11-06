@@ -30,7 +30,9 @@ Enemy targets rise from 8 to 10 to 12 across the three 20-second phases. Two pat
 
 Black guards walk and patrol continuously. Enemies steer around one another, their bodies collide, and occupied reinforcement positions are deferred until clear.
 
-Red-and-yellow barrels ignite when shot, warn for 0.65 seconds and explode within five metres; solid cover blocks blast damage, and nearby barrels chain. Orange rushers telegraph a locked-direction charge for 0.75 seconds: sidestep, shoot them during windup, or lure them into barrels.
+Ground-level container doors open automatically when you approach the entrance. The green and purple containers hold black guards who join combat after the doors open; you can walk inside. No interaction key is required.
+
+Red-and-yellow barrels ignite when shot, warn for 0.65 seconds and explode within five metres; solid cover blocks blast damage, and nearby barrels chain. Orange enemies carry knives and rapidly approach, then raise their weapon before a close-range chop. Sidestep, back away, shoot them during windup, or use solid cover to block the slash.
 
 Head hits kill a normal target in one shot; body hits take three. Every kill is worth one. The rifle holds 20 rounds and reloads automatically with unlimited reserves. Health is hidden; a gradual dark-red screen-edge vignette warns of danger. After five seconds without a hit, health recovers gradually. Defeat causes a one-second respawn while the round clock keeps running. A strictly higher kill count displays NEW RECORD at results. Only the highest kill count is retained as a score record. The local best and settings are stored in Godot's `user://record.cfg`; QA runs do not overwrite them.
 
@@ -62,6 +64,7 @@ godot --headless --path . -- --qa --population
 godot --path . -- --qa --combat
 godot --path . -- --qa --movement
 godot --path . -- --qa --magazine
+godot --path . -- --qa --containers
 ```
 
 The first command tests score and timer boundaries. `--check` exercises normal collision movement on both ramps, live head/body raycasts, wall blocking, pause, reload, respawn, and ten restarts. `--qa` runs a real-time full-minute automatic aiming session, with scripted viewpoint changes. `--population` checks patrol retention, regional reinforcements, population caps and safe spawn distances/visibility. The short benchmark runs twelve enemies with VSync disabled. These flags are development-only test helpers, not normal gameplay modes.
