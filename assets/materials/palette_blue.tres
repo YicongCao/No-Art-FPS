@@ -2,5 +2,6 @@
 
 [resource]
 resource_name = "blue"
+specular_mode = 2
 albedo_color = Color(0.1882353, 0.30980393, 0.6156863, 1)
 roughness = 0.9

@@ -49,7 +49,9 @@ for y in [-36.8,-31.2]:
 # B has courtyard crates, raised rear platform, tunnel mouth and a window landmark.
 box('b_wall_n',-84,-52,-64.6,-64,-3.5,3,'cream')
 box('b_wall_e',-52,-51.4,-64,-44,-3.5,3,'sand')
-box('b_wall_w',-84.6,-84,-64,-38,-3.5,3,'cream')
+box('b_wall_w',-84.6,-84,-64,-54,-3.5,3,'green')
+box('b_wall_w_side',-84.6,-84,-54,-38,-3.5,3,'purple')
+for name,vals in [('b_wall_n_capstone',(-84.7,-51.3,-64.7,-63.85,3,3.18)),('b_wall_w_capstone',(-84.7,-83.85,-64,-38,3,3.18)),('b_wall_e_capstone',(-52.1,-51.3,-64,-44,3,3.18))]:box(name,*vals,'cream')
 box('b_wall_tunnel_divider',-76,-75.4,-38,-23,-3.5,3,'sand')
 box('tunnel_wall_w',-84.6,-84,-38,6,-3.5,5,'sand')
 box('tunnel_wall_e',-76,-75.4,-23,6,-3.5,5,'cream')
@@ -70,6 +72,7 @@ g.add_wedge('b_platform_ramp',-79,-76,-52,-3.5,-55,-2.6,-4,mats['cream'])
 window=box('b_window_wall',-68,-67.5,-64,-53,-3.5,2.5,'sand')
 g.cut(window,g.cutter_box(-69,-66,-60,-56,-1.5,.6))
 box('b_window_sill',-68.3,-67.1,-60.1,-55.9,-1.7,-1.5,'cream')
+box('b_window_capstone',-68.15,-67.35,-64.1,-52.9,2.5,2.68,'cream')
 # Tower skyline uses low-sided cylinders and faceted dome sections.
 def tower(name,x,y,base,color):
     g.add_cyl_axis(name+'_tower',(x,y,base+3),2.2,6,mats[color],axis='z',verts=8)
@@ -89,37 +92,61 @@ for i,p in enumerate([(-79,-59,-2.6),(-79,-59,-1),(-72,-48,-3.5),(-61,-59,-3.5),
 for x in [-62,-51,-42,-30,-15,-3,8]:
     for level in [3.1,5.3]:box('facade_shutter',x-.6,x+.6,13.8,14.02,level,level+1.15,'blue')
     box('facade_sill',x-.72,x+.72,13.7,14.12,3.0,3.12,'cream')
-for y in [-58,-51,-42,-35]:box('b_green_shutter',-84.02,-83.8,y-.6,y+.6,-.6,.7,'green')
-# Flat awnings, sturdy visible supports, clay pots and market cargo.
-for i,(x,y,z,c) in enumerate([(-34,13.5,0,'green'),(-61,-63.5,-3.5,'red'),(-12,-38,-3.5,'purple')]):
-    box('market_awning_'+str(i),x-3,x+3,y-2,y+.2,z+3,z+3.18,c)
-    for dx in [-2.7,2.7]:box('awning_post',x+dx-.05,x+dx+.05,y-1.8,y-1.7,z,z+3.1,'timber')
-    box('market_table',x-1.5,x+1.5,y-1.4,y-.5,z+.8,z+.95,'timber')
-    for dx in [-1.3,1.3]:box('table_leg',x+dx-.06,x+dx+.06,y-1.2,y-.65,z,z+.8,'timber')
+for y in [-60,-52,-45]:
+    box('b_blue_shutter',-84.02,-83.8,y-.6,y+.6,-.6,.7,'blue')
+    for z in [-.4,-.15,.1,.35]:box('b_shutter_louver',-83.8,-83.74,y-.5,y+.5,z,z+.06,'ink')
+# Eight-sided pot profiles keep the neck and belly readable without textures.
+def clay_pot(name,x,y,z,size=1):
+    profile=[(0,.16),(.1,.27),(.4,.32),(.62,.19),(.7,.18),(.74,.23)]
+    verts=[(x+math.cos(i*math.tau/8)*r*size,y+math.sin(i*math.tau/8)*r*size,z+h*size) for h,r in profile for i in range(8)]
+    faces=[tuple(range(7,-1,-1)),tuple(range(40,48))]
+    for ring in range(len(profile)-1):
+        for i in range(8):faces.append((ring*8+i,ring*8+(i+1)%8,(ring+1)*8+(i+1)%8,(ring+1)*8+i))
+    g.add_mesh(name,verts,faces,mats['red'])
+# Sloped striped awnings face the open lane, with chunky counters and clay pots.
+def market(name,x,y,z,rotation=0):
+    first=set(bpy.data.objects)
+    for stripe in range(6):
+        x0=-3+stripe;x1=x0+1
+        verts=[(x0,-2,2.7),(x1,-2,2.7),(x1,.2,3.2),(x0,.2,3.2),
+               (x0,-2,2.8),(x1,-2,2.8),(x1,.2,3.3),(x0,.2,3.3)]
+        g.add_mesh(name+'_canopy_stripe_'+str(stripe),verts,[(0,3,2,1),(4,5,6,7),(0,1,5,4),(1,2,6,5),(2,3,7,6),(3,0,4,7)],mats['cream' if stripe%2==0 else 'green'])
+        box(name+'_canopy_hem',x0,x1,-2.04,-1.94,2.55,2.8,'cream' if stripe%2==0 else 'green')
+    for dx in [-2.7,2.7]:box(name+'_awning_post',dx-.06,dx+.06,-1.8,-1.68,0,2.8,'timber')
+    box(name+'_counter',-1.5,1.5,-1.4,-.5,0,.9,'yellow')
+    box(name+'_counter_top',-1.6,1.6,-1.5,-.4,.9,1.02,'cream')
     for dx in [-1,0,1]:
-        g.add_cyl_axis('clay_pot',(x+dx,y-1,z+1.18),.22,.45,mats['red'],axis='z',verts=8)
+        clay_pot(name+'_clay_pot',dx,-1,1.02,.7)
+    from mathutils import Matrix
+    transform=Matrix.Translation((x,y,z)) @ Matrix.Rotation(rotation,4,'Z')
+    for obj in set(bpy.data.objects)-first:
+        obj.matrix_world=transform @ obj.matrix_world
+        g.apply_all(obj)
+for i,(x,y,z,rotation) in enumerate([(-34,13.5,0,0),(-83.7,-56,-3.5,math.pi/2),(-12,-38,-3.5,0)]):
+    market('market_'+str(i),x,y,z,rotation)
 # Original cacti replace every tropical silhouette. Beds sit against boundaries.
-def cactus(name,x,y,z,height=3.4,paddle=False):
+def cactus(name,x,y,z,height=3.4,paddle=False,rotation=0):
+    first=set(bpy.data.objects)
     box(name+'_bed',x-1.05,x+1.05,y-.75,y+.75,z,z+.2,'cream')
     box(name+'_soil',x-.96,x+.96,y-.66,y+.66,z+.2,z+.24,'sand')
     base=z+.24
     if paddle:
-        for i,(dx,dz,scale) in enumerate([(0,.55,.65),(-.45,1.2,.45),(.48,1.4,.5),(0,1.85,.4)]):
+        for i,(dx,dz,scale) in enumerate([(0,.55,.6),(-.65,1.15,.4),(.7,1.25,.42),(-.85,1.7,.3),(.75,1.8,.28),(0,1.85,.32)]):
             bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1,radius=1,location=(x+dx,y,base+dz))
             obj=bpy.context.object;obj.name=name+'_pad_'+str(i)
-            obj.scale=(scale,.2,scale*1.25);g.apply_all(obj);g.assign(obj,mats['green']);g.ALL.append(obj)
+            obj.scale=(scale,.25,scale*1.05);g.apply_all(obj);g.assign(obj,mats['leaf']);g.ALL.append(obj)
     else:
-        g.add_cyl_axis(name+'_trunk',(x,y,base+height*.5),.26,height,mats['green'],axis='z',verts=7)
-        for i,(side,h) in enumerate([(-1,height*.4),(1,height*.62)]):
-            g.add_cyl_axis(name+'_arm_'+str(i),(x+side*.45,y,base+h),.20,.9,mats['green'],axis='x',verts=7)
-            g.add_cyl_axis(name+'_upright_'+str(i),(x+side*.9,y,base+h+.45),.20,.95,mats['green'],axis='z',verts=7)
+        g.add_cyl_axis(name+'_trunk',(x,y,base+height*.5),.26,height,mats['leaf'],axis='z',verts=7)
+        for i,(side,h) in enumerate([(-1,height*.45),(1,height*.55)]):
+            g.add_cyl_axis(name+'_arm_'+str(i),(x+side*.45,y,base+h),.20,.9,mats['leaf'],axis='x',verts=7)
+            g.add_cyl_axis(name+'_upright_'+str(i),(x+side*.9,y,base+h+.45),.20,.95,mats['leaf'],axis='z',verts=7)
         # Short sparse ribs are geometry, no high-frequency spine texture.
         for dx in [-.11,.11]:box(name+'_rib',x+dx-.018,x+dx+.018,y-.26,y-.245,base+.15,base+height-.15,'yellow')
-    g.add_cyl_axis(name+'_pot',(x+.65,y+.28,base+.3),.2,.6,mats['red'],axis='z',verts=7)
-for i,(x,y,z,paddle) in enumerate([(-85,9,0,False),(-72,-62,-3.5,True),(-12,-33,-3.5,False),(13,12,0,True),(-63,20,0,True),(-53.5,-61,-3.5,False)]):
-    cactus('cactus_'+str(i),x,y,z,3.1 if i%2==0 else 3.7,paddle)
-# Faceted cream cloud models are instanced by Godot outside navigation geometry.
-# Match the concept's broad teal-and-cream canopy without changing its footprint.
-for i,(x,y,z) in enumerate([(-34,13.5,0),(-61,-63.5,-3.5),(-12,-38,-3.5)]):
-    for stripe in range(6):
-        box('canopy_stripe_'+str(i)+'_'+str(stripe),x-3+stripe,x-2+stripe,y-2,y+.2,z+3.19,z+3.22,'cream' if stripe%2==0 else 'green')
+    clay_pot(name+'_pot',x+.65,y+.28,base)
+    from mathutils import Matrix
+    transform=Matrix.Translation((x,y,z)) @ Matrix.Rotation(rotation,4,'Z') @ Matrix.Translation((-x,-y,-z))
+    for obj in set(bpy.data.objects)-first:
+        obj.matrix_world=transform @ obj.matrix_world
+        g.apply_all(obj)
+for i,(x,y,z,paddle,rotation) in enumerate([(-82.5,9,0,False,math.pi/2),(-66.15,-54.5,-3.5,True,math.pi/2),(-12,-33,-3.5,False,0),(13,12,0,True,0),(-63,12.8,0,True,0),(-82.6,-49,-3.5,False,math.pi/2)]):
+    cactus('cactus_'+str(i),x,y,z,3.1 if i%2==0 else 3.7,paddle,rotation)

@@ -10,6 +10,7 @@ const Rules = preload("res://scripts/run_rules.gd")
 const LoadingTransition = preload("res://scripts/loading_transition.gd")
 const CombatFX = preload("res://scripts/combat_fx.gd")
 var arena: Node3D
+var sun: DirectionalLight3D
 var player: CharacterBody3D
 var hud: Control
 var enemies: Node3D
@@ -105,14 +106,14 @@ func _ready() -> void:
 	settings.tonemap_mode = Environment.TONE_MAPPER_LINEAR
 	env.environment = settings
 	add_child(env)
-	var sun = DirectionalLight3D.new()
-	sun.rotation_degrees = Vector3(-52,-35,0)
+	sun = DirectionalLight3D.new()
 	sun.light_color = Color("fff3d5")
 	sun.light_energy = .22
 	sun.shadow_enabled = true
 	sun.directional_shadow_max_distance = 65
 	add_child(sun)
 	arena = session.map_scene.instantiate()
+	sun.rotation_degrees = arena.sun_rotation_degrees
 	arena.game = self
 	add_child(arena)
 	arena.bake_navigation()
@@ -1100,6 +1101,7 @@ func select_session(resource: Resource) -> void:
 	if not qa_mode and cfg.load("user://record.cfg")==OK:best_mission = float(cfg.get_value(mission_record_key(),"fastest",0.0))
 	nav_ready = false
 	arena = session.map_scene.instantiate()
+	sun.rotation_degrees = arena.sun_rotation_degrees
 	arena.game = self
 	add_child(arena)
 	arena.bake_navigation()

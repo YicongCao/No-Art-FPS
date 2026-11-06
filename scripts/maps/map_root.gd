@@ -3,6 +3,7 @@ class_name GameMap
 
 var game: Node
 @export var map_id = "yard"
+@export var sun_rotation_degrees = Vector3(-52,-35,0)
 @export var fall_limit = -8.0
 @export var start_path: NodePath
 @export var opening_paths: Array[NodePath] = []

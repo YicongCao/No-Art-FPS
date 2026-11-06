@@ -5,6 +5,7 @@ func _ready() -> void:
 	Engine.max_fps = 120
 	game.player.set_process_unhandled_input(false)
 	assert(game.rules.mission and game.rules.duration==180)
+	assert(game.sun.rotation_degrees.is_equal_approx(game.arena.sun_rotation_degrees))
 	assert(game.arena.objectives.size()==3 and game.opening.size()==8)
 	for objective in game.arena.objectives:
 		var target = objective.global_position-Vector3.UP*.4
@@ -99,12 +100,14 @@ func _ready() -> void:
 	game.menu_action("menu")
 	await game.select_session(game.DefaultSession)
 	assert(not game.rules.mission and game.rules.duration==60 and game.arena.map_id=="yard")
+	assert(game.sun.rotation_degrees.is_equal_approx(Vector3(-52,-35,0)),"Switching to the yard restores its original sunlight")
 	game.start_run();game.begin_running();game.player.enabled = false
 	game.invulnerable = 0;game.damage_player(100)
 	assert(game.respawn_time==5)
 	game.state = "RESULTS";game.menu_action("menu")
 	await game.select_session(load("res://data/sessions/defuse.tres"))
 	assert(game.rules.mission and game.arena.objectives.size()==3 and game.rules.completed.is_empty())
+	assert(game.sun.rotation_degrees.is_equal_approx(game.arena.sun_rotation_degrees),"Switching back restores the Dust sunlight")
 	game.state = "RESULTS";game.clear_round()
 	await get_tree().create_timer(.2).timeout
 	print("MISSION_CHECK_PASS: objective/patrol navigation, patrol movement, interaction/weapon lock, hurt/pause/occlusion cancel, reverse-order success, death/timeout, retry and mode isolation")

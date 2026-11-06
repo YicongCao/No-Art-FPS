@@ -11,6 +11,9 @@ func _ready() -> void:
 	game.hud.go_time = 0
 	for enemy in game.enemies.get_children():enemy.set_physics_process(false)
 	assert(game.arena.find_children("*","Label3D",true,false).is_empty(),"No floating C4 labels")
+	for mesh in game.arena.find_children("*","MeshInstance3D",true,false):
+		var source_name = str(mesh.get_parent().name).to_lower()
+		assert(not "palm" in source_name and not "frond" in source_name,"Dust vegetation must be desert plants")
 	assert(game.arena.has_node("floor_b_site") and game.arena.has_node("mid_double_doors") and game.arena.has_node("tunnel_roof"))
 	var foundation = game.arena.get_node("SafetyFoundation/Collision")
 	assert(foundation.collision_layer==1)
@@ -28,7 +31,7 @@ func _ready() -> void:
 		assert(game.hud.radar_rect().has_point(game.hud.radar_position(objective.global_position)))
 		assert(objective.get_node("Indicator") is MeshInstance3D)
 	print("DUST_FLOOR_RADAR_PASS: ",checked," collision rays; 3 objective markers")
-	for view in [["dust-revised-long",Vector3(-44,.05,-10),Vector3(-15,1.6,-10)],["dust-revised-a",Vector3(-5,.05,3),Vector3(8,1.8,-13.72)],["dust-revised-mid",Vector3(-43,-3.45,33),Vector3(-51,-1.8,34)],["dust-revised-b",Vector3(-62,-3.45,45),Vector3(-80,-.8,60)],["dust-revised-tunnel",Vector3(-80,-3.45,31),Vector3(-80,-1.8,22)]]:
+	for view in [["dust-revised-long",Vector3(-44,.05,-10),Vector3(-15,1.6,-10)],["dust-revised-a",Vector3(-5,.05,3),Vector3(8,1.8,-13.72)],["dust-revised-mid",Vector3(-43,-3.45,33),Vector3(-51,-1.8,34)],["dust-revised-b",Vector3(-62,-3.45,45),Vector3(-80,-.8,60)],["dust-revised-tunnel",Vector3(-80,-3.45,31),Vector3(-80,-1.8,22)],["dust-cactus-long",Vector3(-76,.05,-8),Vector3(-82.5,1.6,-9)],["dust-cactus-court",Vector3(-78,-3.45,47),Vector3(-82.6,-1.3,50)]]:
 		game.player.global_position = view[1]
 		aim(view[2])
 		await capture(view[0])

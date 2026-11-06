@@ -24,11 +24,12 @@ func generate() -> void:
 	var visuals = load("res://assets/models/dust_flavor/architecture.glb").instantiate()
 	map.add_child(visuals)
 	var palette = {}
-	for key in ["cream","sand","timber","ink","blue","green","red","purple","yellow"]:
+	for key in ["cream","sand","timber","ink","blue","green","red","purple","yellow","leaf"]:
 		var material = StandardMaterial3D.new()
 		material.resource_name = key
-		material.albedo_color = Color({"cream":"e5e0d2","sand":"d5b471","timber":"a97c4b","ink":"243440","blue":"304f9d","green":"4d7d70","red":"b65745","purple":"754c87","yellow":"e9ba50"}[key])
+		material.albedo_color = Color({"cream":"e5e0d2","sand":"d5b471","timber":"a97c4b","ink":"243440","blue":"304f9d","green":"4d7d70","red":"b65745","purple":"754c87","yellow":"e9ba50","leaf":"7c9e44"}[key])
 		material.roughness = .9
+		material.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
 		var path = "res://assets/materials/palette_"+key+".tres"
 		ResourceSaver.save(material,path)
 		material.take_over_path(path)
@@ -43,9 +44,8 @@ func generate() -> void:
 		copy.mesh = mesh.mesh
 		copy.material_override = palette[mesh.mesh.surface_get_material(0).resource_name]
 		wrapper.add_child(copy)
-		copy.material_override = palette[style_color(str(mesh.name),mesh.mesh.surface_get_material(0).resource_name)]
 		var no_collision = str(mesh.name).begins_with("stair_")
-		for word in ["strap","band","shutter","pot","capstone","canopy_stripe","cactus"]:
+		for word in ["strap","band","shutter","pot","capstone","canopy","cactus"]:
 			if word in str(mesh.name):no_collision = true
 		if "cactus" in str(mesh.name) and ("_bed" in str(mesh.name) or "_trunk" in str(mesh.name)):no_collision = false
 		if not no_collision:
@@ -90,12 +90,13 @@ func generate() -> void:
 	nav.navigation_mesh = nm
 	nav.bake_navigation_mesh(false)
 	# Same low-poly cloud asset as the original yard; never part of walkable nav.
-	for cloud_data in [[Vector3(-82,10,70),1.5],[Vector3(-57,11,72),1.8],[Vector3(-47,12,-18),1.6],[Vector3(16,12,-22),1.4],[Vector3(-12,11,44),1.7]]:
+	for cloud_data in [[Vector3(-88,16,74),1.8,-50],[Vector3(-97,18,64),2.0,-50],[Vector3(-94,15,50),1.3,-50],[Vector3(-47,12,-18),1.6,0],[Vector3(16,12,-22),1.4,0],[Vector3(-12,11,44),1.7,0]]:
 		var cloud = load("res://assets/models/cloud.glb").instantiate()
-		cloud.name = "Cloud"
+		cloud.name = "Cloud%d"%map.get_child_count()
 		map.add_child(cloud)
 		cloud.position = cloud_data[0]
 		cloud.scale = Vector3.ONE*cloud_data[1]
+		cloud.rotation_degrees.y = cloud_data[2]
 	# Large wall markings are attached graphics, never floating C4 text.
 	for sign_data in [["a",Vector3(8,1.8,-13.72),0.0],["b",Vector3(-59,-1.3,63.72),PI]]:
 		var sign = MeshInstance3D.new();sign.name = "SiteMark_"+sign_data[0]
@@ -144,6 +145,7 @@ func generate() -> void:
 		objective_paths.append(map.get_path_to(objective))
 	map.set_script(Runtime)
 	map.map_id = "dust_flavor"
+	map.sun_rotation_degrees = Vector3(-52,145,0)
 	map.fall_limit = -6
 	map.start_path = map.get_path_to(start)
 	map.navigation_path = map.get_path_to(nav)
@@ -173,23 +175,3 @@ func generate() -> void:
 	assert(ResourceSaver.save(packed,"res://scenes/maps/dust_flavor.tscn")==OK)
 	print("DUST_SCENE_SAVED: static collision/nav, 8 authored patrols, 3 objectives")
 	quit()
-
-func style_color(name: String, original: String) -> String:
-	# One authored building has one major color; trim and accents stay independent.
-	if "capstone" in name or "_sill" in name or name=="b_window_sill":return "cream"
-	if "_strap" in name:return "cream"
-	if "_dome" in name:return "cream"
-	if "_tower" in name:return "yellow"
-	if name.begins_with("cactus"):return original
-	if name=="b_window_wall" or name=="b_wall_w":return "red"
-	if name=="b_wall_n":return "green"
-	if name=="b_wall_e":return "purple"
-	if name.begins_with("B_north"):return "green"
-	if name.begins_with("B_west") or name.begins_with("B_ctwest"):return "red"
-	if name.begins_with("B_southwest"):return "purple"
-	if name.begins_with("B_south"):return "cream"
-	if name.begins_with("B_east"):return "cream"
-	if "mid_wall" in name:return "green" if name.ends_with("n") else "cream"
-	if name=="mid_double_doors":return "red"
-	if "_cap" in name or "_lintel" in name:return "cream"
-	return original

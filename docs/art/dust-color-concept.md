@@ -14,3 +14,11 @@ Use case: stylized-concept. Asset type: game environment art direction concept f
 - 保留既有玩家、蓝色武器、描边、巡逻和拆弹 HUD。实际几何按可编辑关卡重建，不宣称逐像素复刻概念图。
 
 ![概念图](dust-color-concept.png)
+
+## 引擎还原
+
+已按此方向完成 Blender 几何、GLB、Godot 场景和材质。B 点补齐了红色窗口墙的奶油色墙帽、青绿与紫色背景墙、蓝色百叶窗、斜面条纹棚、陶罐和两种仙人掌；保留首张地图的天空颜色、蓝色武器与细描边。Dust 使用适合此庭院朝向的日照方向，切换到首图会恢复首图日照。
+
+以下为实际 Godot 渲染，镜头与敌人由自动检查摆放；不是 imagegen 输出，也不是人工试玩。通路与建筑尺度依照现有关卡保留，因此不宣称逐像素复刻概念图。实现与验证见 [明亮画风更新](../updates/2026-11-06-dust-bright-style.md)。
+
+![B 点实际渲染](../../artifacts/dust-revised-b.png)

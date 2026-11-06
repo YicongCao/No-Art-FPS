@@ -9,7 +9,7 @@ sys.path.insert(0,str(ROOT/'tools/vendor'))
 import dust_geometry as g
 bpy.ops.object.select_all(action='SELECT')
 bpy.ops.object.delete(use_global=False)
-colors={'sand':'d5b471','cream':'e5e0d2','timber':'a97c4b','ink':'243440','green':'4d7d70','blue':'304f9d','red':'b65745','purple':'754c87','yellow':'e9ba50'}
+colors={'sand':'d5b471','cream':'e5e0d2','timber':'a97c4b','ink':'243440','green':'4d7d70','blue':'304f9d','red':'b65745','purple':'754c87','yellow':'e9ba50','leaf':'7c9e44'}
 mats={}
 for name,code in colors.items():
     def linear(v):return v/12.92 if v<.04045 else ((v+.055)/1.055)**2.4
@@ -46,8 +46,26 @@ for x in [-19.3,-16.8]:
 exec(compile((ROOT/"tools/build_dust_expansion.py").read_text(),"build_dust_expansion.py","exec"))
 # A small bomb model in its own GLB, with original geometry.
 architecture=[o for o in bpy.data.objects if o.type=='MESH']
+def style_color(name,original):
+    # Author the final palette in Blender as well as the exported Godot scene.
+    if 'capstone' in name or '_sill' in name or '_strap' in name or '_dome' in name:return 'cream'
+    if '_tower' in name:return 'yellow'
+    if name.startswith('cactus'):return original
+    if name=='b_window_wall':return 'red'
+    if name in ['b_wall_n','b_wall_w']:return 'green'
+    if name in ['b_wall_e','b_wall_w_side']:return 'purple'
+    if name.startswith('B_north'):return 'green'
+    if name.startswith(('B_west','B_ctwest')):return 'red'
+    if name.startswith('B_southwest'):return 'purple'
+    if name.startswith(('B_south','B_east')):return 'cream'
+    if 'mid_wall' in name:return 'green' if name.endswith('n') else 'cream'
+    if name=='mid_double_doors':return 'red'
+    if '_cap' in name or '_lintel' in name:return 'cream'
+    return original
 for o in architecture:
-    o['solid']=not any(k in o.name for k in ['strap','band','shutter','pot','capstone'])
+    g.assign(o,mats[style_color(o.name,o.data.materials[0].name)])
+    o['solid']=not any(k in o.name for k in ['strap','band','shutter','pot','capstone','canopy','cactus'])
+    if o.name.startswith('cactus') and ('_bed' in o.name or '_trunk' in o.name):o['solid']=True
     o['region']='short' if o.location.x<-14 and o.location.y<0 else ('court' if o.location.y<-12 else 'site')
 # Horizontal floor slabs may meet at edges, but must not overlap at one height.
 floors=[o for o in architecture if o.name.startswith('floor_')]
