@@ -40,6 +40,59 @@ func _ready() -> void:
 	await get_tree().create_timer(1.0).timeout
 	assert(game.ammo==20 and game.reload_time<=0)
 	await check_pixels(20,"magazine-refilled")
+	game.set_physics_process(false)
+	game.player.enabled = false
+	game.player.reset_position()
+	game.player.pitch = .8
+	# Check the rendered loading sequence at settled cartridge boundaries.
+	for starting in [0,14,19]:
+		game.ammo = starting
+		game.hud.reset_magazine()
+		game.reload_weapon()
+		var base_y = game.hud.magazine_rect().position.y
+		var missing = 20-starting
+		for added in range(missing+1):
+			var elapsed = .04+.64*float(added)/missing
+			# Tiny offset avoids testing the representational side of a float boundary.
+			game.reload_time = game.RELOAD_DURATION-elapsed-.0000001
+			await check_pixels(starting+added,"reload-half" if starting==0 and added==10 else "")
+			assert(is_equal_approx(game.hud.magazine_rect().position.y,base_y),"No dip until all rounds are inserted")
+			assert(game.ammo==starting,"Visual loading must not grant usable ammo early")
+			var before = game.rules.shots
+			game.fire_time = 0
+			game.shoot()
+			assert(game.rules.shots==before)
+		game.reload_time = .08
+		assert(game.hud.magazine_rect().position.y>base_y+8,"Full magazine dips after feeding")
+		await check_pixels(20,"reload-seated" if starting==0 else "")
+		game.pause_run()
+		var held = game.hud.magazine_rect()
+		game._physics_process(.2)
+		assert(game.hud.magazine_rect()==held,"Pause freezes the seating motion")
+		game.menu_action("resume")
+		game._physics_process(.04)
+		assert(game.reload_time>0 and game.ammo==starting)
+		assert(game.hud.magazine_rect().position.y<held.position.y-6,"Return is faster than the dip")
+		game._physics_process(.04)
+		assert(game.reload_time==0 and game.ammo==20)
+		assert(is_equal_approx(game.hud.magazine_rect().position.y,base_y))
+	# Inspect a moving round, reduced motion, and cancellation during reload.
+	game.ammo = 0
+	game.reload_weapon()
+	game.reload_time = .9-(.04+.64*5.5/20)
+	await capture("reload-inserting")
+	game.reduced_motion = true
+	game.reload_time = .08
+	assert(game.hud.reload_seating_offset()<=3.01)
+	game.invulnerable = 0
+	game.damage_player(100)
+	assert(game.reload_time==0 and game.hud.reload_rounds_fed()==0)
+	game.start_run()
+	assert(game.reload_time==0 and game.ammo==20)
+	game.begin_running()
+	game.clear_round()
+	game.spawn_time = 999
+	game.reduced_motion = false
 	# Partial reload keeps its remaining rounds until the real reload completes.
 	game.set_physics_process(false)
 	for i in range(6):
@@ -65,10 +118,24 @@ func _ready() -> void:
 	DisplayServer.window_set_size(Vector2i(960,540))
 	await get_tree().create_timer(.2).timeout
 	await check_pixels(20,"magazine-small-window")
+	game.begin_running()
+	game.clear_round()
+	game.player.enabled = false
+	game.spawn_time = 999
+	game.ammo = 0
+	game.reload_weapon()
+	for tick in range(53):
+		game._physics_process(1.0/60.0)
+		await get_tree().physics_frame
+		assert(game.ammo==0 and game.reload_time>0,"Reload cannot complete before .9 seconds")
+		if tick==23:await capture("reload-small-window")
+	game._physics_process(1.0/60.0)
+	assert(game.ammo==20 and game.reload_time==0,"Reload completes in exactly 54 ticks")
+	await check_pixels(20)
 	game.state = "RESULTS"
 	game.clear_round()
 	await get_tree().create_timer(.25).timeout
-	print("MAGAZINE_CHECK_PASS: horizontal 20-round pixels, per-shot ejection, auto/manual reload, pause, restart, 960x540")
+	print("MAGAZINE_CHECK_PASS: shot/loading pixel counts, feed/seat/return, firing lock, auto/manual reload, pause, death, restart, 960x540")
 	get_tree().quit()
 
 func check_pixels(expected: int, filename: String = "") -> void:

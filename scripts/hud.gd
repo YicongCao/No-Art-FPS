@@ -28,11 +28,29 @@ const TIP_REGION = Rect2(1053,586,120,84)
 const MAGAZINE_SCALE = sqrt(.8)
 const FEED_TIME = .085
 const EJECTION_TIME = .48
+const RELOAD_FEED_START = .04
+const RELOAD_FEED_END = .68
+const RELOAD_DIP_END = .82
+
+func reload_elapsed() -> float:
+	return game.RELOAD_DURATION-game.reload_time if game.reload_time>0 else 0.0
+
+func reload_rounds_fed() -> float:
+	if game.reload_time<=0:return 0.0
+	var progress = clampf((reload_elapsed()-RELOAD_FEED_START)/(RELOAD_FEED_END-RELOAD_FEED_START),0,1)
+	return (game.MAGAZINE_SIZE-game.reload_start_ammo)*progress
+
+func reload_seating_offset() -> float:
+	var elapsed = reload_elapsed()
+	if elapsed<=RELOAD_FEED_END:return 0.0
+	var depth = 3.0 if game.reduced_motion else 11.0
+	if elapsed<RELOAD_DIP_END:
+		return depth*smoothstep(RELOAD_FEED_END,RELOAD_DIP_END,elapsed)
+	# A fast eased return ends exactly when the gun becomes ready to fire.
+	return depth*pow(1-clampf((elapsed-RELOAD_DIP_END)/(game.RELOAD_DURATION-RELOAD_DIP_END),0,1),3)
 
 func magazine_rect() -> Rect2:
-	var dip = 0.0
-	if game.reload_time>0 and not game.reduced_motion:
-		dip = sin(clampf(1-game.reload_time/.9,0,1)*PI)*12
+	var dip = reload_seating_offset()
 	var extent = Vector2(420,92)*MAGAZINE_SCALE
 	return Rect2(size-Vector2(28,32)-extent+Vector2(0,dip*MAGAZINE_SCALE),extent)
 
@@ -61,9 +79,20 @@ func draw_magazine() -> void:
 	draw_set_transform(body.get_center(),PI*.5)
 	draw_texture_rect_region(MAGAZINE_ATLAS,Rect2(-Vector2(body.size.y,body.size.x)*.5,Vector2(body.size.y,body.size.x)),MAGAZINE_REGION)
 	draw_set_transform(Vector2.ZERO)
-	for i in range(clampi(game.ammo,0,game.MAGAZINE_SIZE)):
-		var center = cartridge_rect(i).get_center()-Vector2(16*feed_shift/FEED_TIME,0)*MAGAZINE_SCALE
+	var count = clampi(game.ammo,0,game.MAGAZINE_SIZE)
+	var shift = 16*feed_shift/FEED_TIME
+	var incoming = 0.0
+	if game.reload_time>0:
+		var fed = reload_rounds_fed()
+		count = mini(game.MAGAZINE_SIZE,game.reload_start_ammo+int(fed))
+		incoming = smoothstep(0,1,fmod(fed,1.0)) if count<game.MAGAZINE_SIZE else 0.0
+		shift = 16*incoming
+	for i in range(count):
+		var center = cartridge_rect(i).get_center()-Vector2(shift,0)*MAGAZINE_SCALE
 		draw_round(CARTRIDGE_REGION,center,Vector2(45,12.15))
+	if incoming>0:
+		var center = cartridge_rect(0).get_center()+Vector2(42*(1-incoming),0)*MAGAZINE_SCALE
+		draw_round(CARTRIDGE_REGION,center,Vector2(45,12.15),-PI*.5,minf(1,incoming*4))
 	for age in ejections:
 		var origin = cartridge_rect(0).get_center()
 		var t = age/EJECTION_TIME
@@ -76,11 +105,6 @@ func draw_magazine() -> void:
 		draw_round(CASING_REGION,origin+travel*MAGAZINE_SCALE,Vector2(31.5,12.15),-PI*.5+rotation_amount,alpha)
 		if age<.12:
 			draw_round(TIP_REGION,origin+Vector2(0,-23-age*420)*MAGAZINE_SCALE,Vector2(13.5,9.45),-PI*.5,1-age/.12)
-	if game.reload_time>0:
-		var progress = clampf(1-game.reload_time/.9,0,1)
-		var start = body.position+Vector2(12*MAGAZINE_SCALE,body.size.y+7*MAGAZINE_SCALE)
-		draw_line(start,start+Vector2(body.size.x-24*MAGAZINE_SCALE,0),INK,3)
-		draw_line(start,start+Vector2((body.size.x-24*MAGAZINE_SCALE)*progress,0),GOLD,3)
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

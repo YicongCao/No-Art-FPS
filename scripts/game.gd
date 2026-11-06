@@ -21,6 +21,8 @@ const HEAL_RATE = 12.0
 const RESPAWN_DELAY = 5.0
 var ammo = MAGAZINE_SIZE
 var reload_time = 0.0
+const RELOAD_DURATION = .9
+var reload_start_ammo = MAGAZINE_SIZE
 var fire_time = 0.0
 var spawn_time = 0.0
 var health = MAX_HEALTH
@@ -306,7 +308,8 @@ func _physics_process(delta: float) -> void:
 			invulnerable = 1.5
 	fire_time = maxf(0,fire_time-delta)
 	if reload_time>0:
-		reload_time -= delta
+		reload_time = maxf(0,reload_time-delta)
+		if reload_time<.000001:reload_time = 0
 		if reload_time<=0:ammo = MAGAZINE_SIZE
 	if Input.is_action_pressed("fire") and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:shoot()
 	update_spawns(delta)
@@ -435,7 +438,8 @@ func shoot() -> void:
 
 func reload_weapon() -> void:
 	if ammo>=MAGAZINE_SIZE or reload_time>0 or respawn_time>0 or state!="RUNNING":return
-	reload_time = .9
+	reload_start_ammo = ammo
+	reload_time = RELOAD_DURATION
 	play_sound("reload",-8)
 
 func on_kill(enemy: Node3D, headshot: bool) -> void:
