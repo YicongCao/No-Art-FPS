@@ -6,7 +6,7 @@ mkdir -p builds/web
 touch builds/.gdignore
 "$GODOT_BIN" --headless --path . --editor --import
 "$GODOT_BIN" --headless --path . --export-release Web builds/web/index.html
-cp web/icon.svg builds/web/icon.svg
+cp web/icon.svg web/gyro.js builds/web/
 cp assets/fonts/OFL.txt builds/web/FONT-LICENSE.txt
 cp web/GODOT-LICENSE.txt web/GODOT-COPYRIGHT.txt builds/web/
 # The custom shell uses our SVG, not Godot's generated splash/icon.

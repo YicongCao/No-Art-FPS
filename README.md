@@ -63,6 +63,8 @@ Head hits kill a normal target in one shot; body hits take three. Every kill is 
 
 The lower-right magazine shows twenty cartridges in one horizontal row. Each accepted shot splits and ejects the front cartridge at the right, then feeds the remaining rounds forward. Reloading pushes the missing cartridges in one by one; once full, the magazine dips and snaps back into place. Each cartridge clicks as it seats, both during the loading screen and gameplay reloads. The entire sequence still takes 0.9 seconds, with firing available only after completion. Ammo numbers, the progress bar and the RELOADING label have been removed. Low camera-motion mode also reduces shell travel/spin and the final seating dip.
 
+On mobile, open **体感瞄准** from the title or pause menu to enable optional gyro-assisted aiming. Hold the phone still briefly to calibrate. Sensitivity ranges from **0.25x to 3.00x** and is remembered on this browser; motion input starts disabled each visit. Touch aiming remains available. Permissions, missing sensors, backgrounding, portrait rotation and respawn are handled without blocking touch play. Physical phone feel still needs device testing.
+
 Mobile adaptation and verification limits: [landscape touch controls](docs/updates/2026-11-06-mobile-controls.md). For desktop inspection of the touch layout, append `?touch=1`. This does not emulate real mobile hardware.
 
 ## Build the original assets
@@ -84,6 +86,7 @@ The yard is assembled in `scripts/arena.gd`; static collisions also supply the r
 
 ```sh
 node tests/mobile_input_test.mjs
+node tests/gyro_test.mjs
 godot --headless --path . --script tests/rules_test.gd
 godot --path . -- --qa --check
 godot --path . -- --qa

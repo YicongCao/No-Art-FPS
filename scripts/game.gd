@@ -571,7 +571,7 @@ func menu_action(action: String) -> void:
 
 func _physics_process(delta: float) -> void:
 	if touch_mode:
-		var packet = JSON.parse_string(str(JavaScriptBridge.eval("window.noArtReadTouch()")))
+		var packet = JSON.parse_string(str(JavaScriptBridge.eval("window.noArtReadTouch(%s)" % ("true" if respawn_time<=0 else "false"))))
 		if packet is Dictionary:
 			player.touch_move = Vector2(float(packet.x),float(packet.y)).limit_length()
 			touch_fire = bool(packet.fire)
@@ -579,8 +579,8 @@ func _physics_process(delta: float) -> void:
 				if bool(packet.blocked) or bool(packet.pause):
 					pause_run()
 				else:
-					player.rotate_y(-float(packet.dx)*player.sensitivity*1.36)
-					player.pitch = clampf(player.pitch-float(packet.dy)*player.sensitivity*1.36,-1.35,1.35)
+					player.rotate_y(-float(packet.dx)*player.sensitivity*1.36+float(packet.get("gyroYaw",0.0)))
+					player.pitch = clampf(player.pitch-float(packet.dy)*player.sensitivity*1.36+float(packet.get("gyroPitch",0.0)),-1.35,1.35)
 					player.touch_jump = bool(packet.jump)
 					if bool(packet.reload):reload_weapon()
 	if music:music.stream_paused = state in ["PAUSED","CAPTURING"]

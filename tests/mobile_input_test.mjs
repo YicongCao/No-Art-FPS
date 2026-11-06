@@ -9,6 +9,8 @@ class Element {
   classList={add:c=>this.classes.add(c),remove:c=>this.classes.delete(c),toggle:(c,v)=>v?this.classes.add(c):this.classes.delete(c)};
   addEventListener(type,fn){(this.handlers[type]??=[]).push(fn);}
   setPointerCapture(){}
+  setAttribute(name,value){this[name]=value;}
+  focus(){}
   closest(){return this.id?this:null;}
   emit(type,event={}){for(const fn of this.handlers[type]??[])fn({preventDefault(){},...event});}
 }
@@ -22,6 +24,10 @@ document.querySelectorAll=()=>[...elements.values()].filter(e=>e.classes.has('he
 const window=new Element();
 const timers=new Map();let nextTimer=0;
 const context={window,document,location:{search:'?touch=1'},matchMedia:()=>({matches:false}),URLSearchParams,innerWidth:844,innerHeight:390,screen:{},setTimeout:(fn,ms)=>{timers.set(++nextTimer,{fn,ms});return nextTimer;},clearTimeout:id=>timers.delete(id),console};
+let sensorTime=0;
+Object.assign(window,{isSecureContext:true,DeviceMotionEvent:{},screen:{orientation:{angle:90}},setTimeout:context.setTimeout,clearTimeout:context.clearTimeout,removeEventListener(type,fn){this.handlers[type]=(this.handlers[type]??[]).filter(item=>item!==fn);}});
+context.performance={now:()=>sensorTime};
+runInNewContext(readFileSync(new URL('../web/gyro.js',import.meta.url),'utf8'),context);
 runInNewContext(source,context);
 const ui=get('#touch-ui');
 const read=()=>JSON.parse(window.noArtReadTouch());
@@ -82,3 +88,15 @@ assert.ok(!/[\u26f6\u2197\u25ce\u2191\u21bb\u2161]/u.test(shell),'Use SVG instea
 for(const id of ['immersive','fire','jump','reload','pause'])assert.match(shell,new RegExp('id="'+id+'"[^>]*><svg'));
 assert.ok(!shell.includes('添加到主屏幕'));
 console.log('MOBILE_UI_PASS: SVG controls, silent automatic failure, 2.4s manual hint, state cleanup, late rejection, successful retry');
+
+// Verify the real gyro module feeds the same packet as touch, and death clears it.
+window.emit('focus');window.noArtState('PAUSED');await get('#gyro-toggle').onclick();
+const motion=(beta=0)=>{sensorTime+=16;window.emit('devicemotion',{rotationRate:{alpha:0,beta,gamma:0}});};
+for(let i=0;i<50;i++)motion();
+window.noArtState('RUNNING');for(let i=0;i<5;i++)motion(30);
+p=read();assert.ok(p.gyroYaw>0);assert.equal(read().gyroYaw,0);
+for(let i=0;i<5;i++)motion(30);
+p=JSON.parse(window.noArtReadTouch(false));assert.equal(p.gyroYaw,0);
+window.noArtState('PAUSED');for(let i=0;i<5;i++)motion(30);assert.equal(read().gyroYaw,0);
+await get('#gyro-toggle').onclick();
+console.log('GYRO_BRIDGE_PASS: real sensor module, packet consumption, respawn and pause gating');

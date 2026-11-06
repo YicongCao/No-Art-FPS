@@ -12,14 +12,14 @@
   <style>
     *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#243440;color:#fff5d3;font-family:Arial,"PingFang SC",sans-serif;overflow:hidden}
     button,a{-webkit-tap-highlight-color:transparent}button{font:inherit;cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #e9ba50;outline-offset:5px}
-    .ui-icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle;pointer-events:none}.touch-button .ui-icon{width:26px;height:26px}.actions .ui-icon{width:14px;height:14px;margin-left:5px}
+    .ui-icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle;pointer-events:none}.touch-button .ui-icon{width:26px;height:26px}
     #canvas{display:block;width:100%;height:100%;outline:0;touch-action:none}
     #loading{position:fixed;inset:0;display:grid;place-items:center;padding:32px 24px;background:#243440;z-index:5;transition:opacity .2s}
     #loading[hidden]{display:none}#loading.leaving{opacity:0;pointer-events:none}
     .card{width:min(400px,100%)}h1{margin:0 0 36px;font-size:clamp(48px,10vw,76px);line-height:.88;letter-spacing:-.045em;font-weight:900}
     h1 span{display:block}.accent{color:#e9ba50}.progress-label{display:flex;justify-content:space-between;gap:20px;font-size:14px;margin-bottom:12px;line-height:1.5}
     progress{display:block;width:100%;height:8px;border:0;background:#3e4f59;accent-color:#e9ba50}progress::-webkit-progress-bar{background:#3e4f59}progress::-webkit-progress-value{background:#e9ba50}progress::-moz-progress-bar{background:#e9ba50}
-    .controls{margin:24px 0 0;color:#c4bfb2;font-size:13px;line-height:1.8}.actions{display:flex;gap:24px;align-items:center;margin-top:28px}.actions a{color:#e5e0d2;text-decoration:none;font-size:13px}
+    .controls{margin:24px 0 0;color:#c4bfb2;font-size:13px;line-height:1.8}.actions{display:flex;gap:24px;align-items:center;margin-top:28px}
     #retry{border:0;background:#754c87;color:white;padding:12px 24px}#retry[hidden]{display:none}
     #help{position:fixed;right:max(16px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));color:#fff5d3;background:#243440ce;border:1px solid #fff5d340;padding:8px 12px;font-size:12px;z-index:2;max-width:calc(100% - 32px);text-align:center}
     #help[hidden]{display:none}.mobile-warning{display:none}@media(pointer:coarse){.desktop-controls{display:none}.mobile-warning{display:inline}}
@@ -44,6 +44,14 @@
     #immersive-note[hidden],body[data-game=RUNNING] #immersive-note,body[data-game=LOADING] #immersive-note{display:none}
     #immersive-note{position:fixed;z-index:21;left:10%;right:10%;bottom:12px;text-align:center;background:#243440e8;padding:12px;font-size:13px;color:#fff5d3}
     @media(max-height:500px) and (orientation:landscape){#loading{padding:16px 24px}.card{width:min(560px,100%);display:grid;grid-template-columns:140px 1fr;column-gap:28px;align-items:center}h1{grid-row:1 / 5;margin:0;font-size:58px}.progress-label{margin:0 0 8px}.controls{margin:14px 0 0}.actions{margin-top:12px}}
+    #gyro-open{display:none;position:fixed;z-index:7;top:max(10px,env(safe-area-inset-top));right:max(110px,calc(env(safe-area-inset-right) + 98px));min-height:44px;padding:10px 14px;background:#243440bd;color:#fff5d3;border:1px solid #fff5d366}
+    body.mobile:is([data-game=TITLE],[data-game=PAUSED],[data-game=RESULTS]):not(.portrait) #gyro-open{display:block}
+    #gyro-panel[hidden]{display:none}#gyro-panel{position:fixed;inset:0;z-index:18;background:#13202bd9;display:grid;place-items:center;padding:max(12px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left))}
+    #gyro-panel section{background:#243440;border:1px solid #fff5d355;padding:20px 24px;width:min(380px,100%);max-height:100%;overflow:auto;border-radius:8px}
+    #gyro-panel header,.gyro-row{display:flex;align-items:center;justify-content:space-between;gap:16px}#gyro-panel h2{margin:0;font-size:22px}#gyro-panel header{margin-bottom:16px}
+    #gyro-panel button{min-height:44px;min-width:44px;border:1px solid #fff5d366;background:#344650;color:#fff5d3;padding:8px 12px;border-radius:4px}#gyro-toggle[aria-checked=true]{background:#e9ba50;color:#243440}#gyro-panel button:disabled{opacity:.45;cursor:default}
+    #gyro-panel input{width:100%;height:44px;accent-color:#e9ba50;touch-action:pan-y}#gyro-panel input:focus-visible{outline:2px solid #e9ba50}#gyro-panel output{font-variant-numeric:tabular-nums}.gyro-row{margin-bottom:8px}#gyro-status{font-size:13px;min-height:20px;margin:12px 0 0;color:#c4bfb2;line-height:1.5}
+    @media(max-height:400px){#gyro-panel section{padding:12px 20px}#gyro-panel header{margin-bottom:8px}}
     @media(prefers-reduced-motion:reduce){#loading{transition:none}}
   </style>
   $GODOT_HEAD_INCLUDE
@@ -56,7 +64,7 @@
       <div class="progress-label"><span id="phase">正在加载游戏</span><span id="amount"></span></div>
       <progress id="progress" aria-label="游戏资源下载进度"></progress>
       <p class="controls"><span class="desktop-controls">WASD 移动 · 鼠标瞄准 · 左键开火<br>空格跳跃 · R 换弹 · Esc 暂停</span><span class="mobile-warning">横屏操作 · 左侧移动 · 右侧滑动瞄准<br>按住开火 · 点按跳跃与换弹</span></p>
-      <div class="actions"><button id="retry" hidden>重新加载</button><a href="https://cv.yicong.me" rel="noopener">pixelcao <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 17 17 7M7 7h10v10"/></svg></a></div>
+      <div class="actions"><button id="retry" hidden>重新加载</button></div>
     </div>
   </div>
   <div id="help" hidden><span class="desktop-controls">WASD 移动 · 鼠标瞄准 · 左键开火 · Esc 暂停</span><span class="mobile-warning">左侧移动 · 右侧瞄准</span></div>
@@ -64,17 +72,42 @@
   <div id="rotate"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="28" y="13" width="44" height="74" rx="7" transform="rotate(30 50 50)"/><path d="M8 48a42 42 0 0 1 70-30m0-12v12H65M92 52a42 42 0 0 1-70 30m0 12V82h13"/></svg><p>横过来，准备开火</p><small>左手移动，右手瞄准</small><button id="rotate-full">横屏全屏</button></div>
   <button id="immersive" aria-label="进入沉浸全屏"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 4H4v5m11-5h5v5M4 15v5h5m11-5v5h-5"/></svg> 全屏</button><div id="immersive-note" role="status" hidden></div>
   <div id="touch-ui" aria-label="触控操作"><div id="stick"><span></span></div><button class="touch-button" id="fire" aria-label="按住开火"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg></button><button class="touch-button" id="jump" aria-label="跳跃"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 10 6-6 6 6M12 4v14M6 21h12"/></svg></button><button class="touch-button" id="reload" aria-label="换弹"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 7a8 8 0 1 0 1 8M19 3v5h-5"/></svg></button><button class="touch-button" id="pause" aria-label="暂停"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5v14M16 5v14"/></svg></button></div>
+  <button id="gyro-open" aria-haspopup="dialog">体感瞄准</button>
+  <div id="gyro-panel" hidden>
+    <section role="dialog" aria-modal="true" aria-labelledby="gyro-title" tabindex="-1">
+      <header><h2 id="gyro-title">体感瞄准</h2><button id="gyro-close" aria-label="关闭体感设置"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18"/></svg></button></header>
+      <div class="gyro-row"><label for="gyro-toggle">体感辅助</label><button id="gyro-toggle" role="switch" aria-checked="false">关闭</button></div>
+      <label class="gyro-row" for="gyro-sensitivity">灵敏度 <output id="gyro-value" for="gyro-sensitivity">1.00x</output></label>
+      <input id="gyro-sensitivity" type="range" min="0.25" max="3" step="0.25" value="1" aria-label="体感灵敏度">
+      <button id="gyro-calibrate" disabled>重新校准</button>
+      <p id="gyro-status" role="status">关闭</p>
+    </section>
+  </div>
+  <script src="gyro.js"></script>
   <script>
     window.noArtMobile=matchMedia('(pointer:coarse)').matches||new URLSearchParams(location.search).has('touch');
     const touch={x:0,y:0,dx:0,dy:0,fire:false,jump:false,reload:false,pause:false,blocked:false};
-    let pauseRequested=false;
+    let pauseRequested=false,focused=true;
+    const gyroPanel=document.querySelector('#gyro-panel'),gyroOpen=document.querySelector('#gyro-open'),gyroToggle=document.querySelector('#gyro-toggle'),gyroSlider=document.querySelector('#gyro-sensitivity'),gyroCalibrate=document.querySelector('#gyro-calibrate');
+    function gyroChanged(s){gyroToggle.textContent=s.pending?'取消':s.enabled?'开启':'关闭';gyroToggle.setAttribute('aria-checked',String(s.enabled));gyroSlider.value=String(s.sensitivity);document.querySelector('#gyro-value').textContent=s.sensitivity.toFixed(2)+'x';gyroCalibrate.disabled=!s.enabled||s.calibrating;document.querySelector('#gyro-status').textContent=s.status;}
+    const gyro=window.NoArtGyro?.create({changed:gyroChanged})||{read:()=>({gyroYaw:0,gyroPitch:0}),setContext(){},reset(){},snapshot:()=>({enabled:false,pending:false,sensitivity:1,status:'体感组件加载失败，请刷新重试'}),enable(){},disable(){},calibrate(){},setSensitivity(){}};
+    gyroChanged(gyro.snapshot());
+    function closeGyro(restore=true){const wasOpen=!gyroPanel.hidden;gyroPanel.hidden=true;if(wasOpen&&restore)gyroOpen.focus();}
+    function syncGyro(alive=true){gyro.setContext({running:alive&&document.body.dataset.game==='RUNNING'&&!pauseRequested,landscape:innerWidth>=innerHeight,visible:!document.hidden,focused});}
+    gyroOpen.onclick=()=>{if(document.body.dataset.game==='RUNNING')return;gyroPanel.hidden=false;gyroChanged(gyro.snapshot());document.querySelector('#gyro-close').focus();};
+    document.querySelector('#gyro-close').onclick=()=>closeGyro();
+    gyroPanel.addEventListener('click',e=>{if(e.target===gyroPanel)closeGyro();});
+    gyroPanel.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeGyro();}if(e.key==='Tab'){const items=[document.querySelector('#gyro-close'),gyroToggle,gyroSlider,...(gyroCalibrate.disabled?[]:[gyroCalibrate])],index=items.indexOf(document.activeElement);e.preventDefault();items[(index+(e.shiftKey?-1:1)+items.length)%items.length].focus();}});
+    gyroToggle.onclick=()=>{const s=gyro.snapshot();if(s.enabled||s.pending)gyro.disable();else gyro.enable();};
+    gyroSlider.addEventListener('input',()=>gyro.setSensitivity(gyroSlider.value));
+    gyroCalibrate.onclick=()=>gyro.calibrate();
     const fingers=new Map(),ui=document.querySelector('#touch-ui'),knob=document.querySelector('#stick span');
-    function clearTouch(){fingers.clear();Object.assign(touch,{x:0,y:0,dx:0,dy:0,fire:false,jump:false,reload:false,pause:false});knob.style.transform='';document.querySelectorAll('.held').forEach(e=>e.classList.remove('held'));}
-    function orientation(){const portrait=innerHeight>innerWidth;document.body.classList.toggle('portrait',portrait);touch.blocked=portrait||document.hidden;if(portrait){clearTouch();pauseRequested=true;}}
-    document.body.classList.toggle('mobile',window.noArtMobile);orientation();window.addEventListener('resize',()=>{clearTouch();orientation();});
-    document.addEventListener('visibilitychange',()=>{clearTouch();orientation();if(document.hidden)pauseRequested=true;});window.addEventListener('blur',()=>{clearTouch();if(document.body.dataset.game==='RUNNING')pauseRequested=true;});
-    window.noArtState=state=>{document.body.dataset.game=state;clearTouch();hideImmersiveNote();immersiveAttempt++;if(state!=='RUNNING')pauseRequested=false;};
-    window.noArtReadTouch=()=>{const result=JSON.stringify({...touch,pause:touch.pause||pauseRequested});pauseRequested=false;touch.dx=touch.dy=0;touch.jump=touch.reload=touch.pause=false;return result;};
+    function clearTouch(){gyro.reset();fingers.clear();Object.assign(touch,{x:0,y:0,dx:0,dy:0,fire:false,jump:false,reload:false,pause:false});knob.style.transform='';document.querySelectorAll('.held').forEach(e=>e.classList.remove('held'));}
+    function orientation(){const portrait=innerHeight>innerWidth;document.body.classList.toggle('portrait',portrait);touch.blocked=portrait||document.hidden;if(portrait){clearTouch();closeGyro(false);pauseRequested=true;}syncGyro();}
+    document.body.classList.toggle('mobile',window.noArtMobile);orientation();window.addEventListener('resize',()=>{clearTouch();orientation();});window.addEventListener('orientationchange',()=>{clearTouch();orientation();});screen.orientation?.addEventListener?.('change',()=>{clearTouch();orientation();});
+    document.addEventListener('visibilitychange',()=>{clearTouch();orientation();if(document.hidden)pauseRequested=true;});window.addEventListener('blur',()=>{focused=false;clearTouch();if(document.body.dataset.game==='RUNNING')pauseRequested=true;syncGyro();});window.addEventListener('focus',()=>{focused=true;syncGyro();});
+    window.noArtState=state=>{document.body.dataset.game=state;clearTouch();hideImmersiveNote();immersiveAttempt++;if(state!=='RUNNING')pauseRequested=false;if(state==='RUNNING'||state==='LOADING')closeGyro(false);syncGyro();};
+    window.noArtReadTouch=(alive=true)=>{syncGyro(alive);const result=JSON.stringify({...touch,...gyro.read(),pause:touch.pause||pauseRequested});pauseRequested=false;touch.dx=touch.dy=0;touch.jump=touch.reload=touch.pause=false;return result;};
     ui.addEventListener('contextmenu',e=>e.preventDefault());
     ui.addEventListener('pointerdown',e=>{e.preventDefault();ui.setPointerCapture(e.pointerId);const action=e.target.closest('button')?.id;const kind=action||(e.clientX<innerWidth*.4?'move':'look');if([...fingers.values()].some(f=>f.kind===kind))return;fingers.set(e.pointerId,{kind,x:e.clientX,y:e.clientY});if(action){touch[action]=true;document.getElementById(action).classList.add('held');}});
     ui.addEventListener('pointermove',e=>{const f=fingers.get(e.pointerId);if(!f)return;e.preventDefault();if(f.kind==='move'){const x=(e.clientX-f.x)/50,y=(e.clientY-f.y)/50,length=Math.max(1,Math.hypot(x,y));touch.x=x/length;touch.y=y/length;knob.style.transform=`translate(${touch.x*36}px,${touch.y*36}px)`;}else if(f.kind==='look'||f.kind==='fire'){touch.dx+=e.clientX-f.x;touch.dy+=e.clientY-f.y;f.x=e.clientX;f.y=e.clientY;}});
