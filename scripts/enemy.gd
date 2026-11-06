@@ -17,6 +17,7 @@ var knife_arm: Node3D
 var knife: Node3D
 var slash_hit = false
 const CLOSE_SHOT_RANGE = 8.0
+const KNIFE_FRONT_DOT = .5 # 60 degrees to either side of the player's forward direction.
 var dodge_direction = Vector3.ZERO
 var dodge_time = 0.0
 var dodge_cooldown = 0.0
@@ -277,6 +278,9 @@ func recover_charge() -> void:
 func process_rusher(delta: float) -> void:
 	var to_player = game.player.global_position-global_position
 	var distance = to_player.length()
+	var to_enemy = Vector3(-to_player.x,0,-to_player.z).normalized()
+	var player_forward: Vector3 = -game.player.global_basis.z
+	var in_front = player_forward.dot(to_enemy)>=KNIFE_FRONT_DOT
 	attack -= delta
 	var direction = Vector3.ZERO
 	var speed = 0.0
@@ -299,7 +303,7 @@ func process_rusher(delta: float) -> void:
 			direction = direction.normalized() if direction.length()>.15 else Vector3.ZERO
 			speed = 5.8
 			if direction.length_squared()>.01:rotation.y = lerp_angle(rotation.y,atan2(-direction.x,-direction.z),delta*10)
-			if attack<=0 and distance<1.85 and absf(to_player.y)<1.0 and game.respawn_time<=0 and can_see_player():
+			if attack<=0 and in_front and distance<1.85 and absf(to_player.y)<1.0 and game.respawn_time<=0 and can_see_player():
 				start_slash()
 				speed = 0
 		"WINDUP":
@@ -307,9 +311,12 @@ func process_rusher(delta: float) -> void:
 			orange.albedo_color = Color("fff1b7") if int(rush_time*12)%2==0 else Color("f17c28")
 			knife_arm.rotation.x = lerpf(0,-2.35,clampf(1-rush_time/.4,0,1))
 			if rush_time<=0:
-				rush_state = "SLASH"
-				rush_time = .24
-				orange.albedo_color = Color("f17c28")
+				if in_front:
+					rush_state = "SLASH"
+					rush_time = .24
+					orange.albedo_color = Color("f17c28")
+				else:
+					recover_charge()
 		"SLASH":
 			rush_time -= delta
 			var swing = clampf(1-rush_time/.24,0,1)
@@ -317,7 +324,7 @@ func process_rusher(delta: float) -> void:
 			if swing>=.45 and not slash_hit:
 				slash_hit = true
 				var flat = Vector3(to_player.x,0,to_player.z)
-				if flat.length()<2.1 and absf(to_player.y)<1 and rush_direction.dot(flat.normalized())>.5 and can_see_player():
+				if in_front and flat.length()<2.1 and absf(to_player.y)<1 and rush_direction.dot(flat.normalized())>.5 and can_see_player():
 					game.damage_player(34)
 			if rush_time<=0:recover_charge()
 		"RECOVER":

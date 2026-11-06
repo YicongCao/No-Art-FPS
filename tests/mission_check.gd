@@ -103,7 +103,7 @@ func _ready() -> void:
 	assert(game.sun.rotation_degrees.is_equal_approx(Vector3(-52,-35,0)),"Switching to the yard restores its original sunlight")
 	game.start_run();game.begin_running();game.player.enabled = false
 	game.invulnerable = 0;game.damage_player(100)
-	assert(game.respawn_time==5)
+	assert(game.respawn_time==3)
 	game.state = "RESULTS";game.menu_action("menu")
 	await game.select_session(load("res://data/sessions/defuse.tres"))
 	assert(game.rules.mission and game.arena.objectives.size()==3 and game.rules.completed.is_empty())

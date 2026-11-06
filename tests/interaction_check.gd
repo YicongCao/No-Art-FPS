@@ -66,7 +66,7 @@ func _ready() -> void:
 		game.invulnerable = 0
 		game.damage_player()
 	assert(game.respawn_time>0 and not game.player.enabled)
-	await get_tree().create_timer(5.2).timeout
+	await get_tree().create_timer(3.2).timeout
 	assert(game.player.enabled and game.health==100 and game.rules.elapsed>elapsed_before)
 	print("QA_RESPAWN_PASS")
 	game.clear_round()

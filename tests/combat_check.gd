@@ -58,6 +58,7 @@ func _ready() -> void:
 	game.clear_round()
 	game.player.enabled = false
 	game.player.position = Vector3(18,.05,0)
+	game.player.rotation.y = PI
 	game.health = 100
 	game.invulnerable = 0
 	var rusher = game.spawn_enemy(Vector3(18,0,9),true)
@@ -90,6 +91,22 @@ func _ready() -> void:
 	game.clear_round()
 	game.health = 100
 	game.invulnerable = 0
+	game.player.rotation.y = 0
+	rusher = game.spawn_enemy(Vector3(18,0,1.5),true)
+	rusher.attack = 0
+	await get_tree().create_timer(.25).timeout
+	assert(rusher.rush_state=="CHASE" and game.health==100,"An enemy behind the player cannot raise its knife")
+	game.player.rotation.y = PI
+	for frame in range(45):
+		if rusher.rush_state=="SLASH":break
+		await get_tree().physics_frame
+	assert(rusher.rush_state=="SLASH" and game.health==100)
+	game.player.rotation.y = 0
+	await get_tree().create_timer(.25).timeout
+	assert(game.health==100,"Turning away before impact prevents a rear hit")
+	print("COMBAT_KNIFE_FRONT_ONLY_PASS")
+	game.clear_round()
+	game.player.rotation.y = PI
 	rusher = game.spawn_enemy(Vector3(18,0,1.5),true)
 	rusher.attack = 0
 	await get_tree().create_timer(.1).timeout
