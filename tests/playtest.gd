@@ -10,6 +10,7 @@ var captured: Dictionary = {}
 
 func _ready() -> void:
 	Engine.max_fps = 60
+	game.player.set_process_unhandled_input(false)
 	game.start_run()
 	game.ready_time = .05
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED

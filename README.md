@@ -34,6 +34,8 @@ Red-and-yellow barrels ignite when shot, warn for 0.65 seconds and explode withi
 
 Head hits kill a normal target in one shot; body hits take three. Every kill is worth one. The rifle holds 20 rounds and reloads automatically with unlimited reserves. Health is hidden; a gradual dark-red screen-edge vignette warns of danger. After five seconds without a hit, health recovers gradually. Defeat causes a one-second respawn while the round clock keeps running. A strictly higher kill count displays NEW RECORD at results. Only the highest kill count is retained as a score record. The local best and settings are stored in Godot's `user://record.cfg`; QA runs do not overwrite them.
 
+The lower-right magazine shows twenty cartridges in one horizontal row. Each accepted shot splits and ejects the front cartridge at the right, then feeds the remaining rounds forward. Reloading restores the full row after completion; a thin bar shows reload progress. Ammo numbers and the RELOADING label have been removed. Low camera-motion mode also reduces shell travel/spin.
+
 ## Build the original assets
 
 ```sh
@@ -43,7 +45,7 @@ blender --background --python tools/build_music.py
 godot --headless --path . --editor --import
 ```
 
-`art_source/no_art_kit.blend` is an editable asset library with the models laid out separately. Its source script makes fourteen GLBs, including four container colors, a rifle with hands, the enemy, forklift, barrel, tree, cloud, pallet, crate, steel bundle and traffic light. Audio includes eleven original effects and an original 60-second MIDI composition rendered for runtime playback. The HUD uses bundled SIL-OFL Rajdhani Bold; its license is in assets/fonts/. No third-party art pack or generated image is required.
+`art_source/no_art_kit.blend` is an editable asset library with the models laid out separately. Its source script makes fourteen GLBs, including four container colors, a rifle with hands, the enemy, forklift, barrel, tree, cloud, pallet, crate, steel bundle and traffic light. Audio includes eleven original effects and an original 60-second MIDI composition rendered for runtime playback. The HUD uses bundled SIL-OFL Rajdhani Bold; its license is in assets/fonts/. The magazine uses a bundled imagegen sprite atlas; its generation prompt and source details are in [assets/ui/README.md](assets/ui/README.md).
 
 The yard is assembled in `scripts/arena.gd`; static collisions also supply the runtime navigation bake. Repeated box scenery and fence lattice are batched by material. The reference recording and extracted reference frames stay local and are Git-ignored.
 
@@ -59,13 +61,16 @@ godot --path . -- --qa --expansion
 godot --headless --path . -- --qa --population
 godot --path . -- --qa --combat
 godot --path . -- --qa --movement
+godot --path . -- --qa --magazine
 ```
 
 The first command tests score and timer boundaries. `--check` exercises normal collision movement on both ramps, live head/body raycasts, wall blocking, pause, reload, respawn, and ten restarts. `--qa` runs a real-time full-minute automatic aiming session, with scripted viewpoint changes. `--population` checks patrol retention, regional reinforcements, population caps and safe spawn distances/visibility. The short benchmark runs twelve enemies with VSync disabled. These flags are development-only test helpers, not normal gameplay modes.
 
 `--movement` checks that every opening black guard moves, twelve enemies can cross opposing lanes without overlapping or getting stuck, pause freezes avoidance movement, and occupied spawn slots are rechecked after their warning.
 
-Latest update: [explosive barrels and orange rushers](docs/updates/2026-11-06-explosive-combat.md). Earlier: [enemy population and regional patrols](docs/updates/2026-11-06-enemy-population.md). Previous update: [expanded map, feedback and music](docs/updates/2026-11-05-expanded-playbox.md). MIDI: [sixty.mid](assets/music/sixty.mid).
+`--magazine` counts the rendered cartridge silhouettes after every shot from 20 down to zero, checks shell animation lifecycle, automatic/manual reload, pause and restart, then verifies the HUD in a 960×540 window.
+
+Latest update: [enemy movement and horizontal magazine](docs/updates/2026-11-06-movement-and-magazine.md). Earlier: [explosive barrels and orange rushers](docs/updates/2026-11-06-explosive-combat.md), [enemy population and regional patrols](docs/updates/2026-11-06-enemy-population.md), [expanded map, feedback and music](docs/updates/2026-11-05-expanded-playbox.md). MIDI: [sixty.mid](assets/music/sixty.mid).
 
 Results and screenshots: [implementation and validation notes](docs/implementation.md). Design background: [initial playbox plan](docs/design/No-Art-FPS-playbox-plan.md).
 

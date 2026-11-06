@@ -122,6 +122,7 @@ func _ready() -> void:
 		if "--population" in OS.get_cmdline_user_args():test_path = "res://tests/population_check.gd"
 		if "--combat" in OS.get_cmdline_user_args():test_path = "res://tests/combat_check.gd"
 		if "--movement" in OS.get_cmdline_user_args():test_path = "res://tests/movement_check.gd"
+		if "--magazine" in OS.get_cmdline_user_args():test_path = "res://tests/magazine_check.gd"
 		var qa = load(test_path).new()
 		qa.game = self
 		add_child(qa)
@@ -173,6 +174,7 @@ func start_run() -> void:
 	hud.hit = 0
 	hud.damage = 0
 	hud.kill_pop = 0
+	hud.reset_magazine()
 	if not qa_mode:Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func clear_round() -> void:
@@ -288,6 +290,7 @@ func _physics_process(delta: float) -> void:
 			player.enabled = true
 			health = MAX_HEALTH
 			ammo = MAGAZINE_SIZE
+			hud.reset_magazine()
 			reload_time = 0
 			invulnerable = 1.5
 	fire_time = maxf(0,fire_time-delta)
@@ -380,6 +383,7 @@ func shoot() -> void:
 		reload_weapon()
 		return
 	ammo -= 1
+	hud.ammo_fired()
 	rules.shots += 1
 	fire_time = .1
 	player.recoil = 1

@@ -4,6 +4,8 @@ var game: Node
 
 func _ready() -> void:
 	Engine.max_fps = 60
+	# Synthetic movement must not inherit OS mouse deltas when capture starts.
+	game.player.set_process_unhandled_input(false)
 	game.start_run()
 	game.begin_running()
 	game.clear_round()
@@ -79,7 +81,7 @@ func _ready() -> void:
 		await get_tree().process_frame
 	assert(get_tree().get_node_count()<=baseline+3,"Restart must not retain enemies or effects")
 	print("QA_TEN_RESTARTS_PASS nodes=",get_tree().get_node_count()," baseline=",baseline)
-	# Reproducible in-engine lookdev frames. No image generation or compositing.
+	# Reproducible engine renders with staged actors and score values.
 	game.start_run()
 	game.begin_running()
 	game.clear_round()
