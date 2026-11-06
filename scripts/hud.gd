@@ -17,10 +17,13 @@ var menu_size = Vector2.ZERO
 var sensitivity_slider: HSlider
 var motion_button: Button
 var music_slider: HSlider
+var fire_button: TextureButton
 const WHITE = Color("fff8e8")
 const INK = Color("243440")
 const GOLD = Color("f2d084")
 const MAGAZINE_ATLAS = preload("res://assets/ui/magazine-atlas.png")
+const TITLE_ART = preload("res://assets/ui/title/no-art-fps.png")
+const FIRE_ART = preload("res://assets/ui/title/fire.png")
 const MAGAZINE_REGION = Rect2(104,112,458,1056)
 const CARTRIDGE_REGION = Rect2(773,574,400,108)
 const CASING_REGION = Rect2(773,574,280,108)
@@ -212,7 +215,21 @@ func rebuild_menu() -> void:
 	menu_size = size
 	var c = size*.5
 	if menu_state == "TITLE":
-		menu_button("PLAY",Rect2(74,size.y-150,280,60),"play",true,"Enter")
+		fire_button = TextureButton.new()
+		fire_button.name = "fire"
+		fire_button.texture_normal = FIRE_ART
+		fire_button.ignore_texture_size = true
+		fire_button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
+		fire_button.position = Vector2(104,size.y-188)
+		fire_button.size = Vector2(300,112)
+		fire_button.pivot_offset = fire_button.size*.5
+		fire_button.tooltip_text = "Enter"
+		fire_button.mouse_entered.connect(func():fire_button.self_modulate = Color(1.15,1.15,1.15))
+		fire_button.mouse_exited.connect(func():fire_button.self_modulate = Color.WHITE)
+		fire_button.button_down.connect(func():fire_button.scale = Vector2.ONE*.96)
+		fire_button.button_up.connect(func():fire_button.scale = Vector2.ONE)
+		fire_button.pressed.connect(func():game.menu_action("play"))
+		menu.add_child(fire_button)
 	elif menu_state == "RESULTS":
 		menu_button("RETRY",Rect2(c.x-200,c.y+145,190,56),"retry",true,"Enter")
 		menu_button("MENU",Rect2(c.x+10,c.y+145,190,56),"menu",false,"Esc")
@@ -251,9 +268,9 @@ func _draw() -> void:
 	var state = game.state
 	if state == "TITLE":
 		draw_rect(Rect2(0,0,size.x*.43,size.y),Color(.055,.08,.10,.86))
-		label("NO",Vector2(68,227),102)
-		label("ART",Vector2(68,330),102)
-		label("FPS",Vector2(68,433),102)
+		draw_texture_rect(TITLE_ART,Rect2(64,58,390,520),false)
+		if is_instance_valid(fire_button) and fire_button.has_focus():
+			draw_line(Vector2(140,size.y-68),Vector2(368,size.y-68),GOLD,2,true)
 		return
 	if state == "RESULTS":
 		draw_rect(Rect2(Vector2.ZERO,size),Color(.06,.09,.12,.80))
