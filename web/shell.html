@@ -12,6 +12,7 @@
   <style>
     *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#243440;color:#fff5d3;font-family:Arial,"PingFang SC",sans-serif;overflow:hidden}
     button,a{-webkit-tap-highlight-color:transparent}button{font:inherit;cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #e9ba50;outline-offset:5px}
+    .ui-icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle;pointer-events:none}.touch-button .ui-icon{width:26px;height:26px}.actions .ui-icon{width:14px;height:14px;margin-left:5px}
     #canvas{display:block;width:100%;height:100%;outline:0;touch-action:none}
     #loading{position:fixed;inset:0;display:grid;place-items:center;padding:32px 24px;background:#243440;z-index:5;transition:opacity .2s}
     #loading[hidden]{display:none}#loading.leaving{opacity:0;pointer-events:none}
@@ -40,7 +41,8 @@
     #stick span{position:absolute;left:38px;top:38px;width:40px;height:40px;border-radius:50%;background:#fff5d366}
     #immersive{display:none;position:fixed;z-index:7;right:max(12px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top));background:#243440bd;color:#fff5d3;border:1px solid #fff5d366;padding:10px 14px}
     body.mobile:not([data-game=RUNNING]):not(.portrait) #immersive{display:block}
-    #immersive-note{display:none;position:fixed;z-index:21;left:10%;right:10%;bottom:12px;text-align:center;background:#243440e8;padding:12px;font-size:13px;color:#fff5d3}
+    #immersive-note[hidden],body[data-game=RUNNING] #immersive-note,body[data-game=LOADING] #immersive-note{display:none}
+    #immersive-note{position:fixed;z-index:21;left:10%;right:10%;bottom:12px;text-align:center;background:#243440e8;padding:12px;font-size:13px;color:#fff5d3}
     @media(max-height:500px) and (orientation:landscape){#loading{padding:16px 24px}.card{width:min(560px,100%);display:grid;grid-template-columns:140px 1fr;column-gap:28px;align-items:center}h1{grid-row:1 / 5;margin:0;font-size:58px}.progress-label{margin:0 0 8px}.controls{margin:14px 0 0}.actions{margin-top:12px}}
     @media(prefers-reduced-motion:reduce){#loading{transition:none}}
   </style>
@@ -54,14 +56,14 @@
       <div class="progress-label"><span id="phase">正在加载游戏</span><span id="amount"></span></div>
       <progress id="progress" aria-label="游戏资源下载进度"></progress>
       <p class="controls"><span class="desktop-controls">WASD 移动 · 鼠标瞄准 · 左键开火<br>空格跳跃 · R 换弹 · Esc 暂停</span><span class="mobile-warning">横屏操作 · 左侧移动 · 右侧滑动瞄准<br>按住开火 · 点按跳跃与换弹</span></p>
-      <div class="actions"><button id="retry" hidden>重新加载</button><a href="https://cv.yicong.me" rel="noopener">pixelcao ↗</a></div>
+      <div class="actions"><button id="retry" hidden>重新加载</button><a href="https://cv.yicong.me" rel="noopener">pixelcao <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 17 17 7M7 7h10v10"/></svg></a></div>
     </div>
   </div>
   <div id="help" hidden><span class="desktop-controls">WASD 移动 · 鼠标瞄准 · 左键开火 · Esc 暂停</span><span class="mobile-warning">左侧移动 · 右侧瞄准</span></div>
 
   <div id="rotate"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="28" y="13" width="44" height="74" rx="7" transform="rotate(30 50 50)"/><path d="M8 48a42 42 0 0 1 70-30m0-12v12H65M92 52a42 42 0 0 1-70 30m0 12V82h13"/></svg><p>横过来，准备开火</p><small>左手移动，右手瞄准</small><button id="rotate-full">横屏全屏</button></div>
-  <button id="immersive" aria-label="进入沉浸全屏">⛶ 全屏</button><div id="immersive-note" role="status"></div>
-  <div id="touch-ui" aria-label="触控操作"><div id="stick"><span></span></div><button class="touch-button" id="fire" aria-label="按住开火">◎</button><button class="touch-button" id="jump" aria-label="跳跃">↑</button><button class="touch-button" id="reload" aria-label="换弹">↻</button><button class="touch-button" id="pause" aria-label="暂停">Ⅱ</button></div>
+  <button id="immersive" aria-label="进入沉浸全屏"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 4H4v5m11-5h5v5M4 15v5h5m11-5v5h-5"/></svg> 全屏</button><div id="immersive-note" role="status" hidden></div>
+  <div id="touch-ui" aria-label="触控操作"><div id="stick"><span></span></div><button class="touch-button" id="fire" aria-label="按住开火"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg></button><button class="touch-button" id="jump" aria-label="跳跃"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 10 6-6 6 6M12 4v14M6 21h12"/></svg></button><button class="touch-button" id="reload" aria-label="换弹"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 7a8 8 0 1 0 1 8M19 3v5h-5"/></svg></button><button class="touch-button" id="pause" aria-label="暂停"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5v14M16 5v14"/></svg></button></div>
   <script>
     window.noArtMobile=matchMedia('(pointer:coarse)').matches||new URLSearchParams(location.search).has('touch');
     const touch={x:0,y:0,dx:0,dy:0,fire:false,jump:false,reload:false,pause:false,blocked:false};
@@ -71,15 +73,34 @@
     function orientation(){const portrait=innerHeight>innerWidth;document.body.classList.toggle('portrait',portrait);touch.blocked=portrait||document.hidden;if(portrait){clearTouch();pauseRequested=true;}}
     document.body.classList.toggle('mobile',window.noArtMobile);orientation();window.addEventListener('resize',()=>{clearTouch();orientation();});
     document.addEventListener('visibilitychange',()=>{clearTouch();orientation();if(document.hidden)pauseRequested=true;});window.addEventListener('blur',()=>{clearTouch();if(document.body.dataset.game==='RUNNING')pauseRequested=true;});
-    window.noArtState=state=>{document.body.dataset.game=state;clearTouch();if(state!=='RUNNING')pauseRequested=false;};
+    window.noArtState=state=>{document.body.dataset.game=state;clearTouch();hideImmersiveNote();immersiveAttempt++;if(state!=='RUNNING')pauseRequested=false;};
     window.noArtReadTouch=()=>{const result=JSON.stringify({...touch,pause:touch.pause||pauseRequested});pauseRequested=false;touch.dx=touch.dy=0;touch.jump=touch.reload=touch.pause=false;return result;};
     ui.addEventListener('contextmenu',e=>e.preventDefault());
-    ui.addEventListener('pointerdown',e=>{e.preventDefault();ui.setPointerCapture(e.pointerId);const action=e.target.closest('button')?.id;const kind=action||(e.clientX<innerWidth*.4?'move':'look');if([...fingers.values()].some(f=>f.kind===kind))return;fingers.set(e.pointerId,{kind,x:e.clientX,y:e.clientY});if(action){touch[action]=true;e.target.classList.add('held');}});
+    ui.addEventListener('pointerdown',e=>{e.preventDefault();ui.setPointerCapture(e.pointerId);const action=e.target.closest('button')?.id;const kind=action||(e.clientX<innerWidth*.4?'move':'look');if([...fingers.values()].some(f=>f.kind===kind))return;fingers.set(e.pointerId,{kind,x:e.clientX,y:e.clientY});if(action){touch[action]=true;document.getElementById(action).classList.add('held');}});
     ui.addEventListener('pointermove',e=>{const f=fingers.get(e.pointerId);if(!f)return;e.preventDefault();if(f.kind==='move'){const x=(e.clientX-f.x)/50,y=(e.clientY-f.y)/50,length=Math.max(1,Math.hypot(x,y));touch.x=x/length;touch.y=y/length;knob.style.transform=`translate(${touch.x*36}px,${touch.y*36}px)`;}else if(f.kind==='look'||f.kind==='fire'){touch.dx+=e.clientX-f.x;touch.dy+=e.clientY-f.y;f.x=e.clientX;f.y=e.clientY;}});
     function release(e){const f=fingers.get(e.pointerId);if(!f)return;fingers.delete(e.pointerId);if(f.kind==='move'){touch.x=touch.y=0;knob.style.transform='';}if(f.kind==='fire')touch.fire=false;document.getElementById(f.kind)?.classList.remove('held');}
     for(const event of ['pointerup','pointercancel','lostpointercapture'])ui.addEventListener(event,release);
-    async function immersive(){try{if(!document.fullscreenElement){const method=document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen;if(!method)throw Error('unsupported');await method.call(document.documentElement);}try{await screen.orientation?.lock('landscape');}catch{}}catch{const note=document.querySelector('#immersive-note');note.textContent='此浏览器无法隐藏工具栏；可通过“分享 → 添加到主屏幕”以独立窗口打开。';note.style.display='block';setTimeout(()=>note.style.display='none',6000);}}
-    document.querySelector('#immersive').onclick=immersive;document.querySelector('#rotate-full').onclick=immersive;
+    const immersiveNote=document.querySelector('#immersive-note');
+    let immersiveTimer=0,immersiveAttempt=0;
+    function hideImmersiveNote(){clearTimeout(immersiveTimer);immersiveTimer=0;immersiveNote.hidden=true;}
+    async function immersive(explain=false){
+      hideImmersiveNote();const attempt=++immersiveAttempt;
+      try{
+        if(!document.fullscreenElement&&!document.webkitFullscreenElement){
+          const method=document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen;
+          if(!method)throw Error('unsupported');
+          await method.call(document.documentElement);
+        }
+        try{await screen.orientation?.lock('landscape');}catch{}
+      }catch{
+        // Automatic requests stay silent. Never let a late rejection cover play.
+        if(!explain||attempt!==immersiveAttempt||['RUNNING','LOADING'].includes(document.body.dataset.game))return;
+        immersiveNote.textContent='此浏览器暂不支持全屏';immersiveNote.hidden=false;
+        immersiveTimer=setTimeout(hideImmersiveNote,2400);
+      }
+    }
+    document.querySelector('#immersive').onclick=()=>immersive(true);
+    document.querySelector('#rotate-full').onclick=()=>immersive(true);
     let attempted=false;document.querySelector('#canvas').addEventListener('pointerdown',()=>{if(window.noArtMobile&&!attempted){attempted=true;immersive();}},{capture:true});
     document.addEventListener('fullscreenchange',()=>{clearTouch();if(!document.fullscreenElement&&document.body.dataset.game==='RUNNING')pauseRequested=true;});
   </script>
