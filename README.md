@@ -34,6 +34,8 @@ Ground-level container doors open automatically when you approach the entrance. 
 
 Both stairs lead to a larger pool terrace with loungers, parasols and a loop around the shallow pool. Walk down the pool entrance and back out without jumping. Six coconut palms add ground-level landmarks.
 
+Large spray-painted lettering marks the red container, yard wall and warehouse. The artwork is blended into the actual opaque wall material, with mipmaps for stable viewing at a distance; generation prompts are in [assets/graffiti/README.md](assets/graffiti/README.md).
+
 Red-and-yellow barrels ignite when shot, warn for 0.65 seconds and explode within five metres; solid cover blocks blast damage, and nearby barrels chain. Orange enemies carry knives and rapidly approach, then raise their weapon before a close-range chop. Sidestep, back away, shoot them during windup, or use solid cover to block the slash.
 
 Head hits kill a normal target in one shot; body hits take three. Every kill is worth one. The rifle holds 20 rounds and reloads automatically with unlimited reserves. Health is hidden; a gradual dark-red screen-edge vignette warns of danger. After five seconds without a hit, health recovers gradually. Defeat causes a one-second respawn while the round clock keeps running. A strictly higher kill count displays NEW RECORD at results. Only the highest kill count is retained as a score record. The local best and settings are stored in Godot's `user://record.cfg`; QA runs do not overwrite them.
@@ -70,6 +72,7 @@ godot --path . -- --qa --movement
 godot --path . -- --qa --magazine
 godot --path . -- --qa --containers
 godot --path . -- --qa --terrace
+godot --path . -- --qa --graffiti
 ```
 
 The first command tests score and timer boundaries. `--check` exercises normal collision movement on both ramps, live head/body raycasts, wall blocking, pause, reload, respawn, and ten restarts. `--qa` runs a real-time full-minute automatic aiming session, with scripted viewpoint changes. `--population` checks patrol retention, regional reinforcements, population caps and safe spawn distances/visibility. The short benchmark runs twelve enemies with VSync disabled. These flags are development-only test helpers, not normal gameplay modes.
@@ -78,7 +81,7 @@ The first command tests score and timer boundaries. `--check` exercises normal c
 
 `--magazine` counts the rendered cartridge silhouettes after every shot from 20 down to zero, checks shell animation lifecycle, automatic/manual reload, pause and restart, then verifies the HUD in a 960×540 window.
 
-Latest update: [automatic containers, knife enemies and pool terrace](docs/updates/2026-11-06-poolside-playbox.md). Earlier: [enemy movement and horizontal magazine](docs/updates/2026-11-06-movement-and-magazine.md), [explosive barrels](docs/updates/2026-11-06-explosive-combat.md), [enemy population](docs/updates/2026-11-06-enemy-population.md). MIDI: [sixty.mid](assets/music/sixty.mid).
+Latest update: [wall graffiti and rendering stability](docs/updates/2026-11-06-wall-graffiti.md). Earlier: [automatic containers, knife enemies and pool terrace](docs/updates/2026-11-06-poolside-playbox.md), [enemy movement and horizontal magazine](docs/updates/2026-11-06-movement-and-magazine.md), [explosive barrels](docs/updates/2026-11-06-explosive-combat.md). MIDI: [sixty.mid](assets/music/sixty.mid).
 
 Results and screenshots: [implementation and validation notes](docs/implementation.md). Design background: [initial playbox plan](docs/design/No-Art-FPS-playbox-plan.md).
 

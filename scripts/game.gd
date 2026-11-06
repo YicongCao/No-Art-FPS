@@ -125,6 +125,7 @@ func _ready() -> void:
 		if "--magazine" in OS.get_cmdline_user_args():test_path = "res://tests/magazine_check.gd"
 		if "--containers" in OS.get_cmdline_user_args():test_path = "res://tests/container_check.gd"
 		if "--terrace" in OS.get_cmdline_user_args():test_path = "res://tests/terrace_check.gd"
+		if "--graffiti" in OS.get_cmdline_user_args():test_path = "res://tests/graffiti_check.gd"
 		var qa = load(test_path).new()
 		qa.game = self
 		add_child(qa)

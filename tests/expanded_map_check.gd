@@ -55,6 +55,9 @@ func _ready() -> void:
 	await shot("street",Vector3(18,1.8,21),Vector3(24,2,-6))
 	await shot("warehouse",Vector3(30,1.8,7),Vector3(30,2,-12))
 	await shot("stairs",Vector3(-14,1.8,1),Vector3(-11,2,-5))
+	await shot("graffiti-sector",Vector3(-5,1.8,4.5),Vector3(-6,1.45,-1.6))
+	await shot("graffiti-yard",Vector3(0,1.8,-4.7),Vector3(0,1.45,-8.95))
+	await shot("graffiti-warehouse",Vector3(17.5,2.2,-2.5),Vector3(24,2.7,-2.5))
 	game.clear_round()
 	await get_tree().process_frame
 	await get_tree().process_frame

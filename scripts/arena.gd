@@ -32,6 +32,12 @@ func _ready() -> void:
 		mat.roughness = 0.9
 		mat.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
 		materials[key] = mat
+		if key in ["red","cream","yellow","ink"]:
+			var painted = ShaderMaterial.new()
+			painted.shader = preload("res://assets/shaders/wall_paint.gdshader")
+			painted.set_shader_parameter("base_color",Color(PALETTE[key]))
+			painted.set_shader_parameter("paint_count",0)
+			materials[key] = painted
 		boxes[key] = []
 	build()
 	batch_boxes()
@@ -126,17 +132,18 @@ func stairs(x: float, start_z: float, height: float, length: float, width: float
 			solid(point+Vector3(0,.57,0),Vector3(.09,1.14,.09),"purple",true)
 		for y in [.42,1.10]:beam(bottom+Vector3.UP*y,top+Vector3.UP*y,.095,"purple",true)
 
-func sign_text(value: String, pos: Vector3, size: int = 70, yaw: float = 0) -> void:
-	var label = Label3D.new()
-	label.text = value
-	label.font_size = size
-	label.pixel_size = .007
-	label.modulate = Color("243440")
-	label.outline_size = 0
-	label.no_depth_test = false
-	label.position = pos
-	label.rotation.y = yaw
-	add_child(label)
+func wall_paint(artwork: Texture2D, center: Vector3, size: Vector2, colors: Array, normal: Vector3 = Vector3.BACK) -> void:
+	# Configure the existing opaque material, so paint and wall never compete for depth.
+	for color in colors:
+		var surface: ShaderMaterial = materials[color]
+		var index = int(surface.get_shader_parameter("paint_count"))
+		assert(index<2,"Wall material supports two murals")
+		var suffix = "_"+str(index)
+		surface.set_shader_parameter("artwork"+suffix,artwork)
+		surface.set_shader_parameter("paint_center"+suffix,center)
+		surface.set_shader_parameter("paint_size"+suffix,size)
+		surface.set_shader_parameter("paint_normal"+suffix,normal)
+		surface.set_shader_parameter("paint_count",index+1)
 
 func build() -> void:
 	solid(Vector3(6,-.25,0),Vector3(64,.5,48),"sand")
@@ -200,10 +207,8 @@ func build() -> void:
 	for p in [Vector3(-15,0,3),Vector3(23,0,-19),Vector3(-20,0,-12),Vector3(13,0,-12),Vector3(13,0,8),Vector3(23,0,22),Vector3(-10,0,21),Vector3(-23,0,15)]:
 		solid(p+Vector3(0,2.7,0),Vector3(.1,5.4,.1),"ink",false)
 		solid(p+Vector3(.3,5.35,0),Vector3(.7,.12,.15),"cream",false)
-	solid(Vector3(-6,2.45,-1.56),Vector3(1.9,.4,.03),"yellow",false)
-	sign_text("SECTOR 01",Vector3(-6,2.45,-1.52),45)
-	solid(Vector3(0,2.4,-8.87),Vector3(2.5,.5,.04),"yellow",false)
-	sign_text("THE SIXTY YARD",Vector3(0,2.4,-8.82),40)
+	wall_paint(preload("res://assets/graffiti/sector-01.png"),Vector3(-6,1.48,-1.58),Vector2(5.55,2.18),["red"])
+	wall_paint(preload("res://assets/graffiti/sixty-yard.png"),Vector3(0,1.48,-8.94),Vector2(7.1,2.35),["cream","yellow","ink"])
 
 func batch_boxes() -> void:
 	for color in boxes:
@@ -403,8 +408,7 @@ func warehouse() -> void:
 		light.omni_range = 7
 		light.shadow_enabled = false
 		add_child(light)
-	solid(Vector3(30,4.55,9.18),Vector3(3.6,.55,.06),"yellow",false)
-	sign_text("WAREHOUSE",Vector3(30,4.55,9.23),55)
+	wall_paint(preload("res://assets/graffiti/warehouse.png"),Vector3(23.85,2.75,-2.5),Vector2(6.7,4.05),["cream"],Vector3.LEFT)
 
 func _process(_delta: float) -> void:
 	# Static scenery remains quiet; only the traffic lenses change every few seconds.
