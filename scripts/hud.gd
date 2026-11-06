@@ -32,6 +32,7 @@ var title_frame: ImageTexture
 var results_frame: ImageTexture
 var results_frame_pending = false
 var results_frame_ticket = 0
+const TOP_HUD_SCALE = 1.5
 const TITLE_SHADE_OPACITY = .55
 const WHITE = Color("fff8e8")
 const INK = Color("243440")
@@ -466,43 +467,7 @@ func _draw() -> void:
 	draw_finale_edges()
 	if game.respawn_time>0:draw_rect(Rect2(Vector2.ZERO,size),Color(.06,.09,.12,.28))
 	death_marks()
-	var seconds = ceili(game.rules.remaining())
-	var time_text = "%02d:%02d"%[seconds/60,seconds%60]
-	if game.rules.mission:
-		draw_style_box(mission_time_style(),Rect2(Vector2(c.x-137,26),Vector2(300,52)))
-	var timer_center = Vector2(c.x-52,51)
-	var timer_scale = 1.0+sin(time_pulse*PI)*.22
-	var timer_color = WHITE.lerp(Color("ff3e40"),minf(1,time_pulse*2)) if seconds<=10 else WHITE
-	draw_set_transform(timer_center,0,Vector2.ONE*timer_scale)
-	var timer_half_width = font.get_string_size(time_text,HORIZONTAL_ALIGNMENT_LEFT,-1,38).x*.5
-	stopwatch(Vector2(-timer_half_width-23,2),timer_color)
-	label(time_text,Vector2(0,13),38,timer_color,true)
-	if time_pulse>0 and seconds<=10:
-		draw_arc(Vector2.ZERO,30+(1-time_pulse)*24,0,TAU,48,Color(1,.12,.15,time_pulse*.6),2)
-	draw_set_transform(Vector2.ZERO)
-	draw_line(Vector2(c.x+18,33),Vector2(c.x+18,64),Color(1,1,1,.4),1)
-	var score_center = Vector2(c.x+65,51)
-	if game.rules.mission:
-		label("%d/3 C4"%game.rules.completed.size(),score_center+Vector2(22,13),32,GOLD,true)
-	else:
-		var burst = kill_pop/.5
-		var strength = .65+float(mini(kill_group,3)-1)*.4
-		if game.reduced_motion:strength *= .25
-		var score_scale = 1.0+sin(burst*PI)*strength
-		draw_set_transform(score_center,0,Vector2.ONE*score_scale)
-		label("%02d"%game.rules.kills,Vector2(0,13),38,WHITE.lerp(GOLD,burst),true)
-		draw_set_transform(Vector2.ZERO)
-		if burst>0:
-			var rays = 8+2*(mini(kill_group,3)-1)
-			for i in range(rays):
-				var direction = Vector2.from_angle(float(i)*TAU/rays)
-				var radius = 27+(1-burst)*(40+10*(mini(kill_group,3)-1))
-				draw_line(score_center+direction*radius,score_center+direction*(radius+8*burst),Color(1,.83,.44,burst),2)
-		if multi_time>0:
-			var alpha = smoothstep(0,.35,multi_time)
-			var offset = (1-multi_time/.65)*16
-			label("+"+str(kill_group),score_center+Vector2(0,64-offset),30,Color(GOLD,alpha),true)
-		label("KILLS",Vector2(c.x+122,61),14,WHITE,true)
+	draw_top_summary()
 	if game.respawn_time<=0:
 		var gap = 5+shot*24
 		if hit>0:
@@ -537,6 +502,49 @@ func _draw() -> void:
 				break
 	if damage>0:
 		draw_line(Vector2(c.x-30,c.y+44),Vector2(c.x+30,c.y+44),Color(1,.35,.2,damage),3)
+
+func draw_top_summary() -> void:
+	var origin = Vector2(size.x*.5,0)
+	var scale = Vector2.ONE*TOP_HUD_SCALE
+	draw_set_transform(origin,0,scale)
+	var seconds = ceili(game.rules.remaining())
+	var time_text = "%02d:%02d"%[seconds/60,seconds%60]
+	if game.rules.mission:
+		draw_style_box(mission_time_style(),Rect2(Vector2(-137,26),Vector2(300,52)))
+	var timer_center = Vector2(-52,51)
+	var timer_scale = 1.0+sin(time_pulse*PI)*.22
+	var timer_color = WHITE.lerp(Color("ff3e40"),minf(1,time_pulse*2)) if seconds<=10 else WHITE
+	draw_set_transform(origin+timer_center*TOP_HUD_SCALE,0,scale*timer_scale)
+	var timer_half_width = font.get_string_size(time_text,HORIZONTAL_ALIGNMENT_LEFT,-1,38).x*.5
+	stopwatch(Vector2(-timer_half_width-23,2),timer_color)
+	label(time_text,Vector2(0,13),38,timer_color,true)
+	if time_pulse>0 and seconds<=10:
+		draw_arc(Vector2.ZERO,30+(1-time_pulse)*24,0,TAU,48,Color(1,.12,.15,time_pulse*.6),2)
+	draw_set_transform(origin,0,scale)
+	draw_line(Vector2(18,33),Vector2(18,64),Color(1,1,1,.4),1)
+	var score_center = Vector2(65,51)
+	if game.rules.mission:
+		label("%d/3 C4"%game.rules.completed.size(),score_center+Vector2(22,13),32,GOLD,true)
+	else:
+		var burst = kill_pop/.5
+		var strength = .65+float(mini(kill_group,3)-1)*.4
+		if game.reduced_motion:strength *= .25
+		var score_scale = 1.0+sin(burst*PI)*strength
+		draw_set_transform(origin+score_center*TOP_HUD_SCALE,0,scale*score_scale)
+		label("%02d"%game.rules.kills,Vector2(0,13),38,WHITE.lerp(GOLD,burst),true)
+		draw_set_transform(origin,0,scale)
+		if burst>0:
+			var rays = 8+2*(mini(kill_group,3)-1)
+			for i in range(rays):
+				var direction = Vector2.from_angle(float(i)*TAU/rays)
+				var radius = 27+(1-burst)*(40+10*(mini(kill_group,3)-1))
+				draw_line(score_center+direction*radius,score_center+direction*(radius+8*burst),Color(1,.83,.44,burst),2)
+		if multi_time>0:
+			var alpha = smoothstep(0,.35,multi_time)
+			var offset = (1-multi_time/.65)*16
+			label("+"+str(kill_group),score_center+Vector2(0,64-offset),30,Color(GOLD,alpha),true)
+		label("KILLS",Vector2(122,61),14,WHITE,true)
+	draw_set_transform(Vector2.ZERO)
 
 func draw_finale_edges() -> void:
 	if not game.finale_active:return
