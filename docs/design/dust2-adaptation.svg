@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="940" viewBox="0 0 1400 940" role="img" aria-labelledby="title desc">
+  <title id="title">Dust2 怀旧路线与 No-Art-FPS 风格适配</title>
+  <desc id="desc">原创路线关系示意，非原版地图实测。保留 A 大道与小道到 A 点、上下隧道到 B 点以及中路连接。采用沙色、奶油白、砖红、青绿、紫色及深蓝色板。</desc>
+  <rect width="1400" height="940" fill="#f4f0e7"/>
+  <g font-family="PingFang SC, Noto Sans CJK SC, sans-serif" fill="#243440">
+    <text x="64" y="78" font-size="34" font-weight="700">怀旧 Dust2：保留路线记忆，重建色块与装饰</text>
+    <text x="64" y="114" font-size="19" fill="#59626a">CS 1.6 为布局基准 · 原创拓扑示意，非比例平面图 · 尚未实现为游戏地图</text>
+    <rect x="64" y="152" width="790" height="580" rx="14" fill="#fffdf8" stroke="#c4bfb2"/>
+    <text x="94" y="194" font-size="22" font-weight="600">完整路线关系</text>
+    <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="7">
+      <path d="M204 603 L174 457 L204 300 L390 257" stroke="#754c87"/>
+      <path d="M236 619 L310 657 L700 657 L700 536 L700 304 L720 257" stroke="#b65745"/>
+      <path d="M206 603 L432 603 L556 543 L555 367 L720 257" stroke="#4d7d70"/>
+      <path d="M432 603 L432 460" stroke="#304f9d"/>
+      <path d="M174 457 L294 442 L432 460 L432 338 L525 257" stroke="#304f9d"/>
+      <path d="M390 257 L525 257 L720 257" stroke="#59626a"/>
+    </g>
+    <g fill="#fffdf8" stroke="#243440" stroke-width="2">
+      <rect x="146" y="577" width="120" height="52" rx="7"/>
+      <rect x="114" y="430" width="120" height="52" rx="7"/>
+      <rect x="144" y="274" width="120" height="52" rx="7"/>
+      <rect x="338" y="230" width="104" height="54" rx="7" fill="#e8dcf0"/>
+      <rect x="471" y="230" width="110" height="54" rx="7" fill="#e5e0d2"/>
+      <rect x="664" y="230" width="110" height="54" rx="7" fill="#f1d9cb"/>
+      <rect x="372" y="312" width="120" height="52" rx="7"/>
+      <rect x="244" y="416" width="112" height="52" rx="7"/>
+      <rect x="372" y="434" width="120" height="52" rx="7"/>
+      <rect x="499" y="340" width="112" height="52" rx="7"/>
+      <rect x="640" y="510" width="120" height="52" rx="7"/>
+      <rect x="372" y="577" width="120" height="52" rx="7"/>
+    </g>
+    <g font-size="18" font-weight="600" text-anchor="middle">
+      <text x="206" y="610">T 出发区</text><text x="174" y="463">上隧道</text>
+      <text x="204" y="307">B 隧道口</text><text x="390" y="264">B 点</text>
+      <text x="526" y="264">CT 区</text><text x="719" y="264">A 点</text>
+      <text x="432" y="345">中路双门</text><text x="300" y="449">下隧道</text>
+      <text x="432" y="467">中路</text><text x="555" y="373">小道</text>
+      <text x="700" y="543">A 大道 / 坑</text><text x="432" y="610">上中路</text>
+    </g>
+    <text x="94" y="680" font-size="17" fill="#59626a">先验证 A 点切片的 60 秒战斗，再扩展中路与 B 点；通路和高差优先。</text>
+    <rect x="882" y="152" width="454" height="580" rx="14" fill="#243440"/>
+    <g fill="#fff8e8">
+      <text x="914" y="195" font-size="22" font-weight="600">本项目的沙漠模块</text>
+      <text x="914" y="248" font-size="20" fill="#f2d084">辨识结构</text>
+      <text x="914" y="281" font-size="18">拱门 · 木门 · 墙裙 · 岩壁 · 箱组</text>
+      <text x="914" y="337" font-size="20" fill="#f2d084">应景装饰</text>
+      <text x="914" y="370" font-size="18">陶罐 · 遮阳棚 · 百叶窗 · 少量棕榈</text>
+      <text x="914" y="403" font-size="18">装饰靠边，保留门洞与头部背景对比</text>
+      <text x="914" y="466" font-size="20" fill="#f2d084">必须先解决</text>
+      <text x="914" y="503" font-size="18">地图数据与出生坐标解耦</text>
+      <text x="914" y="538" font-size="18">局部刷怪与上下隧道导航</text>
+      <text x="914" y="573" font-size="18">破坏分组、地板保留与重开恢复</text>
+      <text x="914" y="608" font-size="18">Web 单线程烘焙与终局峰值预算</text>
+      <text x="914" y="677" font-size="16" fill="#c4bfb2">源码公开、免费模型和资产开放许可需分开核实。</text>
+    </g>
+    <text x="64" y="790" font-size="22" font-weight="600">延续当前纯色色板</text>
+    <g>
+      <rect x="64" y="814" width="188" height="46" rx="4" fill="#d5b471"/>
+      <rect x="280" y="814" width="188" height="46" rx="4" fill="#e5e0d2"/>
+      <rect x="496" y="814" width="188" height="46" rx="4" fill="#b65745"/>
+      <rect x="712" y="814" width="188" height="46" rx="4" fill="#4d7d70"/>
+      <rect x="928" y="814" width="188" height="46" rx="4" fill="#754c87"/>
+      <rect x="1144" y="814" width="188" height="46" rx="4" fill="#304f9d"/>
+    </g>
+    <g font-size="17">
+      <text x="64" y="892">沙地 #d5b471</text><text x="280" y="892">奶油白 #e5e0d2</text>
+      <text x="496" y="892">砖红 #b65745</text><text x="712" y="892">青绿 #4d7d70</text>
+      <text x="928" y="892">紫色 #754c87</text><text x="1144" y="892">深蓝 #304f9d</text>
+    </g>
+  </g>
+</svg>
