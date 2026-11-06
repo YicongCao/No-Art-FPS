@@ -84,6 +84,8 @@ The first command tests score and timer boundaries. `--check` exercises normal c
 
 Latest update: [platform seams and five-second respawn](docs/updates/2026-11-06-seams-and-respawn.md). Earlier: [wall graffiti](docs/updates/2026-11-06-wall-graffiti.md), [automatic containers, knife enemies and pool terrace](docs/updates/2026-11-06-poolside-playbox.md), [enemy movement and horizontal magazine](docs/updates/2026-11-06-movement-and-magazine.md). MIDI: [sixty.mid](assets/music/sixty.mid).
 
+Player-facing copy for review: [game text inventory](docs/review/game-text-review.md), with current strings, display conditions, source locations and menu screenshots.
+
 Results and screenshots: [implementation and validation notes](docs/implementation.md). Design background: [initial playbox plan](docs/design/No-Art-FPS-playbox-plan.md).
 
 ## Local workflow
