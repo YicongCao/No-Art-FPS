@@ -7,8 +7,6 @@ var route_index = 0
 var wait_time = 0.0
 var last_known = Vector3.ZERO
 var search_time = 0.0
-var attack_time = 1.0
-var warning = 0.0
 
 func sees_player() -> bool:
 	var offset = actor.game.player.global_position-actor.global_position
@@ -30,6 +28,7 @@ func advance(delta: float) -> void:
 		if search_time<=0:state = "PATROL"
 	var target = route[route_index] if state=="PATROL" else last_known
 	if state=="PATROL" and actor.global_position.distance_to(target)<.7:
+		actor.advance_ranged_attack(delta,false)
 		wait_time += delta
 		if wait_time>1.5:
 			wait_time = 0
@@ -48,16 +47,7 @@ func advance(delta: float) -> void:
 	if visible:
 		var aim = last_known-actor.global_position
 		actor.rotation.y = lerp_angle(actor.rotation.y,atan2(-aim.x,-aim.z),delta*6)
-		attack_time -= delta
-		if warning>0:
-			warning -= delta
-			if warning<=0:
-				actor.game.enemy_shoot(actor.global_position+Vector3.UP*1.25)
-				attack_time = 2.3
-		elif attack_time<=0:
-			warning = .65
-			actor.game.spark(actor.global_position+Vector3.UP*1.5,Color("e9ba50"),.14,.65)
-	else:warning = 0
+	actor.advance_ranged_attack(delta,visible)
 	var speed = 2.5 if state=="PATROL" else 3.0
 	if visible and actor.global_position.distance_to(last_known)<9:speed = 0
 	actor.velocity.x = direction.x*speed

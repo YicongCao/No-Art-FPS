@@ -230,14 +230,15 @@ func _process(delta: float) -> void:
 	for i in range(ejections.size()):ejections[i] += delta
 	ejections = ejections.filter(func(age):return age<EJECTION_TIME)
 	time_pulse = maxf(0,time_pulse-delta*2.5)
+	damage = maxf(0,damage-delta)
 	if game:
 		var target = clampf((50.0-game.health)/40.0,0,1) if game.state in ["RUNNING","PAUSED"] else 0.0
 		health_shade = move_toward(health_shade,target,delta*.65)
 		vignette.material.set_shader_parameter("severity",health_shade)
+		vignette.material.set_shader_parameter("hit_flash",pow(clampf(damage/.8,0,1),2))
 	hit = maxf(0,hit-delta)
 	kill_pop = maxf(0,kill_pop-delta)
 	multi_time = maxf(0,multi_time-delta)
-	damage = maxf(0,damage-delta)
 	shot = maxf(0,shot-delta)
 	if game and (menu_state != game.state or menu_size != size):
 		rebuild_menu()
@@ -640,7 +641,6 @@ func refresh_rear_threats() -> void:
 		var sight = PhysicsRayQueryParameters3D.create(game.player.camera.global_position,enemy.global_position+Vector3.UP*1.4,1)
 		if not game.get_world_3d().direct_space_state.intersect_ray(sight).is_empty():continue
 		var urgent = distance<9 or enemy.windup>0
-		if enemy.patrol_brain:urgent = urgent or enemy.patrol_brain.warning>0
 		if by_sector.has(sector):
 			by_sector[sector].urgent = by_sector[sector].urgent or urgent
 			by_sector[sector].distance = minf(distance,by_sector[sector].distance)

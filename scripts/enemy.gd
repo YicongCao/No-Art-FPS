@@ -1,5 +1,7 @@
 extends CharacterBody3D
 
+const ShotLine = preload("res://scripts/shot_line.gd")
+
 var game: Node
 var patrol_brain: Node
 var visual: Node3D
@@ -30,6 +32,9 @@ var age = 0.0
 var think = 0.0
 var attack = 1.8
 var windup = 0.0
+var aim_duration = 0.0
+var aim_offset = Vector3.ZERO
+var aim_line: ShotLine
 var death_time = 0.0
 var walk_phase = 0.0
 var hurt = 0.0
@@ -177,15 +182,45 @@ func _physics_process(delta: float) -> void:
 	visual.position.y = absf(sin(walk_phase))*.035
 	visual.rotation.z = sin(age*40)*hurt*.25
 	if global_position.y < -5:queue_free()
-	attack -= delta
-	if windup > 0:
-		windup -= delta
-		if windup <= 0:
-			if can_see_player():game.enemy_shoot(global_position+Vector3(0,1.25,0))
-			attack = 1.8+randf()*1.2
-	elif attack <= 0 and distance < 24 and can_see_player():
-		windup = .65
-		game.spark(global_position+Vector3(0,1.5,0),Color("e9ba50"),.14,.65)
+	advance_ranged_attack(delta,distance<24)
+
+func advance_ranged_attack(delta: float, can_aim: bool) -> void:
+	if not patrol_brain or can_aim:attack -= delta
+	if not can_aim or game.respawn_time>0:
+		cancel_ranged_aim()
+		return
+	if windup<=0 and attack>0:return
+	var starting = windup<=0
+	if starting:
+		aim_offset = Vector3(randf_range(-.25,.25),1.1,randf_range(-.25,.25))
+	var origin = visual.to_global(Vector3(.22,1.12,-.58))
+	var target: Vector3 = game.player.global_position+aim_offset
+	var sight = PhysicsRayQueryParameters3D.create(origin,target,1)
+	if not get_world_3d().direct_space_state.intersect_ray(sight).is_empty():
+		cancel_ranged_aim()
+		attack = .1
+		return
+	if starting:
+		aim_duration = randf_range(.5,1.0)
+		windup = aim_duration
+		if not aim_line:
+			aim_line = ShotLine.new()
+			aim_line.name = "AimLine"
+			add_child(aim_line)
+	else:
+		windup = maxf(0,windup-delta)
+		if windup==0:
+			aim_line.hide()
+			game.enemy_shoot(origin,target)
+			attack = 2.3 if patrol_brain else 1.8+randf()*1.2
+			return
+	var progress = 1.0-windup/aim_duration
+	aim_line.material_override.albedo_color = Color("d6dce390").lerp(Color("5e6873ed"),progress)
+	aim_line.set_segment(origin,target,lerpf(.018,.031,progress))
+
+func cancel_ranged_aim() -> void:
+	windup = 0
+	if aim_line:aim_line.hide()
 
 func steer_around_neighbors(desired: Vector3) -> Vector3:
 	if desired.length_squared()<.01:return desired
@@ -275,6 +310,7 @@ func take_damage(amount: int, is_head: bool = false) -> void:
 	hurt = .2
 	if health <= 0:
 		dead = true
+		cancel_ranged_aim()
 		agent.avoidance_enabled = false
 		collision_layer = 0
 		collision_mask = 0

@@ -22,6 +22,8 @@ const MAGAZINE_SIZE = 20
 const DESTROY_DURATION = 15.0
 const FINALE_DURATION = 1.0
 const ENEMY_BULLET_SPEED = 80.0
+const ENEMY_TRAIL_LENGTH = 2.0
+const ShotLine = preload("res://scripts/shot_line.gd")
 const MAX_HEALTH = 150.0
 const HEAL_DELAY = 5.0
 const HEAL_RATE = 12.0
@@ -222,6 +224,7 @@ func spawn_opening_actor(index: int) -> Node3D:
 		brain.actor = actor
 		brain.route = opening[index].patrol
 		actor.patrol_brain = brain
+		actor.attack = 1.0
 		actor.add_child(brain)
 		if brain.route.size()>1:
 			var direction = brain.route[1]-brain.route[0]
@@ -908,15 +911,13 @@ func on_kill(enemy: Node3D, headshot: bool) -> void:
 		hud.multi_time = .65 if kill_group_count>=2 else 0.0
 		play_sound("headshot" if headshot else "kill",-7,minf(1.25,1+(kill_group_count-1)*.08))
 
-func enemy_shoot(origin: Vector3) -> void:
+func enemy_shoot(origin: Vector3, target: Vector3) -> void:
 	if state!="RUNNING" or not rules.active or respawn_time>0:return
-	var target = player.global_position+Vector3(0,1.1,0)+Vector3(rng.randf_range(-.25,.25),0,rng.randf_range(-.25,.25))
-	# The projectile has collision state only; short grey segments show its path.
-	var shot = Node3D.new()
-	shot.name = "EnemyShot"
-	effects.add_child(shot)
-	shot.global_position = origin
-	bullets.append({"node":shot,"velocity":origin.direction_to(target)*ENEMY_BULLET_SPEED,"life":.8})
+	var trail = ShotLine.new()
+	trail.name = "EnemyTracer"
+	effects.add_child(trail)
+	trail.material_override.albedo_color = Color("ffcf3bee")
+	bullets.append({"node":trail,"origin":origin,"position":origin,"direction":origin.direction_to(target),"life":.8})
 
 func update_bullets(delta: float) -> void:
 	if state!="RUNNING" or not rules.active:return
@@ -925,21 +926,21 @@ func update_bullets(delta: float) -> void:
 		if not is_instance_valid(b.node):
 			bullets.remove_at(i)
 			continue
-		var from: Vector3 = b.node.global_position
-		var to: Vector3 = from+b.velocity*minf(delta,maxf(b.life,0))
+		var from: Vector3 = b.position
+		var to: Vector3 = from+b.direction*ENEMY_BULLET_SPEED*minf(delta,b.life)
 		var query = PhysicsRayQueryParameters3D.create(from,to,1|2)
 		var hit = get_world_3d().direct_space_state.intersect_ray(query)
 		var end: Vector3 = hit.position if not hit.is_empty() else to
-		if from.distance_squared_to(end)>.0001:
-			var trail = trace(from,end,Color(.65,.68,.71,.7),.025,.075)
-			# Draw after the opaque comic outline pass so thin grey trails stay grey.
-			trail.material_override.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		var length: float = minf(end.distance_to(b.origin),ENEMY_TRAIL_LENGTH)
+		b.node.set_segment(end-b.direction*length,end,.045)
 		b.life -= delta
 		if not hit.is_empty() or b.life<=0:
 			if not hit.is_empty() and hit.collider==player:damage_player()
-			b.node.queue_free()
+			var fade = b.node.create_tween()
+			fade.tween_property(b.node.material_override,"albedo_color:a",0.0,.075)
+			fade.tween_callback(b.node.queue_free)
 			bullets.remove_at(i)
-		else:b.node.global_position = to
+		else:b.position = to
 
 func damage_player(amount: float = 34.0) -> void:
 	if state!="RUNNING" or not rules.active or respawn_time>0:return

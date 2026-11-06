@@ -36,11 +36,9 @@ func _ready() -> void:
 		await capture("rear-threats-small")
 		for marker in game.hud.rear_markers:assert(Rect2(Vector2.ZERO,game.hud.size).encloses(marker.get_rect()))
 		DisplayServer.window_set_size(Vector2i(1280,720))
-	middle.patrol_brain = game.PatrolBrain.new()
-	middle.add_child(middle.patrol_brain)
-	middle.patrol_brain.warning = .5
+	middle.windup = .5
 	game.hud.refresh_rear_threats()
-	assert(game.hud.rear_threats.filter(func(t):return t.sector==1)[0].urgent,"Mission guard warning escalates the rear indicator")
+	assert(game.hud.rear_threats.filter(func(t):return t.sector==1)[0].urgent,"Aiming escalates the rear indicator")
 	# Solid cover must suppress all three behind-the-player indicators.
 	var wall = StaticBody3D.new()
 	var shape = CollisionShape3D.new()
@@ -70,24 +68,45 @@ func _ready() -> void:
 	game.respawn_time = 0
 	print("REAR_THREATS_PASS: three directions, front/range exclusion, cover, death, pause, respawn, labels")
 	game.clear_round()
+	var guard = stationary(Vector3(15,0,-2))
+	guard.look_at(Vector3(18,guard.position.y,5))
+	guard.attack = 0
+	await get_tree().physics_frame
+	guard.advance_ranged_attack(0,true)
+	var aim_duration: float = guard.windup
+	assert(aim_duration>=.5 and aim_duration<=1.0 and guard.aim_line.visible)
+	var initial_gray: Color = guard.aim_line.material_override.albedo_color
+	guard.advance_ranged_attack(aim_duration*.75,true)
+	assert(game.bullets.is_empty() and guard.aim_line.material_override.albedo_color.r<initial_gray.r)
+	await capture("enemy-aim-line",false)
+	guard.advance_ranged_attack(.01,false)
+	assert(guard.windup==0 and not guard.aim_line.visible and game.bullets.is_empty())
+	guard.advance_ranged_attack(0,true)
+	guard.advance_ranged_attack(guard.windup,true)
+	assert(not guard.aim_line.visible and game.bullets.size()==1)
+	print("ENEMY_AIM_PASS: duration, darkening, interruption, shot release")
+	game.clear_round()
 	game.health = game.MAX_HEALTH
 	game.invulnerable = 0
-	# A 16 m shot must arrive in about 0.2 s, with no visible projectile mesh.
-	game.enemy_shoot(Vector3(18,1.1,-11))
-	assert(game.bullets.size()==1 and not game.bullets[0].node is MeshInstance3D)
-	assert(game.bullets[0].node.get_child_count()==0)
+	# A 16 m shot must arrive in about 0.2 s with a two-metre tracer.
+	game.enemy_shoot(Vector3(18,1.1,-11),Vector3(18,1.1,5))
+	assert(game.bullets.size()==1 and not game.bullets[0].node.visible)
 	game.update_bullets(.1)
 	assert(game.health==game.MAX_HEALTH and game.bullets.size()==1)
-	var trail = game.effects.get_children().filter(func(n):return n is MeshInstance3D)[-1]
+	var trail = game.bullets[0].node
 	assert(trail.mesh is BoxMesh and trail.material_override.transparency==BaseMaterial3D.TRANSPARENCY_ALPHA)
-	assert(is_equal_approx(trail.material_override.albedo_color.r,.65))
-	var position: Vector3 = game.bullets[0].node.position
+	assert(trail.material_override.albedo_color.is_equal_approx(Color("ffcf3bee")))
+	assert(is_equal_approx(trail.global_basis.z.length(),2.0))
+	var position: Vector3 = game.bullets[0].position
 	game.state = "PAUSED"
 	game.update_bullets(.2)
-	assert(game.bullets[0].node.position==position and game.health==game.MAX_HEALTH)
+	assert(game.bullets[0].position==position and game.health==game.MAX_HEALTH)
 	game.state = "RUNNING"
 	game.update_bullets(.11)
 	assert(game.health==game.MAX_HEALTH-34 and game.bullets.is_empty())
+	game.hud._process(0)
+	assert(game.hud.vignette.material.get_shader_parameter("hit_flash")>.9)
+	await capture("player-hit-flash",false)
 	print("ENEMY_SHOT_SPEED_PAUSE_PASS")
 	# A long physics step still sweeps into cover, never through it.
 	game.health = game.MAX_HEALTH
@@ -100,7 +119,7 @@ func _ready() -> void:
 	cover.position = Vector3(18,2,-3)
 	await get_tree().physics_frame
 	await get_tree().physics_frame
-	game.enemy_shoot(Vector3(18,1.1,-11))
+	game.enemy_shoot(Vector3(18,1.1,-11),Vector3(18,1.1,5))
 	game.update_bullets(.5)
 	assert(game.health==game.MAX_HEALTH and game.bullets.is_empty())
 	cover.queue_free()
@@ -108,16 +127,18 @@ func _ready() -> void:
 	await get_tree().physics_frame
 	game.hud.damage = 0
 	game.hud.kill_pop = 0
-	# Side-on capture of an actual grey trajectory, without changing player aim.
-	game.enemy_shoot(Vector3(12,1.1,-3))
-	game.update_bullets(.045)
-	await capture("enemy-grey-trace",false)
+	# A visible tracer can pass to the player's side without causing damage.
+	game.enemy_shoot(Vector3(12,1.1,-3),Vector3(18.8,1.1,5))
+	game.update_bullets(.065)
+	await capture("enemy-yellow-trace",false)
+	game.update_bullets(.09)
+	assert(game.health==game.MAX_HEALTH)
 	game.start_run()
 	assert(game.bullets.is_empty())
 	game.state = "RESULTS"
 	game.clear_round()
 	await get_tree().create_timer(.25).timeout
-	print("AWARENESS_CHECK_PASS: swept cover collision, restart cleanup, grey trace rendered")
+	print("AWARENESS_CHECK_PASS: aim timing, yellow tracer, hit flash, swept cover collision, near miss, restart cleanup")
 	get_tree().quit()
 
 func stationary(pos: Vector3) -> Node3D:
