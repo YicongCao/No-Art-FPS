@@ -27,11 +27,11 @@ Install the matching Godot 4.7.2 Web export templates, then run:
 python3 -m http.server 8785 --bind 127.0.0.1 --directory builds/web
 ```
 
-Open `http://127.0.0.1:8785/`. This is a desktop keyboard-and-mouse build; touch controls are not implemented. The single-thread Compatibility export needs WebAssembly and WebGL 2.0, but does not need COOP/COEP headers or a service worker. The HTML download indicator follows engine-reported byte counts; after downloading, it waits for the first complete game frame before revealing the title.
+Open `http://127.0.0.1:8785/`. Desktop uses keyboard/mouse; touch devices use landscape controls. Portrait shows a rotate-device prompt. The left thumb moves, the right half aims, and the fire button supports dragging to aim while firing. Jump, reload and pause have separate controls. The single-thread Compatibility export needs WebAssembly and WebGL 2.0, but does not need COOP/COEP headers or a service worker. The HTML download indicator follows engine-reported byte counts; after downloading, it waits for the first complete game frame before revealing the title.
 
 `builds/web/` is the complete public bundle and `manifest.json` records its file sizes and SHA-256 hashes. Source art, reference footage, design documents, screenshots and QA scripts are excluded from the pack. Upload the whole bundle without renaming its `index.*` files. For a CDN, the server may redirect `index.wasm` and `index.pck` to a versioned CORS-enabled origin while keeping JavaScript/audio worklets on the page origin. Serve WASM as `application/wasm`; precompressed files must have the matching `Content-Encoding` and `Vary: Accept-Encoding`. The font license accompanies the release.
 
-Web-specific pointer capture starts inside FIRE/retry/resume input gestures. Losing pointer lock during a round pauses it. Resource preparation and navigation rebakes use a single-thread path on the Web; native behavior is preserved. Browser validation is recorded separately from native QA in [the Web delivery notes](docs/updates/2026-11-06-web.md).
+On touch devices, FIRE requests fullscreen and landscape orientation when supported. Browser security requires a user gesture, and some mobile browsers do not support document fullscreen; an explicit fullscreen button and Add to Home Screen guidance are provided. Safe-area insets and dynamic viewport sizing accommodate notches and browser chrome. Rotation to portrait, backgrounding, or leaving fullscreen pauses play and clears held inputs. Desktop-only pointer capture starts inside FIRE/retry/resume input gestures. Losing pointer lock during a round pauses it. Resource preparation and navigation rebakes use a single-thread path on the Web; native behavior is preserved. Browser validation is recorded separately from native QA in [the Web delivery notes](docs/updates/2026-11-06-web.md).
 
 - Enter / FIRE: load the round, then immediately start 60 seconds of combat as GO fades out.
 - WASD: move. Mouse: look. Left mouse: automatic fire. Space: jump.
@@ -61,6 +61,8 @@ Head hits kill a normal target in one shot; body hits take three. Every kill is 
 
 The lower-right magazine shows twenty cartridges in one horizontal row. Each accepted shot splits and ejects the front cartridge at the right, then feeds the remaining rounds forward. Reloading pushes the missing cartridges in one by one; once full, the magazine dips and snaps back into place. Each cartridge clicks as it seats, both during the loading screen and gameplay reloads. The entire sequence still takes 0.9 seconds, with firing available only after completion. Ammo numbers, the progress bar and the RELOADING label have been removed. Low camera-motion mode also reduces shell travel/spin and the final seating dip.
 
+Mobile adaptation and verification limits: [landscape touch controls](docs/updates/2026-11-06-mobile-controls.md). For desktop inspection of the touch layout, append `?touch=1`. This does not emulate real mobile hardware.
+
 ## Build the original assets
 
 ```sh
@@ -79,6 +81,7 @@ The yard is assembled in `scripts/arena.gd`; static collisions also supply the r
 ## Verify
 
 ```sh
+node tests/mobile_input_test.mjs
 godot --headless --path . --script tests/rules_test.gd
 godot --path . -- --qa --check
 godot --path . -- --qa
@@ -100,7 +103,7 @@ godot --path . -- --qa --finale
 godot --path . -- --qa --results-ui
 ```
 
-The first command tests score and timer boundaries. `--check` exercises normal collision movement on both ramps, live head/body raycasts, wall blocking, pause, reload, respawn, and ten restarts. `--qa` runs a real-time full-minute automatic aiming session, with scripted viewpoint changes. `--population` checks patrol retention, regional reinforcements, population caps and safe spawn distances/visibility. The short benchmark runs twelve enemies with VSync disabled. These flags are development-only test helpers, not normal gameplay modes.
+The Node command checks simultaneous touch input and cancellation. The Godot rules command tests score and timer boundaries. `--check` exercises normal collision movement on both ramps, live head/body raycasts, wall blocking, pause, reload, respawn, and ten restarts. `--qa` runs a real-time full-minute automatic aiming session, with scripted viewpoint changes. `--population` checks patrol retention, regional reinforcements, population caps and safe spawn distances/visibility. The short benchmark runs twelve enemies with VSync disabled. These flags are development-only test helpers, not normal gameplay modes.
 
 `--movement` checks that every opening outdoor black guard moves, twelve enemies can cross opposing lanes without overlapping or getting stuck, pause freezes avoidance movement, and occupied spawn slots are rechecked after their warning. `--containers` covers automatic doors, captive guards, entry and reset. `--terrace` checks poolside navigation, walking into/out of the pool, and palm collisions. `--routes` walks both complete stair-to-terrace routes in both directions without jumping, then crosses the purple/cream seams slowly.
 

@@ -62,8 +62,12 @@ const MULTIKILL_WINDOW = 1.25
 var kill_group_start = -99.0
 var kill_group_count = 0
 var web_capture_wait = 0.0
+var touch_mode = false
+var touch_fire = false
+var web_ui_state = ""
 
 func capture_pointer() -> void:
+	if touch_mode:return
 	# Browsers resolve pointer-lock asynchronously after the input callback.
 	# Freeze gameplay while waiting instead of treating the first unlocked
 	# animation frame as a cancellation of the request we just made.
@@ -71,6 +75,10 @@ func capture_pointer() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _ready() -> void:
+	if OS.has_feature("web"):touch_mode = bool(JavaScriptBridge.eval("Boolean(window.noArtMobile)"))
+	if touch_mode:
+		get_window().content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
+		get_window().content_scale_size = Vector2i(960,540)
 	process_physics_priority = -100
 	qa_mode = "--qa" in OS.get_cmdline_user_args()
 	rng.seed = 61105
@@ -381,6 +389,9 @@ func cancel_loading() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func _process(delta: float) -> void:
+	if touch_mode and web_ui_state!=state:
+		web_ui_state = state
+		JavaScriptBridge.eval("window.noArtState("+JSON.stringify(state)+")")
 	if OS.has_feature("web") and state=="CAPTURING":
 		if Input.mouse_mode==Input.MOUSE_MODE_CAPTURED:
 			web_capture_wait = 0
@@ -394,7 +405,7 @@ func _process(delta: float) -> void:
 		return
 	# Escape can release the browser's pointer lock without a Godot key event.
 	# Never run down the timer behind an unlocked cursor.
-	if OS.has_feature("web") and state=="RUNNING" and Input.mouse_mode!=Input.MOUSE_MODE_CAPTURED:pause_run()
+	if OS.has_feature("web") and not touch_mode and state=="RUNNING" and Input.mouse_mode!=Input.MOUSE_MODE_CAPTURED:pause_run()
 	if state!="LOADING":return
 	var previous_rounds = loading.rounds
 	loading.advance(delta)
@@ -403,7 +414,7 @@ func _process(delta: float) -> void:
 		begin_running()
 		hud.sync_loading_cover()
 		if not OS.has_feature("web"):Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-		elif Input.mouse_mode!=Input.MOUSE_MODE_CAPTURED:
+		elif not touch_mode and Input.mouse_mode!=Input.MOUSE_MODE_CAPTURED:
 			previous_state = "RUNNING"
 			state = "CAPTURING"
 			player.enabled = false
@@ -545,7 +556,7 @@ func menu_action(action: String) -> void:
 			request_run()
 		"resume":
 			if state != "PAUSED":return
-			state = "CAPTURING" if OS.has_feature("web") else previous_state
+			state = "CAPTURING" if OS.has_feature("web") and not touch_mode else previous_state
 			player.enabled = state == "RUNNING" and respawn_time<=0
 			capture_pointer()
 		"menu":
@@ -559,9 +570,22 @@ func menu_action(action: String) -> void:
 			save_record()
 
 func _physics_process(delta: float) -> void:
+	if touch_mode:
+		var packet = JSON.parse_string(str(JavaScriptBridge.eval("window.noArtReadTouch()")))
+		if packet is Dictionary:
+			player.touch_move = Vector2(float(packet.x),float(packet.y)).limit_length()
+			touch_fire = bool(packet.fire)
+			if state=="RUNNING":
+				if bool(packet.blocked) or bool(packet.pause):
+					pause_run()
+				else:
+					player.rotate_y(-float(packet.dx)*player.sensitivity*1.36)
+					player.pitch = clampf(player.pitch-float(packet.dy)*player.sensitivity*1.36,-1.35,1.35)
+					player.touch_jump = bool(packet.jump)
+					if bool(packet.reload):reload_weapon()
 	if music:music.stream_paused = state in ["PAUSED","CAPTURING"]
 	if state != "RUNNING":return
-	if OS.has_feature("web") and Input.mouse_mode!=Input.MOUSE_MODE_CAPTURED:return
+	if OS.has_feature("web") and not touch_mode and Input.mouse_mode!=Input.MOUSE_MODE_CAPTURED:return
 	rules.tick(delta)
 	if not rules.active:
 		finish_run()
@@ -605,7 +629,7 @@ func _physics_process(delta: float) -> void:
 		var fed = hud.reload_rounds_fed() if reload_time>0 else float(MAGAZINE_SIZE-reload_start_ammo)
 		play_cartridge_insertions(previous_rounds,fed)
 		if reload_time<=0:ammo = MAGAZINE_SIZE
-	if Input.is_action_pressed("fire") and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:shoot()
+	if (touch_fire if touch_mode else Input.is_action_pressed("fire") and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED):shoot()
 	update_spawns(delta)
 	update_bullets(delta)
 	update_player_bullets(delta)

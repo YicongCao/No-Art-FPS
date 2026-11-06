@@ -68,6 +68,9 @@ func reload_seating_offset() -> float:
 func magazine_rect() -> Rect2:
 	var dip = reload_seating_offset()
 	var extent = Vector2(420,92)*MAGAZINE_SCALE
+	if game.touch_mode:
+		extent *= .72
+		return Rect2(Vector2((size.x-extent.x)*.5,size.y-extent.y-28+dip*.72),extent)
 	return Rect2(size-Vector2(28,32)-extent+Vector2(0,dip*MAGAZINE_SCALE),extent)
 
 func cartridge_rect(index: int) -> Rect2:
@@ -256,7 +259,7 @@ func death_marks() -> void:
 	var pending = game.respawn_time>0 and game.state!="RESULTS"
 	var completed = maxi(0,game.rules.deaths-(1 if pending else 0))
 	for i in range(completed):
-		skull(Vector2(size.x-38-(completed-1-i)*27,50),20)
+		skull(Vector2(size.x-(128 if game.touch_mode else 38)-(completed-1-i)*27,50),20)
 
 func menu_button(text: String, rect: Rect2, action: String, primary: bool = false, shortcut: String = "") -> Button:
 	var button = Button.new()
@@ -291,7 +294,7 @@ func rebuild_menu() -> void:
 	menu_size = size
 	var c = size*.5
 	if menu_state == "TITLE":
-		fire_button = menu_button("FIRE",Rect2(104,size.y-188,300,112),"play",false,"Enter")
+		fire_button = menu_button("FIRE",Rect2(64 if game.touch_mode else 104,size.y-156 if game.touch_mode else size.y-188,260 if game.touch_mode else 300,100 if game.touch_mode else 112),"play",false,"Enter")
 		fire_button.name = "fire"
 		fire_button.add_theme_font_size_override("font_size",68)
 		fire_button.add_theme_constant_override("outline_size",0)
@@ -315,12 +318,12 @@ func rebuild_menu() -> void:
 		results_button(RETRY_ICON,Rect2(c.x-174,c.y+106,160,88),"retry",true,"重试 · Enter")
 		results_button(HOME_ICON,Rect2(c.x+14,c.y+106,160,88),"menu",false,"返回标题 · Esc")
 	elif menu_state == "PAUSED":
-		menu_button("RESUME",Rect2(c.x-200,c.y-150,400,60),"resume",true,"Esc")
-		menu_button("RESTART",Rect2(c.x-200,c.y-74,400,56),"retry",false,"Enter")
+		menu_button("RESUME",Rect2(c.x-200,c.y-150,400,64 if game.touch_mode else 60),"resume",true,"Esc")
+		menu_button("RESTART",Rect2(c.x-200,c.y-74,400,64 if game.touch_mode else 56),"retry",false,"Enter")
 		sensitivity_slider = HSlider.new()
 		sensitivity_slider.name = "Sensitivity"
 		sensitivity_slider.position = Vector2(c.x+10,c.y+44)
-		sensitivity_slider.size = Vector2(190,28)
+		sensitivity_slider.size = Vector2(190,48 if game.touch_mode else 28)
 		sensitivity_slider.min_value = .0006
 		sensitivity_slider.max_value = .006
 		sensitivity_slider.step = .0002
@@ -329,11 +332,11 @@ func rebuild_menu() -> void:
 			game.player.sensitivity = value
 			game.save_record())
 		menu.add_child(sensitivity_slider)
-		motion_button = menu_button("",Rect2(c.x+80,c.y+98,120,44),"motion",false,"M")
+		motion_button = menu_button("",Rect2(c.x+80,c.y+98,120,60 if game.touch_mode else 44),"motion",false,"M")
 		music_slider = HSlider.new()
 		music_slider.name = "Music"
 		music_slider.position = Vector2(c.x+10,c.y+164)
-		music_slider.size = Vector2(190,28)
+		music_slider.size = Vector2(190,48 if game.touch_mode else 28)
 		music_slider.min_value = 0
 		music_slider.max_value = 1
 		music_slider.step = .05
@@ -410,8 +413,8 @@ func _draw() -> void:
 	if state == "TITLE":
 		var words = ["NO","ART","FPS"]
 		for i in range(words.size()):
-			var pos = Vector2(104,220+i*150)
-			draw_string(font,pos,words[i],HORIZONTAL_ALIGNMENT_LEFT,-1,160,Color.WHITE)
+			var pos = Vector2(64,116+i*100) if game.touch_mode else Vector2(104,220+i*150)
+			draw_string(font,pos,words[i],HORIZONTAL_ALIGNMENT_LEFT,-1,106 if game.touch_mode else 160,Color.WHITE)
 		return
 	if state == "RESULTS":
 		if results_frame_pending:

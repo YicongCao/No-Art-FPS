@@ -9,6 +9,8 @@ var bob = 0.0
 var gun_origin = Vector3(.25,-.32,-.66)
 var sensitivity = .0022
 var game: Node
+var touch_move = Vector2.ZERO
+var touch_jump = false
 var outline: MeshInstance3D
 
 func _ready() -> void:
@@ -58,11 +60,13 @@ func _unhandled_input(event: InputEvent) -> void:
 func _physics_process(delta: float) -> void:
 	if not enabled:return
 	var input = Input.get_vector("left","right","forward","back") if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED else Vector2.ZERO
+	if game and game.touch_mode:input = touch_move
 	var direction = basis*Vector3(input.x,0,input.y)
 	velocity.x = move_toward(velocity.x,direction.x*7.0,35*delta)
 	velocity.z = move_toward(velocity.z,direction.z*7.0,35*delta)
 	if not is_on_floor():velocity.y -= 22*delta
-	elif Input.is_action_just_pressed("jump") and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:velocity.y = 7
+	elif touch_jump or (Input.is_action_just_pressed("jump") and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED):velocity.y = 7
+	touch_jump = false
 	move_and_slide()
 	if position.y < -8:reset_position()
 
