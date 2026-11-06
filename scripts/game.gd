@@ -15,7 +15,6 @@ var effects: Node3D
 var rules = Rules.new()
 var state = "TITLE"
 var previous_state = "RUNNING"
-var ready_time = 3.0
 const MAGAZINE_SIZE = 20
 const MAX_HEALTH = 100.0
 const HEAL_DELAY = 5.0
@@ -164,14 +163,15 @@ func start_run() -> void:
 	load_ticket += 1
 	clear_round()
 	reset_run_state()
-	state = "READY"
+	# Synchronous preparation is used by isolated QA fixtures; player-facing
+	# starts always go through request_run() and begin immediately after loading.
+	state = "PREPARED"
 	if not qa_mode:Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func reset_run_state() -> void:
 	rng.seed = 61105
 	rules.start()
 	rules.active = false
-	ready_time = 3.0
 	ammo = MAGAZINE_SIZE
 	reload_time = 0
 	fire_time = 0
@@ -187,6 +187,7 @@ func reset_run_state() -> void:
 	last_tick = 60
 	new_record = false
 	hud.time_pulse = 0
+	hud.go_time = 0
 	hud.health_shade = 0
 	player.reset_position()
 	player.gun.show()
@@ -270,7 +271,7 @@ func prepare_loaded_run(ticket: int) -> void:
 			return
 		await loading_frame()
 		if ticket!=load_ticket:return
-	# Instantiate and render one actor per frame, before the countdown, to warm
+	# Instantiate and render one actor per frame before gameplay to warm
 	# imported meshes/materials without a single eight-enemy creation burst.
 	for i in range(OPENING_POSITIONS.size()):
 		var actor = spawn_enemy(OPENING_POSITIONS[i],i==1)
@@ -309,8 +310,7 @@ func _process(delta: float) -> void:
 	if state!="LOADING":return
 	loading.advance(delta)
 	if loading.phase=="DONE":
-		state = "READY"
-		ready_time = 3.0
+		begin_running()
 		hud.sync_loading_cover()
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
@@ -334,7 +334,9 @@ func begin_running() -> void:
 	music.play()
 	rules.start()
 	player.enabled = true
-	# Deliberate opening target set when the countdown ends. Reinforcements use hidden gates.
+	hud.go_time = hud.GO_DURATION
+	# Reuse the opening actors prepared under the loading cover. Isolated QA
+	# fixtures can still initialize them here. Reinforcements use hidden gates.
 	if not opening_prepared:
 		for p in OPENING_POSITIONS:spawn_enemy(p,p==Vector3(11,0,1))
 		# Two existing yard slots start inside the green and purple containers.
@@ -362,7 +364,7 @@ func _notification(what: int) -> void:
 	if state=="LOADING" and not qa_mode:
 		if what==NOTIFICATION_APPLICATION_FOCUS_OUT:loading.suspended = true
 		elif what==NOTIFICATION_APPLICATION_FOCUS_IN:loading.suspended = false
-	if what == NOTIFICATION_APPLICATION_FOCUS_OUT and not qa_mode and state in ["READY","RUNNING"]:
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT and not qa_mode and state=="RUNNING":
 		pause_run()
 
 func pause_run() -> void:
@@ -374,7 +376,7 @@ func pause_run() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("pause"):
 		if state=="LOADING":cancel_loading()
-		elif state in ["RUNNING","READY"]:pause_run()
+		elif state=="RUNNING":pause_run()
 		elif state == "PAUSED":menu_action("resume")
 		elif state == "RESULTS":menu_action("menu")
 	elif event.is_action_pressed("restart") and state in ["TITLE","RESULTS","PAUSED"]:request_run()
@@ -406,10 +408,6 @@ func menu_action(action: String) -> void:
 
 func _physics_process(delta: float) -> void:
 	if music:music.stream_paused = state == "PAUSED"
-	if state == "READY":
-		ready_time -= delta
-		if ready_time <= 0:begin_running()
-		return
 	if state != "RUNNING":return
 	rules.tick(delta)
 	if not rules.active:

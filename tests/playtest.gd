@@ -15,7 +15,7 @@ func _ready() -> void:
 	print("QA_START: loading transition, rendered full-minute autoplay and restart")
 
 func _process(delta: float) -> void:
-	if game.state in ["LOADING","READY"]:return
+	if game.state=="LOADING":return
 	if phase==0:
 		baseline_nodes = get_tree().get_node_count()
 		var start = game.player.position

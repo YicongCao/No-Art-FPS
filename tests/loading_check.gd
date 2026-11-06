@@ -26,8 +26,9 @@ func _ready() -> void:
 	print("LOADING_MODEL_WAIT_CAP_PASS")
 	await get_tree().process_frame
 	await capture("title-fire")
-	# Exercise the actual image button hitbox, rather than directly firing its signal.
+	# Exercise the actual text button hitbox, rather than directly firing its signal.
 	var button = game.hud.fire_button
+	assert(button is Button and button.text=="FIRE" and button.get_theme_constant("outline_size")==6)
 	var point = button.get_global_rect().get_center()
 	var motion = InputEventMouseMotion.new()
 	motion.position = point
@@ -43,6 +44,7 @@ func _ready() -> void:
 	game.menu_action("play")
 	assert(game.load_ticket==ticket,"Double click cannot start a second load")
 	var seen: Dictionary = {}
+	var prepared_ids: Array = []
 	var previous_rounds = 0.0
 	var start_time = Time.get_ticks_usec()
 	var last_time = start_time
@@ -55,7 +57,7 @@ func _ready() -> void:
 		frame_intervals.append(float(now-last_time)/1000.0)
 		last_time = now
 		assert(not game.rules.active and game.rules.elapsed==0)
-		assert(not game.player.enabled and game.ready_time==3)
+		assert(not game.player.enabled and game.hud.go_time==0)
 		var loader = game.loading
 		assert(loader.rounds>=previous_rounds)
 		if not loader.work_complete:assert(loader.rounds<=17)
@@ -79,19 +81,33 @@ func _ready() -> void:
 			seen[phase] = true
 		elif phase=="DOCK" and loader.phase_time>.3 and not seen.has(phase):
 			assert(loader.reveal_progress()==1)
+			prepared_ids = game.live_enemies().map(func(e):return e.get_instance_id())
 			await capture("loading-docking")
 			seen[phase] = true
-	assert(game.state=="READY" and game.opening_prepared)
+	assert(game.state=="RUNNING" and game.opening_prepared)
 	assert(seen.size()==4)
-	assert(game.live_enemies().size()==8 and game.rules.elapsed==0)
+	assert(game.live_enemies().size()==8 and game.rules.elapsed<.05)
+	assert(game.rules.active and game.player.enabled and game.hud.go_time>.7,"Dock completion starts gameplay immediately")
 	assert(game.hud.loading_magazine_rect().is_equal_approx(game.hud.magazine_rect()),"Last transition rectangle matches the real HUD")
-	await capture("loading-ready")
-	var ids = game.live_enemies().map(func(e):return e.get_instance_id())
-	for frame in range(240):
-		if game.state=="RUNNING":break
-		await get_tree().physics_frame
-	assert(game.state=="RUNNING" and game.rules.active)
-	assert(ids==game.live_enemies().map(func(e):return e.get_instance_id()),"Countdown must reuse prewarmed actors")
+	assert(prepared_ids==game.live_enemies().map(func(e):return e.get_instance_id()),"Immediate start reuses prewarmed actors")
+	await capture("loading-go")
+	game.shoot()
+	assert(game.rules.shots==1,"GO does not block firing")
+	var start_position = game.player.position
+	Input.action_press("right")
+	await get_tree().create_timer(.2).timeout
+	Input.action_release("right")
+	assert(game.player.position.distance_to(start_position)>.4,"GO does not block movement")
+	assert(game.rules.elapsed>.15 and game.hud.go_time>0)
+	await capture("loading-go-fading")
+	game.pause_run()
+	var held_go = game.hud.go_time
+	await get_tree().create_timer(.2).timeout
+	assert(game.hud.go_time==held_go,"Pause freezes GO fade")
+	game.menu_action("resume")
+	await get_tree().create_timer(.75).timeout
+	assert(game.hud.go_time==0 and game.rules.elapsed>.8)
+	await capture("loading-go-finished")
 	frame_intervals.sort()
 	var report = {"first_loading_frame_ms":first_cover_ms,"loading_p95_frame_ms":frame_intervals[int(frame_intervals.size()*.95)],"loading_max_frame_ms":frame_intervals.back(),"note":"Rendered automated FIRE click and transition, 60 fps cap; not human input latency or a cross-device performance guarantee."}
 	FileAccess.open("res://artifacts/loading-check.json",FileAccess.WRITE).store_string(JSON.stringify(report,"  "))
@@ -123,14 +139,14 @@ func _ready() -> void:
 	await get_tree().create_timer(.15).timeout
 	await capture("loading-small-window")
 	for frame in range(500):
-		if game.state=="READY":break
+		if game.state=="RUNNING":break
 		await get_tree().process_frame
-	assert(game.state=="READY" and game.live_enemies().size()==8)
+	assert(game.state=="RUNNING" and game.live_enemies().size()==8 and game.hud.go_time>.7)
 	game.state = "RESULTS"
 	game.clear_round()
 	for filename in captures:captures[filename].save_png("res://artifacts/"+filename+".png")
 	await get_tree().create_timer(.3).timeout
-	print("LOADING_CHECK_PASS: button, staged prep, 17-round cap, wipe then dock, countdown, retry/cancel, early click, focus, resize")
+	print("LOADING_CHECK_PASS: button, staged prep, 17-round cap, wipe then dock, immediate GO/input/timer, fade/pause, retry/cancel, early click, focus, resize")
 	get_tree().quit()
 
 func capture(filename: String) -> void:

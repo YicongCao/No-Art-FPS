@@ -18,7 +18,7 @@ On this Mac, double-click **Play No-Art-FPS.command**, or run:
 
 Alternatively, import `project.godot` in Godot 4.7.2 and press F6/F5 as appropriate. The main scene is `scenes/main.tscn`. The launcher uses the locally installed Godot executable; this is not yet a separately exported, signed application.
 
-- Enter / FIRE: load the round, then a three-second countdown and 60 seconds of combat.
+- Enter / FIRE: load the round, then immediately start 60 seconds of combat as GO fades out.
 - WASD: move. Mouse: look. Left mouse: automatic fire. Space: jump.
 - R: reload. Empty magazines reload automatically; reserve ammunition is unlimited.
 - Escape: pause / resume. Losing focus also pauses.
@@ -26,7 +26,7 @@ Alternatively, import `project.godot` in Godot 4.7.2 and press F6/F5 as appropri
 - Pause menu: use Resume/Restart, the sensitivity and music-volume sliders, and the camera-motion toggle. `-` / `+` and M remain available as shortcuts.
 - Results: Retry and Menu are clickable; Enter and Escape still work.
 
-FIRE opens a solid-color loading screen with a large magazine that fills as the round is prepared. Unknown remaining work advances only to seventeen rounds. After real completion, it fills the final three, dips and snaps back; the background reveals the world from the center outward, then the magazine shrinks into the lower-right HUD. Only then does the countdown start. Escape cancels loading; returning focus resumes a suspended transition.
+FIRE opens a solid-color loading screen with a large magazine that fills as the round is prepared. Unknown remaining work advances only to seventeen rounds. After real completion, it fills the final three, dips and snaps back; the background reveals the world from the center outward, then the magazine shrinks into the lower-right HUD. Gameplay and the round timer start immediately on docking, with a central GO fading out over 0.8 seconds. Escape cancels loading; returning focus resumes a suspended transition.
 
 Enemy targets rise from 8 to 10 to 12 across the three 20-second phases. Two patrols occupy the warehouse and two occupy the upper deck, with reserved reinforcement slots; other enemies roam the yard. Reinforcements appear outside direct view and at least eight metres away.
 

@@ -7,6 +7,8 @@ var kill_pop = 0.0
 var damage = 0.0
 var shot = 0.0
 var time_pulse = 0.0
+var go_time = 0.0
+const GO_DURATION = .8
 var health_shade = 0.0
 var feed_shift = 0.0
 var ejections: Array[float] = []
@@ -18,13 +20,11 @@ var menu_size = Vector2.ZERO
 var sensitivity_slider: HSlider
 var motion_button: Button
 var music_slider: HSlider
-var fire_button: TextureButton
+var fire_button: Button
 const WHITE = Color("fff8e8")
 const INK = Color("243440")
 const GOLD = Color("f2d084")
 const MAGAZINE_ATLAS = preload("res://assets/ui/magazine-atlas.png")
-const TITLE_ART = preload("res://assets/ui/title/no-art-fps.png")
-const FIRE_ART = preload("res://assets/ui/title/fire.png")
 const MAGAZINE_REGION = Rect2(104,112,458,1056)
 const CARTRIDGE_REGION = Rect2(773,574,400,108)
 const CASING_REGION = Rect2(773,574,280,108)
@@ -161,6 +161,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	sync_loading_cover()
 	if game and game.state == "PAUSED":delta = 0
+	if game and game.state=="RUNNING":go_time = maxf(0,go_time-delta)
 	feed_shift = maxf(0,feed_shift-delta)
 	for i in range(ejections.size()):ejections[i] += delta
 	ejections = ejections.filter(func(age):return age<EJECTION_TIME)
@@ -183,7 +184,7 @@ func _process(delta: float) -> void:
 
 func label(text: String, pos: Vector2, font_size: int, color: Color = WHITE, center: bool = false) -> void:
 	if center:pos.x -= font.get_string_size(text,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size).x*.5
-	draw_string(font,pos+Vector2(0,1),text,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size,Color(0.08,.12,.15,.32))
+	draw_string(font,pos+Vector2(0,1),text,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size,Color(0.08,.12,.15,.32*color.a))
 	draw_string(font,pos,text,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size,color)
 
 func stopwatch(pos: Vector2, color: Color) -> void:
@@ -248,31 +249,20 @@ func rebuild_menu() -> void:
 	menu_size = size
 	var c = size*.5
 	if menu_state == "TITLE":
-		var title_art = TextureRect.new()
-		title_art.texture = TITLE_ART
-		title_art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		title_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		title_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		title_art.position = Vector2(64,58)
-		title_art.size = Vector2(390,520)
-		title_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		menu.add_child(title_art)
-		fire_button = TextureButton.new()
+		fire_button = menu_button("FIRE",Rect2(104,size.y-188,300,112),"play",false,"Enter")
 		fire_button.name = "fire"
-		fire_button.texture_normal = FIRE_ART
-		fire_button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		fire_button.ignore_texture_size = true
-		fire_button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
-		fire_button.position = Vector2(104,size.y-188)
-		fire_button.size = Vector2(300,112)
+		fire_button.add_theme_font_size_override("font_size",68)
+		fire_button.add_theme_constant_override("outline_size",6)
+		fire_button.add_theme_color_override("font_outline_color",INK)
+		for color_name in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]:
+			fire_button.add_theme_color_override(color_name,Color("f46d9b"))
+		fire_button.add_theme_color_override("font_hover_color",Color("ffadd0"))
+		for style_name in ["normal","hover","pressed","focus"]:
+			fire_button.add_theme_stylebox_override(style_name,StyleBoxEmpty.new())
 		fire_button.pivot_offset = fire_button.size*.5
-		fire_button.tooltip_text = "Enter"
-		fire_button.mouse_entered.connect(func():fire_button.self_modulate = Color(1.15,1.15,1.15))
-		fire_button.mouse_exited.connect(func():fire_button.self_modulate = Color.WHITE)
 		fire_button.button_down.connect(func():fire_button.scale = Vector2.ONE*.96)
 		fire_button.button_up.connect(func():fire_button.scale = Vector2.ONE)
-		fire_button.pressed.connect(func():game.menu_action("play"))
-		menu.add_child(fire_button)
+
 	elif menu_state == "RESULTS":
 		menu_button("RETRY",Rect2(c.x-200,c.y+145,190,56),"retry",true,"Enter")
 		menu_button("MENU",Rect2(c.x+10,c.y+145,190,56),"menu",false,"Esc")
@@ -317,6 +307,13 @@ func _draw() -> void:
 		return
 	if state == "TITLE":
 		draw_rect(Rect2(0,0,size.x*.43,size.y),Color(.055,.08,.10,.86))
+		var words = ["NO","ART","FPS"]
+		var colors = [Color("f46d9b"),Color("43cfde"),Color("ffe78e")]
+		for i in range(words.size()):
+			var pos = Vector2(254,220+i*150)
+			pos.x -= font.get_string_size(words[i],HORIZONTAL_ALIGNMENT_LEFT,-1,160).x*.5
+			draw_string_outline(font,pos,words[i],HORIZONTAL_ALIGNMENT_LEFT,-1,160,7,INK)
+			draw_string(font,pos,words[i],HORIZONTAL_ALIGNMENT_LEFT,-1,160,colors[i])
 		if is_instance_valid(fire_button) and fire_button.has_focus():
 			draw_line(Vector2(140,size.y-68),Vector2(368,size.y-68),GOLD,2,true)
 		return
@@ -361,9 +358,7 @@ func _draw() -> void:
 			var radius = 27+(1-burst)*40
 			draw_line(score_center+direction*radius,score_center+direction*(radius+8*burst),Color(1,.83,.44,burst),2)
 	label("KILLS",Vector2(c.x+122,61),14,WHITE,true)
-	if state == "READY":
-		label(str(ceili(game.ready_time)),Vector2(c.x,c.y),70,GOLD,true)
-	elif game.respawn_time<=0:
+	if game.respawn_time<=0:
 		var gap = 5+shot*24
 		if hit>0:
 			var col = GOLD if kill_pop>0 else WHITE
@@ -377,5 +372,8 @@ func _draw() -> void:
 		var remaining = game.respawn_time/game.RESPAWN_DELAY
 		draw_arc(c,62,-PI*.5,-PI*.5+TAU*remaining,96,WHITE,2.5,true)
 	else:draw_magazine()
+	if state=="RUNNING" and game.respawn_time<=0 and go_time>0:
+		var opacity = smoothstep(0,.65,go_time)
+		label("GO",c+Vector2(0,22),70,Color(WHITE,opacity),true)
 	if damage>0:
 		draw_line(Vector2(c.x-30,c.y+44),Vector2(c.x+30,c.y+44),Color(1,.35,.2,damage),3)
