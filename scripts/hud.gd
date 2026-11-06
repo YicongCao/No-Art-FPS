@@ -33,6 +33,10 @@ const WHITE = Color("fff8e8")
 const INK = Color("243440")
 const GOLD = Color("f2d084")
 const MAGAZINE_ATLAS = preload("res://assets/ui/magazine-atlas.png")
+const RETRY_ICON = preload("res://assets/ui/results/retry.png")
+const HOME_ICON = preload("res://assets/ui/results/home.png")
+const KILLS_ICON = preload("res://assets/ui/results/kills.png")
+const TROPHY_ICON = preload("res://assets/ui/results/trophy.png")
 const MAGAZINE_REGION = Rect2(104,112,458,1056)
 const CARTRIDGE_REGION = Rect2(773,574,400,108)
 const CASING_REGION = Rect2(773,574,280,108)
@@ -308,8 +312,8 @@ func rebuild_menu() -> void:
 		fire_button.button_up.connect(func():fire_button.scale = Vector2.ONE)
 
 	elif menu_state == "RESULTS":
-		menu_button("RETRY",Rect2(c.x-200,c.y+145,190,56),"retry",true,"Enter")
-		menu_button("MENU",Rect2(c.x+10,c.y+145,190,56),"menu",false,"Esc")
+		results_button(RETRY_ICON,Rect2(c.x-174,c.y+106,160,88),"retry",true,"重试 · Enter")
+		results_button(HOME_ICON,Rect2(c.x+14,c.y+106,160,88),"menu",false,"返回标题 · Esc")
 	elif menu_state == "PAUSED":
 		menu_button("RESUME",Rect2(c.x-200,c.y-150,400,60),"resume",true,"Esc")
 		menu_button("RESTART",Rect2(c.x-200,c.y-74,400,56),"retry",false,"Enter")
@@ -339,6 +343,60 @@ func rebuild_menu() -> void:
 			game.save_record())
 		menu.add_child(music_slider)
 
+func results_button(texture: Texture2D, rect: Rect2, action: String, primary: bool, tooltip: String) -> Button:
+	var button = menu_button("",rect,action,primary,tooltip)
+	for state_name in ["normal","hover","pressed","focus"]:
+		var style = button.get_theme_stylebox(state_name).duplicate()
+		style.set_corner_radius_all(8)
+		if not primary and state_name!="focus":
+			style.bg_color = Color("754c87")
+			if state_name=="hover":style.bg_color = style.bg_color.lightened(.15)
+			if state_name=="pressed":style.bg_color = style.bg_color.darkened(.15)
+		button.add_theme_stylebox_override(state_name,style)
+	var icon = TextureRect.new()
+	icon.name = "Icon"
+	icon.texture = texture
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon.size = Vector2(76,76)
+	icon.position = (rect.size-icon.size)*.5
+	button.add_child(icon)
+	button.pivot_offset = button.size*.5
+	button.button_down.connect(func():button.scale = Vector2.ONE*.96)
+	button.button_up.connect(func():button.scale = Vector2.ONE)
+	return button
+
+func draw_results() -> void:
+	var c = size*.5
+	draw_rect(Rect2(Vector2.ZERO,size),Color(.06,.09,.12,.38))
+	var card = StyleBoxFlat.new()
+	card.bg_color = Color(.08,.12,.17,.94)
+	card.set_corner_radius_all(12)
+	card.set_border_width_all(1)
+	card.border_color = Color(GOLD,.5)
+	card.shadow_color = Color(0,0,0,.25)
+	card.shadow_size = 14
+	draw_style_box(card,Rect2(c-Vector2(238,220),Vector2(476,440)))
+	draw_line(c+Vector2(-46,-219),c+Vector2(46,-219),GOLD,3)
+	var score = str(game.rules.kills)
+	var score_size = 104 if score.length()<=3 else 80
+	var width = font.get_string_size(score,HORIZONTAL_ALIGNMENT_LEFT,-1,score_size).x
+	var left = c.x-(76+18+width)*.5
+	draw_texture_rect(KILLS_ICON,Rect2(Vector2(left,c.y-146),Vector2(76,76)),false)
+	label(score,Vector2(left+94,c.y-70),score_size,WHITE)
+	var best = str(game.best)
+	var best_width = font.get_string_size(best,HORIZONTAL_ALIGNMENT_LEFT,-1,34).x
+	var row_left = c.x-(42+12+best_width)*.5
+	var trophy_rect = Rect2(Vector2(row_left,c.y-17),Vector2(42,42))
+	if game.new_record:
+		draw_circle(trophy_rect.get_center(),31,Color(GOLD,.12))
+		draw_arc(trophy_rect.get_center(),30,0,TAU,48,Color(GOLD,.6),1.5,true)
+	draw_texture_rect(TROPHY_ICON,trophy_rect,false)
+	label(best,Vector2(row_left+54,c.y+16),34,GOLD)
+	draw_line(c+Vector2(-174,66),c+Vector2(174,66),Color(WHITE,.16),1)
+
 func _draw() -> void:
 	if game == null:return
 	var c = size*.5
@@ -360,11 +418,7 @@ func _draw() -> void:
 			draw_finale_edges()
 			return
 		if results_frame:draw_texture_rect(results_frame,Rect2(Vector2.ZERO,size),false)
-		draw_rect(Rect2(Vector2.ZERO,size),Color(.06,.09,.12,.80))
-		death_marks()
-		label(str(game.rules.kills),Vector2(c.x,c.y-30),120,WHITE,true)
-		label("KILLS",Vector2(c.x,c.y+12),24,WHITE,true)
-		label("NEW RECORD" if game.new_record else "BEST %02d"%game.best,Vector2(c.x,c.y+72),23,GOLD,true)
+		draw_results()
 		return
 	if state == "PAUSED":
 		draw_rect(Rect2(Vector2.ZERO,size),Color(.06,.09,.12,.76))

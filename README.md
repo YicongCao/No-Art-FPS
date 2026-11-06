@@ -24,7 +24,7 @@ Alternatively, import `project.godot` in Godot 4.7.2 and press F6/F5 as appropri
 - Escape: pause / resume. Losing focus also pauses.
 - Enter on results or pause: retry. Escape on results: title.
 - Pause menu: use Resume/Restart, the sensitivity and music-volume sliders, and the camera-motion toggle. `-` / `+` and M remain available as shortcuts.
-- Results: Retry and Menu are clickable; Enter and Escape still work.
+- Results: the circular-arrow button retries, and the home button returns to the title; Enter and Escape still work. A skull precedes the round score, and a trophy precedes the best. A gold ring around the trophy marks a new record.
 
 The title uses three left-aligned white lines without outlines and a purple FIRE button with white Rajdhani Bold text. Its background is a captured opening gameplay frame, including the initial enemies and weapon but no HUD. The title and loading page share this still image with the same 55%-opaque black shade.
 
@@ -42,7 +42,7 @@ Large spray-painted lettering marks the red container, yard wall and warehouse. 
 
 Red-and-yellow barrels ignite when shot, warn for 0.65 seconds and explode within five metres; solid cover blocks blast damage, and nearby barrels chain. Orange enemies carry knives and rapidly approach, then raise their weapon before a close-range chop. Sidestep, back away, shoot them during windup, or use solid cover to block the slash.
 
-Head hits kill a normal target in one shot; body hits take three. Every kill is worth one. The rifle holds 20 rounds and reloads automatically with unlimited reserves. Health is hidden; a gradual dark-red screen-edge vignette warns of danger. After five seconds without a hit, health recovers gradually. Defeat causes a five-second respawn while the round clock keeps running. A central skull and shrinking ring show the wait; each completed respawn adds a skull at the top right. Deaths reset on a new round and are not saved. A strictly higher kill count displays NEW RECORD at results. Only the highest kill count is retained as a score record. The local best and settings are stored in Godot's `user://record.cfg`; QA runs do not overwrite them.
+Head hits kill a normal target in one shot; body hits take three. Every kill is worth one. The rifle holds 20 rounds and reloads automatically with unlimited reserves. Health is hidden; a gradual dark-red screen-edge vignette warns of danger. After five seconds without a hit, health recovers gradually. Defeat causes a five-second respawn while the round clock keeps running. A central skull and shrinking ring show the wait; each completed respawn adds a skull at the top right. Deaths reset on a new round and are not saved. A strictly higher kill count highlights the results trophy. Only the highest kill count is retained as a score record. The local best and settings are stored in Godot's `user://record.cfg`; QA runs do not overwrite them.
 
 The lower-right magazine shows twenty cartridges in one horizontal row. Each accepted shot splits and ejects the front cartridge at the right, then feeds the remaining rounds forward. Reloading pushes the missing cartridges in one by one; once full, the magazine dips and snaps back into place. Each cartridge clicks as it seats, both during the loading screen and gameplay reloads. The entire sequence still takes 0.9 seconds, with firing available only after completion. Ammo numbers, the progress bar and the RELOADING label have been removed. Low camera-motion mode also reduces shell travel/spin and the final seating dip.
 
@@ -82,6 +82,7 @@ godot --path . -- --qa --graffiti
 godot --path . -- --qa --respawn
 godot --path . -- --qa --loading
 godot --path . -- --qa --finale
+godot --path . -- --qa --results-ui
 ```
 
 The first command tests score and timer boundaries. `--check` exercises normal collision movement on both ramps, live head/body raycasts, wall blocking, pause, reload, respawn, and ten restarts. `--qa` runs a real-time full-minute automatic aiming session, with scripted viewpoint changes. `--population` checks patrol retention, regional reinforcements, population caps and safe spawn distances/visibility. The short benchmark runs twelve enemies with VSync disabled. These flags are development-only test helpers, not normal gameplay modes.
@@ -93,6 +94,8 @@ The first command tests score and timer boundaries. `--check` exercises normal c
 `--reload-audio` checks actual audio voices against seated cartridges for full and partial reloads, pause/death/deadline/reset, and loading's 17+3 rounds, suspension and cancellation. Rendered `--loading` and `--magazine` checks also verify the sound count; `--magazine` saves a local audio-mixer recording to `artifacts/local/cartridge-reload.wav`.
 
 The final fifteen seconds enable DESTROY rounds. At one second remaining, every remaining enemy, structure, barrel and prop erupts, with explosions around the screen edges. Remaining enemies count once before the deadline. Results freeze the world and show a captured still; retry/title restore the arena. `--finale` checks the exact trigger, all targets, pause, scoring, frozen pixels and restoration.
+
+`--results-ui` exercises both icon buttons with actual viewport mouse events, checks new/best and three-digit score layouts at 1280×720 and 960×540, and verifies retry completes loading. The four original imagegen assets and exact prompts are in [assets/ui/results/README.md](assets/ui/results/README.md).
 
 Latest update: [cartridge insertion audio](docs/updates/2026-11-06-cartridge-audio.md). Earlier: [title styling and stair landing fix](docs/updates/2026-11-06-title-and-stair-landings.md), [FIRE title and magazine loading transition](docs/updates/2026-11-06-fire-loading-transition.md). Next directions: [shooting feedback and combat pressure](docs/design/shooting-feel-next.md). Earlier: [sequential reload](docs/updates/2026-11-06-cartridge-reload.md), [five-second respawn](docs/updates/2026-11-06-seams-and-respawn.md), [wall graffiti](docs/updates/2026-11-06-wall-graffiti.md), [pool terrace](docs/updates/2026-11-06-poolside-playbox.md). MIDI: [sixty.mid](assets/music/sixty.mid).
 

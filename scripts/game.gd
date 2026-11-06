@@ -155,6 +155,7 @@ func _ready() -> void:
 		if "--multikill" in OS.get_cmdline_user_args():test_path = "res://tests/multikill_check.gd"
 		if "--reload-audio" in OS.get_cmdline_user_args():test_path = "res://tests/reload_audio_check.gd"
 		if "--finale" in OS.get_cmdline_user_args():test_path = "res://tests/finale_check.gd"
+		if "--results-ui" in OS.get_cmdline_user_args():test_path = "res://tests/results_ui_check.gd"
 		var qa = load(test_path).new()
 		qa.game = self
 		add_child(qa)
