@@ -78,7 +78,7 @@ func check_pixels(expected: int, filename: String = "") -> void:
 	var image = get_viewport().get_texture().get_image()
 	var scale = Vector2(image.get_size())/game.hud.size
 	var body: Rect2 = game.hud.magazine_rect()
-	var rect = Rect2i((body.position+Vector2(42,18))*scale,Vector2(349,60)*scale)
+	var rect = Rect2i((body.position+Vector2(42,18)*game.hud.MAGAZINE_SCALE)*scale,Vector2(349,60)*game.hud.MAGAZINE_SCALE*scale)
 	var count = count_gold_shapes(image,rect)
 	assert(count==expected,"Rendered cartridges: expected %d, found %d"%[expected,count])
 	if not filename.is_empty():image.save_png("res://artifacts/"+filename+".png")

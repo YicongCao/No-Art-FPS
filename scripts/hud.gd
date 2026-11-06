@@ -25,6 +25,7 @@ const MAGAZINE_REGION = Rect2(104,112,458,1056)
 const CARTRIDGE_REGION = Rect2(773,574,400,108)
 const CASING_REGION = Rect2(773,574,280,108)
 const TIP_REGION = Rect2(1053,586,120,84)
+const MAGAZINE_SCALE = sqrt(.8)
 const FEED_TIME = .085
 const EJECTION_TIME = .48
 
@@ -32,11 +33,12 @@ func magazine_rect() -> Rect2:
 	var dip = 0.0
 	if game.reload_time>0 and not game.reduced_motion:
 		dip = sin(clampf(1-game.reload_time/.9,0,1)*PI)*12
-	return Rect2(size.x-448,size.y-124+dip,420,92)
+	var extent = Vector2(420,92)*MAGAZINE_SCALE
+	return Rect2(size-Vector2(28,32)-extent+Vector2(0,dip*MAGAZINE_SCALE),extent)
 
 func cartridge_rect(index: int) -> Rect2:
 	# A single horizontal row feeds right; each sprite points up.
-	return Rect2(magazine_rect().position+Vector2(368-index*16,24),Vector2(12.15,45))
+	return Rect2(magazine_rect().position+Vector2(368-index*16,24)*MAGAZINE_SCALE,Vector2(12.15,45)*MAGAZINE_SCALE)
 
 func ammo_fired() -> void:
 	feed_shift = FEED_TIME
@@ -48,19 +50,19 @@ func reset_magazine() -> void:
 
 func draw_round(region: Rect2, center: Vector2, extent: Vector2, angle: float = -PI*.5, alpha: float = 1.0) -> void:
 	draw_set_transform(center,angle)
-	draw_texture_rect_region(MAGAZINE_ATLAS,Rect2(-extent*.5,extent),region,Color(1,1,1,alpha))
+	draw_texture_rect_region(MAGAZINE_ATLAS,Rect2(-extent*.5*MAGAZINE_SCALE,extent*MAGAZINE_SCALE),region,Color(1,1,1,alpha))
 	draw_set_transform(Vector2.ZERO)
 
 func draw_magazine() -> void:
 	var body = magazine_rect()
 	# The generated chamber has soft alpha; keep world/gun colors from bleeding through.
-	draw_rect(Rect2(body.position+Vector2(30,16),Vector2(376,60)),INK.darkened(.35))
+	draw_rect(Rect2(body.position+Vector2(30,16)*MAGAZINE_SCALE,Vector2(376,60)*MAGAZINE_SCALE),INK.darkened(.35))
 	# Rotate the generated empty shell so its feed lips face the right edge.
 	draw_set_transform(body.get_center(),PI*.5)
 	draw_texture_rect_region(MAGAZINE_ATLAS,Rect2(-Vector2(body.size.y,body.size.x)*.5,Vector2(body.size.y,body.size.x)),MAGAZINE_REGION)
 	draw_set_transform(Vector2.ZERO)
 	for i in range(clampi(game.ammo,0,game.MAGAZINE_SIZE)):
-		var center = cartridge_rect(i).get_center()-Vector2(16*feed_shift/FEED_TIME,0)
+		var center = cartridge_rect(i).get_center()-Vector2(16*feed_shift/FEED_TIME,0)*MAGAZINE_SCALE
 		draw_round(CARTRIDGE_REGION,center,Vector2(45,12.15))
 	for age in ejections:
 		var origin = cartridge_rect(0).get_center()
@@ -71,14 +73,14 @@ func draw_magazine() -> void:
 		if game.reduced_motion:
 			travel = Vector2(16*t,-10*t)
 			rotation_amount = t*.5
-		draw_round(CASING_REGION,origin+travel,Vector2(31.5,12.15),-PI*.5+rotation_amount,alpha)
+		draw_round(CASING_REGION,origin+travel*MAGAZINE_SCALE,Vector2(31.5,12.15),-PI*.5+rotation_amount,alpha)
 		if age<.12:
-			draw_round(TIP_REGION,origin+Vector2(0,-23-age*420),Vector2(13.5,9.45),-PI*.5,1-age/.12)
+			draw_round(TIP_REGION,origin+Vector2(0,-23-age*420)*MAGAZINE_SCALE,Vector2(13.5,9.45),-PI*.5,1-age/.12)
 	if game.reload_time>0:
 		var progress = clampf(1-game.reload_time/.9,0,1)
-		var start = body.position+Vector2(12,body.size.y+7)
-		draw_line(start,start+Vector2(body.size.x-24,0),INK,3)
-		draw_line(start,start+Vector2((body.size.x-24)*progress,0),GOLD,3)
+		var start = body.position+Vector2(12*MAGAZINE_SCALE,body.size.y+7*MAGAZINE_SCALE)
+		draw_line(start,start+Vector2(body.size.x-24*MAGAZINE_SCALE,0),INK,3)
+		draw_line(start,start+Vector2((body.size.x-24*MAGAZINE_SCALE)*progress,0),GOLD,3)
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
