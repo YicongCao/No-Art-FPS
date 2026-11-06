@@ -1,0 +1,13 @@
+extends Resource
+class_name SessionDefinition
+
+@export var session_id = "score_attack"
+@export var display_name = "竞技场"
+@export var map_scene: PackedScene
+@export var rules_script: Script
+@export var time_limit = 60.0
+
+func make_rules() -> RefCounted:
+	var result = rules_script.new()
+	result.duration = time_limit
+	return result

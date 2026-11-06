@@ -1,4 +1,4 @@
-extends Node3D
+extends "res://scripts/maps/map_root.gd"
 
 const Barrel = preload("res://scripts/explosive_barrel.gd")
 const ContainerRoom = preload("res://scripts/container.gd")
@@ -15,7 +15,6 @@ var navigation_dirty = false
 var navigation_baking = false
 var original_navigation_mesh: NavigationMesh
 var restore_navigation_pending = false
-var game: Node
 var barrels: Array[Node3D] = []
 var containers: Array[Node3D] = []
 var nav: NavigationRegion3D
@@ -570,3 +569,19 @@ func zone_intact(zone: String) -> bool:
 	if zone=="deck":return not deck_structure.collapsed
 	if zone=="warehouse":return not warehouse_structure.collapsed
 	return true
+
+func opening_actors() -> Array[Dictionary]:
+	var actors: Array[Dictionary] = []
+	for p in [Vector3(-4,0,1.5),Vector3(11,0,1),Vector3(30,0,3),Vector3(30,0,-10),Vector3(-4,3.1,-11),Vector3(4,3.1,-11)]:
+		actors.append({"position":p,"fast":p==Vector3(11,0,1)})
+	return actors
+
+func prepare_rooms() -> void:
+	for i in [0,2]:containers[i].add_guard()
+
+func respawn_candidates() -> Array[Vector3]:
+	return [Vector3(0,.05,10.5),Vector3(-14,.05,1),Vector3(14,.05,8)]
+
+func region_capacity(zone: String, total: int) -> int:
+	var reserved = (2 if zone_intact("deck") else 0)+(2 if zone_intact("warehouse") else 0)
+	return total-reserved if zone=="yard" else (2 if zone_intact(zone) else 0)

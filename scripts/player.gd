@@ -68,7 +68,7 @@ func _physics_process(delta: float) -> void:
 	elif touch_jump or (Input.is_action_just_pressed("jump") and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED):velocity.y = 7
 	touch_jump = false
 	move_and_slide()
-	if position.y < -8:reset_position()
+	if position.y < game.arena.fall_limit:reset_position()
 
 func _process(delta: float) -> void:
 	recoil = move_toward(recoil,0,delta*6)
@@ -85,7 +85,7 @@ func _process(delta: float) -> void:
 	else:gun.rotation.z = 0
 
 func reset_position() -> void:
-	position = Vector3(0,.05,10.5)
+	global_transform = game.arena.player_start()
 	velocity = Vector3.ZERO
-	rotation.y = 0
+	rotation.y = global_rotation.y
 	pitch = 0

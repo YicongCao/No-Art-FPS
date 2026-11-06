@@ -96,7 +96,7 @@ func _ready() -> void:
 	agent.velocity_computed.connect(apply_safe_velocity)
 	add_child(agent)
 	attack += randf()*.8
-	if home_zone!="yard":
+	if game.arena.uses_patrol(home_zone):
 		var posts = game.arena.patrol_points(home_zone)
 		patrol_offset = 1 if position.distance_to(posts[0])<position.distance_to(posts[1]) else 0
 
@@ -137,7 +137,7 @@ func _physics_process(delta: float) -> void:
 		if distance < 13:
 			var angle = age*.35+float(get_instance_id()%7)
 			offset = Vector3(cos(angle),0,sin(angle))*8
-		if home_zone=="yard":
+		if not game.arena.uses_patrol(home_zone):
 			agent.target_position = game.player.global_position+offset
 		elif game.arena.enemy_zone(game.player.global_position)==home_zone and distance>6:
 			agent.target_position = game.player.global_position

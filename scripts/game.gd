@@ -1,19 +1,20 @@
 extends Node3D
 
-const Arena = preload("res://scripts/arena.gd")
+const DefaultSession = preload("res://data/sessions/score_attack.tres")
+var session = DefaultSession
+var opening: Array[Dictionary] = []
 const Player = preload("res://scripts/player.gd")
 const Enemy = preload("res://scripts/enemy.gd")
 const Hud = preload("res://scripts/hud.gd")
 const Rules = preload("res://scripts/run_rules.gd")
 const LoadingTransition = preload("res://scripts/loading_transition.gd")
 const CombatFX = preload("res://scripts/combat_fx.gd")
-const OPENING_POSITIONS = [Vector3(-4,0,1.5),Vector3(11,0,1),Vector3(30,0,3),Vector3(30,0,-10),Vector3(-4,3.1,-11),Vector3(4,3.1,-11)]
 var arena: Node3D
 var player: CharacterBody3D
 var hud: Control
 var enemies: Node3D
 var effects: Node3D
-var rules = Rules.new()
+var rules = DefaultSession.make_rules()
 var state = "TITLE"
 var previous_state = "RUNNING"
 const MAGAZINE_SIZE = 20
@@ -99,10 +100,11 @@ func _ready() -> void:
 	sun.shadow_enabled = true
 	sun.directional_shadow_max_distance = 65
 	add_child(sun)
-	arena = Arena.new()
+	arena = session.map_scene.instantiate()
 	arena.game = self
 	add_child(arena)
 	arena.bake_navigation()
+	opening = arena.opening_actors()
 	player = Player.new()
 	player.game = self
 	add_child(player)
@@ -139,8 +141,8 @@ func _ready() -> void:
 		if NavigationServer3D.map_get_iteration_id(get_world_3d().navigation_map)==0:
 			await get_tree().physics_frame
 			continue
-		var closest = NavigationServer3D.map_get_closest_point(get_world_3d().navigation_map,Vector3(0,0,10.5))
-		if closest.distance_to(Vector3(0,0,10.5))<1.0:
+		var closest = NavigationServer3D.map_get_closest_point(get_world_3d().navigation_map,arena.player_start().origin)
+		if closest.distance_to(arena.player_start().origin)<1.0:
 			nav_ready = true
 			break
 		await get_tree().physics_frame
@@ -187,7 +189,7 @@ func load_record() -> void:
 		music_volume = clampf(float(cfg.get_value("settings","music_volume",.7)),0,1)
 
 func spawn_opening_actor(index: int) -> Node3D:
-	var actor = spawn_enemy(OPENING_POSITIONS[index],index==1)
+	var actor = spawn_enemy(opening[index].position,opening[index].fast)
 	actor.look_at(Vector3(player.position.x,actor.position.y,player.position.z))
 	return actor
 
@@ -198,8 +200,8 @@ func capture_opening_frame() -> void:
 		title_frame_ready = true
 		return
 	hud.hide()
-	for i in range(OPENING_POSITIONS.size()):spawn_opening_actor(i)
-	for i in [0,2]:arena.containers[i].add_guard()
+	for i in range(opening.size()):spawn_opening_actor(i)
+	arena.prepare_rooms()
 	opening_prepared = true
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
@@ -357,16 +359,15 @@ func prepare_loaded_run(ticket: int) -> void:
 			if ticket!=load_ticket:return
 	# Instantiate and render one actor per frame before gameplay to warm
 	# imported meshes/materials without a single eight-enemy creation burst.
-	for i in range(OPENING_POSITIONS.size()):
+	for i in range(opening.size()):
 		spawn_opening_actor(i)
 		loading.report(.4+float(i+1)/8*.5)
 		await loading_frame()
 		if ticket!=load_ticket:return
-	for i in [0,2]:
-		arena.containers[i].add_guard()
-		loading.report(.84 if i==0 else .9)
-		await loading_frame()
-		if ticket!=load_ticket:return
+	arena.prepare_rooms()
+	loading.report(.9)
+	await loading_frame()
+	if ticket!=load_ticket:return
 	opening_prepared = true
 	# Warm the first shot's effect materials beneath the opaque loading cover.
 	var muzzle = player.gun.to_global(Vector3(0,.015,-1.0))
@@ -450,9 +451,9 @@ func begin_running() -> void:
 	# Reuse the opening actors prepared under the loading cover. Isolated QA
 	# fixtures can still initialize them here. Reinforcements use hidden gates.
 	if not opening_prepared:
-		for p in OPENING_POSITIONS:spawn_enemy(p,p==Vector3(11,0,1))
+		for i in range(opening.size()):spawn_opening_actor(i)
 		# Two existing yard slots start inside the green and purple containers.
-		for i in [0,2]:arena.containers[i].add_guard()
+		arena.prepare_rooms()
 	opening_prepared = true
 	play_sound("tick",-10)
 
@@ -591,11 +592,11 @@ func _physics_process(delta: float) -> void:
 	if not rules.active:
 		finish_run()
 		return
-	if not destroy_active and rules.remaining()<=DESTROY_DURATION+.000001:
+	if rules.destroy_duration>0 and not destroy_active and rules.remaining()<=rules.destroy_duration+.000001:
 		destroy_active = true
 		hud.destroy_time = 1.2
 		play_sound("end",-12,1.25)
-	if not finale_active and rules.remaining()<=FINALE_DURATION+.000001:start_finale()
+	if rules.finale_duration>0 and not finale_active and rules.remaining()<=rules.finale_duration+.000001:start_finale()
 	invulnerable = maxf(0,invulnerable-delta)
 	since_damage += delta
 	if health<MAX_HEALTH and since_damage>=HEAL_DELAY and respawn_time<=0:
@@ -606,9 +607,9 @@ func _physics_process(delta: float) -> void:
 		if respawn_time<=0:
 			player.reset_position()
 			# Choose the most separated navigable respawn location.
-			var safest = Vector3(0,.05,10.5)
+			var safest = arena.player_start().origin
 			var best_distance = -1.0
-			for candidate in [safest,Vector3(-14,.05,1),Vector3(14,.05,8)]:
+			for candidate in arena.respawn_candidates():
 				var min_distance = 100.0
 				for enemy in live_enemies():min_distance = minf(min_distance,candidate.distance_to(enemy.position))
 				if min_distance>best_distance:
@@ -647,7 +648,7 @@ func spawn_enemy(pos: Vector3, fast: bool) -> Node3D:
 	var enemy = Enemy.new()
 	enemy.game = self
 	enemy.home_zone = arena.enemy_zone(pos)
-	enemy.fast = fast and enemy.home_zone=="yard"
+	enemy.fast = fast and arena.accepts_fast(enemy.home_zone)
 	enemy.position = pos+Vector3(0,.05,0)
 	enemies.add_child(enemy)
 	return enemy
@@ -659,8 +660,7 @@ func zone_population(zone: String) -> int:
 	return live_enemies().filter(func(e):return e.home_zone==zone).size()
 
 func zone_capacity(zone: String) -> int:
-	var reserved = (2 if arena.zone_intact("deck") else 0)+(2 if arena.zone_intact("warehouse") else 0)
-	return population_target()-reserved if zone=="yard" else (2 if arena.zone_intact(zone) else 0)
+	return arena.region_capacity(zone,population_target())
 
 func spawn_is_clear(point: Vector3) -> bool:
 	for enemy in live_enemies():
@@ -669,7 +669,7 @@ func spawn_is_clear(point: Vector3) -> bool:
 	return true
 
 func update_spawns(delta: float) -> void:
-	if finale_active:return
+	if finale_active or not rules.continuous_spawns:return
 	for i in range(spawn_cooldowns.size()):spawn_cooldowns[i] = maxf(0,spawn_cooldowns[i]-delta)
 	if not pending_spawn.is_empty():
 		pending_spawn.delay -= delta
