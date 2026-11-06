@@ -13,6 +13,7 @@ extends "res://scripts/maps/map_root.gd"
 @export var deck_path: NodePath
 @export var palette_materials: Dictionary = {}
 @export var batch_paths: Array[NodePath] = []
+@export var batch_transforms: Dictionary = {}
 @export var decoration_paths: Array[NodePath] = []
 @export var static_collision_paths: Array[NodePath] = []
 var structures: Array[Node3D] = []
@@ -65,7 +66,8 @@ func _ready() -> void:
 		var node = get_node(path)
 		node.multimesh = node.multimesh.duplicate()
 		var transforms: Array[Transform3D] = []
-		for i in range(node.multimesh.instance_count):transforms.append(node.multimesh.get_instance_transform(i))
+		for i in range(node.multimesh.instance_count):
+			transforms.append(batch_transforms[path][i] if batch_transforms.has(path) else node.multimesh.get_instance_transform(i))
 		initial_batches[node] = transforms
 
 func bake_navigation() -> void:

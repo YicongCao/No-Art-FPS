@@ -35,6 +35,7 @@
     .touch-button{position:absolute;width:62px;height:62px;border-radius:50%;border:2px solid #fff5d388;color:#fff5d3;background:#24344080;font-size:18px;touch-action:none}
     .touch-button.held{background:#e9ba50aa;color:#243440}
     #fire{width:92px;height:92px;right:max(24px,env(safe-area-inset-right));bottom:max(42px,env(safe-area-inset-bottom));font-size:22px}
+    #interact{display:none;right:134px;bottom:114px;width:90px;border-radius:8px}body[data-mode=defuse] #interact{display:block}
     #jump{right:max(134px,calc(env(safe-area-inset-right) + 110px));bottom:28px}#reload{right:max(32px,env(safe-area-inset-right));bottom:154px}
     #pause{right:max(24px,env(safe-area-inset-right));top:max(12px,env(safe-area-inset-top));width:48px;height:48px;font-size:16px}
     #stick{position:absolute;left:max(28px,env(safe-area-inset-left));bottom:35px;width:120px;height:120px;border:2px solid #fff5d355;border-radius:50%;background:#24344030;pointer-events:none}
@@ -71,7 +72,7 @@
 
   <div id="rotate"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="28" y="13" width="44" height="74" rx="7" transform="rotate(30 50 50)"/><path d="M8 48a42 42 0 0 1 70-30m0-12v12H65M92 52a42 42 0 0 1-70 30m0 12V82h13"/></svg><p>横过来，准备开火</p><small>左手移动，右手瞄准</small><button id="rotate-full">横屏全屏</button></div>
   <button id="immersive" aria-label="进入沉浸全屏"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 4H4v5m11-5h5v5M4 15v5h5m11-5v5h-5"/></svg> 全屏</button><div id="immersive-note" role="status" hidden></div>
-  <div id="touch-ui" aria-label="触控操作"><div id="stick"><span></span></div><button class="touch-button" id="fire" aria-label="按住开火"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg></button><button class="touch-button" id="jump" aria-label="跳跃"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 10 6-6 6 6M12 4v14M6 21h12"/></svg></button><button class="touch-button" id="reload" aria-label="换弹"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 7a8 8 0 1 0 1 8M19 3v5h-5"/></svg></button><button class="touch-button" id="pause" aria-label="暂停"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5v14M16 5v14"/></svg></button></div>
+  <div id="touch-ui" aria-label="触控操作"><div id="stick"><span></span></div><button class="touch-button" id="fire" aria-label="按住开火"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg></button><button class="touch-button" id="jump" aria-label="跳跃"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 10 6-6 6 6M12 4v14M6 21h12"/></svg></button><button class="touch-button" id="reload" aria-label="换弹"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 7a8 8 0 1 0 1 8M19 3v5h-5"/></svg></button><button class="touch-button" id="interact" aria-label="按住拆除 C4">拆除</button><button class="touch-button" id="pause" aria-label="暂停"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5v14M16 5v14"/></svg></button></div>
   <button id="gyro-open" aria-haspopup="dialog">体感瞄准</button>
   <div id="gyro-panel" hidden>
     <section role="dialog" aria-modal="true" aria-labelledby="gyro-title" tabindex="-1">
@@ -86,7 +87,7 @@
   <script src="gyro.js"></script>
   <script>
     window.noArtMobile=matchMedia('(pointer:coarse)').matches||new URLSearchParams(location.search).has('touch');
-    const touch={x:0,y:0,dx:0,dy:0,fire:false,jump:false,reload:false,pause:false,blocked:false};
+    const touch={x:0,y:0,dx:0,dy:0,fire:false,interact:false,jump:false,reload:false,pause:false,blocked:false};
     let pauseRequested=false,focused=true;
     const gyroPanel=document.querySelector('#gyro-panel'),gyroOpen=document.querySelector('#gyro-open'),gyroToggle=document.querySelector('#gyro-toggle'),gyroSlider=document.querySelector('#gyro-sensitivity'),gyroCalibrate=document.querySelector('#gyro-calibrate');
     function gyroChanged(s){gyroToggle.textContent=s.pending?'取消':s.enabled?'开启':'关闭';gyroToggle.setAttribute('aria-checked',String(s.enabled));gyroSlider.value=String(s.sensitivity);document.querySelector('#gyro-value').textContent=s.sensitivity.toFixed(2)+'x';gyroCalibrate.disabled=!s.enabled||s.calibrating;document.querySelector('#gyro-status').textContent=s.status;}
@@ -102,16 +103,17 @@
     gyroSlider.addEventListener('input',()=>gyro.setSensitivity(gyroSlider.value));
     gyroCalibrate.onclick=()=>gyro.calibrate();
     const fingers=new Map(),ui=document.querySelector('#touch-ui'),knob=document.querySelector('#stick span');
-    function clearTouch(){gyro.reset();fingers.clear();Object.assign(touch,{x:0,y:0,dx:0,dy:0,fire:false,jump:false,reload:false,pause:false});knob.style.transform='';document.querySelectorAll('.held').forEach(e=>e.classList.remove('held'));}
+    function clearTouch(){gyro.reset();fingers.clear();Object.assign(touch,{x:0,y:0,dx:0,dy:0,fire:false,interact:false,jump:false,reload:false,pause:false});knob.style.transform='';document.querySelectorAll('.held').forEach(e=>e.classList.remove('held'));}
     function orientation(){const portrait=innerHeight>innerWidth;document.body.classList.toggle('portrait',portrait);touch.blocked=portrait||document.hidden;if(portrait){clearTouch();closeGyro(false);pauseRequested=true;}syncGyro();}
     document.body.classList.toggle('mobile',window.noArtMobile);orientation();window.addEventListener('resize',()=>{clearTouch();orientation();});window.addEventListener('orientationchange',()=>{clearTouch();orientation();});screen.orientation?.addEventListener?.('change',()=>{clearTouch();orientation();});
     document.addEventListener('visibilitychange',()=>{clearTouch();orientation();if(document.hidden)pauseRequested=true;});window.addEventListener('blur',()=>{focused=false;clearTouch();if(document.body.dataset.game==='RUNNING')pauseRequested=true;syncGyro();});window.addEventListener('focus',()=>{focused=true;syncGyro();});
+    window.noArtMode=mode=>{document.body.dataset.mode=mode;clearTouch();};
     window.noArtState=state=>{document.body.dataset.game=state;clearTouch();hideImmersiveNote();immersiveAttempt++;if(state!=='RUNNING')pauseRequested=false;if(state==='RUNNING'||state==='LOADING')closeGyro(false);syncGyro();};
     window.noArtReadTouch=(alive=true)=>{syncGyro(alive);const result=JSON.stringify({...touch,...gyro.read(),pause:touch.pause||pauseRequested});pauseRequested=false;touch.dx=touch.dy=0;touch.jump=touch.reload=touch.pause=false;return result;};
     ui.addEventListener('contextmenu',e=>e.preventDefault());
     ui.addEventListener('pointerdown',e=>{e.preventDefault();ui.setPointerCapture(e.pointerId);const action=e.target.closest('button')?.id;const kind=action||(e.clientX<innerWidth*.4?'move':'look');if([...fingers.values()].some(f=>f.kind===kind))return;fingers.set(e.pointerId,{kind,x:e.clientX,y:e.clientY});if(action){touch[action]=true;document.getElementById(action).classList.add('held');}});
     ui.addEventListener('pointermove',e=>{const f=fingers.get(e.pointerId);if(!f)return;e.preventDefault();if(f.kind==='move'){const x=(e.clientX-f.x)/50,y=(e.clientY-f.y)/50,length=Math.max(1,Math.hypot(x,y));touch.x=x/length;touch.y=y/length;knob.style.transform=`translate(${touch.x*36}px,${touch.y*36}px)`;}else if(f.kind==='look'||f.kind==='fire'){touch.dx+=e.clientX-f.x;touch.dy+=e.clientY-f.y;f.x=e.clientX;f.y=e.clientY;}});
-    function release(e){const f=fingers.get(e.pointerId);if(!f)return;fingers.delete(e.pointerId);if(f.kind==='move'){touch.x=touch.y=0;knob.style.transform='';}if(f.kind==='fire')touch.fire=false;document.getElementById(f.kind)?.classList.remove('held');}
+    function release(e){const f=fingers.get(e.pointerId);if(!f)return;fingers.delete(e.pointerId);if(f.kind==='move'){touch.x=touch.y=0;knob.style.transform='';}if(f.kind==='fire')touch.fire=false;if(f.kind==='interact')touch.interact=false;document.getElementById(f.kind)?.classList.remove('held');}
     for(const event of ['pointerup','pointercancel','lostpointercapture'])ui.addEventListener(event,release);
     const immersiveNote=document.querySelector('#immersive-note');
     let immersiveTimer=0,immersiveAttempt=0;

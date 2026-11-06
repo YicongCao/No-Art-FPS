@@ -16,7 +16,7 @@ class Element {
 }
 const elements=new Map();
 const get=s=>{if(!elements.has(s))elements.set(s,new Element());return elements.get(s);};
-for(const id of ['fire','jump','reload','pause'])get('#'+id).id=id;
+for(const id of ['fire','interact','jump','reload','pause'])get('#'+id).id=id;
 const document=new Element();
 document.body=new Element();document.documentElement=new Element();document.hidden=false;
 document.querySelector=get;document.getElementById=id=>get('#'+id);
@@ -100,3 +100,11 @@ p=JSON.parse(window.noArtReadTouch(false));assert.equal(p.gyroYaw,0);
 window.noArtState('PAUSED');for(let i=0;i<5;i++)motion(30);assert.equal(read().gyroYaw,0);
 await get('#gyro-toggle').onclick();
 console.log('GYRO_BRIDGE_PASS: real sensor module, packet consumption, respawn and pause gating');
+
+window.noArtMode('defuse');window.noArtState('RUNNING');
+pointer('pointerdown',90,690,230,get('#interact'));
+assert.equal(read().interact,true);assert.equal(read().interact,true);
+pointer('pointercancel',90,690,230);assert.equal(read().interact,false);
+pointer('pointerdown',91,690,230,get('#interact'));
+window.emit('blur');assert.equal(read().interact,false);
+console.log('DEFUSE_TOUCH_PASS: held interaction, cancel and background release');

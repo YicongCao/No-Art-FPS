@@ -66,6 +66,12 @@ var web_capture_wait = 0.0
 var touch_mode = false
 var touch_fire = false
 var web_ui_state = ""
+var switching_session = false
+var objective_focus: Node3D
+var touch_interact = false
+var best_mission = 0.0
+const Settlement = preload("res://scripts/modes/rule_settlement.gd")
+const PatrolBrain = preload("res://scripts/modes/patrol_brain.gd")
 
 func capture_pointer() -> void:
 	if touch_mode:return
@@ -83,6 +89,12 @@ func _ready() -> void:
 	process_physics_priority = -100
 	qa_mode = "--qa" in OS.get_cmdline_user_args()
 	rng.seed = 61105
+	if "--mission" in OS.get_cmdline_user_args():
+		session = load("res://data/sessions/defuse.tres")
+		rules = session.make_rules()
+	var settlement = Settlement.new()
+	settlement.game = self
+	add_child(settlement)
 	var env = WorldEnvironment.new()
 	var settings = Environment.new()
 	settings.background_mode = Environment.BG_COLOR
@@ -105,6 +117,7 @@ func _ready() -> void:
 	add_child(arena)
 	arena.bake_navigation()
 	opening = arena.opening_actors()
+	assert(arena.validate_map(),"Invalid map objectives or patrol markers")
 	player = Player.new()
 	player.game = self
 	add_child(player)
@@ -129,6 +142,8 @@ func _ready() -> void:
 		audio_voices.append(voice)
 	music = AudioStreamPlayer.new()
 	music.stream = preload("res://assets/music/sixty.wav")
+	music.finished.connect(func():
+		if rules.mission and state=="RUNNING":music.play())
 	add_child(music)
 	load_record()
 	set_music_volume(music_volume)
@@ -146,7 +161,8 @@ func _ready() -> void:
 			nav_ready = true
 			break
 		await get_tree().physics_frame
-	if not nav_ready:push_error("Navigation map failed to synchronize")
+	if nav_ready and not arena.validate_navigation():nav_ready = false
+	if not nav_ready:push_error("Navigation map failed to synchronize or targets are unreachable")
 	await capture_opening_frame()
 	if "--capture" in OS.get_cmdline_user_args():
 		await RenderingServer.frame_post_draw
@@ -174,6 +190,8 @@ func _ready() -> void:
 		if "--multikill" in OS.get_cmdline_user_args():test_path = "res://tests/multikill_check.gd"
 		if "--reload-audio" in OS.get_cmdline_user_args():test_path = "res://tests/reload_audio_check.gd"
 		if "--finale" in OS.get_cmdline_user_args():test_path = "res://tests/finale_check.gd"
+		if "--mission-route" in OS.get_cmdline_user_args():test_path = "res://tests/mission_route_check.gd"
+		if "--mission-check" in OS.get_cmdline_user_args():test_path = "res://tests/mission_check.gd"
 		if "--results-ui" in OS.get_cmdline_user_args():test_path = "res://tests/results_ui_check.gd"
 		var qa = load(test_path).new()
 		qa.game = self
@@ -186,11 +204,21 @@ func load_record() -> void:
 		best = int(cfg.get_value("score","best",0))
 		player.sensitivity = clampf(float(cfg.get_value("settings","sensitivity",.0022)),.0006,.006)
 		reduced_motion = bool(cfg.get_value("settings","reduced_motion",false))
+		best_mission = float(cfg.get_value(mission_record_key(),"fastest",0.0))
 		music_volume = clampf(float(cfg.get_value("settings","music_volume",.7)),0,1)
 
 func spawn_opening_actor(index: int) -> Node3D:
 	var actor = spawn_enemy(opening[index].position,opening[index].fast)
-	actor.look_at(Vector3(player.position.x,actor.position.y,player.position.z))
+	if opening[index].has("patrol"):
+		var brain = PatrolBrain.new()
+		brain.actor = actor
+		brain.route = opening[index].patrol
+		actor.patrol_brain = brain
+		actor.add_child(brain)
+		if brain.route.size()>1:
+			var direction = brain.route[1]-brain.route[0]
+			actor.rotation.y = atan2(-direction.x,-direction.z)
+	else:actor.look_at(Vector3(player.position.x,actor.position.y,player.position.z))
 	return actor
 
 func capture_opening_frame() -> void:
@@ -214,6 +242,8 @@ func capture_opening_frame() -> void:
 func save_record() -> void:
 	if qa_mode:return
 	var cfg = ConfigFile.new()
+	cfg.load("user://record.cfg")
+	if rules.mission:cfg.set_value(mission_record_key(),"fastest",best_mission)
 	cfg.set_value("score","best",best)
 	cfg.set_value("settings","sensitivity",player.sensitivity)
 	cfg.set_value("settings","reduced_motion",reduced_motion)
@@ -231,6 +261,9 @@ func start_run() -> void:
 	if not qa_mode:Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func reset_run_state() -> void:
+	arena.cancel_interaction()
+	objective_focus = null
+	touch_interact = false
 	rng.seed = 61105
 	rules.start()
 	rules.active = false
@@ -253,7 +286,7 @@ func reset_run_state() -> void:
 	spawn_cooldowns.resize(arena.spawn_points.size())
 	spawn_cooldowns.fill(0.0)
 	pending_spawn.clear()
-	last_tick = 60
+	last_tick = int(rules.duration)
 	new_record = false
 	hud.time_pulse = 0
 	hud.go_time = 0
@@ -310,6 +343,8 @@ func prepare_loaded_run(ticket: int) -> void:
 		if i%6==5:
 			await loading_frame()
 			if ticket!=load_ticket:return
+	arena.restore_finale_decor()
+	arena.reset_objectives()
 	for barrel in arena.barrels:barrel.reset()
 	for room in arena.containers:room.reset()
 	arena.restore_structures()
@@ -394,6 +429,7 @@ func _process(delta: float) -> void:
 	if touch_mode and web_ui_state!=state:
 		web_ui_state = state
 		JavaScriptBridge.eval("window.noArtState("+JSON.stringify(state)+")")
+		JavaScriptBridge.eval("window.noArtMode("+JSON.stringify("defuse" if rules.mission else "arena")+")")
 	if OS.has_feature("web") and state=="CAPTURING":
 		if Input.mouse_mode==Input.MOUSE_MODE_CAPTURED:
 			web_capture_wait = 0
@@ -422,6 +458,9 @@ func _process(delta: float) -> void:
 			player.enabled = false
 
 func clear_round() -> void:
+	arena.cancel_interaction()
+	objective_focus = null
+	arena.reset_objectives()
 	restore_frozen_world()
 	hud.reset_results_frame()
 	finale_active = false
@@ -458,14 +497,22 @@ func begin_running() -> void:
 	play_sound("tick",-10)
 
 func finish_run() -> void:
+	if rules.mission and rules.outcome=="TIMEOUT" and state!="RESULTS":
+		for objective in arena.objectives:
+			if not objective.defused:finale_explosion(objective.global_position,1.2,Color("243440"))
+		play_sound("explosion",-8)
 	state = "RESULTS"
 	music.stop()
 	rules.active = false
 	player.enabled = false
 	player.velocity = Vector3.ZERO
 	freeze_world()
-	new_record = rules.kills > best
-	best = maxi(best,rules.kills)
+	if rules.mission:
+		new_record = rules.result_value()>0 and (best_mission<=0 or rules.result_value()<best_mission)
+		if new_record:best_mission = rules.result_value()
+	else:
+		new_record = rules.kills > best
+		best = maxi(best,rules.kills)
 	save_record()
 	pending_spawn.clear()
 	bullets.clear()
@@ -530,6 +577,8 @@ func _notification(what: int) -> void:
 		pause_run()
 
 func pause_run() -> void:
+	arena.cancel_interaction()
+	touch_interact = false
 	previous_state = state
 	state = "PAUSED"
 	player.enabled = false
@@ -556,6 +605,10 @@ func menu_action(action: String) -> void:
 	match action:
 		"play", "retry":
 			request_run()
+		"arena":
+			select_session(DefaultSession)
+		"defuse":
+			select_session(load("res://data/sessions/defuse.tres"))
 		"resume":
 			if state != "PAUSED":return
 			state = "CAPTURING" if OS.has_feature("web") and not touch_mode else previous_state
@@ -577,6 +630,7 @@ func _physics_process(delta: float) -> void:
 		if packet is Dictionary:
 			player.touch_move = Vector2(float(packet.x),float(packet.y)).limit_length()
 			touch_fire = bool(packet.fire)
+			touch_interact = bool(packet.get("interact",false))
 			if state=="RUNNING":
 				if bool(packet.blocked) or bool(packet.pause):
 					pause_run()
@@ -715,6 +769,7 @@ func update_spawns(delta: float) -> void:
 	spark(pos+Vector3(0,.1,0),Color("f2d084"),.25,.4)
 
 func shoot() -> void:
+	if objective_focus!=null:return
 	if state!="RUNNING" or not rules.active or fire_time>0 or reload_time>0 or respawn_time>0:return
 	if ammo<=0:
 		reload_weapon()
@@ -812,6 +867,7 @@ func update_player_bullets(delta: float) -> void:
 		else:b.node.global_position = to
 
 func reload_weapon() -> void:
+	if objective_focus!=null:return
 	if ammo>=MAGAZINE_SIZE or reload_time>0 or respawn_time>0 or state!="RUNNING":return
 	reload_start_ammo = ammo
 	reload_time = RELOAD_DURATION
@@ -873,9 +929,11 @@ func damage_player(amount: float = 34.0) -> void:
 	since_damage = 0
 	hud.damage = .8
 	play_sound("hurt",-8)
+	if objective_focus:objective_focus.cancel()
 	if health<=0:
 		rules.deaths += 1
-		respawn_time = RESPAWN_DELAY
+		rules.report_death()
+		respawn_time = RESPAWN_DELAY if rules.respawn_allowed else 0
 		reload_time = 0
 		fire_time = 0
 		player.enabled = false
@@ -1016,3 +1074,49 @@ func barrel_blast(center: Vector3, radius: float, source: StaticBody3D) -> void:
 	var tween = ring.create_tween()
 	tween.tween_property(ring,"scale",Vector3(radius,.15,radius),.35)
 	tween.tween_callback(ring.queue_free)
+
+func interact_held() -> bool:
+	return touch_interact if touch_mode else Input.is_action_pressed("interact")
+
+func settle_rules() -> void:
+	if state!="RUNNING":return
+	rules.settle()
+	if objective_focus and rules.completed.has(objective_focus.objective_id):objective_focus.mark_defused()
+	if not rules.active:finish_run()
+
+func select_session(resource: Resource) -> void:
+	if state!="TITLE" or switching_session:return
+	switching_session = true
+	title_frame_ready = false
+	load_ticket += 1
+	clear_round()
+	remove_child(arena)
+	arena.queue_free()
+	session = resource
+	rules = session.make_rules()
+	var cfg = ConfigFile.new()
+	if not qa_mode and cfg.load("user://record.cfg")==OK:best_mission = float(cfg.get_value(mission_record_key(),"fastest",0.0))
+	nav_ready = false
+	arena = session.map_scene.instantiate()
+	arena.game = self
+	add_child(arena)
+	arena.bake_navigation()
+	opening = arena.opening_actors()
+	assert(arena.validate_map(),"Invalid map objectives or patrol markers")
+	player.reset_position()
+	player.enabled = false
+	for attempt in range(300):
+		await get_tree().physics_frame
+		if NavigationServer3D.map_get_iteration_id(get_world_3d().navigation_map)>0:
+			var closest = NavigationServer3D.map_get_closest_point(get_world_3d().navigation_map,arena.player_start().origin)
+			if closest.distance_to(arena.player_start().origin)<1:
+				nav_ready = true
+				break
+	if nav_ready and not arena.validate_navigation():nav_ready = false
+	if not nav_ready:push_error("Map navigation is not ready or targets are unreachable")
+	await capture_opening_frame()
+	switching_session = false
+	hud.rebuild_menu()
+
+func mission_record_key() -> String:
+	return session.session_id+"_v1_"+str(int(rules.duration))

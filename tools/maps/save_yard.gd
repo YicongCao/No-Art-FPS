@@ -39,7 +39,7 @@ func generate() -> void:
 	map.add_to_group("yard_navigation",true)
 	map.nav.bake_navigation_mesh(false)
 	var saved = {}
-	for key in ["structures","barrels","containers","traffic_lights","palms","loungers","pool","warehouse_structure","deck_structure","nav","materials","finale_props","spawn_points"]:saved[key] = map.get(key)
+	for key in ["structures","barrels","containers","traffic_lights","palms","loungers","pool","warehouse_structure","deck_structure","nav","materials","finale_props","spawn_points","boxes"]:saved[key] = map.get(key)
 	var actors = map.opening_actors()
 	var respawns = map.respawn_candidates()
 	var batches = map.find_children("*","MultiMeshInstance3D",true,false)
@@ -59,6 +59,7 @@ func generate() -> void:
 	map.deck_path = map.get_path_to(saved.deck_structure)
 	map.palette_materials = saved.materials
 	map.batch_paths = paths(map,batches)
+	for node in batches:map.batch_transforms[map.get_path_to(node)] = saved.boxes[node.get_meta("palette")]
 	map.decoration_paths = paths(map,saved.finale_props)
 	map.static_collision_paths = paths(map,collision_nodes)
 	var marks = Node3D.new()

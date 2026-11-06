@@ -1,14 +1,28 @@
-"""Bounded Godot checks that reject engine errors even when exit code is zero."""
-import subprocess, sys
+"""Bounded Godot checks; fail immediately on script/engine errors."""
+import subprocess, sys, threading
 from pathlib import Path
 command = ['godot', '--path', '.'] + sys.argv[1:]
+process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+expired = []
+def timeout():
+    expired.append(True)
+    process.kill()
+timer = threading.Timer(240, timeout)
+timer.start()
+lines = []
+failed = False
 try:
-    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=240)
-except subprocess.TimeoutExpired as error:
-    print(error.stdout.decode() if isinstance(error.stdout, bytes) else error.stdout)
-    raise
+    for line in process.stdout:
+        lines.append(line)
+        if 'ERROR:' in line:
+            failed = True
+            process.terminate()
+    process.wait()
+finally:
+    timer.cancel()
+output = ''.join(lines)
 Path('logs').mkdir(exist_ok=True)
-Path('logs/latest-check.log').write_text(result.stdout)
-print(result.stdout if len(result.stdout)<16000 else result.stdout[:8000]+"\n... full log: logs/latest-check.log ...\n"+result.stdout[-4000:])
-if result.returncode or 'ERROR:' in result.stdout:
+Path('logs/latest-check.log').write_text(output)
+print(output if len(output)<16000 else output[:8000]+'\n... logs/latest-check.log ...\n'+output[-4000:])
+if failed or expired or process.returncode:
     raise SystemExit(1)

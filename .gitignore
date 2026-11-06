@@ -6,3 +6,6 @@ builds/
 logs/
 artifacts/local/
 docs/design/reference/
+
+__pycache__/
+*.pyc

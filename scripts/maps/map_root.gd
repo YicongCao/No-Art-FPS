@@ -48,3 +48,15 @@ func uses_patrol(zone: String) -> bool:
 
 func accepts_fast(zone: String) -> bool:
 	return zone=="yard"
+
+func reset_objectives() -> void:
+	pass
+
+func cancel_interaction() -> void:
+	if game and game.objective_focus:game.objective_focus.cancel()
+
+func validate_map() -> bool:
+	return true
+
+func validate_navigation() -> bool:
+	return true

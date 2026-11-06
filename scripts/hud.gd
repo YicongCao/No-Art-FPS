@@ -313,10 +313,17 @@ func rebuild_menu() -> void:
 		fire_button.pivot_offset = fire_button.size*.5
 		fire_button.button_down.connect(func():fire_button.scale = Vector2.ONE*.96)
 		fire_button.button_up.connect(func():fire_button.scale = Vector2.ONE)
+		var mode_x = size.x-370 if not game.touch_mode else size.x-300
+		menu_button("SCORE ATTACK",Rect2(mode_x,size.y*.5-75,260,62),"arena",not game.rules.mission)
+		menu_button("DEFUSE C4",Rect2(mode_x,size.y*.5+5,260,62),"defuse",game.rules.mission)
 
 	elif menu_state == "RESULTS":
-		results_button(RETRY_ICON,Rect2(c.x-174,c.y+106,160,88),"retry",true,"重试 · Enter")
-		results_button(HOME_ICON,Rect2(c.x+14,c.y+106,160,88),"menu",false,"返回标题 · Esc")
+		if game.rules.mission:
+			menu_button("RETRY",Rect2(c.x-174,c.y+106,160,70),"retry",true,"重试 · Enter")
+			menu_button("TITLE",Rect2(c.x+14,c.y+106,160,70),"menu",false,"返回标题 · Esc")
+		else:
+			results_button(RETRY_ICON,Rect2(c.x-174,c.y+106,160,88),"retry",true,"重试 · Enter")
+			results_button(HOME_ICON,Rect2(c.x+14,c.y+106,160,88),"menu",false,"返回标题 · Esc")
 	elif menu_state == "PAUSED":
 		menu_button("RESUME",Rect2(c.x-200,c.y-150,400,64 if game.touch_mode else 60),"resume",true,"Esc")
 		menu_button("RESTART",Rect2(c.x-200,c.y-74,400,64 if game.touch_mode else 56),"retry",false,"Enter")
@@ -383,6 +390,14 @@ func draw_results() -> void:
 	card.shadow_size = 14
 	draw_style_box(card,Rect2(c-Vector2(238,220),Vector2(476,440)))
 	draw_line(c+Vector2(-46,-219),c+Vector2(46,-219),GOLD,3)
+	if game.rules.mission:
+		var success = game.rules.outcome=="SUCCESS"
+		label("DEFUSED" if success else "FAILED",c+Vector2(0,-125),56,GOLD if success else WHITE,true)
+		label("%d / 3 C4"%game.rules.completed.size(),c+Vector2(0,-53),34,WHITE,true)
+		var detail = "%.1f s"%game.rules.elapsed if success else ("TIME EXPIRED" if game.rules.outcome=="TIMEOUT" else "KILLED")
+		label(detail,c+Vector2(0,8),26,WHITE,true)
+		if success and game.best_mission>0:label("BEST %.1f s"%game.best_mission,c+Vector2(0,54),20,GOLD,true)
+		return
 	var score = str(game.rules.kills)
 	var score_size = 104 if score.length()<=3 else 80
 	var width = font.get_string_size(score,HORIZONTAL_ALIGNMENT_LEFT,-1,score_size).x
@@ -447,24 +462,27 @@ func _draw() -> void:
 	draw_set_transform(Vector2.ZERO)
 	draw_line(Vector2(c.x+18,33),Vector2(c.x+18,64),Color(1,1,1,.4),1)
 	var score_center = Vector2(c.x+65,51)
-	var burst = kill_pop/.5
-	var strength = .65+float(mini(kill_group,3)-1)*.4
-	if game.reduced_motion:strength *= .25
-	var score_scale = 1.0+sin(burst*PI)*strength
-	draw_set_transform(score_center,0,Vector2.ONE*score_scale)
-	label("%02d"%game.rules.kills,Vector2(0,13),38,WHITE.lerp(GOLD,burst),true)
-	draw_set_transform(Vector2.ZERO)
-	if burst>0:
-		var rays = 8+2*(mini(kill_group,3)-1)
-		for i in range(rays):
-			var direction = Vector2.from_angle(float(i)*TAU/rays)
-			var radius = 27+(1-burst)*(40+10*(mini(kill_group,3)-1))
-			draw_line(score_center+direction*radius,score_center+direction*(radius+8*burst),Color(1,.83,.44,burst),2)
-	if multi_time>0:
-		var alpha = smoothstep(0,.35,multi_time)
-		var offset = (1-multi_time/.65)*16
-		label("+"+str(kill_group),score_center+Vector2(0,64-offset),30,Color(GOLD,alpha),true)
-	label("KILLS",Vector2(c.x+122,61),14,WHITE,true)
+	if game.rules.mission:
+		label("%d/3 C4"%game.rules.completed.size(),score_center+Vector2(22,13),32,GOLD,true)
+	else:
+		var burst = kill_pop/.5
+		var strength = .65+float(mini(kill_group,3)-1)*.4
+		if game.reduced_motion:strength *= .25
+		var score_scale = 1.0+sin(burst*PI)*strength
+		draw_set_transform(score_center,0,Vector2.ONE*score_scale)
+		label("%02d"%game.rules.kills,Vector2(0,13),38,WHITE.lerp(GOLD,burst),true)
+		draw_set_transform(Vector2.ZERO)
+		if burst>0:
+			var rays = 8+2*(mini(kill_group,3)-1)
+			for i in range(rays):
+				var direction = Vector2.from_angle(float(i)*TAU/rays)
+				var radius = 27+(1-burst)*(40+10*(mini(kill_group,3)-1))
+				draw_line(score_center+direction*radius,score_center+direction*(radius+8*burst),Color(1,.83,.44,burst),2)
+		if multi_time>0:
+			var alpha = smoothstep(0,.35,multi_time)
+			var offset = (1-multi_time/.65)*16
+			label("+"+str(kill_group),score_center+Vector2(0,64-offset),30,Color(GOLD,alpha),true)
+		label("KILLS",Vector2(c.x+122,61),14,WHITE,true)
 	if game.respawn_time<=0:
 		var gap = 5+shot*24
 		if hit>0:
@@ -484,6 +502,14 @@ func _draw() -> void:
 		label("GO",c+Vector2(0,22),70,Color(WHITE,opacity),true)
 	if state=="RUNNING" and destroy_time>0:
 		label("DESTROY",c+Vector2(0,22),64,Color(GOLD,smoothstep(0,.8,destroy_time)),true)
+	if game.rules.mission:
+		for objective in game.arena.objectives:
+			if objective.available():
+				label("HOLD TO DEFUSE" if game.touch_mode else "HOLD E TO DEFUSE",c+Vector2(0,82),24,GOLD,true)
+				if objective.progress>0:
+					draw_line(c+Vector2(-80,105),c+Vector2(80,105),Color(WHITE,.3),4)
+					draw_line(c+Vector2(-80,105),c+Vector2(-80+160*objective.progress/objective.defuse_duration,105),GOLD,4)
+				break
 	if damage>0:
 		draw_line(Vector2(c.x-30,c.y+44),Vector2(c.x+30,c.y+44),Color(1,.35,.2,damage),3)
 

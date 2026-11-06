@@ -1,6 +1,7 @@
 extends CharacterBody3D
 
 var game: Node
+var patrol_brain: Node
 var visual: Node3D
 var agent: NavigationAgent3D
 var health = 3
@@ -108,6 +109,9 @@ func _physics_process(delta: float) -> void:
 		if death_time > 1.4:queue_free()
 		return
 	if game.state != "RUNNING":return
+	if patrol_brain!=null:
+		patrol_brain.advance(delta)
+		return
 	if burn_ticks>0:
 		burn_time -= delta
 		if burn_time<=0:
