@@ -20,7 +20,7 @@ Alternatively, import `project.godot` in Godot 4.7.2 and press F6/F5 as appropri
 
 ### Browser build
 
-Play online: **[fps.yicong.me](https://fps.yicong.me/)** — desktop keyboard/mouse or landscape touch controls. Current release: `20261106-v4`.
+Play online: **[fps.yicong.me](https://fps.yicong.me/)** — desktop keyboard/mouse or landscape touch controls. Current release: `20261106-v5` (runtime commit `b2cbab2`).
 
 Install the matching Godot 4.7.2 Web export templates, then run:
 
