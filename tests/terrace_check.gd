@@ -15,8 +15,22 @@ func _ready() -> void:
 		assert(path.size()>1 and path[-1].distance_to(target)<.7,"Terrace path disconnected: "+str(target))
 	print("TERRACE_NAV_LOOP_POOL_PASS")
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	# Both outer wings used to have a hole between the old landing and new terrace.
+	for x in [-8.3,7.7]:
+		for direction in [-1,1]:
+			game.player.position = Vector3(x,3.15,-11.3 if direction==-1 else -14.2)
+			game.player.velocity = Vector3.ZERO
+			game.player.rotation.y = 0 if direction==-1 else PI
+			Input.action_press("forward")
+			for frame in range(29):
+				await get_tree().physics_frame
+				assert(game.player.position.y>3.0,"Landing/terrace seam must support every step")
+			Input.action_release("forward")
+			assert(game.player.position.z<-13.6 if direction==-1 else game.player.position.z>-11.9)
+	print("TERRACE_BOTH_SEAMS_PASS")
 	# Walk from the stair landing into the terrace, then down and out of the pool.
 	game.player.position = Vector3(-4,3.15,-11)
+	game.player.velocity = Vector3.ZERO
 	game.player.rotation.y = 0
 	Input.action_press("forward")
 	await get_tree().create_timer(1.35).timeout
@@ -49,6 +63,7 @@ func _ready() -> void:
 	game.set_physics_process(false)
 	game.rules.elapsed = 13
 	game.ammo = 16
+	await shot("terrace-seam",Vector3(-9.9,4.75,-9.6),Vector3(-5.5,3.1,-14.3))
 	await shot("pool-terrace",Vector3(-6,4.75,-12.9),Vector3(1.5,3.4,-18.5))
 	await shot("pool-loungers",Vector3(3,4.75,-12.5),Vector3(-4.5,3.7,-18.5))
 	await shot("pool-entry",Vector3(1,4.75,-13.7),Vector3(1,3,-18))

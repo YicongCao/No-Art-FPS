@@ -159,14 +159,14 @@ func build() -> void:
 	container("cream",Vector3(-11,0,-10))
 	# Long rear warehouse and elevated deck.
 	solid(Vector3(0,1.45,-11),Vector3(13,2.9,4),"yellow")
-	solid(Vector3(0,3,-11),Vector3(13.5,.2,4.4),"purple")
+	# Full-width landing meets the terrace at z=-13.2, including both outer wings.
+	solid(Vector3(0,3,-11),Vector3(18,.2,4.4),"purple")
 	for x in [-5,-1,3]:
 		solid(Vector3(x,1.3,-8.97),Vector3(2.0,2.6,.06),"cream",false)
 		solid(Vector3(x+1,1.4,-8.92),Vector3(.06,2.8,.08),"ink",false)
 	stairs(-11,-1.5,3,7,2.6)
 	stairs(7.6,-2,3,7,2.2)
-	solid(Vector3(-8.8,3,-9.7),Vector3(5.6,.2,2.6),"purple")
-	solid(Vector3(7.1,3,-10),Vector3(2,.2,2),"purple")
+	solid(Vector3(-10.3,3,-9.7),Vector3(2.6,.2,2.6),"purple")
 	rail(Vector3(-6.5,3.1,-8.85),Vector3(6.5,3.1,-8.85))
 	pool_terrace()
 	# Blue lookout frame breaks the skyline.
@@ -228,10 +228,10 @@ func batch_boxes() -> void:
 func pool_terrace() -> void:
 	# Extend the landing into a loop around a shallow pool, keeping both stairs clear.
 	for slab in [
-		[Vector3(-5.5,3,-18),Vector3(7,.2,11)],
-		[Vector3(6.5,3,-18),Vector3(5,.2,11)],
+		[Vector3(-5.5,3,-18.35),Vector3(7,.2,10.3)],
+		[Vector3(6.5,3,-18.35),Vector3(5,.2,10.3)],
 		[Vector3(1,3,-22.5),Vector3(6,.2,2)],
-		[Vector3(1,3,-13.5),Vector3(6,.2,2)]]:
+		[Vector3(1,3,-13.85),Vector3(6,.2,1.3)]]:
 		solid(slab[0],slab[1],"cream")
 	for x in [-8.6,8.6]:
 		for z in [-14,-21.6]:solid(Vector3(x,1.5,z),Vector3(.25,3,.25),"blue")
