@@ -25,6 +25,10 @@ func _ready() -> void:
 	assert(sequence==["FILL","SEAT","REVEAL","DOCK","DONE"])
 	print("LOADING_MODEL_WAIT_CAP_PASS")
 	await get_tree().process_frame
+	assert(not game.hud.menu.has_node("defuse"))
+	press_dust_shortcut(false)
+	game.menu_action("defuse")
+	assert(not game.dust_unlocked and not game.rules.mission and not game.hud.menu.has_node("defuse"))
 	await capture("title-fire")
 	assert(game.title_frame_ready and game.hud.title_frame!=null)
 	captures["opening-frame"] = game.hud.title_frame.get_image()
@@ -43,16 +47,7 @@ func _ready() -> void:
 	assert(button.get_theme_color("font_color")==Color.WHITE)
 	assert(button.get_theme_stylebox("normal").bg_color==Color("754c87"))
 	assert(button.get_theme_font("font").resource_path=="res://assets/fonts/Rajdhani-Bold.ttf")
-	var point = button.get_global_rect().get_center()
-	var motion = InputEventMouseMotion.new()
-	motion.position = point
-	get_viewport().push_input(motion,true)
-	for pressed in [true,false]:
-		var event = InputEventMouseButton.new()
-		event.position = point
-		event.button_index = MOUSE_BUTTON_LEFT
-		event.pressed = pressed
-		get_viewport().push_input(event,true)
+	click_button(button)
 	assert(game.state=="LOADING","FIRE click starts loading immediately")
 	var audio_start = game.audio_index
 	var ticket = game.load_ticket
@@ -162,7 +157,21 @@ func _ready() -> void:
 		if game.state=="RUNNING":break
 		await get_tree().process_frame
 	assert(game.state=="RUNNING" and game.live_enemies().size()==8 and game.hud.go_time>.7)
-	game.state = "RESULTS"
+	press_dust_shortcut(true)
+	assert(not game.dust_unlocked,"The shortcut is only active on the title screen")
+	game.finish_run()
+	game.menu_action("menu")
+	await get_tree().process_frame
+	press_dust_shortcut(true)
+	assert(game.dust_unlocked and game.hud.menu.has_node("defuse"))
+	assert(not game.rules.mission,"Unlocking shows the button without selecting Dust")
+	click_button(game.hud.menu.get_node("defuse"))
+	for frame in range(300):
+		if not game.switching_session:break
+		await get_tree().physics_frame
+	assert(game.rules.mission and game.arena.map_id=="dust_flavor" and game.nav_ready and game.title_frame_ready)
+	assert(game.hud.menu.has_node("defuse"),"The entry remains available after switching maps")
+	print("DUST_TITLE_UNLOCK_PASS")
 	game.clear_round()
 	for filename in captures:captures[filename].save_png("res://artifacts/"+filename+".png")
 	await get_tree().create_timer(.3).timeout
@@ -177,3 +186,23 @@ func capture(filename: String) -> void:
 func background_patch(image: Image) -> Image:
 	# Outside both the title text and the central loading magazine.
 	return image.get_region(Rect2i(int(image.get_width()*.72),int(image.get_height()*.16),120,90))
+
+func click_button(button: Button) -> void:
+	var point = button.get_global_rect().get_center()
+	var motion = InputEventMouseMotion.new()
+	motion.position = point
+	get_viewport().push_input(motion,true)
+	for pressed in [true,false]:
+		var event = InputEventMouseButton.new()
+		event.position = point
+		event.button_index = MOUSE_BUTTON_LEFT
+		event.pressed = pressed
+		get_viewport().push_input(event,true)
+
+func press_dust_shortcut(with_shift: bool) -> void:
+	var event = InputEventKey.new()
+	event.physical_keycode = KEY_9
+	event.ctrl_pressed = true
+	event.shift_pressed = with_shift
+	event.pressed = true
+	get_viewport().push_input(event,true)

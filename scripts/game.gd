@@ -69,6 +69,7 @@ var touch_mode = false
 var touch_fire = false
 var web_ui_state = ""
 var switching_session = false
+var dust_unlocked = false
 var objective_focus: Node3D
 var touch_interact = false
 var best_mission = 0.0
@@ -592,6 +593,12 @@ func pause_run() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func _unhandled_input(event: InputEvent) -> void:
+	if state=="TITLE" and not dust_unlocked and event is InputEventKey:
+		if event.pressed and not event.echo and event.physical_keycode==KEY_9 and event.ctrl_pressed and event.shift_pressed and not event.alt_pressed and not event.meta_pressed:
+			dust_unlocked = true
+			hud.rebuild_menu()
+			get_viewport().set_input_as_handled()
+			return
 	if event.is_action_pressed("pause"):
 		if state=="LOADING":cancel_loading()
 		elif state=="RUNNING":pause_run()
@@ -615,7 +622,8 @@ func menu_action(action: String) -> void:
 		"arena":
 			select_session(DefaultSession)
 		"defuse":
-			select_session(load("res://data/sessions/defuse.tres"))
+			if dust_unlocked:
+				select_session(load("res://data/sessions/defuse.tres"))
 		"resume":
 			if state != "PAUSED":return
 			state = "CAPTURING" if OS.has_feature("web") and not touch_mode else previous_state
