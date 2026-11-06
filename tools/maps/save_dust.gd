@@ -110,6 +110,10 @@ func generate() -> void:
 		map.add_child(objective);objective.position = position_from_source(data[1])+Vector3.UP*.45
 		objective.objective_id = data[0]
 		var model = load("res://assets/models/dust_flavor/c4.glb").instantiate();model.name = "Visual";objective.add_child(model)
+		var stand = MeshInstance3D.new();stand.name = "Mount"
+		var stand_mesh = BoxMesh.new();stand_mesh.size = Vector3(.5,.45,.3)
+		stand.mesh = stand_mesh;stand.material_override = palette["timber"]
+		stand.position.y = -.225;objective.add_child(stand)
 		var label = Label3D.new();label.name = "Indicator";label.text = "C4";label.position.y = .65
 		label.billboard = BaseMaterial3D.BILLBOARD_ENABLED;label.font_size = 32;label.pixel_size = .0025
 		label.modulate = Color("f2d084");objective.add_child(label)

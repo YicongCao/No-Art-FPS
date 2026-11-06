@@ -1,8 +1,8 @@
 # No-Art-FPS
 
-A bright, low-poly, sixty-second FPS score attack. Godot 4.7.2 + Blender 5.2.2 LTS.
+A bright, low-poly FPS with a sixty-second score attack and a three-minute C4 survival mission. Godot 4.7.2 + Blender 5.2.2 LTS.
 
-Playable local prototype. A 64×48 m yard with automatic container doors, an enterable warehouse and an upper pool terrace; one automatic rifle, ranged black guards and fast knife enemies, a full 60-second round, and instant retries.
+Playable local prototype with two selectable scenes. The score-attack yard is a 64×48 m yard with automatic container doors, an enterable warehouse and an upper pool terrace; one automatic rifle, ranged black guards and fast knife enemies, a full 60-second round, and instant retries.
 
 ![Godot in-engine visual review](artifacts/showcase-ground.png)
 
@@ -80,7 +80,7 @@ godot --headless --path . --editor --import
 
 `art_source/no_art_kit.blend` is an editable asset library with the models laid out separately. Its source script makes fourteen GLBs, including four container colors, a rifle with hands, the enemy, forklift, barrel, tree, cloud, pallet, crate, steel bundle and traffic light. Audio includes twelve original effects and an original 60-second MIDI composition rendered for runtime playback. The HUD uses bundled SIL-OFL Rajdhani Bold; its license is in assets/fonts/. The magazine uses a bundled imagegen sprite atlas; its generation prompt and source details are in [assets/ui/README.md](assets/ui/README.md).
 
-The yard is assembled in `scripts/arena.gd`; static collisions also supply the runtime navigation bake. Repeated box scenery and fence lattice are batched by material. The reference recording and extracted reference frames stay local and are Git-ignored.
+The yard layout is stored in `scenes/maps/yard.tscn`; `scripts/arena.gd` binds map components and handles reset/navigation. Static collisions supply the baked navigation. Repeated box scenery and fence lattice are batched by material. The reference recording and extracted reference frames stay local and are Git-ignored.
 
 ## Verify
 
@@ -88,6 +88,10 @@ The yard is assembled in `scripts/arena.gd`; static collisions also supply the r
 node tests/mobile_input_test.mjs
 node tests/gyro_test.mjs
 godot --headless --path . --script tests/rules_test.gd
+godot --headless --path . --script tests/defuse_rules_test.gd
+godot --headless --path . --script tests/map_scene_test.gd
+godot --path . -- --mission --qa --mission-check
+godot --path . -- --mission --qa --mission-route --live-patrols
 godot --path . -- --qa --check
 godot --path . -- --qa
 godot --path . -- --qa --benchmark
@@ -120,13 +124,15 @@ The final fifteen seconds enable DESTROY rounds. At one second remaining, every 
 
 `--results-ui` exercises both icon buttons with actual viewport mouse events, checks new/best and three-digit score layouts at 1280×720 and 960×540, and verifies retry completes loading. The four original imagegen assets and exact prompts are in [assets/ui/results/README.md](assets/ui/results/README.md).
 
-Latest update: [cartridge insertion audio](docs/updates/2026-11-06-cartridge-audio.md). Earlier: [title styling and stair landing fix](docs/updates/2026-11-06-title-and-stair-landings.md), [FIRE title and magazine loading transition](docs/updates/2026-11-06-fire-loading-transition.md). Next directions: [shooting feedback and combat pressure](docs/design/shooting-feel-next.md). Earlier: [sequential reload](docs/updates/2026-11-06-cartridge-reload.md), [five-second respawn](docs/updates/2026-11-06-seams-and-respawn.md), [wall graffiti](docs/updates/2026-11-06-wall-graffiti.md), [pool terrace](docs/updates/2026-11-06-poolside-playbox.md). MIDI: [sixty.mid](assets/music/sixty.mid).
+Latest update: [Dust-flavor defuse mission](docs/updates/2026-11-06-defuse-mission.md), [map scene migration](docs/updates/2026-11-06-map-scene-migration.md). Earlier: [cartridge insertion audio](docs/updates/2026-11-06-cartridge-audio.md). Earlier: [title styling and stair landing fix](docs/updates/2026-11-06-title-and-stair-landings.md), [FIRE title and magazine loading transition](docs/updates/2026-11-06-fire-loading-transition.md). Next directions: [shooting feedback and combat pressure](docs/design/shooting-feel-next.md). Earlier: [sequential reload](docs/updates/2026-11-06-cartridge-reload.md), [five-second respawn](docs/updates/2026-11-06-seams-and-respawn.md), [wall graffiti](docs/updates/2026-11-06-wall-graffiti.md), [pool terrace](docs/updates/2026-11-06-poolside-playbox.md). MIDI: [sixty.mid](assets/music/sixty.mid).
 
 Player-facing copy for review: [game text inventory](docs/review/game-text-review.md), with current strings, display conditions, source locations and menu screenshots.
 
 Results and screenshots: [implementation and validation notes](docs/implementation.md). Design background: [initial playbox plan](docs/design/No-Art-FPS-playbox-plan.md).
 
-Planned second map: [scene migration and Dust2 defuse mission](docs/design/2026-11-06-map-scenes-localization-plan.md). The proposed mission requires defusing three planted C4 objectives within two to three minutes while surviving patrols. This is a design plan; the current playable mode remains the sixty-second score attack.
+Implemented second map: [Dust-flavor defuse mission](docs/updates/2026-11-06-defuse-mission.md). Choose DEFUSE C4 on the title, then FIRE. Defuse three planted C4 within 180 seconds and survive eight patrol guards. Hold E for five seconds while stationary within reach and direct sight; damage, movement, release or pause cancels progress. Touch devices use the labelled hold button. Death or timeout fails; the third completed objective succeeds. This mode has no respawn, reinforcements, DESTROY or global blast. Mission records are separate from score attack.
+
+Both maps now use `.tscn` layouts. Edit [yard.tscn](scenes/maps/yard.tscn) or [dust_flavor.tscn](scenes/maps/dust_flavor.tscn) in Godot, adjust geometry/markers and rebake Navigation after collision changes. Offline scene generators overwrite the scene; they are for rebuilding, not routine edits. The original map generator is retained under `tools/maps/` and does not run during play. [Migration notes](docs/updates/2026-11-06-map-scene-migration.md).
 
 ## Local workflow
 

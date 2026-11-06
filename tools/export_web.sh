@@ -9,6 +9,7 @@ touch builds/.gdignore
 cp web/icon.svg web/gyro.js builds/web/
 cp assets/fonts/OFL.txt builds/web/FONT-LICENSE.txt
 cp web/GODOT-LICENSE.txt web/GODOT-COPYRIGHT.txt builds/web/
+cp tools/vendor/LICENSE-dust2.txt builds/web/DUST-LICENSE.txt
 # The custom shell uses our SVG, not Godot's generated splash/icon.
 python3 - <<'PY'
 from pathlib import Path
