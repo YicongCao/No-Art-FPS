@@ -18,13 +18,15 @@ On this Mac, double-click **Play No-Art-FPS.command**, or run:
 
 Alternatively, import `project.godot` in Godot 4.7.2 and press F6/F5 as appropriate. The main scene is `scenes/main.tscn`. The launcher uses the locally installed Godot executable; this is not yet a separately exported, signed application.
 
-- Enter / Play: start. Three-second countdown, then 60 seconds of combat.
+- Enter / FIRE: load the round, then a three-second countdown and 60 seconds of combat.
 - WASD: move. Mouse: look. Left mouse: automatic fire. Space: jump.
 - R: reload. Empty magazines reload automatically; reserve ammunition is unlimited.
 - Escape: pause / resume. Losing focus also pauses.
 - Enter on results or pause: retry. Escape on results: title.
 - Pause menu: use Resume/Restart, the sensitivity and music-volume sliders, and the camera-motion toggle. `-` / `+` and M remain available as shortcuts.
 - Results: Retry and Menu are clickable; Enter and Escape still work.
+
+FIRE opens a solid-color loading screen with a large magazine that fills as the round is prepared. Unknown remaining work advances only to seventeen rounds. After real completion, it fills the final three, dips and snaps back; the background reveals the world from the center outward, then the magazine shrinks into the lower-right HUD. Only then does the countdown start. Escape cancels loading; returning focus resumes a suspended transition.
 
 Enemy targets rise from 8 to 10 to 12 across the three 20-second phases. Two patrols occupy the warehouse and two occupy the upper deck, with reserved reinforcement slots; other enemies roam the yard. Reinforcements appear outside direct view and at least eight metres away.
 
@@ -74,6 +76,7 @@ godot --path . -- --qa --containers
 godot --path . -- --qa --terrace
 godot --path . -- --qa --graffiti
 godot --path . -- --qa --respawn
+godot --path . -- --qa --loading
 ```
 
 The first command tests score and timer boundaries. `--check` exercises normal collision movement on both ramps, live head/body raycasts, wall blocking, pause, reload, respawn, and ten restarts. `--qa` runs a real-time full-minute automatic aiming session, with scripted viewpoint changes. `--population` checks patrol retention, regional reinforcements, population caps and safe spawn distances/visibility. The short benchmark runs twelve enemies with VSync disabled. These flags are development-only test helpers, not normal gameplay modes.
@@ -82,7 +85,7 @@ The first command tests score and timer boundaries. `--check` exercises normal c
 
 `--magazine` counts rendered cartridges during firing and sequential loading, checks seating/return timing and exactly 54 ticks per reload, automatic/manual reload, pause, death cancellation and restart, then verifies the HUD in a 960×540 window.
 
-Latest update: [sequential cartridge loading](docs/updates/2026-11-06-cartridge-reload.md). Next directions: [shooting feedback and combat pressure](docs/design/shooting-feel-next.md). Earlier: [platform seams and five-second respawn](docs/updates/2026-11-06-seams-and-respawn.md), [wall graffiti](docs/updates/2026-11-06-wall-graffiti.md), [pool terrace](docs/updates/2026-11-06-poolside-playbox.md). MIDI: [sixty.mid](assets/music/sixty.mid).
+Latest update: [FIRE title and magazine loading transition](docs/updates/2026-11-06-fire-loading-transition.md). Next directions: [shooting feedback and combat pressure](docs/design/shooting-feel-next.md). Earlier: [sequential reload](docs/updates/2026-11-06-cartridge-reload.md), [five-second respawn](docs/updates/2026-11-06-seams-and-respawn.md), [wall graffiti](docs/updates/2026-11-06-wall-graffiti.md), [pool terrace](docs/updates/2026-11-06-poolside-playbox.md). MIDI: [sixty.mid](assets/music/sixty.mid).
 
 Player-facing copy for review: [game text inventory](docs/review/game-text-review.md), with current strings, display conditions, source locations and menu screenshots.
 

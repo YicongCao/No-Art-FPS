@@ -10,6 +10,7 @@ var time_pulse = 0.0
 var health_shade = 0.0
 var feed_shift = 0.0
 var ejections: Array[float] = []
+var loading_cover: ColorRect
 var vignette: ColorRect
 var menu: Control
 var menu_state = ""
@@ -59,7 +60,11 @@ func magazine_rect() -> Rect2:
 
 func cartridge_rect(index: int) -> Rect2:
 	# A single horizontal row feeds right; each sprite points up.
-	return Rect2(magazine_rect().position+Vector2(368-index*16,24)*MAGAZINE_SCALE,Vector2(12.15,45)*MAGAZINE_SCALE)
+	return round_rect(magazine_rect(),index)
+
+func round_rect(body: Rect2, index: int) -> Rect2:
+	var scale_factor = body.size.x/420.0
+	return Rect2(body.position+Vector2(368-index*16,24)*scale_factor,Vector2(12.15,45)*scale_factor)
 
 func ammo_fired() -> void:
 	feed_shift = FEED_TIME
@@ -69,19 +74,12 @@ func reset_magazine() -> void:
 	feed_shift = 0
 	ejections.clear()
 
-func draw_round(region: Rect2, center: Vector2, extent: Vector2, angle: float = -PI*.5, alpha: float = 1.0) -> void:
+func draw_round(region: Rect2, center: Vector2, extent: Vector2, angle: float = -PI*.5, alpha: float = 1.0, scale_factor: float = MAGAZINE_SCALE) -> void:
 	draw_set_transform(center,angle)
-	draw_texture_rect_region(MAGAZINE_ATLAS,Rect2(-extent*.5*MAGAZINE_SCALE,extent*MAGAZINE_SCALE),region,Color(1,1,1,alpha))
+	draw_texture_rect_region(MAGAZINE_ATLAS,Rect2(-extent*.5*scale_factor,extent*scale_factor),region,Color(1,1,1,alpha))
 	draw_set_transform(Vector2.ZERO)
 
 func draw_magazine() -> void:
-	var body = magazine_rect()
-	# The generated chamber has soft alpha; keep world/gun colors from bleeding through.
-	draw_rect(Rect2(body.position+Vector2(30,16)*MAGAZINE_SCALE,Vector2(376,60)*MAGAZINE_SCALE),INK.darkened(.35))
-	# Rotate the generated empty shell so its feed lips face the right edge.
-	draw_set_transform(body.get_center(),PI*.5)
-	draw_texture_rect_region(MAGAZINE_ATLAS,Rect2(-Vector2(body.size.y,body.size.x)*.5,Vector2(body.size.y,body.size.x)),MAGAZINE_REGION)
-	draw_set_transform(Vector2.ZERO)
 	var count = clampi(game.ammo,0,game.MAGAZINE_SIZE)
 	var shift = 16*feed_shift/FEED_TIME
 	var incoming = 0.0
@@ -90,14 +88,24 @@ func draw_magazine() -> void:
 		count = mini(game.MAGAZINE_SIZE,game.reload_start_ammo+int(fed))
 		incoming = smoothstep(0,1,fmod(fed,1.0)) if count<game.MAGAZINE_SIZE else 0.0
 		shift = 16*incoming
+	draw_magazine_body(magazine_rect(),count,shift,incoming,true)
+
+func draw_magazine_body(body: Rect2, count: int, shift: float, incoming: float, eject: bool = false) -> void:
+	var scale_factor = body.size.x/420.0
+	# Both loading and gameplay render exactly the same shell and cartridge geometry.
+	draw_rect(Rect2(body.position+Vector2(30,16)*scale_factor,Vector2(376,60)*scale_factor),INK.darkened(.35))
+	draw_set_transform(body.get_center(),PI*.5)
+	draw_texture_rect_region(MAGAZINE_ATLAS,Rect2(-Vector2(body.size.y,body.size.x)*.5,Vector2(body.size.y,body.size.x)),MAGAZINE_REGION)
+	draw_set_transform(Vector2.ZERO)
 	for i in range(count):
-		var center = cartridge_rect(i).get_center()-Vector2(shift,0)*MAGAZINE_SCALE
-		draw_round(CARTRIDGE_REGION,center,Vector2(45,12.15))
+		var center = round_rect(body,i).get_center()-Vector2(shift,0)*scale_factor
+		draw_round(CARTRIDGE_REGION,center,Vector2(45,12.15),-PI*.5,1,scale_factor)
 	if incoming>0:
-		var center = cartridge_rect(0).get_center()+Vector2(42*(1-incoming),0)*MAGAZINE_SCALE
-		draw_round(CARTRIDGE_REGION,center,Vector2(45,12.15),-PI*.5,minf(1,incoming*4))
+		var center = round_rect(body,0).get_center()+Vector2(42*(1-incoming),0)*scale_factor
+		draw_round(CARTRIDGE_REGION,center,Vector2(45,12.15),-PI*.5,minf(1,incoming*4),scale_factor)
+	if not eject:return
 	for age in ejections:
-		var origin = cartridge_rect(0).get_center()
+		var origin = round_rect(body,0).get_center()
 		var t = age/EJECTION_TIME
 		var alpha = 1.0-smoothstep(.6,1.0,t)
 		var travel = Vector2(64*t,-105*t+150*t*t)
@@ -105,9 +113,24 @@ func draw_magazine() -> void:
 		if game.reduced_motion:
 			travel = Vector2(16*t,-10*t)
 			rotation_amount = t*.5
-		draw_round(CASING_REGION,origin+travel*MAGAZINE_SCALE,Vector2(31.5,12.15),-PI*.5+rotation_amount,alpha)
+		draw_round(CASING_REGION,origin+travel*scale_factor,Vector2(31.5,12.15),-PI*.5+rotation_amount,alpha,scale_factor)
 		if age<.12:
-			draw_round(TIP_REGION,origin+Vector2(0,-23-age*420)*MAGAZINE_SCALE,Vector2(13.5,9.45),-PI*.5,1-age/.12)
+			draw_round(TIP_REGION,origin+Vector2(0,-23-age*420)*scale_factor,Vector2(13.5,9.45),-PI*.5,1-age/.12,scale_factor)
+
+func loading_magazine_rect() -> Rect2:
+	var extent = Vector2(860,860.0*92/420)
+	var start = Rect2(size*.5-extent*.5,extent)
+	start.position.y += game.loading.seating_offset(game.reduced_motion)*extent.x/420.0
+	var target = magazine_rect()
+	var blend = game.loading.dock_progress()
+	return Rect2(start.position.lerp(target.position,blend),start.size.lerp(target.size,blend))
+
+func sync_loading_cover() -> void:
+	if not is_instance_valid(loading_cover):return
+	loading_cover.visible = game.state=="LOADING"
+	vignette.visible = game.state!="LOADING"
+	loading_cover.material.set_shader_parameter("progress",game.loading.reveal_progress())
+	loading_cover.material.set_shader_parameter("viewport_size",size)
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -121,12 +144,22 @@ func _ready() -> void:
 	vignette.material = shader
 	vignette.show_behind_parent = true
 	add_child(vignette)
+	loading_cover = ColorRect.new()
+	loading_cover.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	loading_cover.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	loading_cover.show_behind_parent = true
+	var cover_material = ShaderMaterial.new()
+	cover_material.shader = preload("res://assets/shaders/loading_reveal.gdshader")
+	loading_cover.material = cover_material
+	add_child(loading_cover)
+	loading_cover.hide()
 	menu = Control.new()
 	menu.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	menu.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(menu)
 
 func _process(delta: float) -> void:
+	sync_loading_cover()
 	if game and game.state == "PAUSED":delta = 0
 	feed_shift = maxf(0,feed_shift-delta)
 	for i in range(ejections.size()):ejections[i] += delta
@@ -215,9 +248,19 @@ func rebuild_menu() -> void:
 	menu_size = size
 	var c = size*.5
 	if menu_state == "TITLE":
+		var title_art = TextureRect.new()
+		title_art.texture = TITLE_ART
+		title_art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		title_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		title_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		title_art.position = Vector2(64,58)
+		title_art.size = Vector2(390,520)
+		title_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		menu.add_child(title_art)
 		fire_button = TextureButton.new()
 		fire_button.name = "fire"
 		fire_button.texture_normal = FIRE_ART
+		fire_button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		fire_button.ignore_texture_size = true
 		fire_button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 		fire_button.position = Vector2(104,size.y-188)
@@ -266,9 +309,14 @@ func _draw() -> void:
 	if game == null:return
 	var c = size*.5
 	var state = game.state
+	if state=="LOADING":
+		var fed = game.loading.rounds
+		var count = mini(20,int(fed))
+		var incoming = smoothstep(0,1,fmod(fed,1.0)) if count<20 else 0.0
+		draw_magazine_body(loading_magazine_rect(),count,16*incoming,incoming)
+		return
 	if state == "TITLE":
 		draw_rect(Rect2(0,0,size.x*.43,size.y),Color(.055,.08,.10,.86))
-		draw_texture_rect(TITLE_ART,Rect2(64,58,390,520),false)
 		if is_instance_valid(fire_button) and fire_button.has_focus():
 			draw_line(Vector2(140,size.y-68),Vector2(368,size.y-68),GOLD,2,true)
 		return

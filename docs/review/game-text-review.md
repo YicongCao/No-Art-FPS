@@ -6,12 +6,14 @@
 
 | 原文 | 位置 / 行为 |
 | --- | --- |
-| `NO` | 左侧标题第一行 |
-| `ART` | 左侧标题第二行 |
-| `FPS` | 左侧标题第三行 |
-| `PLAY` | 开始本局，进入 3 秒准备倒数 |
+| `NO` | 左侧标题第一行，已改为 imagegen 图形字 |
+| `ART` | 左侧标题第二行，同一 PNG 中 |
+| `FPS` | 左侧标题第三行，同一 PNG 中 |
+| `FIRE` | 同风格图形按钮，开始加载转场，完成后进入 3 秒准备倒数 |
 
-![主菜单](../../artifacts/text-review-title.png)
+标题和 FIRE 现在都是透明 PNG，文件及生成提示词在 [assets/ui/title/README.md](../../assets/ui/title/README.md)。加载页没有进度数字或提示文字，只显示弹夹装填与转场。
+
+![主菜单](../../artifacts/title-fire.png)
 
 ## 2. 局内 HUD
 
@@ -59,7 +61,7 @@
 
 | 原文 | 对应按钮 |
 | --- | --- |
-| `Enter` | PLAY、RETRY、RESTART |
+| `Enter` | FIRE、RETRY、RESTART |
 | `Esc` | RESUME、MENU |
 | `M` | LOW / FULL |
 
@@ -85,6 +87,7 @@
 
 | 历史内容 | 当前替代方式 |
 | --- | --- |
+| `PLAY` | 同风格的 FIRE 图形按钮 |
 | `BACK IN A BEAT` | 五秒死亡等待：中央骷髅和圆环。用户提到的 “back in seat” 对应的是这一句 |
 | `RELOADING` | 逐颗推入子弹，装满后轻沉并快速回位；旧进度线也已移除 |
 | 剩余弹药数字（如 `16`） | 横排子弹图形 |
@@ -92,7 +95,7 @@
 
 ## 9. 文本来源与 Review 入口
 
-- HUD、标题、按钮和悬停提示集中在 [scripts/hud.gd](../../scripts/hud.gd)。当前直接写在 GDScript 中，没有独立翻译表或多语言资源。
+- HUD、按钮和悬停提示集中在 [scripts/hud.gd](../../scripts/hud.gd)。HUD/普通菜单文案直接写在 GDScript 中，标题和 FIRE 使用 PNG，没有独立翻译表或多语言资源。
 - 菜单动作与纪录判定在 [scripts/game.gd](../../scripts/game.gd)；应用名和描述在 [project.godot](../../project.godot)。
 - 缺少 Godot 的提示在 [Play No-Art-FPS.command](../../Play%20No-Art-FPS.command)。
 - 涂鸦文字及生成提示词在 [assets/graffiti/README.md](../../assets/graffiti/README.md)。

@@ -5,6 +5,8 @@ const Player = preload("res://scripts/player.gd")
 const Enemy = preload("res://scripts/enemy.gd")
 const Hud = preload("res://scripts/hud.gd")
 const Rules = preload("res://scripts/run_rules.gd")
+const LoadingTransition = preload("res://scripts/loading_transition.gd")
+const OPENING_POSITIONS = [Vector3(-4,0,1.5),Vector3(11,0,1),Vector3(30,0,3),Vector3(30,0,-10),Vector3(-4,3.1,-11),Vector3(4,3.1,-11)]
 var arena: Node3D
 var player: CharacterBody3D
 var hud: Control
@@ -44,6 +46,10 @@ var rng = RandomNumberGenerator.new()
 var qa_mode = false
 var music: AudioStreamPlayer
 var music_volume = .7
+var loading = LoadingTransition.new()
+var load_ticket = 0
+var opening_prepared = false
+var enemy_model: PackedScene
 
 func _ready() -> void:
 	process_physics_priority = -100
@@ -130,6 +136,7 @@ func _ready() -> void:
 		if "--terrace" in OS.get_cmdline_user_args():test_path = "res://tests/terrace_check.gd"
 		if "--graffiti" in OS.get_cmdline_user_args():test_path = "res://tests/graffiti_check.gd"
 		if "--respawn" in OS.get_cmdline_user_args():test_path = "res://tests/respawn_check.gd"
+		if "--loading" in OS.get_cmdline_user_args():test_path = "res://tests/loading_check.gd"
 		var qa = load(test_path).new()
 		qa.game = self
 		add_child(qa)
@@ -154,11 +161,16 @@ func save_record() -> void:
 
 func start_run() -> void:
 	if not nav_ready:return
+	load_ticket += 1
 	clear_round()
+	reset_run_state()
+	state = "READY"
+	if not qa_mode:Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+func reset_run_state() -> void:
 	rng.seed = 61105
 	rules.start()
 	rules.active = false
-	state = "READY"
 	ready_time = 3.0
 	ammo = MAGAZINE_SIZE
 	reload_time = 0
@@ -183,9 +195,127 @@ func start_run() -> void:
 	hud.damage = 0
 	hud.kill_pop = 0
 	hud.reset_magazine()
-	if not qa_mode:Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+func request_run() -> void:
+	if state not in ["TITLE","RESULTS","PAUSED"]:return
+	load_ticket += 1
+	state = "LOADING"
+	loading = LoadingTransition.new()
+	rules.active = false
+	player.enabled = false
+	player.velocity = Vector3.ZERO
+	if music:music.stop()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	hud.reset_magazine()
+	hud.health_shade = 0
+	hud.hit = 0
+	hud.damage = 0
+	hud.kill_pop = 0
+	hud.sync_loading_cover()
+	prepare_loaded_run.call_deferred(load_ticket)
+
+func loading_frame() -> void:
+	await get_tree().process_frame
+	if DisplayServer.get_name()!="headless":await RenderingServer.frame_post_draw
+
+func prepare_loaded_run(ticket: int) -> void:
+	# Show the loading screen before removing/creating any scene nodes.
+	await loading_frame()
+	if ticket!=load_ticket:return
+	opening_prepared = false
+	bullets.clear()
+	for voice in audio_voices:voice.stop()
+	var old_nodes = enemies.get_children()+effects.get_children()
+	for i in range(old_nodes.size()):
+		var node = old_nodes[i]
+		if is_instance_valid(node) and node.get_parent():
+			node.get_parent().remove_child(node)
+			node.queue_free()
+		if i%6==5:
+			await loading_frame()
+			if ticket!=load_ticket:return
+	for barrel in arena.barrels:barrel.reset()
+	for room in arena.containers:room.reset()
+	reset_run_state()
+	loading.report(.1)
+	await loading_frame()
+	if ticket!=load_ticket:return
+	# Clicking before navigation has synchronized remains a visible loading wait.
+	for attempt in range(600):
+		if nav_ready:break
+		await loading_frame()
+		if ticket!=load_ticket:return
+	if not nav_ready:
+		cancel_loading()
+		push_error("Navigation unavailable; returned to title")
+		return
+	loading.report(.2)
+	var path = "res://assets/models/enemy.glb"
+	var error = ResourceLoader.load_threaded_request(path)
+	var existing_status = ResourceLoader.load_threaded_get_status(path)
+	if error!=OK and existing_status not in [ResourceLoader.THREAD_LOAD_IN_PROGRESS,ResourceLoader.THREAD_LOAD_LOADED]:
+		cancel_loading()
+		push_error("Unable to prepare enemy model")
+		return
+	while true:
+		var progress: Array = []
+		var status = ResourceLoader.load_threaded_get_status(path,progress)
+		if not progress.is_empty():loading.report(.2+float(progress[0])*.2)
+		if status==ResourceLoader.THREAD_LOAD_LOADED:
+			enemy_model = ResourceLoader.load_threaded_get(path)
+			break
+		if status in [ResourceLoader.THREAD_LOAD_FAILED,ResourceLoader.THREAD_LOAD_INVALID_RESOURCE]:
+			cancel_loading()
+			push_error("Enemy model loading failed")
+			return
+		await loading_frame()
+		if ticket!=load_ticket:return
+	# Instantiate and render one actor per frame, before the countdown, to warm
+	# imported meshes/materials without a single eight-enemy creation burst.
+	for i in range(OPENING_POSITIONS.size()):
+		var actor = spawn_enemy(OPENING_POSITIONS[i],i==1)
+		actor.look_at(Vector3(player.position.x,actor.position.y,player.position.z))
+		loading.report(.4+float(i+1)/8*.5)
+		await loading_frame()
+		if ticket!=load_ticket:return
+	for i in [0,2]:
+		arena.containers[i].add_guard()
+		loading.report(.84 if i==0 else .9)
+		await loading_frame()
+		if ticket!=load_ticket:return
+	opening_prepared = true
+	# Warm the first shot's effect materials beneath the opaque loading cover.
+	var muzzle = player.gun.to_global(Vector3(0,.015,-1.0))
+	spark(muzzle,Color("ffe19a"),.1,.035)
+	trace(muzzle,muzzle-Vector3(0,0,2),Color("fff1b7"),.025,.045)
+	for frame in range(4):
+		await loading_frame()
+		if ticket!=load_ticket:return
+	loading.report(1)
+	loading.work_complete = true
+
+func cancel_loading() -> void:
+	if state!="LOADING":return
+	load_ticket += 1
+	state = "TITLE"
+	clear_round()
+	player.reset_position()
+	player.gun.show()
+	player.enabled = false
+	hud.sync_loading_cover()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+func _process(delta: float) -> void:
+	if state!="LOADING":return
+	loading.advance(delta)
+	if loading.phase=="DONE":
+		state = "READY"
+		ready_time = 3.0
+		hud.sync_loading_cover()
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func clear_round() -> void:
+	opening_prepared = false
 	for barrel in arena.barrels:barrel.reset()
 	for room in arena.containers:room.reset()
 	bullets.clear()
@@ -205,10 +335,11 @@ func begin_running() -> void:
 	rules.start()
 	player.enabled = true
 	# Deliberate opening target set when the countdown ends. Reinforcements use hidden gates.
-	for p in [Vector3(-4,0,1.5),Vector3(11,0,1),Vector3(30,0,3),Vector3(30,0,-10),Vector3(-4,3.1,-11),Vector3(4,3.1,-11)]:
-		spawn_enemy(p,p==Vector3(11,0,1))
-	# Two existing yard slots start inside the green and purple containers.
-	for i in [0,2]:arena.containers[i].add_guard()
+	if not opening_prepared:
+		for p in OPENING_POSITIONS:spawn_enemy(p,p==Vector3(11,0,1))
+		# Two existing yard slots start inside the green and purple containers.
+		for i in [0,2]:arena.containers[i].add_guard()
+	opening_prepared = true
 	play_sound("tick",-10)
 
 func finish_run() -> void:
@@ -228,6 +359,9 @@ func finish_run() -> void:
 	play_sound("end",-7)
 
 func _notification(what: int) -> void:
+	if state=="LOADING" and not qa_mode:
+		if what==NOTIFICATION_APPLICATION_FOCUS_OUT:loading.suspended = true
+		elif what==NOTIFICATION_APPLICATION_FOCUS_IN:loading.suspended = false
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT and not qa_mode and state in ["READY","RUNNING"]:
 		pause_run()
 
@@ -239,10 +373,11 @@ func pause_run() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("pause"):
-		if state in ["RUNNING","READY"]:pause_run()
+		if state=="LOADING":cancel_loading()
+		elif state in ["RUNNING","READY"]:pause_run()
 		elif state == "PAUSED":menu_action("resume")
 		elif state == "RESULTS":menu_action("menu")
-	elif event.is_action_pressed("restart") and state in ["TITLE","RESULTS","PAUSED"]:start_run()
+	elif event.is_action_pressed("restart") and state in ["TITLE","RESULTS","PAUSED"]:request_run()
 	elif event.is_action_pressed("reload") and state == "RUNNING":reload_weapon()
 	elif event is InputEventKey and event.pressed and state == "PAUSED":
 		if event.physical_keycode == KEY_MINUS:player.sensitivity = maxf(.0006,player.sensitivity-.0002)
@@ -253,7 +388,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func menu_action(action: String) -> void:
 	match action:
 		"play", "retry":
-			if state in ["TITLE","RESULTS","PAUSED"]:start_run()
+			request_run()
 		"resume":
 			if state != "PAUSED":return
 			state = previous_state

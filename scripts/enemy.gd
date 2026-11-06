@@ -49,7 +49,7 @@ func _ready() -> void:
 	hs.position.y = 1.70
 	head_area.add_child(hs)
 	add_child(head_area)
-	visual = load("res://assets/models/enemy.glb").instantiate()
+	visual = (game.enemy_model if game.enemy_model else load("res://assets/models/enemy.glb")).instantiate()
 	add_child(visual)
 	if fast:
 		visual.scale = Vector3(.92,1,.92)

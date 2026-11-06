@@ -11,13 +11,11 @@ var captured: Dictionary = {}
 func _ready() -> void:
 	Engine.max_fps = 60
 	game.player.set_process_unhandled_input(false)
-	game.start_run()
-	game.ready_time = .05
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-	print("QA_START: rendered full-minute autoplay and restart")
+	game.request_run()
+	print("QA_START: loading transition, rendered full-minute autoplay and restart")
 
 func _process(delta: float) -> void:
-	if game.state == "READY":return
+	if game.state in ["LOADING","READY"]:return
 	if phase==0:
 		baseline_nodes = get_tree().get_node_count()
 		var start = game.player.position
