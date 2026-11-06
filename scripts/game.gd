@@ -190,6 +190,7 @@ func _ready() -> void:
 		if "--multikill" in OS.get_cmdline_user_args():test_path = "res://tests/multikill_check.gd"
 		if "--reload-audio" in OS.get_cmdline_user_args():test_path = "res://tests/reload_audio_check.gd"
 		if "--finale" in OS.get_cmdline_user_args():test_path = "res://tests/finale_check.gd"
+		if "--dust-revision" in OS.get_cmdline_user_args():test_path = "res://tests/dust_revision_check.gd"
 		if "--mission-route" in OS.get_cmdline_user_args():test_path = "res://tests/mission_route_check.gd"
 		if "--mission-check" in OS.get_cmdline_user_args():test_path = "res://tests/mission_check.gd"
 		if "--results-ui" in OS.get_cmdline_user_args():test_path = "res://tests/results_ui_check.gd"
@@ -1119,4 +1120,4 @@ func select_session(resource: Resource) -> void:
 	hud.rebuild_menu()
 
 func mission_record_key() -> String:
-	return session.session_id+"_v1_"+str(int(rules.duration))
+	return session.session_id+"_v"+str(session.layout_version)+"_"+str(int(rules.duration))

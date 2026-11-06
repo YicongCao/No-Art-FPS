@@ -43,6 +43,7 @@ g.add_box('car_body',-20,-16,10.7,12.4,.35,1.1,mats['blue'])
 g.add_box('car_cab',-18.8,-17,10.8,12.3,1.1,1.8,mats['cream'])
 for x in [-19.3,-16.8]:
     for y in [10.65,12.45]:g.add_cyl_axis('wheel',(x,y,.45),.4,.18,mats['ink'],axis='y',verts=8)
+exec(compile((ROOT/"tools/build_dust_expansion.py").read_text(),"build_dust_expansion.py","exec"))
 # A small bomb model in its own GLB, with original geometry.
 architecture=[o for o in bpy.data.objects if o.type=='MESH']
 for o in architecture:

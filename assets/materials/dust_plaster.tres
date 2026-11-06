@@ -1,0 +1,10 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3]
+[ext_resource type="Texture2D" path="res://assets/materials/dust-plaster.svg" id="1"]
+[resource]
+resource_name = "dust_plaster"
+albedo_texture = ExtResource("1")
+roughness = 0.95
+uv1_triplanar = true
+uv1_world_triplanar = true
+uv1_scale = Vector3(0.25, 0.25, 0.25)
+texture_filter = 3

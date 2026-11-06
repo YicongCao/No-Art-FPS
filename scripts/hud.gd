@@ -33,6 +33,8 @@ const WHITE = Color("fff8e8")
 const INK = Color("243440")
 const GOLD = Color("f2d084")
 const MAGAZINE_ATLAS = preload("res://assets/ui/magazine-atlas.png")
+const DEFUSE_ICON = preload("res://assets/ui/defuse-grenade.svg")
+const DUST_RADAR = preload("res://assets/ui/dust-radar.svg")
 const RETRY_ICON = preload("res://assets/ui/results/retry.png")
 const HOME_ICON = preload("res://assets/ui/results/home.png")
 const KILLS_ICON = preload("res://assets/ui/results/kills.png")
@@ -450,6 +452,8 @@ func _draw() -> void:
 	death_marks()
 	var seconds = ceili(game.rules.remaining())
 	var time_text = "%02d:%02d"%[seconds/60,seconds%60]
+	if game.rules.mission:
+		draw_style_box(mission_time_style(),Rect2(Vector2(c.x-137,26),Vector2(300,52)))
 	var timer_center = Vector2(c.x-52,51)
 	var timer_scale = 1.0+sin(time_pulse*PI)*.22
 	var timer_color = WHITE.lerp(Color("ff3e40"),minf(1,time_pulse*2)) if seconds<=10 else WHITE
@@ -503,12 +507,17 @@ func _draw() -> void:
 	if state=="RUNNING" and destroy_time>0:
 		label("DESTROY",c+Vector2(0,22),64,Color(GOLD,smoothstep(0,.8,destroy_time)),true)
 	if game.rules.mission:
+		draw_mission_radar()
 		for objective in game.arena.objectives:
 			if objective.available():
-				label("HOLD TO DEFUSE" if game.touch_mode else "HOLD E TO DEFUSE",c+Vector2(0,82),24,GOLD,true)
-				if objective.progress>0:
-					draw_line(c+Vector2(-80,105),c+Vector2(80,105),Color(WHITE,.3),4)
-					draw_line(c+Vector2(-80,105),c+Vector2(-80+160*objective.progress/objective.defuse_duration,105),GOLD,4)
+				var center = c+Vector2(0,112)
+				var progress = clampf(objective.progress/objective.defuse_duration,0,1)
+				draw_circle(center,39,Color(INK,.88))
+				draw_texture_rect(DEFUSE_ICON,Rect2(center-Vector2(24,24),Vector2(48,48)),false)
+				draw_arc(center,36,-PI*.5,TAU-PI*.5,96,Color(WHITE,.25),4,true)
+				if progress>0:draw_arc(center,36,-PI*.5,-PI*.5+progress*TAU,96,GOLD,5,true)
+				draw_style_box(mission_time_style(),Rect2(center+Vector2(-35,46),Vector2(70,24)))
+				label("HOLD" if game.touch_mode else "HOLD E",center+Vector2(0,64),18,WHITE,true)
 				break
 	if damage>0:
 		draw_line(Vector2(c.x-30,c.y+44),Vector2(c.x+30,c.y+44),Color(1,.35,.2,damage),3)
@@ -536,3 +545,41 @@ func draw_finale_edges() -> void:
 				points.append(center+Vector2.from_angle(angle)*reach)
 			var color = [Color("573e37"),Color("ef7833"),Color("f2d084")][layer]
 			draw_colored_polygon(points,color)
+
+func radar_rect() -> Rect2:
+	var width = 178.0 if game.touch_mode else 252.0
+	return Rect2(Vector2(20,22),Vector2(width,width*96.0/119.0))
+
+func radar_position(world: Vector3) -> Vector2:
+	var rect = radar_rect()
+	var local = game.arena.to_local(world)
+	var uv = (Vector2(local.x,local.z)-game.arena.radar_bounds.position)/game.arena.radar_bounds.size
+	return rect.position+uv.clamp(Vector2.ZERO,Vector2.ONE)*rect.size
+
+func draw_mission_radar() -> void:
+	var rect = radar_rect()
+	draw_texture_rect(DUST_RADAR,rect,false)
+	draw_rect(rect,Color(WHITE,.35),false,1)
+	for i in range(game.arena.objectives.size()):
+		var objective = game.arena.objectives[i]
+		var point = radar_position(objective.global_position)
+		var complete = game.rules.completed.has(objective.objective_id)
+		if complete:
+			draw_circle(point,4,Color("74bfa4"))
+		else:
+			draw_circle(point,11,Color(INK,.9))
+			draw_circle(point,9,GOLD)
+			label(str(i+1),point+Vector2(0,4),15,INK,true)
+	var player_point = radar_position(game.player.global_position)
+	var direction = -game.player.global_basis.z
+	var angle = atan2(direction.z,direction.x)
+	var tip = Vector2.from_angle(angle)*8
+	var side = Vector2.from_angle(angle+PI*.5)*5
+	draw_colored_polygon(PackedVector2Array([player_point+tip,player_point-tip*.7+side,player_point-tip*.7-side]),WHITE)
+	draw_circle(player_point,2,INK)
+
+func mission_time_style() -> StyleBoxFlat:
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(INK,.88)
+	style.set_corner_radius_all(6)
+	return style

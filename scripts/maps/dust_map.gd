@@ -1,5 +1,7 @@
 extends "res://scripts/arena.gd"
 @export var objective_paths: Array[NodePath] = []
+@export var radar_bounds = Rect2(-90,-26,119,96)
+@export var radar_polygons: Array[PackedVector2Array] = []
 var objectives: Array[Node3D] = []
 
 func _ready() -> void:
@@ -41,9 +43,13 @@ func validate_navigation() -> bool:
 	for objective in objectives:
 		var target = objective.global_position-Vector3.UP*.4
 		var path = NavigationServer3D.map_get_path(navigation_map,player_start().origin,target,true)
-		if path.size()<2 or path[-1].distance_to(target)>1:return false
+		if path.size()<2 or path[-1].distance_to(target)>1:
+			print("OBJECTIVE_NAV_BLOCKED ",objective.objective_id," target=",target," path=",path)
+			return false
 	for actor in opening_actors():
 		for i in range(actor.patrol.size()-1):
 			var path = NavigationServer3D.map_get_path(navigation_map,actor.patrol[i],actor.patrol[i+1],true)
-			if path.size()<2 or path[-1].distance_to(actor.patrol[i+1])>1:return false
+			if path.size()<2 or path[-1].distance_to(actor.patrol[i+1])>1:
+				print("PATROL_NAV_BLOCKED ",actor.patrol," path=",path)
+				return false
 	return true

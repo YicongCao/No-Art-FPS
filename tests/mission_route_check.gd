@@ -10,6 +10,12 @@ func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	if not "--live-patrols" in OS.get_cmdline_user_args():
 		for actor in game.enemies.get_children():actor.set_physics_process(false)
+	if "--expanded-loop" in OS.get_cmdline_user_args():
+		for target in [Vector3(-80,.05,-10),Vector3(-80,-3.45,34),Vector3(-78,-3.45,48),Vector3(-27,-3.45,34),Vector3(-38,2.55,8)]:
+			var detour = NavigationServer3D.map_get_path(game.get_world_3d().navigation_map,game.player.global_position,target,true)
+			assert(detour.size()>1 and detour[-1].distance_to(target)<1,"Expanded loop not connected: "+str(target))
+			for point in detour:assert(await walk(point),"Expanded loop blocked: target="+str(target)+" point="+str(point)+" player="+str(game.player.global_position))
+		print("DUST_EXPANDED_LOOP_PASS: long/tunnel/B/mid/short actual walking")
 	var visits = []
 	for index in [1,2,0]:
 		var objective = game.arena.objectives[index]

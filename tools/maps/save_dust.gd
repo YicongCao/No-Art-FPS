@@ -43,7 +43,9 @@ func generate() -> void:
 		copy.mesh = mesh.mesh
 		copy.material_override = palette[mesh.mesh.surface_get_material(0).resource_name]
 		wrapper.add_child(copy)
-		var no_collision = false
+		if "wall" in str(mesh.name).to_lower() or str(mesh.name).begins_with("B_") or "Boundary" in str(mesh.name) or "tunnel_rib" in str(mesh.name):
+			copy.material_override = load("res://assets/materials/dust_plaster.tres")
+		var no_collision = str(mesh.name).begins_with("stair_")
 		for word in ["strap","band","shutter","pot","capstone"]:
 			if word in str(mesh.name):no_collision = true
 		if not no_collision:
@@ -53,7 +55,7 @@ func generate() -> void:
 			var shape = CollisionShape3D.new()
 			shape.name = "Shape"
 			body.add_child(shape)
-			if "ramp" in str(mesh.name) or "slope" in str(mesh.name) or "doors_wall" in str(mesh.name):
+			if "ascent" in str(mesh.name) or "ramp" in str(mesh.name) or "slope" in str(mesh.name) or "doors_wall" in str(mesh.name) or "double_doors" in str(mesh.name) or "tunnel_rib" in str(mesh.name) or "b_window_wall" in str(mesh.name) or str(mesh.name)=="B_ctwest" or str(mesh.name)=="B_southwest" or str(mesh.name)=="B_tspawn_w" or "B_southwest_base" in str(mesh.name) or "B_ctwest_base" in str(mesh.name) or str(mesh.name)=="mid_wall_n" or "B_tspawn_w_base" in str(mesh.name):
 				shape.shape = mesh.mesh.create_trimesh_shape()
 			else:
 				var box = BoxShape3D.new()
@@ -87,25 +89,37 @@ func generate() -> void:
 	map.add_to_group("dust_navigation",true)
 	nav.navigation_mesh = nm
 	nav.bake_navigation_mesh(false)
+	# Large wall markings are attached graphics, never floating C4 text.
+	for sign_data in [["a",Vector3(8,1.8,-13.72),0.0],["b",Vector3(-59,-1.3,63.72),PI]]:
+		var sign = MeshInstance3D.new();sign.name = "SiteMark_"+sign_data[0]
+		var quad = QuadMesh.new();quad.size = Vector2(2.5,2.5);sign.mesh = quad
+		var material = StandardMaterial3D.new()
+		material.albedo_texture = load("res://assets/ui/dust-site-"+sign_data[0]+".svg")
+		material.roughness = 1;sign.material_override = material
+		sign.position = sign_data[1];sign.rotation.y = sign_data[2];map.add_child(sign)
+	for point in [Vector3(-80,-.5,35),Vector3(-80,1.8,18),Vector3(-80,2.3,8)]:
+		var lamp = OmniLight3D.new();lamp.position = point
+		lamp.light_color = Color("ffe4ae");lamp.light_energy = .65;lamp.omni_range = 9
+		lamp.shadow_enabled = false;map.add_child(lamp)
 	var marks = Node3D.new();marks.name = "Markers";map.add_child(marks)
 	var start = marker(marks,"PlayerStart",Vector3(-62,.05,-10));start.rotation.y = -PI*.5
 	var opening: Array[NodePath] = []
 	var routes = [
 		[Vector3(-42,9,0),Vector3(-24,9,0)],
 		[Vector3(-38,-8,2.5),Vector3(-18,-8,2.5)],
-		[Vector3(-52,-8,2.5),Vector3(-54,-8,2.5)],
+		[Vector3(-80,-26,-3.5),Vector3(-80,-34,-3.5)],
 		[Vector3(-5,10,0),Vector3(10,10,0)],
 		[Vector3(10,-6,0),Vector3(10,7,0)],
-		[Vector3(-10,9,0),Vector3(-7,1,0)],
-		[Vector3(12,-32,-3.5),Vector3(0,-32,-3.5)],
-		[Vector3(12,-18,-1.3),Vector3(12,-27,-3.2)]
+		[Vector3(-29,-34,-3.5),Vector3(-17,-34,-3.5)],
+		[Vector3(-59,-52,-3.5),Vector3(-59,-61,-3.5)],
+		[Vector3(-74,-53,-3.5),Vector3(-71,-43,-3.5)]
 	]
 	for i in range(routes.size()):
 		var actor = marker(marks,"Guard%d"%i,position_from_source(routes[i][0]))
 		for j in range(routes[i].size()):marker(actor,"Route%d"%j,position_from_source(routes[i][j])-actor.position)
 		opening.append(map.get_path_to(actor))
 	var objective_paths: Array[NodePath] = []
-	for data in [["a_site",Vector3(4,.3,0)],["short",Vector3(-34,-8,2.5)],["ct_court",Vector3(6,-35,-3.5)]]:
+	for data in [["a_site",Vector3(4,.3,0)],["short",Vector3(-27,-34,-3.5)],["ct_court",Vector3(-57,-56,-3.5)]]:
 		var objective = Node3D.new();objective.name = data[0];objective.set_script(Objective)
 		map.add_child(objective);objective.position = position_from_source(data[1])+Vector3.UP*.45
 		objective.objective_id = data[0]
@@ -114,17 +128,38 @@ func generate() -> void:
 		var stand_mesh = BoxMesh.new();stand_mesh.size = Vector3(.5,.45,.3)
 		stand.mesh = stand_mesh;stand.material_override = palette["timber"]
 		stand.position.y = -.225;objective.add_child(stand)
-		var label = Label3D.new();label.name = "Indicator";label.text = "C4";label.position.y = .65
-		label.billboard = BaseMaterial3D.BILLBOARD_ENABLED;label.font_size = 32;label.pixel_size = .0025
-		label.modulate = Color("f2d084");objective.add_child(label)
+		var light = MeshInstance3D.new();light.name = "Indicator"
+		var light_mesh = SphereMesh.new();light_mesh.radius = .025;light_mesh.height = .05
+		light_mesh.radial_segments = 6;light_mesh.rings = 3;light.mesh = light_mesh
+		var light_mat = StandardMaterial3D.new();light_mat.albedo_color = Color("f2d084")
+		light_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		light.material_override = light_mat;light.position = Vector3(.11,.21,-.11);objective.add_child(light)
 		objective_paths.append(map.get_path_to(objective))
 	map.set_script(Runtime)
 	map.map_id = "dust_flavor"
-	map.fall_limit = -10
+	map.fall_limit = -6
 	map.start_path = map.get_path_to(start)
 	map.navigation_path = map.get_path_to(nav)
 	map.opening_paths = opening
 	map.objective_paths = objective_paths
+	map.radar_bounds = Rect2(-90,-26,119,96)
+	var triangles: Array[PackedVector2Array] = []
+	var vertices = nm.vertices
+	for i in range(nm.get_polygon_count()):
+		var polygon = PackedVector2Array()
+		var valid = true
+		for index in nm.get_polygon(i):
+			if vertices[index].y>3.1 or vertices[index].y< -3.25:valid = false
+			polygon.append(Vector2(vertices[index].x,vertices[index].z))
+		if valid:triangles.append(polygon)
+	map.radar_polygons = triangles
+	var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="357" height="288" viewBox="-90 -26 119 96"><rect x="-90" y="-26" width="119" height="96" rx="3" fill="#15212c"/>'
+	for polygon in triangles:
+		var points_text = ""
+		for v in polygon:points_text += "%s,%s "%[v.x,v.y]
+		svg += '<polygon points="'+points_text+'" fill="#c4b190" stroke="#c4b190" stroke-width="0.08"/>'
+	svg += '<g fill="#fff8e8" font-family="sans-serif" font-size="5" font-weight="bold"><text x="4" y="-3">A</text><text x="-65" y="53">B</text><text x="-30" y="39">MID</text></g></svg>'
+	FileAccess.open("res://assets/ui/dust-radar.svg",FileAccess.WRITE).store_string(svg)
 	for node in map.find_children("*","",true,false):node.scene_file_path = "";node.owner = map
 	map.process_mode = Node.PROCESS_MODE_INHERIT
 	var packed = PackedScene.new();assert(packed.pack(map)==OK)

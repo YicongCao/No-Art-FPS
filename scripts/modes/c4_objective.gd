@@ -30,7 +30,7 @@ func reset() -> void:
 	defused = false
 	needs_release = false
 	submitted = false
-	get_node("Indicator").modulate = Color("f2d084")
+	get_node("Indicator").material_override.albedo_color = Color("f2d084")
 	get_node("Indicator").show()
 	beep_time = 0
 

@@ -9,3 +9,4 @@ display_name = "拆弹任务"
 map_scene = ExtResource("2")
 rules_script = ExtResource("3")
 time_limit = 180.0
+layout_version = 2

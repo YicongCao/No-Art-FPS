@@ -71,8 +71,13 @@ func _physics_process(delta: float) -> void:
 	if position.y < game.arena.fall_limit:
 		if game.rules.respawn_allowed:reset_position()
 		else:
+			# End the mission at the safety plane, before another fall frame.
+			enabled = false
+			velocity = Vector3.ZERO
+			global_position.y = game.arena.fall_limit
 			game.invulnerable = 0
 			game.damage_player(1000)
+			game.settle_rules()
 
 func _process(delta: float) -> void:
 	recoil = move_toward(recoil,0,delta*6)

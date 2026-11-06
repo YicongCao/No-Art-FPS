@@ -5,6 +5,7 @@ class_name SessionDefinition
 @export var display_name = "竞技场"
 @export var map_scene: PackedScene
 @export var rules_script: Script
+@export var layout_version = 1
 @export var time_limit = 60.0
 
 func make_rules() -> RefCounted:
