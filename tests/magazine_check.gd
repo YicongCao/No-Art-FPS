@@ -132,13 +132,14 @@ func _ready() -> void:
 	var audio_start = game.audio_index
 	for tick in range(53):
 		game._physics_process(1.0/60.0)
-		assert(game.audio_index-audio_start==int(game.hud.reload_rounds_fed()),"Reload clicks follow the rendered cartridge count")
+		var fed = int(game.hud.reload_rounds_fed())
+		assert(game.audio_index-audio_start==fed+int(fed==20),"Reload clicks and latch follow the rendered cartridge count")
 		await get_tree().physics_frame
 		assert(game.ammo==0 and game.reload_time>0,"Reload cannot complete before .9 seconds")
 		if tick==23:await capture("reload-small-window")
 	game._physics_process(1.0/60.0)
 	assert(game.ammo==20 and game.reload_time==0,"Reload completes in exactly 54 ticks")
-	assert(game.audio_index-audio_start==20,"Every loaded cartridge sounds once")
+	assert(game.audio_index-audio_start==21,"Every cartridge sounds once, followed by one latch")
 	await check_pixels(20)
 	await get_tree().create_timer(.12).timeout
 	recorder.set_recording_active(false)

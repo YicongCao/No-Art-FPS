@@ -137,7 +137,7 @@ func _ready() -> void:
 	hud = Hud.new()
 	hud.game = self
 	layer.add_child(hud)
-	for key in ["shot","hit","kill","headshot","reload","hurt","tick","end","fuse","explosion","charge","cartridge_insert"]:
+	for key in ["shot","hit","kill","headshot","reload","hurt","tick","end","fuse","explosion","charge","cartridge_insert","magazine_latch"]:
 		sounds[key] = load("res://assets/audio/"+key+".wav")
 	for i in range(12):
 		var voice = AudioStreamPlayer.new()
@@ -455,7 +455,7 @@ func _process(delta: float) -> void:
 	if state!="LOADING":return
 	var previous_rounds = loading.rounds
 	loading.advance(delta)
-	play_cartridge_insertions(previous_rounds,loading.rounds)
+	play_magazine_feed_sounds(previous_rounds,loading.rounds,MAGAZINE_SIZE)
 	if loading.phase=="DONE":
 		begin_running()
 		hud.sync_loading_cover()
@@ -697,8 +697,9 @@ func _physics_process(delta: float) -> void:
 		var previous_rounds = hud.reload_rounds_fed()
 		reload_time = maxf(0,reload_time-delta)
 		if reload_time<.000001:reload_time = 0
-		var fed = hud.reload_rounds_fed() if reload_time>0 else float(MAGAZINE_SIZE-reload_start_ammo)
-		play_cartridge_insertions(previous_rounds,fed)
+		var rounds_to_fill = MAGAZINE_SIZE-reload_start_ammo
+		var fed = hud.reload_rounds_fed() if reload_time>0 else float(rounds_to_fill)
+		play_magazine_feed_sounds(previous_rounds,fed,rounds_to_fill)
 		if reload_time<=0:ammo = MAGAZINE_SIZE
 	if (touch_fire if touch_mode else Input.is_action_pressed("fire") and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED):shoot()
 	update_spawns(delta)
@@ -888,11 +889,11 @@ func reload_weapon() -> void:
 	reload_time = RELOAD_DURATION
 	play_sound("reload",-8)
 
-func play_cartridge_insertions(previous: float, current: float) -> void:
-	# Use the same whole-round boundaries as both magazine animations.
-	# No independent audio timer can continue after a pause or cancellation.
+func play_magazine_feed_sounds(previous: float, current: float, full_count: int) -> void:
 	for _i in range(int(previous),int(current)):
 		play_sound("cartridge_insert",-12)
+	if previous<full_count and current>=full_count:
+		play_sound("magazine_latch",-9)
 
 func on_kill(enemy: Node3D, headshot: bool) -> void:
 	if rules.record_kill(enemy.get_instance_id(),headshot):

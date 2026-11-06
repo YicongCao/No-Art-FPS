@@ -69,7 +69,7 @@ func _ready() -> void:
 		assert(not game.rules.active and game.rules.elapsed==0)
 		assert(not game.player.enabled and game.hud.go_time==0)
 		var loader = game.loading
-		assert(game.audio_index-audio_start==int(loader.rounds),"Loading clicks follow rendered cartridge boundaries")
+		assert(game.audio_index-audio_start==int(loader.rounds)+int(loader.rounds==20),"Loading plays cartridge clicks and one latch")
 		assert(loader.rounds>=previous_rounds)
 		if not loader.work_complete:assert(loader.rounds<=17)
 		previous_rounds = loader.rounds
@@ -96,7 +96,7 @@ func _ready() -> void:
 			await capture("loading-docking")
 			seen[phase] = true
 	assert(game.state=="RUNNING" and game.opening_prepared)
-	assert(game.audio_index-audio_start==21,"Twenty cartridge sounds followed by one GO tick")
+	assert(game.audio_index-audio_start==22,"Twenty cartridges, one latch, and one GO tick")
 	assert(seen.size()==4)
 	assert(game.live_enemies().size()==8 and game.rules.elapsed<.05)
 	assert(game.rules.active and game.player.enabled and game.hud.go_time>.7,"Dock completion starts gameplay immediately")
