@@ -632,7 +632,9 @@ func shoot() -> void:
 func enemy_from_hit(result: Dictionary) -> Node3D:
 	if result.is_empty():return null
 	var collider = result.collider
-	return collider.get_meta("enemy",null) if collider is Area3D else (collider if collider.has_method("take_hit") else null)
+	if collider is Area3D:
+		return collider.get_meta("enemy") if collider.has_meta("enemy") else null
+	return collider if collider.has_method("take_hit") else null
 
 func resolve_shot(result: Dictionary, origin: Vector3, target: Vector3, burning: bool = false) -> void:
 	if state!="RUNNING" or not rules.active:return
@@ -640,7 +642,7 @@ func resolve_shot(result: Dictionary, origin: Vector3, target: Vector3, burning:
 		var collider = result.collider
 		var enemy = enemy_from_hit(result)
 		if burning:
-			var building = collider.get_meta("structure",null)
+			var building = collider.get_meta("structure") if collider.has_meta("structure") else null
 			if building:building.ignite_hit(target)
 			else:fire_effect(target,.3)
 		if enemy==null and collider.has_method("ignite"):

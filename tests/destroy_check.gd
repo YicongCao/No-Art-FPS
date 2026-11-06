@@ -4,6 +4,7 @@ var game: Node
 func _ready() -> void:
 	Engine.max_fps = 60
 	game.player.set_process_unhandled_input(false)
+	await check_nonstructural_hits()
 	game.start_run()
 	game.begin_running()
 	game.clear_round()
@@ -104,6 +105,47 @@ func _ready() -> void:
 	game.clear_round()
 	await get_tree().create_timer(.3).timeout
 	get_tree().quit()
+
+func check_nonstructural_hits() -> void:
+	game.start_run()
+	game.begin_running()
+	game.clear_round()
+	game.set_physics_process(false)
+	game.player.enabled = false
+	game.invulnerable = 999
+	game.rules.elapsed = 50
+	game._physics_process(0)
+	assert(game.destroy_active)
+	game.player.position = Vector3(18,.05,14)
+	var head = stationary(Vector3(18,0,9))
+	var body = stationary(Vector3(21,0,9))
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	shoot_nonstructural(head.position+Vector3.UP*1.7)
+	assert(head.dead and game.rules.kills==1,"Burning headshots still score on ordinary enemies")
+	await get_tree().physics_frame
+	shoot_nonstructural(body.position+Vector3.UP*.8)
+	assert(body.health==2 and body.burn_ticks==3,"Burning body shots still damage and ignite enemies")
+	shoot_nonstructural(Vector3(18,0,12))
+	assert(game.rules.kills==1,"Ground hits cannot score or be treated as a building")
+	game.player.position = Vector3(-8,.05,8)
+	await get_tree().physics_frame
+	var barrel = game.arena.barrels[0]
+	shoot_nonstructural(barrel.global_position+Vector3.UP*.8)
+	assert(barrel.fuse>0 and not barrel.spent,"Burning shots still ignite ordinary barrels")
+	var untagged_area = Area3D.new()
+	assert(game.enemy_from_hit({"collider":untagged_area})==null,"Unmarked areas are not enemy heads")
+	untagged_area.free()
+	print("DESTROY_NONSTRUCTURAL_HITS_PASS: real burning head/body/ground/barrel shots and unmarked area")
+
+func shoot_nonstructural(point: Vector3) -> void:
+	var query = PhysicsRayQueryParameters3D.create(game.player.camera.global_position,point,1|4|8)
+	query.collide_with_areas = true
+	var hit = game.get_world_3d().direct_space_state.intersect_ray(query)
+	assert(not hit.is_empty() and not hit.collider.has_meta("structure"),"Regression shot must hit an unmarked collider: point=%s hit=%s"%[point,hit])
+	aim(point)
+	game.fire_time = 0
+	game.shoot()
 
 func stationary(at: Vector3) -> Node3D:
 	var enemy = game.spawn_enemy(at,false)
