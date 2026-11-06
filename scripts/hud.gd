@@ -332,9 +332,9 @@ func rebuild_menu() -> void:
 		fire_button.pivot_offset = fire_button.size*.5
 		fire_button.button_down.connect(func():fire_button.scale = Vector2.ONE*.96)
 		fire_button.button_up.connect(func():fire_button.scale = Vector2.ONE)
-		var mode_x = size.x-370 if not game.touch_mode else size.x-300
-		menu_button("SCORE ATTACK",Rect2(mode_x,size.y*.5-75,260,62),"arena",not game.rules.mission)
 		if game.dust_unlocked:
+			var mode_x = size.x-370 if not game.touch_mode else size.x-300
+			menu_button("SCORE ATTACK",Rect2(mode_x,size.y*.5-75,260,62),"arena",not game.rules.mission)
 			menu_button("DEFUSE C4",Rect2(mode_x,size.y*.5+5,260,62),"defuse",game.rules.mission)
 
 	elif menu_state == "RESULTS":

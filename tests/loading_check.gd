@@ -25,7 +25,7 @@ func _ready() -> void:
 	assert(sequence==["FILL","SEAT","REVEAL","DOCK","DONE"])
 	print("LOADING_MODEL_WAIT_CAP_PASS")
 	await get_tree().process_frame
-	assert(not game.hud.menu.has_node("defuse"))
+	assert(not game.hud.menu.has_node("arena") and not game.hud.menu.has_node("defuse"))
 	press_dust_shortcut(false)
 	game.menu_action("defuse")
 	assert(not game.dust_unlocked and not game.rules.mission and not game.hud.menu.has_node("defuse"))
@@ -163,7 +163,7 @@ func _ready() -> void:
 	game.menu_action("menu")
 	await get_tree().process_frame
 	press_dust_shortcut(true)
-	assert(game.dust_unlocked and game.hud.menu.has_node("defuse"))
+	assert(game.dust_unlocked and game.hud.menu.has_node("arena") and game.hud.menu.has_node("defuse"))
 	assert(not game.rules.mission,"Unlocking shows the button without selecting Dust")
 	click_button(game.hud.menu.get_node("defuse"))
 	for frame in range(300):
