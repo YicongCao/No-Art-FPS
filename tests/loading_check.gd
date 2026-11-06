@@ -39,9 +39,10 @@ func _ready() -> void:
 	game.player.rotation.y = 0
 	# Exercise the actual text button hitbox, rather than directly firing its signal.
 	var button = game.hud.fire_button
-	assert(button is Button and button.text=="FIRE" and button.get_theme_constant("outline_size")==6)
-	assert(button.get_theme_color("font_color")==Color.WHITE and button.get_theme_color("font_outline_color")==Color.BLACK)
-	assert(button.get_theme_stylebox("normal").border_width_left==2)
+	assert(button is Button and button.text=="FIRE" and button.get_theme_constant("outline_size")==0)
+	assert(button.get_theme_color("font_color")==Color.WHITE)
+	assert(button.get_theme_stylebox("normal").bg_color==Color("754c87"))
+	assert(button.get_theme_font("font").resource_path=="res://assets/fonts/Rajdhani-Bold.ttf")
 	var point = button.get_global_rect().get_center()
 	var motion = InputEventMouseMotion.new()
 	motion.position = point
@@ -162,7 +163,7 @@ func _ready() -> void:
 	game.clear_round()
 	for filename in captures:captures[filename].save_png("res://artifacts/"+filename+".png")
 	await get_tree().create_timer(.3).timeout
-	print("LOADING_CHECK_PASS: white outlined button, frozen first frame/shared shade, staged prep, 17-round cap, wipe then dock, immediate GO/input/timer, fade/pause, retry/cancel, early click, focus, resize")
+	print("LOADING_CHECK_PASS: white Rajdhani text/purple button, frozen first frame/shared shade, staged prep, 17-round cap, wipe then dock, immediate GO/input/timer, fade/pause, retry/cancel, early click, focus, resize")
 	get_tree().quit()
 
 func capture(filename: String) -> void:

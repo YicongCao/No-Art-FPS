@@ -262,17 +262,18 @@ func rebuild_menu() -> void:
 		fire_button = menu_button("FIRE",Rect2(104,size.y-188,300,112),"play",false,"Enter")
 		fire_button.name = "fire"
 		fire_button.add_theme_font_size_override("font_size",68)
-		fire_button.add_theme_constant_override("outline_size",6)
-		fire_button.add_theme_color_override("font_outline_color",Color.BLACK)
+		fire_button.add_theme_constant_override("outline_size",0)
 		for color_name in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]:
 			fire_button.add_theme_color_override(color_name,Color.WHITE)
 		for style_name in ["normal","hover","pressed","focus"]:
 			var style = StyleBoxFlat.new()
-			style.bg_color = Color.TRANSPARENT
-			if style_name=="hover":style.bg_color = Color(1,1,1,.08)
-			if style_name=="pressed":style.bg_color = Color(1,1,1,.16)
-			style.set_border_width_all(3 if style_name=="focus" else 2)
-			style.border_color = Color.WHITE
+			style.bg_color = Color("754c87")
+			if style_name=="hover":style.bg_color = style.bg_color.lightened(.12)
+			if style_name=="pressed":style.bg_color = style.bg_color.darkened(.14)
+			if style_name=="focus":
+				style.bg_color = Color.TRANSPARENT
+				style.set_border_width_all(2)
+				style.border_color = Color.WHITE
 			fire_button.add_theme_stylebox_override(style_name,style)
 		fire_button.pivot_offset = fire_button.size*.5
 		fire_button.button_down.connect(func():fire_button.scale = Vector2.ONE*.96)
@@ -324,7 +325,6 @@ func _draw() -> void:
 		var words = ["NO","ART","FPS"]
 		for i in range(words.size()):
 			var pos = Vector2(104,220+i*150)
-			draw_string_outline(font,pos,words[i],HORIZONTAL_ALIGNMENT_LEFT,-1,160,7,Color.BLACK)
 			draw_string(font,pos,words[i],HORIZONTAL_ALIGNMENT_LEFT,-1,160,Color.WHITE)
 		return
 	if state == "RESULTS":

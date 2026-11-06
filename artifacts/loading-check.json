@@ -1,6 +1,6 @@
 {
-  "first_loading_frame_ms": 9.568,
-  "loading_max_frame_ms": 50.537,
-  "loading_p95_frame_ms": 22.412,
+  "first_loading_frame_ms": 13.028,
+  "loading_max_frame_ms": 23.063,
+  "loading_p95_frame_ms": 17.322,
   "note": "Rendered automated FIRE click and transition, 60 fps cap; not human input latency or a cross-device performance guarantee."
 }

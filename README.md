@@ -26,7 +26,7 @@ Alternatively, import `project.godot` in Godot 4.7.2 and press F6/F5 as appropri
 - Pause menu: use Resume/Restart, the sensitivity and music-volume sliders, and the camera-motion toggle. `-` / `+` and M remain available as shortcuts.
 - Results: Retry and Menu are clickable; Enter and Escape still work.
 
-The title uses three left-aligned white lines with black outlines and a white FIRE button inside a rectangular border. Its background is a captured opening gameplay frame, including the initial enemies and weapon but no HUD. The title and loading page share this still image with the same 55%-opaque black shade.
+The title uses three left-aligned white lines without outlines and a purple FIRE button with white Rajdhani Bold text. Its background is a captured opening gameplay frame, including the initial enemies and weapon but no HUD. The title and loading page share this still image with the same 55%-opaque black shade.
 
 FIRE replaces the title with a large magazine that fills as the round is prepared, keeping the background unchanged. Unknown remaining work advances only to seventeen rounds. After real completion, it fills the final three, dips and snaps back; the darkened still reveals the live world from the center outward, then the magazine shrinks into the lower-right HUD. Gameplay and the round timer start immediately on docking, with a central GO fading out over 0.8 seconds. Escape cancels loading; returning focus resumes a suspended transition.
 
