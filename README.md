@@ -18,6 +18,21 @@ On this Mac, double-click **Play No-Art-FPS.command**, or run:
 
 Alternatively, import `project.godot` in Godot 4.7.2 and press F6/F5 as appropriate. The main scene is `scenes/main.tscn`. The launcher uses the locally installed Godot executable; this is not yet a separately exported, signed application.
 
+### Browser build
+
+Install the matching Godot 4.7.2 Web export templates, then run:
+
+```sh
+./tools/export_web.sh
+python3 -m http.server 8785 --bind 127.0.0.1 --directory builds/web
+```
+
+Open `http://127.0.0.1:8785/`. This is a desktop keyboard-and-mouse build; touch controls are not implemented. The single-thread Compatibility export needs WebAssembly and WebGL 2.0, but does not need COOP/COEP headers or a service worker. The HTML download indicator follows engine-reported byte counts; after downloading, it waits for the first complete game frame before revealing the title.
+
+`builds/web/` is the complete public bundle and `manifest.json` records its file sizes and SHA-256 hashes. Source art, reference footage, design documents, screenshots and QA scripts are excluded from the pack. Upload the whole bundle without renaming its `index.*` files. For a CDN, the server may redirect `index.wasm` and `index.pck` to a versioned CORS-enabled origin while keeping JavaScript/audio worklets on the page origin. Serve WASM as `application/wasm`; precompressed files must have the matching `Content-Encoding` and `Vary: Accept-Encoding`. The font license accompanies the release.
+
+Web-specific pointer capture starts inside FIRE/retry/resume input gestures. Losing pointer lock during a round pauses it. Resource preparation and navigation rebakes use a single-thread path on the Web; native behavior is preserved. Browser validation is recorded separately from native QA in [the Web delivery notes](docs/updates/2026-11-06-web.md).
+
 - Enter / FIRE: load the round, then immediately start 60 seconds of combat as GO fades out.
 - WASD: move. Mouse: look. Left mouse: automatic fire. Space: jump.
 - R: reload. Empty magazines reload automatically; reserve ammunition is unlimited.

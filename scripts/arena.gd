@@ -560,7 +560,8 @@ func bake_changed_geometry() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	if not nav.bake_finished.is_connected(navigation_finished):nav.bake_finished.connect(navigation_finished)
-	nav.bake_navigation_mesh(true)
+	# Single-thread Web exports have no background baking worker.
+	nav.bake_navigation_mesh(not OS.has_feature("web"))
 
 func navigation_finished() -> void:
 	navigation_baking = false

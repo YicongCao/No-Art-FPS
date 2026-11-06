@@ -61,6 +61,14 @@ var frozen_tweens: Array[Tween] = []
 const MULTIKILL_WINDOW = 1.25
 var kill_group_start = -99.0
 var kill_group_count = 0
+var web_capture_wait = 0.0
+
+func capture_pointer() -> void:
+	# Browsers resolve pointer-lock asynchronously after the input callback.
+	# Freeze gameplay while waiting instead of treating the first unlocked
+	# animation frame as a cancellation of the request we just made.
+	if OS.has_feature("web"):web_capture_wait = .75
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _ready() -> void:
 	process_physics_priority = -100
@@ -189,6 +197,8 @@ func capture_opening_frame() -> void:
 	hud.set_title_frame(get_viewport().get_texture().get_image())
 	title_frame_ready = true
 	hud.show()
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("window.noArtReady && window.noArtReady()")
 
 func save_record() -> void:
 	if qa_mode:return
@@ -256,7 +266,10 @@ func request_run() -> void:
 	player.enabled = false
 	player.velocity = Vector3.ZERO
 	if music:music.stop()
-	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	# Browser pointer lock must begin inside the actual FIRE/Enter gesture,
+	# not later when the asynchronous loading animation finishes.
+	if OS.has_feature("web"):capture_pointer()
+	else:Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	hud.reset_magazine()
 	hud.health_shade = 0
 	hud.hit = 0
@@ -304,25 +317,35 @@ func prepare_loaded_run(ticket: int) -> void:
 		return
 	loading.report(.2)
 	var path = "res://assets/models/enemy.glb"
-	var error = ResourceLoader.load_threaded_request(path)
-	var existing_status = ResourceLoader.load_threaded_get_status(path)
-	if error!=OK and existing_status not in [ResourceLoader.THREAD_LOAD_IN_PROGRESS,ResourceLoader.THREAD_LOAD_LOADED]:
-		cancel_loading()
-		push_error("Unable to prepare enemy model")
-		return
-	while true:
-		var progress: Array = []
-		var status = ResourceLoader.load_threaded_get_status(path,progress)
-		if not progress.is_empty():loading.report(.2+float(progress[0])*.2)
-		if status==ResourceLoader.THREAD_LOAD_LOADED:
-			enemy_model = ResourceLoader.load_threaded_get(path)
-			break
-		if status in [ResourceLoader.THREAD_LOAD_FAILED,ResourceLoader.THREAD_LOAD_INVALID_RESOURCE]:
+	if OS.has_feature("web"):
+		# The opening frame already cached this scene. Single-thread Web builds
+		# must not depend on a worker thread to prepare it again.
+		enemy_model = load(path)
+		if not enemy_model:
 			cancel_loading()
 			push_error("Enemy model loading failed")
 			return
-		await loading_frame()
-		if ticket!=load_ticket:return
+		loading.report(.4)
+	else:
+		var error = ResourceLoader.load_threaded_request(path)
+		var existing_status = ResourceLoader.load_threaded_get_status(path)
+		if error!=OK and existing_status not in [ResourceLoader.THREAD_LOAD_IN_PROGRESS,ResourceLoader.THREAD_LOAD_LOADED]:
+			cancel_loading()
+			push_error("Unable to prepare enemy model")
+			return
+		while true:
+			var progress: Array = []
+			var status = ResourceLoader.load_threaded_get_status(path,progress)
+			if not progress.is_empty():loading.report(.2+float(progress[0])*.2)
+			if status==ResourceLoader.THREAD_LOAD_LOADED:
+				enemy_model = ResourceLoader.load_threaded_get(path)
+				break
+			if status in [ResourceLoader.THREAD_LOAD_FAILED,ResourceLoader.THREAD_LOAD_INVALID_RESOURCE]:
+				cancel_loading()
+				push_error("Enemy model loading failed")
+				return
+			await loading_frame()
+			if ticket!=load_ticket:return
 	# Instantiate and render one actor per frame before gameplay to warm
 	# imported meshes/materials without a single eight-enemy creation burst.
 	for i in range(OPENING_POSITIONS.size()):
@@ -358,6 +381,20 @@ func cancel_loading() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func _process(delta: float) -> void:
+	if OS.has_feature("web") and state=="CAPTURING":
+		if Input.mouse_mode==Input.MOUSE_MODE_CAPTURED:
+			web_capture_wait = 0
+			state = previous_state
+			player.enabled = state=="RUNNING" and respawn_time<=0
+		else:
+			web_capture_wait = maxf(0,web_capture_wait-delta)
+			if web_capture_wait<=0:
+				state = previous_state
+				pause_run()
+		return
+	# Escape can release the browser's pointer lock without a Godot key event.
+	# Never run down the timer behind an unlocked cursor.
+	if OS.has_feature("web") and state=="RUNNING" and Input.mouse_mode!=Input.MOUSE_MODE_CAPTURED:pause_run()
 	if state!="LOADING":return
 	var previous_rounds = loading.rounds
 	loading.advance(delta)
@@ -365,7 +402,11 @@ func _process(delta: float) -> void:
 	if loading.phase=="DONE":
 		begin_running()
 		hud.sync_loading_cover()
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		if not OS.has_feature("web"):Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		elif Input.mouse_mode!=Input.MOUSE_MODE_CAPTURED:
+			previous_state = "RUNNING"
+			state = "CAPTURING"
+			player.enabled = false
 
 func clear_round() -> void:
 	restore_frozen_world()
@@ -471,7 +512,8 @@ func _notification(what: int) -> void:
 	if state=="LOADING" and not qa_mode:
 		if what==NOTIFICATION_APPLICATION_FOCUS_OUT:loading.suspended = true
 		elif what==NOTIFICATION_APPLICATION_FOCUS_IN:loading.suspended = false
-	if what == NOTIFICATION_APPLICATION_FOCUS_OUT and not qa_mode and state=="RUNNING":
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT and not qa_mode and state in ["RUNNING","CAPTURING"]:
+		if state=="CAPTURING":state = previous_state
 		pause_run()
 
 func pause_run() -> void:
@@ -484,6 +526,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("pause"):
 		if state=="LOADING":cancel_loading()
 		elif state=="RUNNING":pause_run()
+		elif state=="CAPTURING":
+			state = previous_state
+			pause_run()
 		elif state == "PAUSED":menu_action("resume")
 		elif state == "RESULTS":menu_action("menu")
 	elif event.is_action_pressed("restart") and state in ["TITLE","RESULTS","PAUSED"]:request_run()
@@ -500,9 +545,9 @@ func menu_action(action: String) -> void:
 			request_run()
 		"resume":
 			if state != "PAUSED":return
-			state = previous_state
+			state = "CAPTURING" if OS.has_feature("web") else previous_state
 			player.enabled = state == "RUNNING" and respawn_time<=0
-			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+			capture_pointer()
 		"menu":
 			if state != "RESULTS":return
 			state = "TITLE"
@@ -514,8 +559,9 @@ func menu_action(action: String) -> void:
 			save_record()
 
 func _physics_process(delta: float) -> void:
-	if music:music.stream_paused = state == "PAUSED"
+	if music:music.stream_paused = state in ["PAUSED","CAPTURING"]
 	if state != "RUNNING":return
+	if OS.has_feature("web") and Input.mouse_mode!=Input.MOUSE_MODE_CAPTURED:return
 	rules.tick(delta)
 	if not rules.active:
 		finish_run()
