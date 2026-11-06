@@ -8,6 +8,7 @@ var damage = 0.0
 var shot = 0.0
 var time_pulse = 0.0
 var go_time = 0.0
+var destroy_time = 0.0
 const GO_DURATION = .8
 var health_shade = 0.0
 var feed_shift = 0.0
@@ -170,6 +171,7 @@ func _process(delta: float) -> void:
 	sync_loading_cover()
 	if game and game.state == "PAUSED":delta = 0
 	if game and game.state=="RUNNING":go_time = maxf(0,go_time-delta)
+	if game and game.state=="RUNNING":destroy_time = maxf(0,destroy_time-delta)
 	feed_shift = maxf(0,feed_shift-delta)
 	for i in range(ejections.size()):ejections[i] += delta
 	ejections = ejections.filter(func(age):return age<EJECTION_TIME)
@@ -383,5 +385,7 @@ func _draw() -> void:
 	if state=="RUNNING" and game.respawn_time<=0 and go_time>0:
 		var opacity = smoothstep(0,.65,go_time)
 		label("GO",c+Vector2(0,22),70,Color(WHITE,opacity),true)
+	if state=="RUNNING" and destroy_time>0:
+		label("DESTROY",c+Vector2(0,22),64,Color(GOLD,smoothstep(0,.8,destroy_time)),true)
 	if damage>0:
 		draw_line(Vector2(c.x-30,c.y+44),Vector2(c.x+30,c.y+44),Color(1,.35,.2,damage),3)

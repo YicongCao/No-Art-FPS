@@ -19,6 +19,8 @@ const CLOSE_SHOT_RANGE = 8.0
 var dodge_direction = Vector3.ZERO
 var dodge_time = 0.0
 var dodge_cooldown = 0.0
+var burn_ticks = 0
+var burn_time = 0.0
 var orange: StandardMaterial3D
 var age = 0.0
 var think = 0.0
@@ -106,6 +108,14 @@ func _physics_process(delta: float) -> void:
 		if death_time > 1.4:queue_free()
 		return
 	if game.state != "RUNNING":return
+	if burn_ticks>0:
+		burn_time -= delta
+		if burn_time<=0:
+			burn_time = .25
+			burn_ticks -= 1
+			game.fire_effect(global_position+Vector3.UP,.5)
+			take_damage(1)
+			if dead:return
 	if is_instance_valid(container_room) and container_room.progress<1:
 		velocity = Vector3.ZERO
 		agent.velocity = Vector3.ZERO
@@ -196,6 +206,11 @@ func can_see_player() -> bool:
 
 func take_hit(is_head: bool) -> void:
 	take_damage(3 if is_head else 1,is_head)
+
+func ignite() -> void:
+	if dead:return
+	burn_ticks = 3
+	burn_time = .25
 
 func evade_shot(origin: Vector3) -> void:
 	if not fast or dead or game.state!="RUNNING" or global_position.distance_to(origin)<=CLOSE_SHOT_RANGE:return

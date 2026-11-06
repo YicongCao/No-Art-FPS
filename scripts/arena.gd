@@ -2,6 +2,15 @@ extends Node3D
 
 const Barrel = preload("res://scripts/explosive_barrel.gd")
 const ContainerRoom = preload("res://scripts/container.gd")
+const Destructible = preload("res://scripts/destructible.gd")
+var structures: Array[Node3D] = []
+var active_structure: Node3D
+var warehouse_structure: Node3D
+var deck_structure: Node3D
+var navigation_dirty = false
+var navigation_baking = false
+var original_navigation_mesh: NavigationMesh
+var restore_navigation_pending = false
 var game: Node
 var barrels: Array[Node3D] = []
 var containers: Array[Node3D] = []
@@ -43,7 +52,16 @@ func _ready() -> void:
 	batch_boxes()
 
 func solid(pos: Vector3, size: Vector3, color: String, collision: bool = true) -> void:
-	boxes[color].append(Transform3D(Basis.from_scale(size),pos))
+	if active_structure:
+		var visual = MeshInstance3D.new()
+		var mesh = BoxMesh.new()
+		mesh.size = size
+		mesh.material = materials[color]
+		visual.mesh = mesh
+		visual.position = pos
+		add_child(visual)
+		active_structure.register(visual)
+	else:boxes[color].append(Transform3D(Basis.from_scale(size),pos))
 	if collision:collider(pos,size)
 
 func collider(pos: Vector3, size: Vector3) -> void:
@@ -55,6 +73,7 @@ func collider(pos: Vector3, size: Vector3) -> void:
 	body.add_child(shape)
 	body.position = pos
 	add_child(body)
+	if active_structure:active_structure.register(body)
 
 func explosive_barrel(pos: Vector3) -> void:
 	var barrel = Barrel.new()
@@ -69,12 +88,31 @@ func model(kind: String, pos: Vector3, yaw: float = 0.0, size: Vector3 = Vector3
 	node.position = pos
 	node.rotation.y = yaw
 	node.scale = size
+	if active_structure:active_structure.register(node)
+	return node
+
+func structure(region: AABB, color: String) -> Node3D:
+	var node = Destructible.new()
+	node.game = game
+	node.arena = self
+	node.bounds = region
+	node.palette = Color(PALETTE[color])
+	add_child(node)
+	structures.append(node)
 	return node
 
 func container(color: String, pos: Vector3, turn: bool = false) -> void:
+	var parent_structure = active_structure
+	active_structure = structure(AABB(pos-Vector3(1.4 if turn else 3,0,3 if turn else 1.4),Vector3(2.8,2.9,6) if turn else Vector3(6,2.9,2.8)),color)
+	if pos==Vector3(5,0,-.5):active_structure.bounds.size.y = 5.8
 	if pos.y>1:
+		# A stacked container shares the support's collapse and reset.
+		structures.erase(active_structure)
+		active_structure.queue_free()
+		active_structure = structures[0]
 		model("container_"+color,pos,PI/2 if turn else 0.0)
 		collider(pos+Vector3(0,1.45,0),Vector3(2.8,2.9,6) if turn else Vector3(6,2.9,2.8))
+		active_structure = parent_structure
 		return
 	var room = ContainerRoom.new()
 	room.game = game
@@ -83,6 +121,7 @@ func container(color: String, pos: Vector3, turn: bool = false) -> void:
 	room.rotation.y = -PI/2 if turn else 0.0
 	add_child(room)
 	containers.append(room)
+	active_structure.register(room)
 	# Shell colliders are baked; hinged doors live outside the static nav geometry.
 	for panel in [
 		[Vector3(0,-.04,0),Vector3(6,.08,2.8)],
@@ -92,6 +131,7 @@ func container(color: String, pos: Vector3, turn: bool = false) -> void:
 		[Vector3(0,1.4,1.35),Vector3(6,2.8,.1)]]:
 		var extent: Vector3 = panel[1]
 		collider(room.to_global(panel[0]),Vector3(extent.z,extent.y,extent.x) if turn else extent)
+	active_structure = parent_structure
 
 func rail(a: Vector3, b: Vector3, color: String = "purple") -> void:
 	var n = int(a.distance_to(b)/1.6)+1
@@ -123,6 +163,7 @@ func stairs(x: float, start_z: float, height: float, length: float, width: float
 	cs.shape = shape
 	body.add_child(cs)
 	add_child(body)
+	if active_structure:active_structure.register(body)
 	for side in [-1,1]:
 		var edge_x = x+side*(width*.5-.04)
 		var bottom = Vector3(edge_x,0,start_z)
@@ -158,6 +199,8 @@ func build() -> void:
 	container("red",Vector3(12,0,-7))
 	container("cream",Vector3(-11,0,-10))
 	# Long rear warehouse and elevated deck.
+	deck_structure = structure(AABB(Vector3(-12,0,-23.6),Vector3(21.5,7.3,22.1)),"purple")
+	active_structure = deck_structure
 	solid(Vector3(0,1.45,-11),Vector3(13,2.9,4),"yellow")
 	# Full-width landing meets the terrace at z=-13.2, including both outer wings.
 	solid(Vector3(0,3,-11),Vector3(18,.2,4.4),"purple")
@@ -177,6 +220,7 @@ func build() -> void:
 	solid(Vector3(0,3.9,-9.9),Vector3(3,.85,.18),"blue",false)
 	solid(Vector3(0,6.75,-11.2),Vector3(.06,1.2,.06),"ink",false)
 	solid(Vector3(.5,7,-11.2),Vector3(1,.5,.035),"red",false)
+	active_structure = null
 	# Foreground cover and recognizable props.
 	model("forklift",Vector3(-2,0,-1),-.25)
 	collider(Vector3(-2,.7,-1),Vector3(1.7,1.4,2.5))
@@ -255,6 +299,7 @@ func pool_terrace() -> void:
 	shape.shape = convex
 	ramp.add_child(shape)
 	add_child(ramp)
+	if active_structure:active_structure.register(ramp)
 	var water = MeshInstance3D.new()
 	water.name = "PoolWater"
 	var plane = PlaneMesh.new()
@@ -266,6 +311,7 @@ func pool_terrace() -> void:
 	water.material_override = shader
 	water.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(water)
+	if active_structure:active_structure.register(water)
 	for p in [Vector3(-6.8,3.1,-15.8),Vector3(-6.8,3.1,-19.2),Vector3(7,3.1,-17.4)]:
 		var chair = model("lounger",p,PI/2 if p.x<0 else -PI/2)
 		loungers.append(chair)
@@ -294,6 +340,7 @@ func bake_navigation() -> void:
 	for child in get_children():
 		if child is StaticBody3D:child.reparent(nav)
 	nav.bake_navigation_mesh(false)
+	original_navigation_mesh = nav.navigation_mesh.duplicate()
 
 func chain_link(a: Vector3, b: Vector3) -> void:
 	var direction = a.direction_to(b)
@@ -314,7 +361,16 @@ func chain_link(a: Vector3, b: Vector3) -> void:
 func beam(a: Vector3, b: Vector3, width: float, color: String, collision: bool = false) -> void:
 	var basis = Basis.looking_at(a.direction_to(b))
 	var length = a.distance_to(b)
-	boxes[color].append(Transform3D(basis*Basis.from_scale(Vector3(width,width,length)),(a+b)*.5))
+	if active_structure:
+		var visual = MeshInstance3D.new()
+		var mesh = BoxMesh.new()
+		mesh.size = Vector3(width,width,length)
+		mesh.material = materials[color]
+		visual.mesh = mesh
+		visual.transform = Transform3D(basis,(a+b)*.5)
+		add_child(visual)
+		active_structure.register(visual)
+	else:boxes[color].append(Transform3D(basis*Basis.from_scale(Vector3(width,width,length)),(a+b)*.5))
 	if collision:
 		var body = StaticBody3D.new()
 		var shape = CollisionShape3D.new()
@@ -324,6 +380,7 @@ func beam(a: Vector3, b: Vector3, width: float, color: String, collision: bool =
 		body.add_child(shape)
 		body.transform = Transform3D(basis,(a+b)*.5)
 		add_child(body)
+		if active_structure:active_structure.register(body)
 
 func fence(a: Vector3, b: Vector3) -> void:
 	var direction = a.direction_to(b)
@@ -374,6 +431,8 @@ func warehouse() -> void:
 	for p in [Vector3(28.5,0,-7),Vector3(29.5,0,-7.7)]:explosive_barrel(p)
 	# An actual hollow 12 x 25 m building. West has two five-metre doors, south a six-metre loading bay.
 	solid(Vector3(30,.019,-3.5),Vector3(12,.025,25),"pavement",false)
+	warehouse_structure = structure(AABB(Vector3(23.6,0,-16.4),Vector3(12.9,5.8,25.8)),"green")
+	active_structure = warehouse_structure
 	solid(Vector3(36,2.7,-3.5),Vector3(.3,5.4,25),"green")
 	solid(Vector3(30,2.7,-16),Vector3(12,5.4,.3),"green")
 	for segment in [Vector2(-16,-11.5),Vector2(-6.5,1.5),Vector2(6.5,9)]:
@@ -408,6 +467,8 @@ func warehouse() -> void:
 		light.omni_range = 7
 		light.shadow_enabled = false
 		add_child(light)
+		active_structure.register(light)
+	active_structure = null
 	wall_paint(preload("res://assets/graffiti/warehouse.png"),Vector3(23.85,2.75,-2.5),Vector2(6.7,4.05),["cream"],Vector3.LEFT)
 
 func _process(_delta: float) -> void:
@@ -426,3 +487,43 @@ func _process(_delta: float) -> void:
 			if active:
 				material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 			lamp.material_override = material
+
+func restore_structures() -> void:
+	var changed = false
+	for node in structures:
+		changed = changed or node.collapsed
+		node.restore()
+	if changed:
+		restore_navigation_pending = true
+		request_navigation_update()
+
+func request_navigation_update() -> void:
+	navigation_dirty = true
+
+func _physics_process(_delta: float) -> void:
+	if not navigation_dirty or navigation_baking or not nav:return
+	navigation_dirty = false
+	if restore_navigation_pending:
+		# A restart always restores the known intact navigation topology. Keep
+		# its immutable startup copy separate from asynchronous runtime baking.
+		restore_navigation_pending = false
+		nav.navigation_mesh = original_navigation_mesh.duplicate()
+		return
+	navigation_baking = true
+	bake_changed_geometry.call_deferred()
+
+func bake_changed_geometry() -> void:
+	# Collision layer changes reach the physics server at frame boundaries.
+	# Parsing too early can bake the just-collapsed geometry again on restart.
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	if not nav.bake_finished.is_connected(navigation_finished):nav.bake_finished.connect(navigation_finished)
+	nav.bake_navigation_mesh(true)
+
+func navigation_finished() -> void:
+	navigation_baking = false
+
+func zone_intact(zone: String) -> bool:
+	if zone=="deck":return not deck_structure.collapsed
+	if zone=="warehouse":return not warehouse_structure.collapsed
+	return true

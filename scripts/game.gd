@@ -6,6 +6,7 @@ const Enemy = preload("res://scripts/enemy.gd")
 const Hud = preload("res://scripts/hud.gd")
 const Rules = preload("res://scripts/run_rules.gd")
 const LoadingTransition = preload("res://scripts/loading_transition.gd")
+const CombatFX = preload("res://scripts/combat_fx.gd")
 const OPENING_POSITIONS = [Vector3(-4,0,1.5),Vector3(11,0,1),Vector3(30,0,3),Vector3(30,0,-10),Vector3(-4,3.1,-11),Vector3(4,3.1,-11)]
 var arena: Node3D
 var player: CharacterBody3D
@@ -51,6 +52,7 @@ var load_ticket = 0
 var opening_prepared = false
 var enemy_model: PackedScene
 var title_frame_ready = false
+var destroy_active = false
 
 func _ready() -> void:
 	process_physics_priority = -100
@@ -140,6 +142,7 @@ func _ready() -> void:
 		if "--respawn" in OS.get_cmdline_user_args():test_path = "res://tests/respawn_check.gd"
 		if "--loading" in OS.get_cmdline_user_args():test_path = "res://tests/loading_check.gd"
 		if "--dodge" in OS.get_cmdline_user_args():test_path = "res://tests/dodge_check.gd"
+		if "--destroy" in OS.get_cmdline_user_args():test_path = "res://tests/destroy_check.gd"
 		var qa = load(test_path).new()
 		qa.game = self
 		add_child(qa)
@@ -197,6 +200,8 @@ func reset_run_state() -> void:
 	rng.seed = 61105
 	rules.start()
 	rules.active = false
+	destroy_active = false
+	hud.destroy_time = 0
 	ammo = MAGAZINE_SIZE
 	reload_time = 0
 	fire_time = 0
@@ -263,13 +268,14 @@ func prepare_loaded_run(ticket: int) -> void:
 			if ticket!=load_ticket:return
 	for barrel in arena.barrels:barrel.reset()
 	for room in arena.containers:room.reset()
+	arena.restore_structures()
 	reset_run_state()
 	loading.report(.1)
 	await loading_frame()
 	if ticket!=load_ticket:return
 	# Clicking before navigation has synchronized remains a visible loading wait.
 	for attempt in range(600):
-		if nav_ready:break
+		if nav_ready and not arena.navigation_dirty and not arena.navigation_baking:break
 		await loading_frame()
 		if ticket!=load_ticket:return
 	if not nav_ready:
@@ -343,6 +349,7 @@ func clear_round() -> void:
 	opening_prepared = false
 	for barrel in arena.barrels:barrel.reset()
 	for room in arena.containers:room.reset()
+	arena.restore_structures()
 	bullets.clear()
 	player_bullets.clear()
 	for node in enemies.get_children():
@@ -442,6 +449,10 @@ func _physics_process(delta: float) -> void:
 	if not rules.active:
 		finish_run()
 		return
+	if not destroy_active and rules.elapsed>=50:
+		destroy_active = true
+		hud.destroy_time = 1.2
+		play_sound("end",-12,1.25)
 	invulnerable = maxf(0,invulnerable-delta)
 	since_damage += delta
 	if health<MAX_HEALTH and since_damage>=HEAL_DELAY and respawn_time<=0:
@@ -502,7 +513,8 @@ func zone_population(zone: String) -> int:
 	return live_enemies().filter(func(e):return e.home_zone==zone).size()
 
 func zone_capacity(zone: String) -> int:
-	return population_target()-4 if zone=="yard" else 2
+	var reserved = (2 if arena.zone_intact("deck") else 0)+(2 if arena.zone_intact("warehouse") else 0)
+	return population_target()-reserved if zone=="yard" else (2 if arena.zone_intact(zone) else 0)
 
 func spawn_is_clear(point: Vector3) -> bool:
 	for enemy in live_enemies():
@@ -535,6 +547,7 @@ func update_spawns(delta: float) -> void:
 		var p: Vector3 = arena.spawn_points[i]
 		if spawn_cooldowns[i]>0 or p.distance_to(player.position)<8 or not spawn_is_clear(p):continue
 		var zone = arena.enemy_zone(p)
+		if not arena.zone_intact(zone):continue
 		if zone_population(zone)>=zone_capacity(zone):continue
 		var path = NavigationServer3D.map_get_path(arena.nav.get_navigation_map(),p,player.position,true)
 		if path.size()<2:continue
@@ -593,11 +606,12 @@ func shoot() -> void:
 		projectile.material_override = effect_material(Color("fff1b7"))
 		effects.add_child(projectile)
 		projectile.global_position = origin
-		player_bullets.append({"node":projectile,"velocity":origin.direction_to(target)*65,"life":1.4,"origin":origin})
+		player_bullets.append({"node":projectile,"velocity":origin.direction_to(target)*65,"life":1.4,"origin":origin,"burning":destroy_active})
 	else:
-		trace(muzzle,target,Color("fff1b7"),.025,.045)
-		resolve_shot(result,origin,target)
+		trace(muzzle,target,Color("ff8533") if destroy_active else Color("fff1b7"),.055 if destroy_active else .025,.09 if destroy_active else .045)
+		resolve_shot(result,origin,target,destroy_active)
 	spark(muzzle,Color("ffe19a"),.1,.035)
+	if destroy_active:fire_effect(muzzle,.13)
 	if ammo==0:reload_weapon()
 
 func enemy_from_hit(result: Dictionary) -> Node3D:
@@ -605,11 +619,16 @@ func enemy_from_hit(result: Dictionary) -> Node3D:
 	var collider = result.collider
 	return collider.get_meta("enemy",null) if collider is Area3D else (collider if collider.has_method("take_hit") else null)
 
-func resolve_shot(result: Dictionary, origin: Vector3, target: Vector3) -> void:
+func resolve_shot(result: Dictionary, origin: Vector3, target: Vector3, burning: bool = false) -> void:
+	if state!="RUNNING" or not rules.active:return
 	if not result.is_empty():
 		var collider = result.collider
 		var enemy = enemy_from_hit(result)
-		if collider.has_method("ignite"):
+		if burning:
+			var building = collider.get_meta("structure",null)
+			if building:building.ignite_hit(target)
+			else:fire_effect(target,.3)
+		if enemy==null and collider.has_method("ignite"):
 			collider.ignite()
 			hud.hit = .12
 		elif enemy!=null:
@@ -621,6 +640,7 @@ func resolve_shot(result: Dictionary, origin: Vector3, target: Vector3) -> void:
 			hud.hit = .12
 			play_sound("hit",-14)
 			enemy.take_hit(collider is Area3D)
+			if burning and not enemy.dead:enemy.ignite()
 			spark(target,Color("f2d084"),.07,.12)
 		else:spark(target,Color("e5e0d2"),.045,.1)
 
@@ -637,7 +657,7 @@ func update_player_bullets(delta: float) -> void:
 		var hit = get_world_3d().direct_space_state.intersect_ray(query)
 		b.life -= delta
 		if not hit.is_empty() or b.life<=0:
-			resolve_shot(hit,b.origin,hit.position if not hit.is_empty() else to)
+			resolve_shot(hit,b.origin,hit.position if not hit.is_empty() else to,b.burning)
 			b.node.queue_free()
 			player_bullets.remove_at(i)
 		else:b.node.global_position = to
@@ -706,6 +726,37 @@ func effect_material(color: Color) -> StandardMaterial3D:
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	material.albedo_color = color
 	return material
+
+func fire_effect(at: Vector3, extent: float) -> void:
+	# Bound active flame nodes, including continuous automatic fire.
+	if effects.get_children().filter(func(n):return n is CombatFX).size()>=18:return
+	var fx = CombatFX.new()
+	fx.game = self
+	fx.duration = .32
+	effects.add_child(fx)
+	fx.flame(at,extent,Color("ef7833"))
+	fx.flame(at+Vector3.UP*extent*.25,extent*.55,Color("fff1b7"))
+
+func collapse_effect(bounds: AABB, color: Color) -> void:
+	var fx = CombatFX.new()
+	fx.game = self
+	fx.duration = 1.8
+	fx.rng.seed = int(bounds.position.x*31+bounds.position.z*67)
+	effects.add_child(fx)
+	var center = bounds.get_center()
+	play_world_sound("explosion",center,-7)
+	var debris_count = effects.get_children().filter(func(n):return n is CombatFX and n.duration>1).size()
+	var count = 32 if debris_count<4 else 12
+	for i in range(count):
+		var point = bounds.position+Vector3(fx.rng.randf()*bounds.size.x,fx.rng.randf()*bounds.size.y,fx.rng.randf()*bounds.size.z)
+		var outward = point-center
+		outward.y = 0
+		var extent = Vector3(fx.rng.randf_range(.3,1.1),fx.rng.randf_range(.25,.65),fx.rng.randf_range(.3,1.1))
+		fx.chunk(point,extent,color.lerp(Color("e5e0d2"),float(i%3)*.15),outward.normalized()*fx.rng.randf_range(1,3)+Vector3.UP*fx.rng.randf_range(1,4))
+	for i in range(7):
+		var point = center+Vector3(cos(i*TAU/7)*bounds.size.x*.25,-bounds.size.y*.25,sin(i*TAU/7)*bounds.size.z*.25)
+		fx.flame(point,1.5,Color("ef7833"))
+		fx.flame(point+Vector3.UP*.4,.85,Color("ffe78e"))
 
 func spark(pos: Vector3, color: Color, radius: float, duration: float) -> void:
 	var node = MeshInstance3D.new()

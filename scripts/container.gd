@@ -51,7 +51,7 @@ func open() -> void:
 	game.play_world_sound("reload",to_global(Vector3(3,1.4,0)),-10)
 
 func _physics_process(delta: float) -> void:
-	if game.state!="RUNNING":return
+	if game.state!="RUNNING" or not visible:return
 	if not opening:
 		var local_player = to_local(game.player.global_position)
 		# Trigger only in front of this doorway, not through its sides or roof.
