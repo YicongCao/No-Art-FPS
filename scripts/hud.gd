@@ -4,6 +4,8 @@ var game: Node
 var font: Font
 var hit = 0.0
 var kill_pop = 0.0
+var kill_group = 1
+var multi_time = 0.0
 var damage = 0.0
 var shot = 0.0
 var time_pulse = 0.0
@@ -182,6 +184,7 @@ func _process(delta: float) -> void:
 		vignette.material.set_shader_parameter("severity",health_shade)
 	hit = maxf(0,hit-delta)
 	kill_pop = maxf(0,kill_pop-delta)
+	multi_time = maxf(0,multi_time-delta)
 	damage = maxf(0,damage-delta)
 	shot = maxf(0,shot-delta)
 	if game and (menu_state != game.state or menu_size != size):
@@ -358,15 +361,22 @@ func _draw() -> void:
 	draw_line(Vector2(c.x+18,33),Vector2(c.x+18,64),Color(1,1,1,.4),1)
 	var score_center = Vector2(c.x+65,51)
 	var burst = kill_pop/.5
-	var score_scale = 1.0+sin(burst*PI)*.65
+	var strength = .65+float(mini(kill_group,3)-1)*.4
+	if game.reduced_motion:strength *= .25
+	var score_scale = 1.0+sin(burst*PI)*strength
 	draw_set_transform(score_center,0,Vector2.ONE*score_scale)
 	label("%02d"%game.rules.kills,Vector2(0,13),38,WHITE.lerp(GOLD,burst),true)
 	draw_set_transform(Vector2.ZERO)
 	if burst>0:
-		for i in range(8):
-			var direction = Vector2.from_angle(float(i)*TAU/8)
-			var radius = 27+(1-burst)*40
+		var rays = 8+2*(mini(kill_group,3)-1)
+		for i in range(rays):
+			var direction = Vector2.from_angle(float(i)*TAU/rays)
+			var radius = 27+(1-burst)*(40+10*(mini(kill_group,3)-1))
 			draw_line(score_center+direction*radius,score_center+direction*(radius+8*burst),Color(1,.83,.44,burst),2)
+	if multi_time>0:
+		var alpha = smoothstep(0,.35,multi_time)
+		var offset = (1-multi_time/.65)*16
+		label("+"+str(kill_group),score_center+Vector2(0,64-offset),30,Color(GOLD,alpha),true)
 	label("KILLS",Vector2(c.x+122,61),14,WHITE,true)
 	if game.respawn_time<=0:
 		var gap = 5+shot*24

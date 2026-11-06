@@ -53,6 +53,9 @@ var opening_prepared = false
 var enemy_model: PackedScene
 var title_frame_ready = false
 var destroy_active = false
+const MULTIKILL_WINDOW = 1.25
+var kill_group_start = -99.0
+var kill_group_count = 0
 
 func _ready() -> void:
 	process_physics_priority = -100
@@ -144,6 +147,7 @@ func _ready() -> void:
 		if "--loading" in OS.get_cmdline_user_args():test_path = "res://tests/loading_check.gd"
 		if "--dodge" in OS.get_cmdline_user_args():test_path = "res://tests/dodge_check.gd"
 		if "--destroy" in OS.get_cmdline_user_args():test_path = "res://tests/destroy_check.gd"
+		if "--multikill" in OS.get_cmdline_user_args():test_path = "res://tests/multikill_check.gd"
 		var qa = load(test_path).new()
 		qa.game = self
 		add_child(qa)
@@ -203,6 +207,10 @@ func reset_run_state() -> void:
 	rules.active = false
 	destroy_active = false
 	hud.destroy_time = 0
+	kill_group_count = 0
+	kill_group_start = -99
+	hud.kill_group = 1
+	hud.multi_time = 0
 	ammo = MAGAZINE_SIZE
 	reload_time = 0
 	fire_time = 0
@@ -671,8 +679,14 @@ func reload_weapon() -> void:
 
 func on_kill(enemy: Node3D, headshot: bool) -> void:
 	if rules.record_kill(enemy.get_instance_id(),headshot):
+		if rules.elapsed-kill_group_start>MULTIKILL_WINDOW:
+			kill_group_start = rules.elapsed
+			kill_group_count = 0
+		kill_group_count += 1
+		hud.kill_group = kill_group_count
 		hud.kill_pop = .5
-		play_sound("headshot" if headshot else "kill",-7)
+		hud.multi_time = .65 if kill_group_count>=2 else 0.0
+		play_sound("headshot" if headshot else "kill",-7,minf(1.25,1+(kill_group_count-1)*.08))
 
 func enemy_shoot(origin: Vector3) -> void:
 	if state!="RUNNING" or respawn_time>0:return
