@@ -18,6 +18,7 @@ var state = "TITLE"
 var previous_state = "RUNNING"
 const MAGAZINE_SIZE = 20
 const DESTROY_DURATION = 15.0
+const FINALE_DURATION = 1.0
 const MAX_HEALTH = 100.0
 const HEAL_DELAY = 5.0
 const HEAL_RATE = 12.0
@@ -54,6 +55,9 @@ var opening_prepared = false
 var enemy_model: PackedScene
 var title_frame_ready = false
 var destroy_active = false
+var finale_active = false
+var frozen_process_modes: Dictionary = {}
+var frozen_tweens: Array[Tween] = []
 const MULTIKILL_WINDOW = 1.25
 var kill_group_start = -99.0
 var kill_group_count = 0
@@ -150,6 +154,7 @@ func _ready() -> void:
 		if "--destroy" in OS.get_cmdline_user_args():test_path = "res://tests/destroy_check.gd"
 		if "--multikill" in OS.get_cmdline_user_args():test_path = "res://tests/multikill_check.gd"
 		if "--reload-audio" in OS.get_cmdline_user_args():test_path = "res://tests/reload_audio_check.gd"
+		if "--finale" in OS.get_cmdline_user_args():test_path = "res://tests/finale_check.gd"
 		var qa = load(test_path).new()
 		qa.game = self
 		add_child(qa)
@@ -208,6 +213,7 @@ func reset_run_state() -> void:
 	rules.start()
 	rules.active = false
 	destroy_active = false
+	finale_active = false
 	hud.destroy_time = 0
 	kill_group_count = 0
 	kill_group_start = -99
@@ -241,6 +247,8 @@ func reset_run_state() -> void:
 func request_run() -> void:
 	if not title_frame_ready or state not in ["TITLE","RESULTS","PAUSED"]:return
 	load_ticket += 1
+	restore_frozen_world()
+	hud.reset_results_frame()
 	state = "LOADING"
 	loading = LoadingTransition.new()
 	rules.active = false
@@ -359,6 +367,10 @@ func _process(delta: float) -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func clear_round() -> void:
+	restore_frozen_world()
+	hud.reset_results_frame()
+	finale_active = false
+	arena.restore_finale_decor()
 	opening_prepared = false
 	for barrel in arena.barrels:barrel.reset()
 	for room in arena.containers:room.reset()
@@ -396,18 +408,63 @@ func finish_run() -> void:
 	rules.active = false
 	player.enabled = false
 	player.velocity = Vector3.ZERO
+	freeze_world()
 	new_record = rules.kills > best
 	best = maxi(best,rules.kills)
 	save_record()
 	pending_spawn.clear()
-	for bullet in bullets:
-		if is_instance_valid(bullet.node):bullet.node.queue_free()
 	bullets.clear()
-	for bullet in player_bullets:
-		if is_instance_valid(bullet.node):bullet.node.queue_free()
 	player_bullets.clear()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	play_sound("end",-7)
+	hud.capture_results_frame()
+
+func freeze_world() -> void:
+	# Freeze node callbacks and existing tweens, including dead actors and recoil.
+	for root in [arena,player,enemies,effects]:
+		for node in [root]+root.find_children("*","",true,false):
+			if frozen_process_modes.has(node):continue
+			frozen_process_modes[node] = node.process_mode
+			node.process_mode = Node.PROCESS_MODE_DISABLED
+	for tween in get_tree().get_processed_tweens():
+		if tween.is_running():
+			tween.pause()
+			frozen_tweens.append(tween)
+
+func restore_frozen_world() -> void:
+	for node in frozen_process_modes:
+		if is_instance_valid(node):node.process_mode = frozen_process_modes[node]
+	frozen_process_modes.clear()
+	for tween in frozen_tweens:
+		if tween.is_valid():tween.play()
+	frozen_tweens.clear()
+
+func start_finale() -> void:
+	if finale_active or state!="RUNNING" or not rules.active:return
+	finale_active = true
+	pending_spawn.clear()
+	# Score all remaining enemies once before the strict round deadline.
+	for enemy in live_enemies():
+		finale_explosion(enemy.global_position+Vector3.UP,1.2,Color("243440"))
+		enemy.take_damage(3)
+	for building in arena.structures:building.collapse()
+	for barrel in arena.barrels:barrel.explode()
+	arena.explode_finale_decor()
+	play_sound("explosion",-6)
+
+func finale_explosion(center: Vector3, extent: float, debris_color: Color) -> void:
+	var fx = CombatFX.new()
+	fx.game = self
+	fx.duration = 1.65
+	fx.rng.seed = int(center.x*173+center.z*419)+61106
+	effects.add_child(fx)
+	for i in range(6):
+		var direction = Vector3(cos(i*TAU/6),fx.rng.randf_range(.5,1.4),sin(i*TAU/6))
+		fx.chunk(center+direction*.2,Vector3.ONE*fx.rng.randf_range(.2,.6),debris_color,direction*extent*1.4)
+	for i in range(5):
+		var offset = Vector3(cos(i*TAU/5),float(i%2)*.4,sin(i*TAU/5))*extent*.45
+		fx.bloom(center+offset,extent*(.7 if i%2==0 else .5),Color("ef7833") if i%2==0 else Color("f2d084"))
+	fx.bloom(center+Vector3.UP*extent*.6,extent*.65,Color("573e37"))
 
 func _notification(what: int) -> void:
 	if state=="LOADING" and not qa_mode:
@@ -466,6 +523,7 @@ func _physics_process(delta: float) -> void:
 		destroy_active = true
 		hud.destroy_time = 1.2
 		play_sound("end",-12,1.25)
+	if not finale_active and rules.remaining()<=FINALE_DURATION+.000001:start_finale()
 	invulnerable = maxf(0,invulnerable-delta)
 	since_damage += delta
 	if health<MAX_HEALTH and since_damage>=HEAL_DELAY and respawn_time<=0:
@@ -539,6 +597,7 @@ func spawn_is_clear(point: Vector3) -> bool:
 	return true
 
 func update_spawns(delta: float) -> void:
+	if finale_active:return
 	for i in range(spawn_cooldowns.size()):spawn_cooldowns[i] = maxf(0,spawn_cooldowns[i]-delta)
 	if not pending_spawn.is_empty():
 		pending_spawn.delay -= delta
@@ -774,7 +833,7 @@ func collapse_effect(bounds: AABB, color: Color) -> void:
 	fx.rng.seed = int(bounds.position.x*31+bounds.position.z*67)
 	effects.add_child(fx)
 	var center = bounds.get_center()
-	play_world_sound("explosion",center,-7)
+	if not finale_active:play_world_sound("explosion",center,-7)
 	var debris_count = effects.get_children().filter(func(n):return n is CombatFX and n.duration>1).size()
 	var count = 32 if debris_count<4 else 12
 	for i in range(count):
@@ -787,6 +846,7 @@ func collapse_effect(bounds: AABB, color: Color) -> void:
 		var point = center+Vector3(cos(i*TAU/7)*bounds.size.x*.25,-bounds.size.y*.25,sin(i*TAU/7)*bounds.size.z*.25)
 		fx.flame(point,1.5,Color("ef7833"))
 		fx.flame(point+Vector3.UP*.4,.85,Color("ffe78e"))
+	if finale_active:finale_explosion(center,clampf(bounds.size.length()*.12,1.8,4),color)
 
 func spark(pos: Vector3, color: Color, radius: float, duration: float) -> void:
 	var node = MeshInstance3D.new()
@@ -847,6 +907,9 @@ func blast_clear(from: Vector3, to: Vector3, excluded: Array[RID]) -> bool:
 
 func barrel_blast(center: Vector3, radius: float, source: StaticBody3D) -> void:
 	if state!="RUNNING" or not rules.active:return
+	if finale_active:
+		finale_explosion(center,1.5,Color("b65745"))
+		return
 	play_world_sound("explosion",center,-5)
 	for enemy in live_enemies():
 		var target = enemy.global_position+Vector3.UP

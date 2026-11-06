@@ -5,6 +5,10 @@ const ContainerRoom = preload("res://scripts/container.gd")
 const Destructible = preload("res://scripts/destructible.gd")
 var structures: Array[Node3D] = []
 var active_structure: Node3D
+var finale_props: Array[Node3D] = []
+var finale_hidden: Array[Node3D] = []
+var finale_collisions: Dictionary = {}
+var finale_batches: Dictionary = {}
 var warehouse_structure: Node3D
 var deck_structure: Node3D
 var navigation_dirty = false
@@ -89,6 +93,7 @@ func model(kind: String, pos: Vector3, yaw: float = 0.0, size: Vector3 = Vector3
 	node.rotation.y = yaw
 	node.scale = size
 	if active_structure:active_structure.register(node)
+	elif kind!="cloud":finale_props.append(node)
 	return node
 
 func structure(region: AABB, color: String) -> Node3D:
@@ -268,6 +273,7 @@ func batch_boxes() -> void:
 		for i in range(multi.instance_count):multi.set_instance_transform(i,boxes[color][i])
 		var instance = MultiMeshInstance3D.new()
 		instance.multimesh = multi
+		instance.set_meta("palette",color)
 		if color == "net":instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		add_child(instance)
 
@@ -500,7 +506,41 @@ func restore_structures() -> void:
 		request_navigation_update()
 
 func request_navigation_update() -> void:
+	if game.finale_active:return
 	navigation_dirty = true
+
+func explode_finale_decor() -> void:
+	var centers: Dictionary = {}
+	for prop in finale_props:
+		if not prop.visible:continue
+		finale_hidden.append(prop)
+		prop.hide()
+		centers[Vector2i(floori(prop.position.x/5),floori(prop.position.z/5))] = prop.position+Vector3.UP
+	for node in get_children():
+		if node is StaticBody3D and not node.has_meta("structure") and node.position.y>=0:
+			finale_collisions[node] = node.collision_layer
+			node.collision_layer = 0
+			centers[Vector2i(floori(node.position.x/5),floori(node.position.z/5))] = node.position
+		elif node is MultiMeshInstance3D:
+			var transforms: Dictionary = {}
+			for i in range(node.multimesh.instance_count):
+				var transform: Transform3D = boxes[node.get_meta("palette")][i]
+				if transform.origin.y<=.12:continue
+				transforms[i] = transform
+				centers[Vector2i(floori(transform.origin.x/5),floori(transform.origin.z/5))] = transform.origin
+				node.multimesh.set_instance_transform(i,Transform3D(Basis.from_scale(Vector3.ZERO),transform.origin))
+			if not transforms.is_empty():finale_batches[node] = transforms
+	# All props disappear; nearby pieces share one bounded burst per five-metre cell.
+	for point in centers.values():game.finale_explosion(point,1.1,Color("e9ba50"))
+
+func restore_finale_decor() -> void:
+	for prop in finale_hidden:prop.show()
+	finale_hidden.clear()
+	for node in finale_collisions:node.collision_layer = finale_collisions[node]
+	finale_collisions.clear()
+	for node in finale_batches:
+		for i in finale_batches[node]:node.multimesh.set_instance_transform(i,finale_batches[node][i])
+	finale_batches.clear()
 
 func _physics_process(_delta: float) -> void:
 	if not navigation_dirty or navigation_baking or not nav:return

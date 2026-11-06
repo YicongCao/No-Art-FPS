@@ -25,6 +25,9 @@ var motion_button: Button
 var music_slider: HSlider
 var fire_button: Button
 var title_frame: ImageTexture
+var results_frame: ImageTexture
+var results_frame_pending = false
+var results_frame_ticket = 0
 const TITLE_SHADE_OPACITY = .55
 const WHITE = Color("fff8e8")
 const INK = Color("243440")
@@ -133,7 +136,7 @@ func loading_magazine_rect() -> Rect2:
 func sync_loading_cover() -> void:
 	if not is_instance_valid(loading_cover):return
 	loading_cover.visible = game.state in ["TITLE","LOADING"] and title_frame!=null
-	vignette.visible = game.state not in ["TITLE","LOADING"]
+	vignette.visible = game.state not in ["TITLE","LOADING","RESULTS"]
 	loading_cover.material.set_shader_parameter("progress",game.loading.reveal_progress() if game.state=="LOADING" else 0.0)
 	loading_cover.material.set_shader_parameter("viewport_size",size)
 
@@ -168,6 +171,28 @@ func _ready() -> void:
 	menu.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	menu.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(menu)
+
+func reset_results_frame() -> void:
+	results_frame_ticket += 1
+	results_frame = null
+	results_frame_pending = false
+	menu.show()
+
+func capture_results_frame() -> void:
+	reset_results_frame()
+	if DisplayServer.get_name()=="headless":return
+	var ticket = results_frame_ticket
+	results_frame_pending = true
+	menu.hide()
+	vignette.hide()
+	queue_redraw()
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	if ticket!=results_frame_ticket or game.state!="RESULTS":return
+	results_frame = ImageTexture.create_from_image(get_viewport().get_texture().get_image())
+	results_frame_pending = false
+	menu.show()
+	queue_redraw()
 
 func _process(delta: float) -> void:
 	sync_loading_cover()
@@ -331,6 +356,10 @@ func _draw() -> void:
 			draw_string(font,pos,words[i],HORIZONTAL_ALIGNMENT_LEFT,-1,160,Color.WHITE)
 		return
 	if state == "RESULTS":
+		if results_frame_pending:
+			draw_finale_edges()
+			return
+		if results_frame:draw_texture_rect(results_frame,Rect2(Vector2.ZERO,size),false)
 		draw_rect(Rect2(Vector2.ZERO,size),Color(.06,.09,.12,.80))
 		death_marks()
 		label(str(game.rules.kills),Vector2(c.x,c.y-30),120,WHITE,true)
@@ -344,6 +373,7 @@ func _draw() -> void:
 		label("Camera motion",Vector2(c.x-200,c.y+128),20)
 		label("Music",Vector2(c.x-200,c.y+185),20)
 		return
+	draw_finale_edges()
 	if game.respawn_time>0:draw_rect(Rect2(Vector2.ZERO,size),Color(.06,.09,.12,.28))
 	death_marks()
 	var seconds = ceili(game.rules.remaining())
@@ -399,3 +429,27 @@ func _draw() -> void:
 		label("DESTROY",c+Vector2(0,22),64,Color(GOLD,smoothstep(0,.8,destroy_time)),true)
 	if damage>0:
 		draw_line(Vector2(c.x-30,c.y+44),Vector2(c.x+30,c.y+44),Color(1,.35,.2,damage),3)
+
+func draw_finale_edges() -> void:
+	if not game.finale_active:return
+	var age = clampf(game.FINALE_DURATION-game.rules.remaining(),0,1)
+	var expansion = smoothstep(0,.28,age)
+	if expansion<=0:return
+	for i in range(24):
+		var side = i/6
+		var fraction = (float(i%6)+.5)/6
+		var center: Vector2
+		if side==0:center = Vector2(size.x*fraction,-12)
+		elif side==1:center = Vector2(size.x+12,size.y*fraction)
+		elif side==2:center = Vector2(size.x*(1-fraction),size.y+12)
+		else:center = Vector2(-12,size.y*(1-fraction))
+		var radius = (56+float((i*7)%5)*13)*expansion
+		for layer in range(3):
+			var points = PackedVector2Array()
+			var extent = radius*(1-float(layer)*.22)
+			for corner in range(12):
+				var angle = corner*TAU/12+float(i)*.7
+				var reach = extent*(1.0 if corner%2==0 else .68)
+				points.append(center+Vector2.from_angle(angle)*reach)
+			var color = [Color("573e37"),Color("ef7833"),Color("f2d084")][layer]
+			draw_colored_polygon(points,color)

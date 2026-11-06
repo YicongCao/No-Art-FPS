@@ -81,6 +81,7 @@ godot --path . -- --qa --routes
 godot --path . -- --qa --graffiti
 godot --path . -- --qa --respawn
 godot --path . -- --qa --loading
+godot --path . -- --qa --finale
 ```
 
 The first command tests score and timer boundaries. `--check` exercises normal collision movement on both ramps, live head/body raycasts, wall blocking, pause, reload, respawn, and ten restarts. `--qa` runs a real-time full-minute automatic aiming session, with scripted viewpoint changes. `--population` checks patrol retention, regional reinforcements, population caps and safe spawn distances/visibility. The short benchmark runs twelve enemies with VSync disabled. These flags are development-only test helpers, not normal gameplay modes.
@@ -90,6 +91,8 @@ The first command tests score and timer boundaries. `--check` exercises normal c
 `--magazine` counts rendered cartridges during firing and sequential loading, checks seating/return timing and exactly 54 ticks per reload, automatic/manual reload, pause, death cancellation and restart, then verifies the HUD in a 960×540 window.
 
 `--reload-audio` checks actual audio voices against seated cartridges for full and partial reloads, pause/death/deadline/reset, and loading's 17+3 rounds, suspension and cancellation. Rendered `--loading` and `--magazine` checks also verify the sound count; `--magazine` saves a local audio-mixer recording to `artifacts/local/cartridge-reload.wav`.
+
+The final fifteen seconds enable DESTROY rounds. At one second remaining, every remaining enemy, structure, barrel and prop erupts, with explosions around the screen edges. Remaining enemies count once before the deadline. Results freeze the world and show a captured still; retry/title restore the arena. `--finale` checks the exact trigger, all targets, pause, scoring, frozen pixels and restoration.
 
 Latest update: [cartridge insertion audio](docs/updates/2026-11-06-cartridge-audio.md). Earlier: [title styling and stair landing fix](docs/updates/2026-11-06-title-and-stair-landings.md), [FIRE title and magazine loading transition](docs/updates/2026-11-06-fire-loading-transition.md). Next directions: [shooting feedback and combat pressure](docs/design/shooting-feel-next.md). Earlier: [sequential reload](docs/updates/2026-11-06-cartridge-reload.md), [five-second respawn](docs/updates/2026-11-06-seams-and-respawn.md), [wall graffiti](docs/updates/2026-11-06-wall-graffiti.md), [pool terrace](docs/updates/2026-11-06-poolside-playbox.md). MIDI: [sixty.mid](assets/music/sixty.mid).
 

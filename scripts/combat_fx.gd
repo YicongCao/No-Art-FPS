@@ -33,6 +33,20 @@ func flame(at: Vector3, extent: float, color: Color) -> void:
 	node.global_position = at
 	pieces.append({"node":node,"velocity":Vector3(0,.5,0),"spin":Vector3.ZERO,"floor":-99.0,"fall":false})
 
+func bloom(at: Vector3, extent: float, color: Color) -> void:
+	var node = MeshInstance3D.new()
+	var sphere = SphereMesh.new()
+	sphere.radius = extent
+	sphere.height = extent*2
+	sphere.radial_segments = 8
+	sphere.rings = 3
+	node.mesh = sphere
+	node.material_override = game.effect_material(color)
+	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(node)
+	node.global_position = at
+	pieces.append({"node":node,"velocity":Vector3(0,.65,0),"spin":Vector3.ZERO,"floor":-99.0,"fall":false})
+
 func _physics_process(delta: float) -> void:
 	if game.state!="RUNNING":return
 	age += delta
