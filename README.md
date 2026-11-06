@@ -126,6 +126,8 @@ Player-facing copy for review: [game text inventory](docs/review/game-text-revie
 
 Results and screenshots: [implementation and validation notes](docs/implementation.md). Design background: [initial playbox plan](docs/design/No-Art-FPS-playbox-plan.md).
 
+Planned second map: [scene migration and Dust2 defuse mission](docs/design/2026-11-06-map-scenes-localization-plan.md). The proposed mission requires defusing three planted C4 objectives within two to three minutes while surviving patrols. This is a design plan; the current playable mode remains the sixty-second score attack.
+
 ## Local workflow
 
 Each completed implementation stage is committed locally. Every new commit is immediately pushed to `git@github.com:YicongCao/No-Art-FPS.git`; push failures are reported while preserving local commits.
