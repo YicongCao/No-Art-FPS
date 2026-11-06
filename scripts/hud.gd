@@ -137,6 +137,24 @@ func stopwatch(pos: Vector2, color: Color) -> void:
 		draw_line(center,center+Vector2(0,-6),ink,2.2,true)
 		draw_line(center,center+Vector2(4,2),ink,2.2,true)
 
+func skull(center: Vector2, extent: float, color: Color = WHITE) -> void:
+	draw_set_transform(center,0,Vector2.ONE*extent/32.0)
+	draw_colored_polygon(PackedVector2Array([
+		Vector2(-12,-11),Vector2(-6,-16),Vector2(6,-16),Vector2(12,-11),
+		Vector2(15,-3),Vector2(12,5),Vector2(8,7),Vector2(8,14),
+		Vector2(-8,14),Vector2(-8,7),Vector2(-12,5),Vector2(-15,-3)]),color)
+	draw_circle(Vector2(-6,-2),4.2,INK,true,-1,true)
+	draw_circle(Vector2(6,-2),4.2,INK,true,-1,true)
+	draw_colored_polygon(PackedVector2Array([Vector2(0,2),Vector2(-2.5,6),Vector2(2.5,6)]),INK)
+	for x in [-4,0,4]:draw_line(Vector2(x,10),Vector2(x,14),INK,1.6,true)
+	draw_set_transform(Vector2.ZERO)
+
+func death_marks() -> void:
+	var pending = game.respawn_time>0 and game.state!="RESULTS"
+	var completed = maxi(0,game.rules.deaths-(1 if pending else 0))
+	for i in range(completed):
+		skull(Vector2(size.x-38-(completed-1-i)*27,50),20)
+
 func menu_button(text: String, rect: Rect2, action: String, primary: bool = false, shortcut: String = "") -> Button:
 	var button = Button.new()
 	button.name = action
@@ -215,16 +233,20 @@ func _draw() -> void:
 		return
 	if state == "RESULTS":
 		draw_rect(Rect2(Vector2.ZERO,size),Color(.06,.09,.12,.80))
+		death_marks()
 		label(str(game.rules.kills),Vector2(c.x,c.y-30),120,WHITE,true)
 		label("KILLS",Vector2(c.x,c.y+12),24,WHITE,true)
 		label("NEW RECORD" if game.new_record else "BEST %02d"%game.best,Vector2(c.x,c.y+72),23,GOLD,true)
 		return
 	if state == "PAUSED":
 		draw_rect(Rect2(Vector2.ZERO,size),Color(.06,.09,.12,.76))
+		death_marks()
 		label("Sensitivity",Vector2(c.x-200,c.y+65),20)
 		label("Camera motion",Vector2(c.x-200,c.y+128),20)
 		label("Music",Vector2(c.x-200,c.y+185),20)
 		return
+	if game.respawn_time>0:draw_rect(Rect2(Vector2.ZERO,size),Color(.06,.09,.12,.28))
+	death_marks()
 	var seconds = ceili(game.rules.remaining())
 	var time_text = "%02d:%02d"%[seconds/60,seconds%60]
 	var timer_center = Vector2(c.x-52,51)
@@ -252,7 +274,7 @@ func _draw() -> void:
 	label("KILLS",Vector2(c.x+122,61),14,WHITE,true)
 	if state == "READY":
 		label(str(ceili(game.ready_time)),Vector2(c.x,c.y),70,GOLD,true)
-	else:
+	elif game.respawn_time<=0:
 		var gap = 5+shot*24
 		if hit>0:
 			var col = GOLD if kill_pop>0 else WHITE
@@ -261,7 +283,10 @@ func _draw() -> void:
 			draw_circle(c,2,INK)
 			draw_circle(c,1,WHITE)
 			for a in [Vector2.LEFT,Vector2.RIGHT,Vector2.UP,Vector2.DOWN]:draw_line(c+a*gap,c+a*(gap+4),WHITE,1)
-	draw_magazine()
-	if game.respawn_time>0:label("BACK IN A BEAT",Vector2(c.x,c.y+65),18,GOLD,true)
+	if game.respawn_time>0:
+		skull(c,84)
+		var remaining = game.respawn_time/game.RESPAWN_DELAY
+		draw_arc(c,62,-PI*.5,-PI*.5+TAU*remaining,96,WHITE,2.5,true)
+	else:draw_magazine()
 	if damage>0:
 		draw_line(Vector2(c.x-30,c.y+44),Vector2(c.x+30,c.y+44),Color(1,.35,.2,damage),3)

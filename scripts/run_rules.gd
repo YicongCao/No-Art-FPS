@@ -7,6 +7,7 @@ var kills = 0
 var headshots = 0
 var shots = 0
 var hits = 0
+var deaths = 0
 var defeated: Dictionary = {}
 
 func start() -> void:
@@ -16,6 +17,7 @@ func start() -> void:
 	headshots = 0
 	shots = 0
 	hits = 0
+	deaths = 0
 	defeated.clear()
 
 func tick(delta: float) -> void:

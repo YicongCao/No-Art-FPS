@@ -38,7 +38,7 @@ Large spray-painted lettering marks the red container, yard wall and warehouse. 
 
 Red-and-yellow barrels ignite when shot, warn for 0.65 seconds and explode within five metres; solid cover blocks blast damage, and nearby barrels chain. Orange enemies carry knives and rapidly approach, then raise their weapon before a close-range chop. Sidestep, back away, shoot them during windup, or use solid cover to block the slash.
 
-Head hits kill a normal target in one shot; body hits take three. Every kill is worth one. The rifle holds 20 rounds and reloads automatically with unlimited reserves. Health is hidden; a gradual dark-red screen-edge vignette warns of danger. After five seconds without a hit, health recovers gradually. Defeat causes a one-second respawn while the round clock keeps running. A strictly higher kill count displays NEW RECORD at results. Only the highest kill count is retained as a score record. The local best and settings are stored in Godot's `user://record.cfg`; QA runs do not overwrite them.
+Head hits kill a normal target in one shot; body hits take three. Every kill is worth one. The rifle holds 20 rounds and reloads automatically with unlimited reserves. Health is hidden; a gradual dark-red screen-edge vignette warns of danger. After five seconds without a hit, health recovers gradually. Defeat causes a five-second respawn while the round clock keeps running. A central skull and shrinking ring show the wait; each completed respawn adds a skull at the top right. Deaths reset on a new round and are not saved. A strictly higher kill count displays NEW RECORD at results. Only the highest kill count is retained as a score record. The local best and settings are stored in Godot's `user://record.cfg`; QA runs do not overwrite them.
 
 The lower-right magazine shows twenty cartridges in one horizontal row. Each accepted shot splits and ejects the front cartridge at the right, then feeds the remaining rounds forward. Reloading restores the full row after completion; a thin bar shows reload progress. Ammo numbers and the RELOADING label have been removed. Low camera-motion mode also reduces shell travel/spin.
 
@@ -73,6 +73,7 @@ godot --path . -- --qa --magazine
 godot --path . -- --qa --containers
 godot --path . -- --qa --terrace
 godot --path . -- --qa --graffiti
+godot --path . -- --qa --respawn
 ```
 
 The first command tests score and timer boundaries. `--check` exercises normal collision movement on both ramps, live head/body raycasts, wall blocking, pause, reload, respawn, and ten restarts. `--qa` runs a real-time full-minute automatic aiming session, with scripted viewpoint changes. `--population` checks patrol retention, regional reinforcements, population caps and safe spawn distances/visibility. The short benchmark runs twelve enemies with VSync disabled. These flags are development-only test helpers, not normal gameplay modes.
@@ -81,7 +82,7 @@ The first command tests score and timer boundaries. `--check` exercises normal c
 
 `--magazine` counts the rendered cartridge silhouettes after every shot from 20 down to zero, checks shell animation lifecycle, automatic/manual reload, pause and restart, then verifies the HUD in a 960×540 window.
 
-Latest update: [wall graffiti and rendering stability](docs/updates/2026-11-06-wall-graffiti.md). Earlier: [automatic containers, knife enemies and pool terrace](docs/updates/2026-11-06-poolside-playbox.md), [enemy movement and horizontal magazine](docs/updates/2026-11-06-movement-and-magazine.md), [explosive barrels](docs/updates/2026-11-06-explosive-combat.md). MIDI: [sixty.mid](assets/music/sixty.mid).
+Latest update: [platform seams and five-second respawn](docs/updates/2026-11-06-seams-and-respawn.md). Earlier: [wall graffiti](docs/updates/2026-11-06-wall-graffiti.md), [automatic containers, knife enemies and pool terrace](docs/updates/2026-11-06-poolside-playbox.md), [enemy movement and horizontal magazine](docs/updates/2026-11-06-movement-and-magazine.md). MIDI: [sixty.mid](assets/music/sixty.mid).
 
 Results and screenshots: [implementation and validation notes](docs/implementation.md). Design background: [initial playbox plan](docs/design/No-Art-FPS-playbox-plan.md).
 

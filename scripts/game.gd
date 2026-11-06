@@ -18,6 +18,7 @@ const MAGAZINE_SIZE = 20
 const MAX_HEALTH = 100.0
 const HEAL_DELAY = 5.0
 const HEAL_RATE = 12.0
+const RESPAWN_DELAY = 5.0
 var ammo = MAGAZINE_SIZE
 var reload_time = 0.0
 var fire_time = 0.0
@@ -126,6 +127,7 @@ func _ready() -> void:
 		if "--containers" in OS.get_cmdline_user_args():test_path = "res://tests/container_check.gd"
 		if "--terrace" in OS.get_cmdline_user_args():test_path = "res://tests/terrace_check.gd"
 		if "--graffiti" in OS.get_cmdline_user_args():test_path = "res://tests/graffiti_check.gd"
+		if "--respawn" in OS.get_cmdline_user_args():test_path = "res://tests/respawn_check.gd"
 		var qa = load(test_path).new()
 		qa.game = self
 		add_child(qa)
@@ -173,6 +175,7 @@ func start_run() -> void:
 	hud.time_pulse = 0
 	hud.health_shade = 0
 	player.reset_position()
+	player.gun.show()
 	player.enabled = false
 	hud.hit = 0
 	hud.damage = 0
@@ -252,7 +255,7 @@ func menu_action(action: String) -> void:
 		"resume":
 			if state != "PAUSED":return
 			state = previous_state
-			player.enabled = state == "RUNNING"
+			player.enabled = state == "RUNNING" and respawn_time<=0
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 		"menu":
 			if state != "RESULTS":return
@@ -280,7 +283,8 @@ func _physics_process(delta: float) -> void:
 	if health<MAX_HEALTH and since_damage>=HEAL_DELAY and respawn_time<=0:
 		health = minf(MAX_HEALTH,health+HEAL_RATE*delta)
 	if respawn_time>0:
-		respawn_time -= delta
+		respawn_time = maxf(0,respawn_time-delta)
+		if respawn_time<.000001:respawn_time = 0
 		if respawn_time<=0:
 			player.reset_position()
 			# Choose the most separated navigable respawn location.
@@ -294,6 +298,7 @@ func _physics_process(delta: float) -> void:
 					safest = candidate
 			player.position = safest
 			player.enabled = true
+			player.gun.show()
 			health = MAX_HEALTH
 			ammo = MAGAZINE_SIZE
 			hud.reset_magazine()
@@ -469,7 +474,7 @@ func update_bullets(delta: float) -> void:
 		else:b.node.global_position = to
 
 func damage_player(amount: float = 34.0) -> void:
-	if state!="RUNNING" or respawn_time>0:return
+	if state!="RUNNING" or not rules.active or respawn_time>0:return
 	since_damage = 0
 	if invulnerable>0:return
 	health = maxf(0,health-amount)
@@ -478,9 +483,13 @@ func damage_player(amount: float = 34.0) -> void:
 	hud.damage = .8
 	play_sound("hurt",-8)
 	if health<=0:
-		respawn_time = 1.0
+		rules.deaths += 1
+		respawn_time = RESPAWN_DELAY
+		reload_time = 0
+		fire_time = 0
 		player.enabled = false
 		player.velocity = Vector3.ZERO
+		player.gun.hide()
 
 func effect_material(color: Color) -> StandardMaterial3D:
 	var material = StandardMaterial3D.new()
