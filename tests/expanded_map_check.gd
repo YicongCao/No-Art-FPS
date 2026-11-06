@@ -3,6 +3,7 @@ var game: Node
 
 func _ready() -> void:
 	Engine.max_fps = 60
+	game.player.set_process_unhandled_input(false)
 	game.start_run()
 	game.begin_running()
 	game.clear_round()

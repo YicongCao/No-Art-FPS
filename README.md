@@ -2,7 +2,7 @@
 
 A bright, low-poly, sixty-second FPS score attack. Godot 4.7.2 + Blender 5.2.2 LTS.
 
-Playable local prototype. An expanded 64×48 m yard, street crossing and enterable warehouse; one automatic rifle, two enemy movement variants, a full 60-second round, and instant retries.
+Playable local prototype. A 64×48 m yard with automatic container doors, an enterable warehouse and an upper pool terrace; one automatic rifle, ranged black guards and fast knife enemies, a full 60-second round, and instant retries.
 
 ![Godot in-engine visual review](artifacts/showcase-ground.png)
 
@@ -32,6 +32,8 @@ Black guards walk and patrol continuously. Enemies steer around one another, the
 
 Ground-level container doors open automatically when you approach the entrance. The green and purple containers hold black guards who join combat after the doors open; you can walk inside. No interaction key is required.
 
+Both stairs lead to a larger pool terrace with loungers, parasols and a loop around the shallow pool. Walk down the pool entrance and back out without jumping. Six coconut palms add ground-level landmarks.
+
 Red-and-yellow barrels ignite when shot, warn for 0.65 seconds and explode within five metres; solid cover blocks blast damage, and nearby barrels chain. Orange enemies carry knives and rapidly approach, then raise their weapon before a close-range chop. Sidestep, back away, shoot them during windup, or use solid cover to block the slash.
 
 Head hits kill a normal target in one shot; body hits take three. Every kill is worth one. The rifle holds 20 rounds and reloads automatically with unlimited reserves. Health is hidden; a gradual dark-red screen-edge vignette warns of danger. After five seconds without a hit, health recovers gradually. Defeat causes a one-second respawn while the round clock keeps running. A strictly higher kill count displays NEW RECORD at results. Only the highest kill count is retained as a score record. The local best and settings are stored in Godot's `user://record.cfg`; QA runs do not overwrite them.
@@ -42,6 +44,8 @@ The lower-right magazine shows twenty cartridges in one horizontal row. Each acc
 
 ```sh
 blender --background --python tools/build_assets.py
+blender --background --python tools/build_playbox_assets.py
+blender --background --python tools/build_leisure_assets.py
 python3 tools/build_audio.py
 blender --background --python tools/build_music.py
 godot --headless --path . --editor --import
@@ -65,15 +69,16 @@ godot --path . -- --qa --combat
 godot --path . -- --qa --movement
 godot --path . -- --qa --magazine
 godot --path . -- --qa --containers
+godot --path . -- --qa --terrace
 ```
 
 The first command tests score and timer boundaries. `--check` exercises normal collision movement on both ramps, live head/body raycasts, wall blocking, pause, reload, respawn, and ten restarts. `--qa` runs a real-time full-minute automatic aiming session, with scripted viewpoint changes. `--population` checks patrol retention, regional reinforcements, population caps and safe spawn distances/visibility. The short benchmark runs twelve enemies with VSync disabled. These flags are development-only test helpers, not normal gameplay modes.
 
-`--movement` checks that every opening black guard moves, twelve enemies can cross opposing lanes without overlapping or getting stuck, pause freezes avoidance movement, and occupied spawn slots are rechecked after their warning.
+`--movement` checks that every opening outdoor black guard moves, twelve enemies can cross opposing lanes without overlapping or getting stuck, pause freezes avoidance movement, and occupied spawn slots are rechecked after their warning. `--containers` covers automatic doors, captive guards, entry and reset. `--terrace` checks poolside navigation, walking into/out of the pool, and palm collisions.
 
 `--magazine` counts the rendered cartridge silhouettes after every shot from 20 down to zero, checks shell animation lifecycle, automatic/manual reload, pause and restart, then verifies the HUD in a 960×540 window.
 
-Latest update: [enemy movement and horizontal magazine](docs/updates/2026-11-06-movement-and-magazine.md). Earlier: [explosive barrels and orange rushers](docs/updates/2026-11-06-explosive-combat.md), [enemy population and regional patrols](docs/updates/2026-11-06-enemy-population.md), [expanded map, feedback and music](docs/updates/2026-11-05-expanded-playbox.md). MIDI: [sixty.mid](assets/music/sixty.mid).
+Latest update: [automatic containers, knife enemies and pool terrace](docs/updates/2026-11-06-poolside-playbox.md). Earlier: [enemy movement and horizontal magazine](docs/updates/2026-11-06-movement-and-magazine.md), [explosive barrels](docs/updates/2026-11-06-explosive-combat.md), [enemy population](docs/updates/2026-11-06-enemy-population.md). MIDI: [sixty.mid](assets/music/sixty.mid).
 
 Results and screenshots: [implementation and validation notes](docs/implementation.md). Design background: [initial playbox plan](docs/design/No-Art-FPS-playbox-plan.md).
 

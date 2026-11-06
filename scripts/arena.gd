@@ -11,15 +11,18 @@ var boxes: Dictionary = {}
 var spawn_points: Array[Vector3] = [Vector3(-23,0,-15),Vector3(11,0,-20),Vector3(-23,0,9),Vector3(11,0,10),Vector3(-10,0,21),Vector3(8,0,21),Vector3(26,0,17),Vector3(30,0,3),Vector3(30,0,-10),Vector3(19,0,-18),Vector3(-4,3.1,-11),Vector3(4,3.1,-11)]
 var traffic_lights: Array[Node3D] = []
 var traffic_phase = -1
+var palms: Array[Node3D] = []
+var loungers: Array[Node3D] = []
+var pool: Node3D
 const PALETTE = {"sand":"d5b471", "pavement":"c4bfb2", "net":"668579", "cream":"e5e0d2", "ink":"243440", "red":"b65745", "green":"4d7d70", "purple":"754c87", "blue":"304f9d", "yellow":"e9ba50", "asphalt":"59626a", "timber":"a97c4b", "light":"fff5d3"}
 
 func enemy_zone(point: Vector3) -> String:
-	if point.y>2.5 and point.z<-8 and point.x>-12 and point.x<9:return "deck"
+	if point.y>2.2 and point.z<-8 and point.x>-12 and point.x<9.5:return "deck"
 	if point.x>24 and point.x<36 and point.z>-16 and point.z<9:return "warehouse"
 	return "yard"
 
 func patrol_points(zone: String) -> Array[Vector3]:
-	if zone=="deck":return [Vector3(-4,3.1,-11),Vector3(4,3.1,-11)]
+	if zone=="deck":return [Vector3(-4,3.1,-11),Vector3(-4,3.1,-20),Vector3(6,3.1,-20),Vector3(4,3.1,-11)]
 	return [Vector3(30,0,3),Vector3(30,0,-10)]
 
 func _ready() -> void:
@@ -158,7 +161,7 @@ func build() -> void:
 	solid(Vector3(-8.8,3,-9.7),Vector3(5.6,.2,2.6),"purple")
 	solid(Vector3(7.1,3,-10),Vector3(2,.2,2),"purple")
 	rail(Vector3(-6.5,3.1,-8.85),Vector3(6.5,3.1,-8.85))
-	rail(Vector3(-6.5,3.1,-13),Vector3(6.5,3.1,-13))
+	pool_terrace()
 	# Blue lookout frame breaks the skyline.
 	for x in [-1.5,1.5]:
 		for z in [-12.5,-10]:solid(Vector3(x,4.55,z),Vector3(.15,3,.15),"blue",false)
@@ -177,6 +180,10 @@ func build() -> void:
 		solid(p+Vector3(0,1.13,0),Vector3(1.56,.08,1.26),"cream",false)
 	street()
 	warehouse()
+	for p in [Vector3(-22,0,1),Vector3(-22,0,11),Vector3(11,0,21.5),Vector3(33,0,18),Vector3(33,0,-20),Vector3(-23,0,-21)]:
+		var palm = model("palm",p,float(p.x)*.2)
+		palms.append(palm)
+		collider(p+Vector3(0,1.7,0),Vector3(.5,3.4,.5))
 	# Expanded perimeter has no collision walls across the old map boundary.
 	fence(Vector3(-26,0,-24),Vector3(38,0,-24))
 	fence(Vector3(-26,0,24),Vector3(38,0,24))
@@ -212,6 +219,58 @@ func batch_boxes() -> void:
 		instance.multimesh = multi
 		if color == "net":instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		add_child(instance)
+
+func pool_terrace() -> void:
+	# Extend the landing into a loop around a shallow pool, keeping both stairs clear.
+	for slab in [
+		[Vector3(-5.5,3,-18),Vector3(7,.2,11)],
+		[Vector3(6.5,3,-18),Vector3(5,.2,11)],
+		[Vector3(1,3,-22.5),Vector3(6,.2,2)],
+		[Vector3(1,3,-13.5),Vector3(6,.2,2)]]:
+		solid(slab[0],slab[1],"cream")
+	for x in [-8.6,8.6]:
+		for z in [-14,-21.6]:solid(Vector3(x,1.5,z),Vector3(.25,3,.25),"blue")
+	rail(Vector3(-9,3.1,-23.5),Vector3(9,3.1,-23.5),"blue")
+	for x in [-9,9]:rail(Vector3(x,3.1,-23.5),Vector3(x,3.1,-12.8),"blue")
+	pool = model("pool",Vector3(1,3.1,-18))
+	# The pool is shallow, has a solid bottom and a ramp under the entry steps.
+	collider(Vector3(1,2.56,-18),Vector3(6,.12,7))
+	for x in [-1.83,3.83]:collider(Vector3(x,2.84,-18),Vector3(.34,.52,7))
+	collider(Vector3(1,2.84,-21.33),Vector3(5.65,.52,.34))
+	for x in [-.93,2.93]:collider(Vector3(x,2.84,-14.67),Vector3(1.79,.52,.34))
+	var ramp = StaticBody3D.new()
+	var shape = CollisionShape3D.new()
+	var convex = ConvexPolygonShape3D.new()
+	var points = PackedVector3Array()
+	for x in [.1,1.9]:
+		points.append(Vector3(x,2.6,-16.2))
+		points.append(Vector3(x,2.6,-14.45))
+		points.append(Vector3(x,3.1,-14.45))
+	convex.points = points
+	shape.shape = convex
+	ramp.add_child(shape)
+	add_child(ramp)
+	var water = MeshInstance3D.new()
+	water.name = "PoolWater"
+	var plane = PlaneMesh.new()
+	plane.size = Vector2(5.25,6.25)
+	water.mesh = plane
+	water.position = Vector3(1,3.015,-18)
+	var shader = ShaderMaterial.new()
+	shader.shader = preload("res://assets/shaders/pool_water.gdshader")
+	water.material_override = shader
+	water.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(water)
+	for p in [Vector3(-6.8,3.1,-15.8),Vector3(-6.8,3.1,-19.2),Vector3(7,3.1,-17.4)]:
+		var chair = model("lounger",p,PI/2 if p.x<0 else -PI/2)
+		loungers.append(chair)
+		collider(p+Vector3(0,.4,0),Vector3(2.2,.8,.85))
+	for p in [Vector3(-8,3.1,-17.5),Vector3(8,3.1,-20.5)]:
+		model("parasol",p)
+		collider(p+Vector3(0,1.25,0),Vector3(.12,2.5,.12))
+	for p in [Vector3(-7.2,3.1,-17.5),Vector3(7,3.1,-19.7)]:
+		solid(p+Vector3(0,.38,0),Vector3(.55,.76,.55),"yellow")
+		solid(p+Vector3(0,.79,0),Vector3(.8,.08,.8),"cream")
 
 func bake_navigation() -> void:
 	nav = NavigationRegion3D.new()
@@ -304,7 +363,7 @@ func street() -> void:
 	# Distribute readable cover without sealing routes to the street.
 	container("red",Vector3(-18,0,-16),true)
 	container("green",Vector3(-18,0,9))
-	container("purple",Vector3(4,0,-20))
+	container("purple",Vector3(-13,0,-21))
 
 func warehouse() -> void:
 	for p in [Vector3(28.5,0,-7),Vector3(29.5,0,-7.7)]:explosive_barrel(p)
