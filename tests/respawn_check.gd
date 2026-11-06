@@ -11,12 +11,18 @@ func _ready() -> void:
 	game.set_physics_process(false)
 	game.spawn_time = 999
 	assert(game.rules.deaths==0)
-	defeat()
+	assert(game.health==150)
+	for frame in range(4):
+		game.invulnerable = 0
+		game.damage_player()
+		assert(game.player.enabled and game.respawn_time==0,"Four standard hits are survivable")
+	game.invulnerable = 0
+	game.damage_player()
 	assert(game.rules.deaths==1 and game.respawn_time==3 and not game.player.enabled)
 	assert(not game.player.gun.visible)
 	var shots = game.rules.shots
 	game.shoot()
-	game.damage_player(100)
+	game.damage_player(game.MAX_HEALTH)
 	assert(game.rules.shots==shots and game.rules.deaths==1)
 	await capture("death-wait")
 	game.pause_run()
@@ -32,10 +38,11 @@ func _ready() -> void:
 		await get_tree().physics_frame
 		assert(game.respawn_time>0 and not game.player.enabled,"No early respawn")
 		assert(game.player.position.is_equal_approx(start),"Cannot move during death wait")
+		if frame==89:await capture("death-half")
 	Input.action_release("forward")
 	game._physics_process(1.0/60.0)
 	assert(game.respawn_time==0 and game.player.enabled and game.player.gun.visible)
-	assert(game.health==100 and game.ammo==20 and game.rules.deaths==1)
+	assert(game.health==game.MAX_HEALTH and game.ammo==20 and game.rules.deaths==1)
 	assert(is_equal_approx(game.rules.elapsed-clock,3),"Round clock keeps running during death")
 	await capture("death-one")
 	defeat()
@@ -72,7 +79,7 @@ func _ready() -> void:
 
 func defeat() -> void:
 	game.invulnerable = 0
-	game.damage_player(100)
+	game.damage_player(game.MAX_HEALTH)
 
 func capture(filename: String) -> void:
 	if DisplayServer.get_name()=="headless":return

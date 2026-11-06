@@ -83,10 +83,10 @@ func _ready() -> void:
 	game.start_run();game.begin_running()
 	for objective in game.arena.objectives:objective.set_physics_process(false)
 	game.player.enabled = false
-	assert(game.rules.completed.is_empty() and game.health==100)
+	assert(game.rules.completed.is_empty() and game.health==game.MAX_HEALTH)
 	for id in game.rules.objective_ids:game.rules.request_defuse(id)
 	game.invulnerable = 0
-	game.damage_player(100)
+	game.damage_player(game.MAX_HEALTH)
 	game.settle_rules()
 	assert(game.rules.outcome=="DEAD" and game.state=="RESULTS" and game.respawn_time==0 and game.rules.completed.is_empty())
 	await capture("mission-dead")
@@ -102,7 +102,7 @@ func _ready() -> void:
 	assert(not game.rules.mission and game.rules.duration==60 and game.arena.map_id=="yard")
 	assert(game.sun.rotation_degrees.is_equal_approx(Vector3(-52,-35,0)),"Switching to the yard restores its original sunlight")
 	game.start_run();game.begin_running();game.player.enabled = false
-	game.invulnerable = 0;game.damage_player(100)
+	game.invulnerable = 0;game.damage_player(game.MAX_HEALTH)
 	assert(game.respawn_time==3)
 	game.state = "RESULTS";game.menu_action("menu")
 	await game.select_session(load("res://data/sessions/defuse.tres"))

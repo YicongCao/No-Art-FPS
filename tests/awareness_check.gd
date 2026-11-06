@@ -70,27 +70,27 @@ func _ready() -> void:
 	game.respawn_time = 0
 	print("REAR_THREATS_PASS: three directions, front/range exclusion, cover, death, pause, respawn, labels")
 	game.clear_round()
-	game.health = 100
+	game.health = game.MAX_HEALTH
 	game.invulnerable = 0
 	# A 16 m shot must arrive in about 0.2 s, with no visible projectile mesh.
 	game.enemy_shoot(Vector3(18,1.1,-11))
 	assert(game.bullets.size()==1 and not game.bullets[0].node is MeshInstance3D)
 	assert(game.bullets[0].node.get_child_count()==0)
 	game.update_bullets(.1)
-	assert(game.health==100 and game.bullets.size()==1)
+	assert(game.health==game.MAX_HEALTH and game.bullets.size()==1)
 	var trail = game.effects.get_children().filter(func(n):return n is MeshInstance3D)[-1]
 	assert(trail.mesh is BoxMesh and trail.material_override.transparency==BaseMaterial3D.TRANSPARENCY_ALPHA)
 	assert(is_equal_approx(trail.material_override.albedo_color.r,.65))
 	var position: Vector3 = game.bullets[0].node.position
 	game.state = "PAUSED"
 	game.update_bullets(.2)
-	assert(game.bullets[0].node.position==position and game.health==100)
+	assert(game.bullets[0].node.position==position and game.health==game.MAX_HEALTH)
 	game.state = "RUNNING"
 	game.update_bullets(.11)
-	assert(game.health==66 and game.bullets.is_empty())
+	assert(game.health==game.MAX_HEALTH-34 and game.bullets.is_empty())
 	print("ENEMY_SHOT_SPEED_PAUSE_PASS")
 	# A long physics step still sweeps into cover, never through it.
-	game.health = 100
+	game.health = game.MAX_HEALTH
 	game.invulnerable = 0
 	var cover = StaticBody3D.new()
 	var cover_shape = CollisionShape3D.new()
@@ -102,7 +102,7 @@ func _ready() -> void:
 	await get_tree().physics_frame
 	game.enemy_shoot(Vector3(18,1.1,-11))
 	game.update_bullets(.5)
-	assert(game.health==100 and game.bullets.is_empty())
+	assert(game.health==game.MAX_HEALTH and game.bullets.is_empty())
 	cover.queue_free()
 	await get_tree().physics_frame
 	await get_tree().physics_frame

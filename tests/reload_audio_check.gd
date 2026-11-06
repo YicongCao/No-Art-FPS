@@ -55,7 +55,7 @@ func _ready() -> void:
 	game.reload_weapon()
 	game._physics_process(.2)
 	game.invulnerable = 0
-	game.damage_player(100)
+	game.damage_player(game.MAX_HEALTH)
 	before = game.audio_index
 	game._physics_process(.2)
 	assert_feed_sounds(before,0)

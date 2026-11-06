@@ -78,7 +78,7 @@ func _ready() -> void:
 	await get_tree().create_timer(.3).timeout
 	assert(game.player.global_position==final_position,"Fall failure freezes instead of falling forever")
 	game.start_run()
-	assert(game.health==100 and game.rules.completed.is_empty())
+	assert(game.health==game.MAX_HEALTH and game.rules.completed.is_empty())
 	game.state = "RESULTS";game.clear_round()
 	await get_tree().create_timer(.2).timeout
 	print("DUST_REVISION_CHECK_PASS: expanded landmarks, bounded floor, mapped C4s, ring, completion/cancel, fall freeze and restart")

@@ -1,6 +1,7 @@
 extends Control
 
 const REAR_THREAT = preload("res://assets/ui/rear-threat.svg")
+const SKULL_ICON = preload("res://assets/ui/skull.svg")
 var rear_markers: Array[TextureRect] = []
 var rear_threats: Array[Dictionary] = []
 var rear_sample_time = 0.0
@@ -262,17 +263,29 @@ func stopwatch(pos: Vector2, color: Color) -> void:
 		draw_line(center,center+Vector2(0,-6),ink,2.2,true)
 		draw_line(center,center+Vector2(4,2),ink,2.2,true)
 
-func skull(center: Vector2, extent: float, color: Color = WHITE) -> void:
-	draw_set_transform(center,0,Vector2.ONE*extent/32.0)
-	draw_colored_polygon(PackedVector2Array([
-		Vector2(-12,-11),Vector2(-6,-16),Vector2(6,-16),Vector2(12,-11),
-		Vector2(15,-3),Vector2(12,5),Vector2(8,7),Vector2(8,14),
-		Vector2(-8,14),Vector2(-8,7),Vector2(-12,5),Vector2(-15,-3)]),color)
-	draw_circle(Vector2(-6,-2),4.2,INK,true,-1,true)
-	draw_circle(Vector2(6,-2),4.2,INK,true,-1,true)
-	draw_colored_polygon(PackedVector2Array([Vector2(0,2),Vector2(-2.5,6),Vector2(2.5,6)]),INK)
-	for x in [-4,0,4]:draw_line(Vector2(x,10),Vector2(x,14),INK,1.6,true)
-	draw_set_transform(Vector2.ZERO)
+func skull(center: Vector2, extent: float) -> void:
+	var dimensions = Vector2.ONE*extent
+	draw_texture_rect(SKULL_ICON,Rect2(center-dimensions*.5,dimensions),false)
+
+func draw_respawn(center: Vector2) -> void:
+	const ICON_SIZE = 84.0
+	const RADIUS = 62.0
+	const START = -PI*.5
+	var remaining = clampf(game.respawn_time/game.RESPAWN_DELAY,0,1)
+	var sweep = TAU*remaining
+	var segments = maxi(2,ceili(96*remaining))
+	if remaining>=1:
+		skull(center,ICON_SIZE)
+	else:
+		# Use the same angular span for the textured sector and the ring.
+		var points = PackedVector2Array([center])
+		var uvs = PackedVector2Array([Vector2(.5,.5)])
+		for index in range(segments+1):
+			var offset = Vector2.from_angle(START+sweep*float(index)/segments)*RADIUS
+			points.append(center+offset)
+			uvs.append(Vector2(.5,.5)+offset/ICON_SIZE)
+		draw_polygon(points,PackedColorArray([Color.WHITE]),uvs,SKULL_ICON)
+	draw_arc(center,RADIUS,START,START+sweep,segments+1,WHITE,2.5,true)
 
 func death_marks() -> void:
 	var pending = game.respawn_time>0 and game.state!="RESULTS"
@@ -479,9 +492,7 @@ func _draw() -> void:
 			draw_circle(c,1,WHITE)
 			for a in [Vector2.LEFT,Vector2.RIGHT,Vector2.UP,Vector2.DOWN]:draw_line(c+a*gap,c+a*(gap+4),WHITE,1)
 	if game.respawn_time>0:
-		skull(c,84)
-		var remaining = game.respawn_time/game.RESPAWN_DELAY
-		draw_arc(c,62,-PI*.5,-PI*.5+TAU*remaining,96,WHITE,2.5,true)
+		draw_respawn(c)
 	else:draw_magazine()
 	if state=="RUNNING" and game.respawn_time<=0 and go_time>0:
 		var opacity = smoothstep(0,.65,go_time)

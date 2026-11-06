@@ -86,7 +86,7 @@ func _process(delta: float) -> void:
 		file.close()
 		print("QA_ROUND_PASS ",JSON.stringify(report))
 		game.start_run()
-		assert(game.rules.kills==0 and game.ammo==20 and game.health==100 and game.bullets.is_empty())
+		assert(game.rules.kills==0 and game.ammo==20 and game.health==game.MAX_HEALTH and game.bullets.is_empty())
 		assert(game.enemies.get_child_count()==0 and game.effects.get_child_count()==0)
 		print("QA_RESTART_PASS")
 		await get_tree().process_frame

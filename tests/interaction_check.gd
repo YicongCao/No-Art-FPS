@@ -72,12 +72,12 @@ func _ready() -> void:
 	assert(blocked.health==3,"A solid container must block shots")
 	print("QA_WALL_BLOCK_PASS")
 	var elapsed_before = game.rules.elapsed
-	for i in range(3):
+	for i in range(5):
 		game.invulnerable = 0
 		game.damage_player()
 	assert(game.respawn_time>0 and not game.player.enabled)
 	await get_tree().create_timer(3.2).timeout
-	assert(game.player.enabled and game.health==100 and game.rules.elapsed>elapsed_before)
+	assert(game.player.enabled and game.health==game.MAX_HEALTH and game.rules.elapsed>elapsed_before)
 	print("QA_RESPAWN_PASS")
 	game.clear_round()
 	await get_tree().process_frame

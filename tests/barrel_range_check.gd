@@ -20,7 +20,7 @@ func _ready() -> void:
 	await get_tree().physics_frame
 	source.explode()
 	assert(actors[0].dead and actors[1].health==1 and actors[2].health==3)
-	assert(game.health<100 and game.health>40)
+	assert(game.health<game.MAX_HEALTH and game.health>game.MAX_HEALTH-60)
 	for point in game.arena.spawn_points:
 		var path = NavigationServer3D.map_get_path(game.arena.nav.get_navigation_map(),point,game.arena.player_start().origin,true)
 		assert(path.size()>1 and path[-1].distance_to(game.arena.player_start().origin)<1)

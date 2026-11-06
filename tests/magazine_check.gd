@@ -85,7 +85,7 @@ func _ready() -> void:
 	game.reload_time = .08
 	assert(game.hud.reload_seating_offset()<=3.01)
 	game.invulnerable = 0
-	game.damage_player(100)
+	game.damage_player(game.MAX_HEALTH)
 	assert(game.reload_time==0 and game.hud.reload_rounds_fed()==0)
 	game.start_run()
 	assert(game.reload_time==0 and game.ammo==20)

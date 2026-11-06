@@ -38,7 +38,7 @@ func _ready() -> void:
 	await get_tree().create_timer(.72).timeout
 	assert(barrel.spent and near.dead and game.rules.kills==1)
 	assert(far.health==3 and covered.health==3,"Range and solid cover block blast")
-	assert(game.health<100 and game.health>0,"Blast hurts nearby player")
+	assert(game.health<game.MAX_HEALTH and game.health>0,"Blast hurts nearby player")
 	assert(adjacent.fuse>0 or adjacent.spent,"Nearby barrel chains")
 	await get_tree().create_timer(.35).timeout
 	assert(adjacent.spent)
@@ -59,7 +59,7 @@ func _ready() -> void:
 	game.player.enabled = false
 	game.player.position = Vector3(18,.05,0)
 	game.player.rotation.y = PI
-	game.health = 100
+	game.health = game.MAX_HEALTH
 	game.invulnerable = 0
 	var rusher = game.spawn_enemy(Vector3(18,0,9),true)
 	rusher.attack = 0
@@ -77,33 +77,33 @@ func _ready() -> void:
 	game.state = "RUNNING"
 	game.player.position.x = 22
 	await get_tree().create_timer(.7).timeout
-	assert(game.health==100 and rusher.rush_state=="RECOVER","Sidestep must dodge the locked slash")
+	assert(game.health==game.MAX_HEALTH and rusher.rush_state=="RECOVER","Sidestep must dodge the locked slash")
 	print("COMBAT_KNIFE_APPROACH_DODGE_PAUSE_PASS")
 	game.clear_round()
 	game.player.position = Vector3(18,.05,0)
 	rusher = game.spawn_enemy(Vector3(18,0,1.5),true)
 	rusher.attack = 0
 	await get_tree().create_timer(.85).timeout
-	assert(game.health==66 and rusher.rush_state=="RECOVER","One slash deals one 34-point hit")
+	assert(game.health==game.MAX_HEALTH-34 and rusher.rush_state=="RECOVER","One slash deals one 34-point hit")
 	await get_tree().create_timer(.15).timeout
-	assert(game.health==66 and game.bullets.is_empty())
+	assert(game.health==game.MAX_HEALTH-34 and game.bullets.is_empty())
 	print("COMBAT_KNIFE_HIT_PASS")
 	game.clear_round()
-	game.health = 100
+	game.health = game.MAX_HEALTH
 	game.invulnerable = 0
 	game.player.rotation.y = 0
 	rusher = game.spawn_enemy(Vector3(18,0,1.5),true)
 	rusher.attack = 0
 	await get_tree().create_timer(.25).timeout
-	assert(rusher.rush_state=="CHASE" and game.health==100,"An enemy behind the player cannot raise its knife")
+	assert(rusher.rush_state=="CHASE" and game.health==game.MAX_HEALTH,"An enemy behind the player cannot raise its knife")
 	game.player.rotation.y = PI
 	for frame in range(45):
 		if rusher.rush_state=="SLASH":break
 		await get_tree().physics_frame
-	assert(rusher.rush_state=="SLASH" and game.health==100)
+	assert(rusher.rush_state=="SLASH" and game.health==game.MAX_HEALTH)
 	game.player.rotation.y = 0
 	await get_tree().create_timer(.25).timeout
-	assert(game.health==100,"Turning away before impact prevents a rear hit")
+	assert(game.health==game.MAX_HEALTH,"Turning away before impact prevents a rear hit")
 	print("COMBAT_KNIFE_FRONT_ONLY_PASS")
 	game.clear_round()
 	game.player.rotation.y = PI
@@ -118,7 +118,7 @@ func _ready() -> void:
 	game.add_child(blocker)
 	blocker.position = Vector3(18,1.5,.75)
 	await get_tree().create_timer(.75).timeout
-	assert(game.health==100,"Solid cover must block knife damage")
+	assert(game.health==game.MAX_HEALTH,"Solid cover must block knife damage")
 	blocker.queue_free()
 	print("COMBAT_KNIFE_COVER_PASS")
 	game.clear_round()
@@ -130,7 +130,7 @@ func _ready() -> void:
 	rusher.take_hit(true)
 	assert(rusher.dead and game.rules.kills==before+1)
 	await get_tree().create_timer(.75).timeout
-	assert(game.health==100)
+	assert(game.health==game.MAX_HEALTH)
 	print("COMBAT_KNIFE_INTERRUPT_PASS")
 	if DisplayServer.get_name()!="headless":await showcase()
 	game.state = "RESULTS"

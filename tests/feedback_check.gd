@@ -31,7 +31,7 @@ func _ready() -> void:
 	game._physics_process(4.9)
 	assert(game.health==36)
 	game._physics_process(2)
-	assert(game.health>36 and game.health<100)
+	assert(game.health>36 and game.health<game.MAX_HEALTH)
 	game.since_damage = 4.8
 	game.invulnerable = .4
 	var protected_health = game.health
