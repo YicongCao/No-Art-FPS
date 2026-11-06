@@ -152,6 +152,7 @@ func _ready() -> void:
 		get_tree().quit()
 	if qa_mode:
 		var test_path = "res://tests/playtest.gd"
+		if "--record-demo" in OS.get_cmdline_user_args():test_path = "res://tests/demo_capture.gd"
 		if "--check" in OS.get_cmdline_user_args():test_path = "res://tests/interaction_check.gd"
 		if "--benchmark" in OS.get_cmdline_user_args():test_path = "res://tests/benchmark.gd"
 		if "--feedback" in OS.get_cmdline_user_args():test_path = "res://tests/feedback_check.gd"
