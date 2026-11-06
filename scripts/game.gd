@@ -17,6 +17,7 @@ var rules = Rules.new()
 var state = "TITLE"
 var previous_state = "RUNNING"
 const MAGAZINE_SIZE = 20
+const DESTROY_DURATION = 15.0
 const MAX_HEALTH = 100.0
 const HEAL_DELAY = 5.0
 const HEAL_RATE = 12.0
@@ -461,7 +462,7 @@ func _physics_process(delta: float) -> void:
 	if not rules.active:
 		finish_run()
 		return
-	if not destroy_active and rules.elapsed>=50:
+	if not destroy_active and rules.remaining()<=DESTROY_DURATION+.000001:
 		destroy_active = true
 		hud.destroy_time = 1.2
 		play_sound("end",-12,1.25)

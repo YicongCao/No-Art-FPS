@@ -20,11 +20,15 @@ func _ready() -> void:
 	aim(Vector3(-6,1.4,-1.6))
 	shoot_three()
 	assert(room.hits==0 and not room.collapsed,"Normal rounds cannot destroy buildings")
-	game.rules.elapsed = 49.97
-	game._physics_process(.02)
+	for _tick in range(2699):game.rules.tick(1.0/60.0)
+	game._physics_process(0)
 	assert(not game.destroy_active)
-	game._physics_process(.02)
+	game._physics_process(1.0/60.0)
 	assert(game.destroy_active and game.hud.destroy_time==1.2)
+	assert(is_equal_approx(game.rules.remaining(),15),"DESTROY starts at exactly 45 seconds / 2700 ticks")
+	var audio_before = game.audio_index
+	game._physics_process(1.0/60.0)
+	assert(game.audio_index==audio_before,"The DESTROY announcement only plays once")
 	game.ammo = 20
 	game.reload_time = 0
 	shoot_three()
@@ -113,7 +117,7 @@ func check_nonstructural_hits() -> void:
 	game.set_physics_process(false)
 	game.player.enabled = false
 	game.invulnerable = 999
-	game.rules.elapsed = 50
+	game.rules.elapsed = 45
 	game._physics_process(0)
 	assert(game.destroy_active)
 	game.player.position = Vector3(18,.05,14)
