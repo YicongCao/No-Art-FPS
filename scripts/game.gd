@@ -196,6 +196,8 @@ func _ready() -> void:
 		if "--mission-route" in OS.get_cmdline_user_args():test_path = "res://tests/mission_route_check.gd"
 		if "--mission-check" in OS.get_cmdline_user_args():test_path = "res://tests/mission_check.gd"
 		if "--results-ui" in OS.get_cmdline_user_args():test_path = "res://tests/results_ui_check.gd"
+		if "--blast-range" in OS.get_cmdline_user_args():test_path = "res://tests/barrel_range_check.gd"
+		if "--barrel-routes" in OS.get_cmdline_user_args():test_path = "res://tools/analysis/barrel_routes.gd"
 		var qa = load(test_path).new()
 		qa.game = self
 		add_child(qa)
@@ -1048,7 +1050,7 @@ func barrel_blast(center: Vector3, radius: float, source: StaticBody3D) -> void:
 		var target = enemy.global_position+Vector3.UP
 		var distance = center.distance_to(target)
 		if distance<=radius and blast_clear(center,target,[source.get_rid()]):
-			enemy.take_damage(3 if distance<=3.2 else (2 if distance<4.2 else 1))
+			enemy.take_damage(3 if distance<=radius*.64 else (2 if distance<radius*.84 else 1))
 	var player_target = player.global_position+Vector3.UP
 	var player_distance = center.distance_to(player_target)
 	if player_distance<=radius and blast_clear(center,player_target,[source.get_rid()]):

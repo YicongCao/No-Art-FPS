@@ -12,9 +12,11 @@ func _ready() -> void:
 	game.invulnerable = 0
 	var barrel = game.arena.barrels[0]
 	var adjacent = game.arena.barrels[1]
-	var near = stationary(Vector3(-6.5,0,5))
-	var far = stationary(Vector3(-1,0,5))
-	var covered = stationary(Vector3(-8,0,1))
+	var anchor: Vector3 = barrel.global_position
+	game.player.position = anchor+Vector3(0,.05,3)
+	var near = stationary(anchor+Vector3(1.5,0,0))
+	var far = stationary(anchor+Vector3(9,0,0))
+	var covered = stationary(anchor+Vector3(0,0,-4))
 	var wall = StaticBody3D.new()
 	var shape = CollisionShape3D.new()
 	var box = BoxShape3D.new()
@@ -22,7 +24,7 @@ func _ready() -> void:
 	shape.shape = box
 	wall.add_child(shape)
 	game.add_child(wall)
-	wall.position = Vector3(-8,1.5,2.5)
+	wall.position = anchor+Vector3(0,1.5,-2.5)
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	aim(barrel.global_position+Vector3.UP*.8)

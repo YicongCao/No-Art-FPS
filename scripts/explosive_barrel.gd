@@ -1,6 +1,6 @@
 extends StaticBody3D
 
-const RADIUS = 5.0
+const RADIUS = 7.5
 var game: Node
 var visual: Node3D
 var paint: StandardMaterial3D
