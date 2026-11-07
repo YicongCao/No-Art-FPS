@@ -129,7 +129,9 @@ func bake_changed_geometry() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	if not nav.bake_finished.is_connected(navigation_finished):nav.bake_finished.connect(navigation_finished)
-	nav.bake_navigation_mesh(not OS.has_feature("web"))
+	var web = OS.has_feature("web")
+	if web:nav.navigation_mesh.sample_partition_type = NavigationMesh.SAMPLE_PARTITION_MONOTONE
+	nav.bake_navigation_mesh(not web)
 
 func navigation_finished() -> void:
 	navigation_baking = false

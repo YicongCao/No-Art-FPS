@@ -80,7 +80,7 @@ func show_pieces() -> void:
 		var visual = MultiMeshInstance3D.new()
 		visual.multimesh = batch
 		visual.material_override = paint_for(falling)
-		if not falling:visual.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		if not falling or OS.has_feature("web"):visual.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		add_child(visual)
 		batches[shape] = batch
 

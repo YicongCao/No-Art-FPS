@@ -1,6 +1,9 @@
 extends Node3D
 
 const TOUCH_LOOK_GAIN = 1.9
+const WEB_RENDER_SCALES = [1.0,.85,.70]
+const WEB_SHADOW_RANGES = [65.0,45.0,32.0]
+const FINALE_FX_CELL_SIZE = 16.0
 
 const DefaultSession = preload("res://data/sessions/score_attack.tres")
 const PARK_SESSION_PATH = "res://data/sessions/amusement_park.tres"
@@ -81,6 +84,8 @@ var title_session_id = DefaultSession.session_id
 var destroy_active = false
 var finale_active = false
 var finale_elapsed = 0.0
+var collecting_finale_fx = false
+var finale_fx_groups: Dictionary[Vector2i,CombatFX] = {}
 var frozen_process_modes: Dictionary = {}
 var frozen_tweens: Array[Tween] = []
 const MULTIKILL_WINDOW = 1.25
@@ -91,6 +96,7 @@ var touch_mode = false
 var touch_body_one_shot = false
 var touch_fire = false
 var web_ui_state = ""
+var web_render_tier = 0
 var switching_session = false
 var map_switch_progress = 0.0
 var dust_unlocked = false
@@ -111,6 +117,7 @@ func capture_pointer() -> void:
 func _ready() -> void:
 	if OS.has_feature("web"):
 		Engine.max_fps = 60
+		get_viewport().msaa_3d = Viewport.MSAA_2X
 		touch_mode = bool(JavaScriptBridge.eval("Boolean(window.noArtMobile)"))
 	spark_mesh.radial_segments = 6
 	spark_mesh.rings = 3
@@ -289,7 +296,7 @@ func capture_opening_frame() -> void:
 	opening_prepared = true
 	# Submit the two instanced materials before the first DESTROY shot or collapse.
 	# The tiny batch is below the starting floor and removed before the title capture.
-	if rules.destroy_duration>0 and not destroy_effects_warmed:
+	if not OS.has_feature("web") and rules.destroy_duration>0 and not destroy_effects_warmed:
 		var warmup = CombatFX.new()
 		warmup.game = self
 		effects.add_child(warmup)
@@ -508,11 +515,61 @@ func prepare_loaded_run(ticket: int) -> void:
 	var muzzle = player.gun.to_global(Vector3(0,.015,-1.0))
 	spark(muzzle,Color("ffe19a"),.1,.035)
 	trace(muzzle,muzzle-Vector3(0,0,2),Color("fff1b7"),.025,.045)
+	var web = OS.has_feature("web")
+	var render_samples: Array[float] = []
 	for frame in range(4):
+		var started = Time.get_ticks_usec()
 		await loading_frame()
 		if ticket!=load_ticket:return
+		if web:render_samples.append((Time.get_ticks_usec()-started)/1000.0)
+	if web:
+		if apply_web_render_budget(render_samples):
+			await loading_frame()
+			if ticket!=load_ticket:return
+			destroy_effects_warmed = false
+		if rules.destroy_duration>0 and not destroy_effects_warmed:
+			await warm_web_destroy_effects(ticket)
+			if ticket!=load_ticket:return
 	loading.report(1)
 	loading.work_complete = true
+
+func warm_web_destroy_effects(ticket: int) -> void:
+	# Render each material in view while the loading cover is opaque. In
+	# WebGL, creating a material alone does not compile its draw variants.
+	var eye = player.camera
+	var at = eye.to_global(Vector3(0,0,-3))
+	for stage in range(3):
+		var fx = CombatFX.new()
+		fx.game = self
+		effects.add_child(fx)
+		match stage:
+			0:
+				var bolt = FlameBolt.new()
+				fx.add_child(bolt)
+				bolt.set_segment(at-eye.global_basis.x*.3,at+eye.global_basis.x*.3,eye.global_position)
+				fx.flame(at+Vector3.UP*.4,.3,Color("ef7833"))
+			1:fx.chunk(at,Vector3.ONE*.25,Color("b65745"),Vector3.ZERO)
+			2:fx.bloom(at,.35,Color("f2d084"))
+		fx.show_pieces()
+		await loading_frame()
+		if ticket!=load_ticket:return
+		fx.queue_free()
+	destroy_effects_warmed = true
+
+func apply_web_render_budget(samples: Array[float]) -> bool:
+	# Size render targets behind the loading cover. Changing scale or shadow
+	# mode in combat can make WebGL reallocate buffers and compile new programs.
+	samples.sort()
+	var typical = samples[1]
+	var tier = 2 if typical>42 else (1 if typical>23 else 0)
+	if tier<=web_render_tier:return false
+	web_render_tier = tier
+	get_viewport().scaling_3d_scale = WEB_RENDER_SCALES[tier]
+	sun.directional_shadow_max_distance = WEB_SHADOW_RANGES[tier]
+	if tier==2:
+		get_viewport().msaa_3d = Viewport.MSAA_DISABLED
+		sun.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL
+	return true
 
 func cancel_loading() -> void:
 	if state!="LOADING":return
@@ -653,6 +710,7 @@ func start_finale() -> void:
 	player.velocity = Vector3.ZERO
 	pending_spawn.clear()
 	hud.time_pulse = 1
+	collecting_finale_fx = OS.has_feature("web")
 	# Only the round-ending blast awards kills after the combat clock closes.
 	for enemy in live_enemies():
 		finale_explosion(enemy.global_position+Vector3.UP,1.2,Color("243440"))
@@ -661,14 +719,23 @@ func start_finale() -> void:
 		if not building.scenery:building.collapse()
 	for barrel in arena.barrels:barrel.explode()
 	arena.explode_finale_decor()
+	for fx in finale_fx_groups.values():fx.show_pieces()
+	finale_fx_groups.clear()
+	collecting_finale_fx = false
 	play_sound("explosion",-6)
 
 func finale_explosion(center: Vector3, extent: float, debris_color: Color) -> void:
-	var fx = CombatFX.new()
-	fx.game = self
-	fx.duration = 1.65
+	# Share draw batches across nearby simultaneous bursts while keeping
+	# separate bounds for culling explosions on the other side of the map.
+	var cell = Vector2i(floori(center.x/FINALE_FX_CELL_SIZE),floori(center.z/FINALE_FX_CELL_SIZE))
+	var fx = finale_fx_groups.get(cell) if collecting_finale_fx else null
+	if fx==null:
+		fx = CombatFX.new()
+		fx.game = self
+		fx.duration = 1.65
+		effects.add_child(fx)
+		if collecting_finale_fx:finale_fx_groups[cell] = fx
 	fx.rng.seed = int(center.x*173+center.z*419)+61106
-	effects.add_child(fx)
 	for i in range(6):
 		var direction = Vector3(cos(i*TAU/6),fx.rng.randf_range(.5,1.4),sin(i*TAU/6))
 		fx.chunk(center+direction*.2,Vector3.ONE*fx.rng.randf_range(.2,.6),debris_color,direction*extent*1.4)
@@ -676,7 +743,7 @@ func finale_explosion(center: Vector3, extent: float, debris_color: Color) -> vo
 		var offset = Vector3(cos(i*TAU/5),float(i%2)*.4,sin(i*TAU/5))*extent*.45
 		fx.bloom(center+offset,extent*(.7 if i%2==0 else .5),Color("ef7833") if i%2==0 else Color("f2d084"))
 	fx.bloom(center+Vector3.UP*extent*.6,extent*.65,Color("573e37"))
-	fx.show_pieces()
+	if not collecting_finale_fx:fx.show_pieces()
 
 func _notification(what: int) -> void:
 	if state=="LOADING" and not qa_mode:
