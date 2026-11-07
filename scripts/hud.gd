@@ -8,6 +8,7 @@ const PAUSE_ICON = preload("res://assets/ui/settings/pause.svg")
 const AIM_ICON = preload("res://assets/ui/settings/aim.svg")
 const MOTION_ICON = preload("res://assets/ui/settings/motion.svg")
 const MUSIC_ICON = preload("res://assets/ui/settings/music.svg")
+const ONE_HIT_ICON = preload("res://assets/ui/settings/one_hit.svg")
 const GYRO_ICON = preload("res://assets/ui/settings/gyro.svg")
 const RESUME_ICON = preload("res://assets/ui/settings/resume.svg")
 const RESTART_ICON = preload("res://assets/ui/settings/restart.svg")
@@ -35,6 +36,7 @@ var menu_state = ""
 var menu_size = Vector2.ZERO
 var sensitivity_slider: HSlider
 var motion_button: Button
+var body_shot_button: Button
 var music_slider: HSlider
 var fire_button: Button
 var title_frame: ImageTexture
@@ -242,6 +244,7 @@ func _process(delta: float) -> void:
 		sensitivity_slider.set_value_no_signal(game.player.sensitivity)
 		motion_button.text = "LOW" if game.reduced_motion else "FULL"
 		music_slider.set_value_no_signal(game.music_volume)
+		if game.touch_mode:body_shot_button.text = "ON" if game.touch_body_one_shot else "OFF"
 	queue_redraw()
 
 func label(text: String, pos: Vector2, font_size: int, color: Color = WHITE, center: bool = false) -> void:
@@ -411,13 +414,25 @@ func rebuild_menu() -> void:
 		music_slider = pause_slider("Music",pause_row(card,2),Vector3(0,1,.05),game.music_volume,func(value):
 			game.set_music_volume(value)
 			game.save_record())
-		if game.touch_mode:pause_button("GYRO AIM",pause_row(card,3),"gyro",false,"",GYRO_ICON)
+		if game.touch_mode:
+			var body_row = pause_row(card,3)
+			var body_toggle = Rect2(body_row.end.x-136,body_row.position.y+3,124,48)
+			body_shot_button = pause_button("ON" if game.touch_body_one_shot else "OFF",body_toggle,"touch_body_shots",false,"")
+			body_shot_button.accessibility_name = "One-hit body shots"
+			body_shot_button.toggle_mode = true
+			body_shot_button.set_pressed_no_signal(game.touch_body_one_shot)
+			var enabled_style = body_shot_button.get_theme_stylebox("pressed").duplicate()
+			enabled_style.bg_color = Color("453b2b")
+			enabled_style.set_border_width_all(1)
+			enabled_style.border_color = Color(GOLD,.5)
+			body_shot_button.add_theme_stylebox_override("pressed",enabled_style)
+			pause_button("GYRO AIM",pause_row(card,4),"gyro",false,"",GYRO_ICON)
 		var footer = card.position+Vector2(24,card.size.y-76)
 		pause_button("RESUME",Rect2(footer,Vector2(230,52)),"resume",true,"Esc",RESUME_ICON)
 		pause_button("RESTART",Rect2(footer+Vector2(242,0),Vector2(230,52)),"retry",false,"Enter",RESTART_ICON)
 
 func pause_card() -> Rect2:
-	var extent = Vector2(520,428 if game.touch_mode else 364)
+	var extent = Vector2(520,492 if game.touch_mode else 364)
 	return Rect2((size-extent)*.5,extent)
 
 func pause_row(card: Rect2, index: int) -> Rect2:
@@ -482,6 +497,9 @@ func draw_pause() -> void:
 	label("PAUSED",top+Vector2(64,52),34)
 	var names = ["Touch sensitivity" if game.touch_mode else "Sensitivity","Camera motion","Music"]
 	var icons = [AIM_ICON,MOTION_ICON,MUSIC_ICON]
+	if game.touch_mode:
+		names.append("One-hit body shots")
+		icons.append(ONE_HIT_ICON)
 	var row_style = StyleBoxFlat.new()
 	row_style.bg_color = Color("1f2e3c")
 	row_style.set_corner_radius_all(6)

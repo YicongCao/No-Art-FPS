@@ -62,6 +62,31 @@ func _ready() -> void:
 		enemy.queue_free()
 		await get_tree().physics_frame
 	print("QA_HEAD_BODY_DUPLICATE_PASS")
+	assert(game.touch_body_one_shot,"Touch body shots default to one hit")
+	for enabled in [true,false]:
+		var enemy = game.spawn_enemy(Vector3(0,0,5),enabled)
+		enemy.set_physics_process(false)
+		await get_tree().physics_frame
+		if not enabled:
+			game.state = "PAUSED"
+			game.touch_mode = true
+			game.menu_action("touch_body_shots")
+			game.touch_mode = false
+			game.state = "RUNNING"
+		assert(game.touch_body_one_shot==enabled)
+		var before = game.rules.kills
+		var headshots = game.rules.headshots
+		for shot in range(1 if enabled else 3):
+			aim(enemy.position+Vector3(0,1.1,0))
+			game.fire_time = 0
+			game.touch_mode = true
+			game.shoot()
+			game.touch_mode = false
+			assert(enemy.dead==(enabled or shot==2))
+		assert(game.rules.kills==before+1 and game.rules.headshots==headshots)
+		enemy.queue_free()
+		await get_tree().physics_frame
+	print("QA_TOUCH_BODY_PASS: default one-hit, pause setting, three hits with assist off, normal kill scoring")
 	game.player.position = Vector3(5,.05,8)
 	var blocked = game.spawn_enemy(Vector3(5,0,-5),false)
 	blocked.set_physics_process(false)

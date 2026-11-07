@@ -257,9 +257,9 @@ func can_see_player() -> bool:
 	var query = PhysicsRayQueryParameters3D.create(global_position+Vector3(0,1.4,0),game.player.global_position+Vector3(0,1.1,0),1)
 	return get_world_3d().direct_space_state.intersect_ray(query).is_empty()
 
-func take_hit(is_head: bool) -> void:
+func take_hit(is_head: bool, body_one_shot: bool = false) -> void:
 	var previous_health = health
-	take_damage(MAX_HEALTH if is_head else 1,is_head)
+	take_damage(MAX_HEALTH if is_head or body_one_shot else 1,is_head)
 	if not is_head and health<previous_health:
 		if armor_hit==null:
 			armor_hit = ShaderMaterial.new()

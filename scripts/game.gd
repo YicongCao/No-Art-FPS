@@ -83,6 +83,7 @@ var kill_group_start = -99.0
 var kill_group_count = 0
 var web_capture_wait = 0.0
 var touch_mode = false
+var touch_body_one_shot = true
 var touch_fire = false
 var web_ui_state = ""
 var switching_session = false
@@ -247,6 +248,7 @@ func load_record() -> void:
 		player.sensitivity = clampf(float(cfg.get_value("settings","sensitivity",.0022)),.0006,.006)
 		reduced_motion = bool(cfg.get_value("settings","reduced_motion",false))
 		music_volume = clampf(float(cfg.get_value("settings","music_volume",.7)),0,1)
+		touch_body_one_shot = bool(cfg.get_value("settings","touch_body_one_shot",true))
 
 func spawn_opening_actor(index: int) -> Node3D:
 	var actor = spawn_enemy(opening[index].position,opening[index].fast)
@@ -327,6 +329,7 @@ func save_record() -> void:
 	cfg.set_value("settings","sensitivity",player.sensitivity)
 	cfg.set_value("settings","reduced_motion",reduced_motion)
 	cfg.set_value("settings","music_volume",music_volume)
+	if touch_mode:cfg.set_value("settings","touch_body_one_shot",touch_body_one_shot)
 	cfg.save("user://record.cfg")
 
 func start_run() -> void:
@@ -730,6 +733,10 @@ func menu_action(action: String) -> void:
 			if state != "PAUSED":return
 			reduced_motion = not reduced_motion
 			save_record()
+		"touch_body_shots":
+			if not touch_mode or state!="PAUSED":return
+			touch_body_one_shot = not touch_body_one_shot
+			save_record()
 		"gyro":
 			if touch_mode and state=="PAUSED":JavaScriptBridge.eval("window.noArtOpenGyro()")
 
@@ -964,7 +971,7 @@ func resolve_shot(result: Dictionary, origin: Vector3, target: Vector3, burning:
 			hud.hit = .12
 			play_sound("hit",-14)
 			var is_head = collider is Area3D
-			enemy.take_hit(is_head)
+			enemy.take_hit(is_head,touch_mode and touch_body_one_shot)
 			if burning and not enemy.dead:enemy.ignite()
 			if is_head:spark(target,Color("f2d084"),.07,.12)
 			else:spark(target,Color("ed9957"),.12,.16)
