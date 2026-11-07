@@ -9,12 +9,15 @@ var agent: NavigationAgent3D
 const MAX_HEALTH = 3
 const BODY_SHOT_DAMAGE = 2
 const BODY_HIT_DURATION = .16
+const NOTICE_DISTANCE = 18.0
+const DISENGAGE_DISTANCE = 22.0
 var health = MAX_HEALTH
 var dead = false
 var fast = false
 var container_room: Node3D
 var home_zone = "yard"
 var patrol_offset = 0
+var tracking_player = false
 var rush_state = "CHASE"
 var rush_time = 0.0
 var rush_direction = Vector3.ZERO
@@ -145,30 +148,38 @@ func _physics_process(delta: float) -> void:
 		return
 	var to_player = game.player.global_position-global_position
 	var distance = to_player.length()
-	if to_player.length_squared() > .1:
+	var sense_distance = DISENGAGE_DISTANCE if tracking_player else NOTICE_DISTANCE
+	var noticed = distance<=sense_distance
+	if noticed!=tracking_player:
+		tracking_player = noticed
+		think = 0
+	if tracking_player and to_player.length_squared()>.1:
 		rotation.y = lerp_angle(rotation.y,atan2(-to_player.x,-to_player.z),delta*8)
+	var has_patrol = game.arena.uses_patrol(home_zone)
 	think -= delta
 	if think <= 0:
 		think = .35+randf()*.15
-		var offset = Vector3.ZERO
-		if distance < 13:
-			var angle = age*.35+float(get_instance_id()%7)
-			offset = Vector3(cos(angle),0,sin(angle))*8
-		if not game.arena.uses_patrol(home_zone):
+		if tracking_player and not has_patrol:
+			var offset = Vector3.ZERO
+			if distance < 13:
+				var angle = age*.35+float(get_instance_id()%7)
+				offset = Vector3(cos(angle),0,sin(angle))*8
 			agent.target_position = game.player.global_position+offset
-		elif game.arena.enemy_zone(game.player.global_position)==home_zone and distance>6:
-			agent.target_position = game.player.global_position
-		else:
-			# Patrol the occupied floor instead of draining every room toward the player.
-			var posts = game.arena.patrol_points(home_zone)
-			if global_position.distance_to(posts[patrol_offset])<.8:
-				patrol_offset = (patrol_offset+1)%posts.size()
-			agent.target_position = posts[patrol_offset]
-	var next = agent.get_next_path_position()
-	var dir = next-global_position
-	dir.y = 0
-	if dir.length_squared() > .0025 and not agent.is_navigation_finished():dir = dir.normalized()
-	else:dir = Vector3.ZERO
+		elif has_patrol:
+			if tracking_player and distance>6 and game.arena.enemy_zone(game.player.global_position)==home_zone:
+				agent.target_position = game.player.global_position
+			else:
+				var posts = game.arena.patrol_points(home_zone)
+				if global_position.distance_to(posts[patrol_offset])<.8:
+					patrol_offset = (patrol_offset+1)%posts.size()
+				agent.target_position = posts[patrol_offset]
+	var dir = Vector3.ZERO
+	if tracking_player or has_patrol:
+		var step = agent.get_next_path_position()-global_position
+		step.y = 0
+		if step.length_squared()>.0025 and not agent.is_navigation_finished():dir = step.normalized()
+	if not tracking_player and not dir.is_zero_approx():
+		rotation.y = lerp_angle(rotation.y,atan2(-dir.x,-dir.z),delta*8)
 	var speed = 2.5
 	if windup > 0:speed *= .25
 	velocity.x = dir.x*speed
@@ -183,7 +194,7 @@ func _physics_process(delta: float) -> void:
 	visual.position.y = absf(sin(walk_phase))*.035
 	visual.rotation.z = sin(age*40)*hurt*.25
 	if global_position.y < -5:queue_free()
-	advance_ranged_attack(delta,distance<24)
+	advance_ranged_attack(delta,tracking_player)
 
 func advance_ranged_attack(delta: float, can_aim: bool) -> void:
 	if not patrol_brain or can_aim:attack -= delta

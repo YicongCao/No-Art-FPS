@@ -9,6 +9,7 @@ func _ready() -> void:
 	game.set_physics_process(false)
 	game.player.enabled = false
 	game.player.set_process_unhandled_input(false)
+	await check_detection_range()
 	game.player.position = Vector3(18,.05,5)
 	game.player.rotation.y = 0
 	game.player.pitch = 0
@@ -113,6 +114,34 @@ func _ready() -> void:
 	await get_tree().create_timer(.25).timeout
 	print("AWARENESS_CHECK_PASS: aim timing, yellow tracer, hit flash, swept cover collision, near miss, restart cleanup")
 	get_tree().quit()
+
+func check_detection_range() -> void:
+	game.player.position = Vector3(-15,.05,18)
+	var guard = game.spawn_enemy(Vector3(18,0,5),false)
+	var patrol = game.spawn_enemy(Vector3(30,0,3),false)
+	var guard_start: Vector3 = guard.position
+	var patrol_start: Vector3 = patrol.position
+	var heading: float = guard.rotation.y
+	guard.attack = 0
+	for i in range(90):await get_tree().physics_frame
+	assert(not guard.tracking_player and not patrol.tracking_player)
+	assert(guard.position.distance_to(guard_start)<.15 and is_equal_approx(guard.rotation.y,heading))
+	assert(patrol.position.distance_to(patrol_start)>1 and game.arena.enemy_zone(patrol.position)=="warehouse")
+	assert(game.ranged_aimers.is_empty() and game.bullets.is_empty())
+
+	game.player.position = Vector3(18,.05,21)
+	for i in range(45):
+		await get_tree().physics_frame
+		if guard.windup>0 and guard.position.distance_to(guard_start)>.15:break
+	assert(guard.tracking_player and guard.windup>0 and guard.aim_line.visible)
+	assert(guard.position.distance_to(guard_start)>.15)
+	game.player.position = Vector3(-15,.05,18)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	assert(not guard.tracking_player and guard.windup==0 and not guard.aim_line.visible)
+	assert(not game.ranged_aimers.has(guard) and game.bullets.is_empty())
+	game.clear_round()
+	print("ENEMY_DETECTION_RANGE_PASS: distant idle and patrol, close chase and aim, retreat cancels aim")
 
 func stationary(pos: Vector3) -> Node3D:
 	var enemy = game.spawn_enemy(pos,false)
