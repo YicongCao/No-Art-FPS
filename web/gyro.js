@@ -7,6 +7,10 @@
     let enabled=false,ready=false,pending=false,generation=0,listening=false;
     let context={running:false,landscape:true,visible:true,focused:true};
     let sensitivity=1,last=null,lastSample=null,yaw=0,pitch=0,filtered=[0,0],bias=[0,0,0];
+    let screenAngle=null;
+    const {platform='',maxTouchPoints=0}=host.navigator??{};
+    // iOS WebKit forwards Core Motion's downward gravity vector.
+    const gravitySign=/^(iPhone|iPad|iPod)$/.test(platform)||(platform==='MacIntel'&&maxTouchPoints>1)?-1:1;
     let preference=null,practicePassed=false;
     const flipped={x:false,y:false,z:false};
     let permissionGranted=false;
@@ -59,6 +63,14 @@
     }
     function notify(message){if(message!==undefined)status=message;changed(snapshot());}
     function reset(){last=null;yaw=pitch=0;filtered=[0,0];}
+    function updateScreenAngle(){
+      // The legacy landscape angle is relative to the device's portrait axes.
+      // Some Safari versions expose the opposite angle in screen.orientation.
+      const legacy=host.orientation;
+      const angle=Number.isFinite(legacy)&&Math.abs(legacy)%180===90?legacy:host.screen?.orientation?.angle;
+      const normalized=Number.isFinite(angle)?(angle%360+360)%360:0;
+      if(screenAngle!==normalized){screenAngle=normalized;reset();}
+    }
     function active(){return context.visible&&context.focused&&context.landscape;}
     function watchForMotion(){
       host.clearTimeout(probe);probe=0;
@@ -126,8 +138,9 @@
     function sample(event){
       if(!enabled||!active())return;
       const r=event.rotationRate;
-      if(!r||![r.beta,r.gamma,r.alpha].every(Number.isFinite)){reset();return;}
-      const t=now(),raw=[r.beta,r.gamma,r.alpha];lastSample=t;
+      if(!r||![r.alpha,r.beta,r.gamma].every(Number.isFinite)){reset();return;}
+      // DeviceMotionEvent's angular rates are X/Y/Z in alpha/beta/gamma order.
+      const t=now(),raw=[r.alpha,r.beta,r.gamma];lastSample=t;
       if(calibration){
         if(raw.some(v=>Math.abs(v)>3)){calibration.first=null;calibration.count=0;calibration.sum=[0,0,0];}
         else{
@@ -141,30 +154,30 @@
         return;
       }
       if(!ready||!context.running){reset();return;}
+      updateScreenAngle();
       const dt=last===null?0:(t-last)/1000;last=t;
       if(dt<=0||dt>.1){yaw=pitch=0;filtered=[0,0];return;}
       const rates=raw.map((v,i)=>clamp(v-bias[i],-300,300));
       if(flipped.x)rates[0]*=-1;
       if(flipped.y)rates[1]*=-1;
       if(flipped.z)rates[2]*=-1;
-      const screenAngle=host.screen?.orientation?.angle ?? host.orientation ?? 0;
-      const a=Number(screenAngle)*RAD,c=Math.cos(a),s=Math.sin(a);
+      const a=screenAngle*RAD,c=Math.cos(a),s=Math.sin(a);
       // Screen X is the pitch axis. Screen Y is a fallback when gravity is absent.
       const pitchRate=rates[0]*c-rates[1]*s;
       let yawRate=rates[0]*s+rates[1]*c;
       const g=event.accelerationIncludingGravity;
       if(g&&[g.x,g.y,g.z].every(Number.isFinite)){
         const length=Math.hypot(g.x,g.y,g.z);
-        // At rest accelerationIncludingGravity points up (W3C: face-up Z=+9.8).
-        if(length>7&&length<12)yawRate=(rates[0]*g.x+rates[1]*g.y+rates[2]*g.z)/length;
+        if(length>7&&length<12)yawRate=gravitySign*(rates[0]*g.x+rates[1]*g.y+rates[2]*g.z)/length;
       }
       const blend=1-Math.exp(-dt/.025);
       [yawRate,pitchRate].forEach((v,i)=>filtered[i]+=(v-filtered[i])*blend);
       const softDeadzone=v=>Math.sign(v)*Math.max(0,Math.abs(v)-.08);
-      yaw=clamp(yaw-softDeadzone(filtered[0])*RAD*dt*sensitivity,-.25,.25);
-      pitch=clamp(pitch-softDeadzone(filtered[1])*RAD*dt*sensitivity,-.25,.25);
+      yaw=clamp(yaw+softDeadzone(filtered[0])*RAD*dt*sensitivity,-.25,.25);
+      pitch=clamp(pitch+softDeadzone(filtered[1])*RAD*dt*sensitivity,-.25,.25);
     }
     function read(){
+      updateScreenAngle();
       if(!enabled||!ready||!active()||!context.running||lastSample===null||now()-lastSample>250)reset();
       const result={gyroYaw:yaw,gyroPitch:pitch};yaw=pitch=0;return result;
     }

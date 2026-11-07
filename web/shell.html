@@ -181,9 +181,9 @@
     document.querySelector('#gyro-open').onclick=window.noArtOpenGyro;
     const fingers=new Map(),ui=document.querySelector('#touch-ui'),knob=document.querySelector('#stick span');
     function clearTouch(){gyroSetup?.gyro.reset();fingers.clear();Object.assign(touch,{x:0,y:0,dx:0,dy:0,fire:false,interact:false,jump:false,reload:false,pause:false});knob.style.transform='';document.querySelectorAll('.held').forEach(e=>e.classList.remove('held'));}
-    function orientation(){const portrait=innerHeight>innerWidth;document.body.classList.toggle('portrait',portrait);touch.blocked=portrait||document.hidden;if(portrait){clearTouch();pauseRequested=true;}syncGyro();}
-    document.body.classList.toggle('mobile',window.noArtMobile);orientation();window.addEventListener('resize',()=>{clearTouch();orientation();});window.addEventListener('orientationchange',()=>{clearTouch();orientation();});screen.orientation?.addEventListener?.('change',()=>{clearTouch();orientation();});
-    document.addEventListener('visibilitychange',()=>{clearTouch();orientation();if(document.hidden)pauseRequested=true;});window.addEventListener('blur',()=>{focused=false;clearTouch();if(document.body.dataset.game==='RUNNING')pauseRequested=true;syncGyro();});window.addEventListener('focus',()=>{focused=true;syncGyro();});
+    function syncScreenLayout(){const portrait=innerHeight>innerWidth;document.body.classList.toggle('portrait',portrait);touch.blocked=portrait||document.hidden;if(portrait){clearTouch();pauseRequested=true;}syncGyro();}
+    document.body.classList.toggle('mobile',window.noArtMobile);syncScreenLayout();window.addEventListener('resize',()=>{clearTouch();syncScreenLayout();});window.addEventListener('orientationchange',()=>{clearTouch();syncScreenLayout();});screen.orientation?.addEventListener?.('change',()=>{clearTouch();syncScreenLayout();});
+    document.addEventListener('visibilitychange',()=>{clearTouch();syncScreenLayout();if(document.hidden)pauseRequested=true;});window.addEventListener('blur',()=>{focused=false;clearTouch();if(document.body.dataset.game==='RUNNING')pauseRequested=true;syncGyro();});window.addEventListener('focus',()=>{focused=true;syncGyro();});
     window.noArtMode=mode=>{document.body.dataset.mode=mode;clearTouch();};
     window.noArtState=state=>{document.body.dataset.game=state;clearTouch();hideImmersiveNote();immersiveAttempt++;if(state!=='RUNNING')pauseRequested=false;if(state==='RUNNING'||state==='LOADING')gyroSetup?.close(false);syncGyro();};
     window.noArtReadTouch=(alive=true)=>{

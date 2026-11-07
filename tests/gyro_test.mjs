@@ -7,7 +7,7 @@ function fixture(permission,storage=new Map()){
   const host={isSecureContext:true,DeviceMotionEvent:permission?{requestPermission:permission}:{},screen:{orientation:{angle:90}},localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v)},addEventListener:(k,v)=>listeners.set(k,v),removeEventListener:k=>listeners.delete(k),setTimeout:(fn,ms)=>{timers.set(fn,ms);return fn;},clearTimeout:fn=>timers.delete(fn)};
   runInNewContext(source,{window:host,performance:{now:()=>time}});
   const gyro=host.NoArtGyro.create({host,now:()=>time,changed:s=>states.push(s)});
-  const sample=(beta=0,gamma=0,alpha=0,dt=16,g=null)=>{time+=dt;listeners.get('devicemotion')?.({rotationRate:{beta,gamma,alpha},accelerationIncludingGravity:g});};
+  const sample=(x=0,y=0,z=0,dt=16,g=null)=>{time+=dt;listeners.get('devicemotion')?.({rotationRate:{alpha:x,beta:y,gamma:z},accelerationIncludingGravity:g});};
   async function start(bias=[0,0,0]){await gyro.enable();for(let n=0;n<50;n++)sample(...bias);assert.equal(gyro.snapshot().ready,true);gyro.setContext({running:true});}
   return {gyro,host,listeners,timers,storage,states,sample,start,advance:ms=>{time+=ms;}};
 }
@@ -15,17 +15,41 @@ let f=fixture();assert.equal(f.gyro.snapshot().enabled,false);assert.equal(f.lis
 await f.start([.2,-.1,.15]);
 for(let n=0;n<40;n++)f.sample(.2,-.1,.15);
 assert.equal(f.gyro.read().gyroYaw,0);assert.equal(f.gyro.read().gyroPitch,0);
-// 90 degrees landscape: beta is screen Y; -gamma is screen X.
+// 90 degrees landscape: device X is screen up and -device Y is screen right.
 for(let n=0;n<5;n++)f.sample(30.2,-.1,.15);
-let packet=f.gyro.read();assert.ok(packet.gyroYaw<0);assert.ok(Math.abs(packet.gyroPitch)<1e-9);
+let packet=f.gyro.read();assert.ok(packet.gyroYaw>0);assert.ok(Math.abs(packet.gyroPitch)<1e-9);
 assert.equal(f.gyro.read().gyroYaw,0,'Consume deltas once');
 f.gyro.reset();for(let n=0;n<5;n++)f.sample(.2,-30.1,.15);
-assert.ok(f.gyro.read().gyroPitch<0);
-f.host.screen.orientation.angle=270;f.gyro.reset();for(let n=0;n<5;n++)f.sample(30.2,-.1,.15);
-assert.ok(f.gyro.read().gyroYaw>0,'Opposite landscape reverses device X');
+packet=f.gyro.read();assert.ok(packet.gyroPitch>0);assert.equal(packet.gyroYaw,0);
+for(let n=0;n<5;n++)f.sample(30.2,-.1,.15);
+f.host.screen.orientation.angle=270;
+assert.equal(f.gyro.read().gyroYaw,0,'A display flip discards buffered motion');
+for(let n=0;n<5;n++)f.sample(30.2,-.1,.15);
+assert.ok(f.gyro.read().gyroYaw<0,'Opposite landscape reverses device X');
+f.gyro.reset();for(let n=0;n<5;n++)f.sample(.2,-30.1,.15);
+assert.ok(f.gyro.read().gyroPitch<0,'Opposite landscape reverses device Y');
 // Gravity projection supports aiming when the phone is tilted nearly flat.
 f.gyro.reset();for(let n=0;n<5;n++)f.sample(.2,-.1,30.15,16,{x:0,y:0,z:9.81});
-assert.ok(f.gyro.read().gyroYaw<0);
+assert.ok(f.gyro.read().gyroYaw>0);
+// iPad's desktop UA, with conflicting Safari orientation values and downward gravity.
+const ipad=fixture();
+ipad.host.navigator={platform:'MacIntel',maxTouchPoints:5};
+const ipadGyro=ipad.host.NoArtGyro.create({host:ipad.host});
+await ipadGyro.enable();for(let n=0;n<50;n++)ipad.sample();
+assert.equal(ipadGyro.snapshot().ready,true);ipadGyro.setContext({running:true});
+for(const side of [1,-1]){
+  ipad.host.orientation=90*side;
+  ipad.host.screen.orientation.angle=side===1?270:90;
+  const down={x:-side*9.81,y:0,z:0};
+  for(let n=0;n<5;n++)ipad.sample(30*side,0,0,16,down);
+  packet=ipadGyro.read();assert.ok(packet.gyroYaw>0);assert.equal(packet.gyroPitch,0);
+  ipadGyro.reset();for(let n=0;n<5;n++)ipad.sample(0,-30*side,0,16,down);
+  packet=ipadGyro.read();assert.ok(packet.gyroPitch>0);assert.equal(packet.gyroYaw,0);
+  ipadGyro.reset();for(let n=0;n<5;n++)ipad.sample(0,0,30,16,down);
+  packet=ipadGyro.read();assert.equal(packet.gyroYaw,0);assert.equal(packet.gyroPitch,0);
+}
+ipadGyro.reset();for(let n=0;n<5;n++)ipad.sample(0,0,30,16,{x:0,y:0,z:-9.81});
+assert.ok(ipadGyro.read().gyroYaw>0,'Face-up Safari yaw uses normalized gravity');
 // Sensitivity is independent of pixel movement. Preferences survive a new session.
 const measure=()=>{for(let n=0;n<5;n++)f.sample(30.2,-.1,.15);return Math.abs(f.gyro.read().gyroYaw);};
 f.gyro.setSensitivity(1);const base=measure();f.gyro.setSensitivity(2);assert.ok(Math.abs(measure()/base-2)<1e-8);
@@ -55,11 +79,11 @@ assert.equal(f.gyro.snapshot().practicePassed,true);
 assert.equal(f.gyro.snapshot().enabled,false);
 await f.start();
 for(let n=0;n<5;n++)f.sample(30,0,0);
-assert.ok(f.gyro.read().gyroYaw>0,'X flip reverses yaw in landscape');
+assert.ok(f.gyro.read().gyroYaw<0,'X flip reverses yaw in landscape');
 f.gyro.reset();for(let n=0;n<5;n++)f.sample(0,-30,0);
-assert.ok(f.gyro.read().gyroPitch>0,'Y flip reverses pitch in landscape');
+assert.ok(f.gyro.read().gyroPitch<0,'Y flip reverses pitch in landscape');
 f.gyro.reset();for(let n=0;n<5;n++)f.sample(0,0,30,16,{x:0,y:0,z:9.81});
-assert.ok(f.gyro.read().gyroYaw>0,'Z flip reverses gravity-projected yaw');
+assert.ok(f.gyro.read().gyroYaw<0,'Z flip reverses gravity-projected yaw');
 f.gyro.choose(false);
 assert.equal(fixture(undefined,saved).gyro.snapshot().preference,false);
 // Explicit permission, denial, no hardware, insecure context and revoked pending enable.
