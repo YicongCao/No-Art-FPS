@@ -14,60 +14,11 @@ func _ready() -> void:
 	game.player.pitch = 0
 	game.hud.go_time = 0
 	game.invulnerable = 0
-	var left = stationary(Vector3(13,0,12))
-	var middle = stationary(Vector3(18,0,14))
-	var right = stationary(Vector3(23,0,12))
-	stationary(Vector3(18,0,-3))
-	stationary(Vector3(18,0,33))
+	var rear = stationary(Vector3(18,0,14))
 	await get_tree().physics_frame
+	assert(game.hud.damage_edge_direction()==Vector2.ZERO,"An enemy behind the player alone does not indicate damage")
+	rear.queue_free()
 	await get_tree().physics_frame
-	game.hud.refresh_rear_threats()
-	assert(game.hud.rear_threats.size()==3)
-	assert(game.hud.rear_sector(left.position)==0 and game.hud.rear_sector(middle.position)==1 and game.hud.rear_sector(right.position)==2)
-	assert(game.hud.rear_sector(Vector3(18,0,-3))==-1)
-	for marker in game.hud.rear_markers:assert(not marker.accessibility_name.is_empty())
-	await capture("rear-threats")
-	game.player.rotation.y = PI
-	game.hud.refresh_rear_threats()
-	assert(game.hud.rear_threats.size()==1,"Turning moves the old rear threats into view")
-	game.player.rotation.y = 0
-	if DisplayServer.get_name()!="headless":
-		DisplayServer.window_set_size(Vector2i(960,540))
-		await capture("rear-threats-small")
-		for marker in game.hud.rear_markers:assert(Rect2(Vector2.ZERO,game.hud.size).encloses(marker.get_rect()))
-		DisplayServer.window_set_size(Vector2i(1280,720))
-	middle.windup = .5
-	game.hud.refresh_rear_threats()
-	assert(game.hud.rear_threats.filter(func(t):return t.sector==1)[0].urgent,"Aiming escalates the rear indicator")
-	# Solid cover must suppress all three behind-the-player indicators.
-	var wall = StaticBody3D.new()
-	var shape = CollisionShape3D.new()
-	var box = BoxShape3D.new()
-	box.size = Vector3(14,4,.4)
-	shape.shape = box
-	wall.add_child(shape)
-	game.add_child(wall)
-	wall.position = Vector3(18,2,9)
-	await get_tree().physics_frame
-	await get_tree().physics_frame
-	game.hud.refresh_rear_threats()
-	assert(game.hud.rear_threats.is_empty())
-	wall.queue_free()
-	await get_tree().physics_frame
-	await get_tree().physics_frame
-	left.take_hit(true)
-	game.hud.refresh_rear_threats()
-	assert(game.hud.rear_threats.size()==2)
-	game.state = "PAUSED"
-	game.hud._physics_process(.1)
-	for marker in game.hud.rear_markers:assert(not marker.visible)
-	game.state = "RUNNING"
-	game.respawn_time = 1
-	game.hud.refresh_rear_threats()
-	assert(game.hud.rear_threats.is_empty())
-	game.respawn_time = 0
-	print("REAR_THREATS_PASS: three directions, front/range exclusion, cover, death, pause, respawn, labels")
-	game.clear_round()
 	var guard = stationary(Vector3(15,0,-2))
 	guard.look_at(Vector3(18,guard.position.y,5))
 	guard.attack = 0
@@ -78,7 +29,7 @@ func _ready() -> void:
 	var initial_gray: Color = guard.aim_line.material_override.albedo_color
 	guard.advance_ranged_attack(aim_duration*.75,true)
 	assert(game.bullets.is_empty() and guard.aim_line.material_override.albedo_color.r<initial_gray.r)
-	await capture("enemy-aim-line",false)
+	await capture("enemy-aim-line")
 	guard.advance_ranged_attack(.01,false)
 	assert(guard.windup==0 and not guard.aim_line.visible and game.bullets.is_empty())
 	guard.advance_ranged_attack(0,true)
@@ -113,20 +64,28 @@ func _ready() -> void:
 	assert(game.health==game.MAX_HEALTH-34 and game.bullets.is_empty())
 	game.hud._process(0)
 	assert(game.hud.vignette.material.get_shader_parameter("hit_flash")>.9)
-	await capture("player-hit-flash",false)
+	assert(game.hud.damage_edge_direction()==Vector2.ZERO,"On-screen hits use the edge flash without a direction marker")
+	await capture("player-hit-flash")
 	game.invulnerable = 0
 	game.damage_player(12,game.player.camera.to_global(Vector3(-8,0,-1)))
 	assert(game.hud.damage_edge_direction().x<-.99)
-	await capture("damage-offscreen-left",false)
+	await capture("damage-offscreen-left")
 	game.invulnerable = 0
-	game.damage_player(12,game.player.camera.to_global(Vector3(0,0,8)))
-	assert(game.hud.damage_edge_direction().y>.99)
+	var health_before_rear_shot = game.health
+	game.enemy_shoot(Vector3(18,1.1,11),Vector3(18,1.1,5))
+	game.update_bullets(.1)
+	assert(game.health==health_before_rear_shot-34 and game.hud.damage_edge_direction().y>.99)
+	await capture("damage-offscreen-rear")
+	game.hud._process(.81)
+	assert(game.hud.damage_edge_direction()==Vector2.ZERO,"Direction marker expires with the hit flash")
 	print("ENEMY_SHOT_SPEED_PAUSE_PASS")
 	# A long physics step still sweeps into cover, never through it.
 	game.health = game.MAX_HEALTH
 	game.invulnerable = 0
 	var cover = StaticBody3D.new()
 	var cover_shape = CollisionShape3D.new()
+	var box = BoxShape3D.new()
+	box.size = Vector3(14,4,.4)
 	cover_shape.shape = box
 	cover.add_child(cover_shape)
 	game.add_child(cover)
@@ -144,7 +103,7 @@ func _ready() -> void:
 	# A visible tracer can pass to the player's side without causing damage.
 	game.enemy_shoot(Vector3(12,1.1,-3),Vector3(18.8,1.1,5))
 	game.update_bullets(.065)
-	await capture("enemy-yellow-trace",false)
+	await capture("enemy-yellow-trace")
 	game.update_bullets(.09)
 	assert(game.health==game.MAX_HEALTH)
 	game.start_run()
@@ -160,8 +119,7 @@ func stationary(pos: Vector3) -> Node3D:
 	enemy.set_physics_process(false)
 	return enemy
 
-func capture(filename: String, settle: bool = true) -> void:
+func capture(filename: String) -> void:
 	if DisplayServer.get_name()=="headless":return
-	if settle:await get_tree().create_timer(.15).timeout
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://artifacts/"+filename+".png")

@@ -1,11 +1,7 @@
 extends Control
 
-const REAR_THREAT = preload("res://assets/ui/rear-threat.svg")
 const SKULL_ICON = preload("res://assets/ui/skull.svg")
 const DAMAGE_IMPACT = preload("res://assets/ui/damage-impact.svg")
-var rear_markers: Array[TextureRect] = []
-var rear_threats: Array[Dictionary] = []
-var rear_sample_time = 0.0
 var game: Node
 var font: Font
 var hit = 0.0
@@ -188,18 +184,6 @@ func _ready() -> void:
 	menu.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	menu.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(menu)
-	for title in ["左后方敌人","正后方敌人","右后方敌人"]:
-		var marker = TextureRect.new()
-		marker.texture = REAR_THREAT
-		marker.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		marker.size = Vector2(44,44)
-		marker.pivot_offset = marker.size*.5
-		marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		marker.accessibility_name = title
-		marker.tooltip_text = title
-		marker.hide()
-		add_child(marker)
-		rear_markers.append(marker)
 
 func reset_results_frame() -> void:
 	results_frame_ticket += 1
@@ -654,48 +638,3 @@ func mission_time_style() -> StyleBoxFlat:
 	style.bg_color = Color(INK,.88)
 	style.set_corner_radius_all(6)
 	return style
-
-func rear_sector(world_position: Vector3) -> int:
-	var local = game.player.global_basis.inverse()*(world_position-game.player.global_position)
-	var distance = Vector2(local.x,local.z).length()
-	if local.z<=distance*.1 or distance<.1:return -1
-	if local.x<-distance*.38:return 0
-	if local.x>distance*.38:return 2
-	return 1
-
-func refresh_rear_threats() -> void:
-	rear_threats.clear()
-	if game.state!="RUNNING" or game.respawn_time>0 or game.finale_active:return
-	var by_sector: Dictionary = {}
-	for enemy in game.live_enemies():
-		var distance = enemy.global_position.distance_to(game.player.global_position)
-		if distance>24:continue
-		var sector = rear_sector(enemy.global_position)
-		if sector<0:continue
-		var sight = PhysicsRayQueryParameters3D.create(game.player.camera.global_position,enemy.global_position+Vector3.UP*1.4,1)
-		if not game.get_world_3d().direct_space_state.intersect_ray(sight).is_empty():continue
-		var urgent = distance<9 or enemy.windup>0
-		if by_sector.has(sector):
-			by_sector[sector].urgent = by_sector[sector].urgent or urgent
-			by_sector[sector].distance = minf(distance,by_sector[sector].distance)
-		else:by_sector[sector] = {"sector":sector,"distance":distance,"urgent":urgent}
-	for threat in by_sector.values():rear_threats.append(threat)
-
-func _physics_process(delta: float) -> void:
-	if not game or rear_markers.is_empty():return
-	rear_sample_time -= delta
-	if rear_sample_time<=0:
-		rear_sample_time = .1
-		refresh_rear_threats()
-	for marker in rear_markers:marker.hide()
-	if game.state!="RUNNING" or game.respawn_time>0 or game.finale_active:return
-	if damage_edge_direction()!=Vector2.ZERO:return
-	var centers = [Vector2(44,size.y*.67),Vector2(size.x*.5,size.y-66),Vector2(size.x-44,size.y*.67)]
-	for threat in rear_threats:
-		var marker = rear_markers[threat.sector]
-		marker.position = centers[threat.sector]-marker.size*.5
-		marker.rotation = [.65,0.0,-.65][threat.sector]
-		var tint = Color("ee795d") if threat.urgent else GOLD
-		tint.a = clampf(1.15-threat.distance/40.0,.5,1)
-		marker.modulate = tint
-		marker.show()
