@@ -10,6 +10,7 @@ class Element {
   addEventListener(type,fn){(this.handlers[type]??=[]).push(fn);}
   setPointerCapture(){}
   setAttribute(name,value){this[name]=value;}
+  querySelectorAll(){return [];}
   focus(){}
   closest(){return this.id?this:null;}
   emit(type,event={}){for(const fn of this.handlers[type]??[])fn({preventDefault(){},...event});}
@@ -26,9 +27,16 @@ const timers=new Map();let nextTimer=0;
 const context={window,document,location:{search:'?touch=1'},matchMedia:()=>({matches:false}),URLSearchParams,innerWidth:844,innerHeight:390,screen:{},setTimeout:(fn,ms)=>{timers.set(++nextTimer,{fn,ms});return nextTimer;},clearTimeout:id=>timers.delete(id),console};
 let sensorTime=0;
 Object.assign(window,{isSecureContext:true,DeviceMotionEvent:{},screen:{orientation:{angle:90}},setTimeout:context.setTimeout,clearTimeout:context.clearTimeout,removeEventListener(type,fn){this.handlers[type]=(this.handlers[type]??[]).filter(item=>item!==fn);}});
+// The guided setup is a separate browser module. Keep this bridge check in the
+// returning-player settings flow; browser QA exercises the first-use practice.
+window.localStorage={getItem:key=>key==='no-art-gyro-settings'?JSON.stringify({preference:true,practicePassed:true}):null,setItem(){}};
+context.cancelAnimationFrame=()=>{};
+context.requestAnimationFrame=()=>0;
 context.performance={now:()=>sensorTime};
 runInNewContext(readFileSync(new URL('../web/gyro.js',import.meta.url),'utf8'),context);
-runInNewContext(source,context);
+runInNewContext(readFileSync(new URL('../web/gyro-setup.js',import.meta.url),'utf8').replace('export function setupGyroPanel','function setupGyroPanel'),context);
+context.loadModule=async path=>path.endsWith('gyro-setup.js')?{setupGyroPanel:context.setupGyroPanel}:{};
+runInNewContext(source.replaceAll('import(', 'loadModule('),context);
 const ui=get('#touch-ui');
 const read=()=>JSON.parse(window.noArtReadTouch());
 const pointer=(type,id,x,y,target=ui)=>ui.emit(type,{pointerId:id,clientX:x,clientY:y,target});
@@ -91,10 +99,11 @@ console.log('MOBILE_UI_PASS: SVG controls, silent automatic failure, 2.4s manual
 
 // Verify the real gyro module feeds the same packet as touch, and death clears it.
 window.emit('focus');window.noArtState('PAUSED');await get('#gyro-toggle').onclick();
+await get('#gyro-start').onclick();
 const motion=(beta=0)=>{sensorTime+=16;window.emit('devicemotion',{rotationRate:{alpha:0,beta,gamma:0}});};
 for(let i=0;i<50;i++)motion();
 window.noArtState('RUNNING');for(let i=0;i<5;i++)motion(30);
-p=read();assert.ok(p.gyroYaw>0);assert.equal(read().gyroYaw,0);
+p=read();assert.ok(p.gyroYaw<0);assert.equal(read().gyroYaw,0);
 for(let i=0;i<5;i++)motion(30);
 p=JSON.parse(window.noArtReadTouch(false));assert.equal(p.gyroYaw,0);
 window.noArtState('PAUSED');for(let i=0;i<5;i++)motion(30);assert.equal(read().gyroYaw,0);

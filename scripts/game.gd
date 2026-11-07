@@ -264,6 +264,7 @@ func capture_opening_frame() -> void:
 	title_frame_ready = true
 	hud.show()
 	if OS.has_feature("web"):
+		await RenderingServer.frame_post_draw
 		JavaScriptBridge.eval("window.noArtReady && window.noArtReady()")
 
 func save_record() -> void:

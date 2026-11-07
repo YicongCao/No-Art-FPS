@@ -7,13 +7,15 @@ from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
 bundle = root / 'builds' / 'web'
-required = ['index.html', 'index.js', 'index.wasm', 'index.pck', 'icon.svg', 'gyro.js', 'gyro-setup.js', 'FONT-LICENSE.txt', 'GODOT-LICENSE.txt', 'GODOT-COPYRIGHT.txt', 'DUST-LICENSE.txt']
+required = ['index.html', 'index.js', 'index.wasm', 'index.pck', 'icon.svg', 'gyro.js', 'gyro-setup.js', 'title-background.webp', 'Rajdhani-Bold.woff2', 'FONT-LICENSE.txt', 'GODOT-LICENSE.txt', 'GODOT-COPYRIGHT.txt', 'DUST-LICENSE.txt']
 for name in required:
     assert (bundle / name).is_file(), f'Missing export: {name}'
 html = (bundle / 'index.html').read_text()
 assert '$GODOT_' not in html, 'Unresolved template token'
 assert '"ensureCrossOriginIsolationHeaders":false' in html, 'Unexpected isolation requirement'
 assert '"serviceWorker"' not in html, 'PWA must stay disabled'
+assert (bundle / 'Rajdhani-Bold.woff2').read_bytes()[:4] == b'wOF2', 'Invalid title font'
+assert (bundle / 'title-background.webp').read_bytes()[8:12] == b'WEBP', 'Invalid opening frame'
 assert (bundle / 'index.wasm').read_bytes()[:4] == b'\x00asm', 'Invalid WebAssembly'
 # PCK path table contains public runtime resources only. Nothing from the
 # reference, source-art, screenshots, design or QA folders may be published.

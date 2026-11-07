@@ -9,23 +9,23 @@
   <meta name="description" content="No-Art-FPS — 60 秒击杀冲刺。pixelcao 的明亮低多边形 FPS 小品。">
   <title>No-Art-FPS · pixelcao</title>
   <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="preload" href="title-background.webp" as="image">
+  <link rel="preload" href="Rajdhani-Bold.woff2" as="font" type="font/woff2" crossorigin>
   <style>
+    @font-face{font-family:Rajdhani;src:url('Rajdhani-Bold.woff2') format('woff2');font-weight:700;font-display:block}
     *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#243440;color:#fff5d3;font-family:Arial,"PingFang SC",sans-serif;overflow:hidden}
     button,a{-webkit-tap-highlight-color:transparent}button{font:inherit;cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #e9ba50;outline-offset:5px}
     .ui-icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle;pointer-events:none}.touch-button .ui-icon{width:26px;height:26px}
     #canvas{display:block;width:100%;height:100%;outline:0;touch-action:none}
-    #loading{position:fixed;inset:0;display:grid;align-items:center;padding:max(24px,env(safe-area-inset-top)) max(6vw,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(6vw,env(safe-area-inset-left));background:#6287cc;isolation:isolate;z-index:5;transition:opacity .2s}
+    #loading{position:fixed;inset:0;background:#000;z-index:5;transition:opacity .18s}
     #loading[hidden]{display:none}#loading.leaving{opacity:0;pointer-events:none}
-    .loader-yard{position:absolute;inset:0;width:100%;height:100%;z-index:-1}
-    .loader-card{width:min(400px,100%);color:white}
-    .loader-title{margin:0 0 25px;font:900 clamp(68px,10vw,144px)/.8 Arial,sans-serif;letter-spacing:-.08em;text-shadow:4px 5px #243440}
-    .loader-title span{display:block}.loader-title span:last-child{color:#ffe19a}
-    .loader-panel{padding:12px 14px 10px;background:#26364e;border:3px solid #151e2a;box-shadow:5px 5px #151e2a;border-radius:3px}
-    .loader-rail{display:block;width:100%;height:clamp(25px,4.5vw,37px);background:#182433;border:2px solid #0f1822}
-    .loader-status{display:flex;align-items:baseline;justify-content:space-between;gap:14px;min-height:1.5em;margin:8px 0 0;font-size:13px;font-weight:700}
-    #amount{color:#ffe19a;font-variant-numeric:tabular-nums}
-    #progress{position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden;white-space:nowrap}
-    #retry{margin-top:10px;border:2px solid #151e2a;background:#754c87;color:white;padding:8px 16px}#retry[hidden]{display:none}
+    #loader-scene{display:block;width:100%;height:100%;font-family:Rajdhani,sans-serif;font-weight:700;fill:white}
+    #loader-cartridges{transition:opacity .12s,transform .12s;transform-box:fill-box;transform-origin:center}
+    #loader-fire{opacity:0;transition:opacity .12s}
+    #loading.loaded #loader-cartridges{opacity:0;transform:translateY(4px)}#loading.loaded #loader-fire{opacity:1}
+    .loader-status{position:absolute;left:0;bottom:0;width:1px;height:1px;clip-path:inset(50%);overflow:hidden;white-space:nowrap}
+    #loading.error .loader-status,.loader-noscript{position:absolute;left:50%;bottom:10%;transform:translateX(-50%);width:min(480px,90%);height:auto;clip-path:none;white-space:normal;text-align:center;padding:16px;background:#243440;font-size:16px;line-height:1.5}
+    #retry{display:block;margin:12px auto 0;border:0;background:#754c87;color:white;padding:10px 22px}#retry[hidden]{display:none}
     #help{position:fixed;right:max(16px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));color:#fff5d3;background:#243440ce;border:1px solid #fff5d340;padding:8px 12px;font-size:12px;z-index:2;max-width:calc(100% - 32px);text-align:center}
     #help[hidden]{display:none}.mobile-warning{display:none}@media(pointer:coarse){.desktop-controls{display:none}.mobile-warning{display:inline}}
 
@@ -49,8 +49,6 @@
     body.mobile:not([data-game=RUNNING]):not(.portrait) #loading[hidden]~#immersive{display:block}
     #immersive-note[hidden],body[data-game=RUNNING] #immersive-note,body[data-game=LOADING] #immersive-note{display:none}
     #immersive-note{position:fixed;z-index:21;left:10%;right:10%;bottom:12px;text-align:center;background:#243440e8;padding:12px;font-size:13px;color:#fff5d3}
-    @media(max-height:560px){.loader-title{font-size:clamp(50px,11vh,86px);margin-bottom:16px}}
-    @media(max-height:400px) and (orientation:landscape){.loader-title{display:flex;gap:.17em;flex-wrap:wrap}}
     #gyro-open{display:none;position:fixed;z-index:7;top:max(10px,env(safe-area-inset-top));right:max(110px,calc(env(safe-area-inset-right) + 98px));min-height:44px;padding:10px 14px;background:#243440bd;color:#fff5d3;border:1px solid #fff5d366}
     body.mobile:is([data-game=TITLE],[data-game=RESULTS]):not(.portrait) #loading[hidden]~#gyro-open{display:block}
     #gyro-panel[hidden]{display:none}#gyro-panel{position:fixed;inset:0;z-index:22;background:#13202bd9;display:grid;place-items:center;padding:max(12px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left))}
@@ -65,57 +63,37 @@
     #gyro-panel[data-step=practice] section{width:min(550px,100%)}
     #gyro-room{display:block;width:100%;height:min(38vh,220px);background:#1c2b3e;border:2px solid #17202a}
     @media(max-height:400px){#gyro-panel section{padding:12px 20px}#gyro-panel header{margin-bottom:8px}}
-    @media(prefers-reduced-motion:reduce){#loading{transition:none}}
+    @media(prefers-reduced-motion:reduce){#loading,#loader-cartridges,#loader-fire{transition:none}}
   </style>
   $GODOT_HEAD_INCLUDE
 </head>
 <body>
-  <div id="loading">
-    <svg class="loader-yard" viewBox="0 0 1440 810" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+  <div id="loading" aria-busy="true">
+    <svg id="loader-scene" viewBox="0 0 1440 810" aria-label="No-Art-FPS" role="img" focusable="false">
       <defs>
-        <linearGradient id="yard-shade"><stop stop-color="#233450" stop-opacity=".55"/><stop offset=".68" stop-color="#233450" stop-opacity="0"/></linearGradient>
-        <pattern id="yard-ribs" width="32" height="104" patternUnits="userSpaceOnUse"><path d="M8 0v104m5-104v104" stroke="#151e2a" stroke-opacity=".29" stroke-width="3"/></pattern>
+        <path id="loader-round" d="M3 37V12L7 3l4 9v25z"/>
+        <pattern id="rounds-empty" width="14" height="40" patternUnits="userSpaceOnUse"><use href="#loader-round" fill="#51365f"/></pattern>
+        <pattern id="rounds-gold" width="14" height="40" patternUnits="userSpaceOnUse"><use href="#loader-round" fill="#f2d084"/><path d="M4 29h6v6H4z" fill="#fff8e8"/></pattern>
       </defs>
-      <path fill="#6287cc" d="M0 0h1440v810H0z"/>
-      <path fill="#eee8d8" stroke="#243440" stroke-width="4" d="m615 162 39-16 29-2 23-12 49 9 16 13-12 15-115 7zm505-82 33-19 54-3 42 17 13 18-43 9-75-2z"/>
-      <path fill="#e8c477" d="M0 470h1440v340H0z"/>
-      <path fill="#717e8b" stroke="#263440" stroke-width="4" d="M616 483h144l590 327H452z"/>
-      <path fill="#fff0bd" d="m712 519 8 2 33 27-13-2zm59 52 18 5 53 43-25-3zm95 80 31 9 102 85-44-4z"/>
-      <g stroke="#263440" stroke-width="5" stroke-linejoin="round">
-        <path fill="#3f6d63" d="m627 404 72-40 157 20 3 92-232-4z"/>
-        <path fill="#629687" d="m627 404 70-40 3 104-73 4z"/>
-        <path fill="#a74d41" d="m831 435 105-56 355 22-1 179-459-16z"/>
-        <path fill="#c86d52" d="m831 435 104-56v179l-104 6z"/>
-        <path fill="url(#yard-ribs)" d="m936 379 355 22-1 179-355-22z"/>
-        <path fill="#654788" d="m946 288 115-62 314 30v171l-429-14z"/>
-        <path fill="#8464a6" d="m946 288 115-62v175l-115 12z"/>
-        <path fill="url(#yard-ribs)" d="m1061 226 314 30v171l-314-26z"/>
-        <path fill="#e6ded0" d="m1171 290 204 21v116l-204-12z"/>
-        <path fill="#394c61" d="m1270 310 4 108m-69-84 41 3m51 5 42 3" fill-opacity="0"/>
-        <path fill="#c45b48" d="m971 576 44 2 6 64-15 14-33-2-12-15z"/>
-        <path fill="#e6ba62" d="m967 596 51 2 1 12-53-2z"/>
-        <path fill="#e9a167" d="m971 576 13-8 26 2 5 8-13 10-23-1z"/>
-      </g>
-      <path fill="url(#yard-shade)" d="M0 0h1440v810H0z"/>
-    </svg>
-    <div class="loader-card">
-      <h1 class="loader-title" aria-label="No-Art-FPS"><span>NO</span><span>ART</span><span>FPS</span></h1>
-      <div class="loader-panel">
-        <svg class="loader-rail" viewBox="0 0 400 38" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-          <defs>
-            <path id="loader-round" d="M5 32V13l5-7 5 7v19z"/>
-            <pattern id="rounds-empty" width="20" height="38" patternUnits="userSpaceOnUse"><use href="#loader-round" fill="#3b4c61"/></pattern>
-            <pattern id="rounds-gold" width="20" height="38" patternUnits="userSpaceOnUse"><use href="#loader-round" fill="#f4c45c"/><path d="M6 25h8v6H6z" fill="#ffe19a"/></pattern>
-          </defs>
-          <rect width="400" height="38" fill="url(#rounds-empty)"/>
-          <rect id="loaded-rounds" width="20" height="38" fill="url(#rounds-gold)"/>
+      <rect id="loader-sky" width="1440" height="810" fill="#5b7fc8"/>
+      <image id="loader-background" href="title-background.webp" width="1440" height="810" preserveAspectRatio="xMidYMid slice"/>
+      <rect id="loader-shade" width="1440" height="810" fill="black" opacity=".55"/>
+      <g id="loader-title" font-size="160"><text x="104" y="220">NO</text><text x="104" y="370">ART</text><text x="104" y="520">FPS</text></g>
+      <g id="loader-action" transform="translate(104 622)">
+        <rect id="loader-button" width="300" height="112" fill="#754c87"/>
+        <svg id="loader-cartridges" x="10" y="36" width="280" height="40" viewBox="0 0 280 40" preserveAspectRatio="none" aria-hidden="true">
+          <rect width="280" height="40" fill="url(#rounds-empty)"/>
+          <rect id="loaded-rounds" width="14" height="40" fill="url(#rounds-gold)"/>
         </svg>
-        <progress id="progress" max="1" value="0" aria-label="游戏资源下载进度"></progress>
-        <div class="loader-status"><span id="phase" role="status">正在连接</span><span id="amount" aria-hidden="true"></span></div>
-        <button id="retry" hidden>重新加载</button>
-        <noscript>请启用 JavaScript 后再试玩。</noscript>
-      </div>
+        <text id="loader-fire" x="150" y="56" dominant-baseline="central" text-anchor="middle" font-size="68">FIRE</text>
+      </g>
+    </svg>
+    <div class="loader-status">
+      <progress id="progress" max="1" value="0" aria-label="游戏加载进度"></progress>
+      <span id="phase" role="status">正在连接</span><span id="amount" aria-hidden="true"></span>
+      <button id="retry" hidden>重新加载</button>
     </div>
+    <noscript class="loader-noscript">请启用 JavaScript 后再试玩。</noscript>
   </div>
   <canvas id="canvas" tabindex="0" aria-label="No-Art-FPS 游戏画面"></canvas>
   <div id="help" hidden><span class="desktop-controls">WASD 移动 · 鼠标瞄准 · 左键开火 · Esc 暂停</span><span class="mobile-warning">左侧移动 · 右侧瞄准</span></div>
@@ -247,17 +225,60 @@
   <script>
     const loading=document.querySelector('#loading'),phase=document.querySelector('#phase'),amount=document.querySelector('#amount'),progress=document.querySelector('#progress'),rounds=document.querySelector('#loaded-rounds'),retry=document.querySelector('#retry'),help=document.querySelector('#help');
     let ready=false,failed=false,downloaded=0;
+    const reducedMotion=matchMedia('(prefers-reduced-motion:reduce)');
+    function layoutLoader(){
+      const mobile=window.noArtMobile;
+      const scale=Math.min(innerWidth/960,innerHeight/540);
+      const width=mobile?innerWidth/scale:1440,height=mobile?innerHeight/scale:810;
+      document.querySelector('#loader-scene').setAttribute('viewBox',`0 0 ${width} ${height}`);
+      for(const id of ['loader-sky','loader-background','loader-shade']){
+        const element=document.getElementById(id);
+        element.setAttribute('width',width);element.setAttribute('height',height);
+      }
+      const title=document.querySelector('#loader-title');
+      title.setAttribute('font-size',mobile?106:160);
+      [...title.children].forEach((word,index)=>{
+        word.setAttribute('x',mobile?64:104);
+        word.setAttribute('y',mobile?116+100*index:220+150*index);
+      });
+      const buttonWidth=mobile?260:300,buttonHeight=mobile?100:112;
+      document.querySelector('#loader-action').setAttribute('transform',`translate(${mobile?64:104} ${height-(mobile?156:188)})`);
+      const button=document.querySelector('#loader-button');
+      button.setAttribute('width',buttonWidth);button.setAttribute('height',buttonHeight);
+      const cartridges=document.querySelector('#loader-cartridges');
+      cartridges.setAttribute('width',buttonWidth-20);cartridges.setAttribute('y',(buttonHeight-40)/2);
+      const fire=document.querySelector('#loader-fire');
+      fire.setAttribute('x',buttonWidth/2);fire.setAttribute('y',buttonHeight/2);
+    }
+    layoutLoader();window.addEventListener('resize',layoutLoader);
     retry.addEventListener('click',()=>location.reload());
-    function fail(message){if(failed)return;failed=true;loading.hidden=false;loading.classList.remove('leaving');phase.textContent=message;amount.textContent='';progress.hidden=true;retry.hidden=false;}
-    function updateDownload(fraction){downloaded=Math.max(downloaded,Math.min(1,fraction));progress.value=downloaded;rounds.setAttribute('width',20+380*downloaded);amount.textContent=`${Math.floor(downloaded*100)}%`;}
+    function fail(message){if(failed)return;failed=true;loading.hidden=false;loading.classList.remove('leaving','loaded');loading.classList.add('error');loading.setAttribute('aria-busy','false');phase.textContent=message;amount.textContent='';progress.hidden=true;retry.hidden=false;}
+    function updateDownload(fraction){
+      downloaded=Math.max(downloaded,Math.min(1,fraction));
+      const fractionReady=ready?1:downloaded*.85;
+      progress.value=fractionReady;
+      const count=Math.max(1,Math.floor(fractionReady*20));
+      rounds.setAttribute('width',count*14);rounds.dataset.count=count;
+      amount.textContent=`${Math.floor(fractionReady*100)}%`;
+    }
     window.noArtReady=async()=>{
       if(ready||failed)return;
-      ready=true;phase.textContent='准备就绪';updateDownload(1);
-      await gyroStartup;
+      ready=true;
+      await Promise.all([gyroStartup,document.fonts.load('700 160px Rajdhani').catch(()=>{})]);
       if(failed)return;
-      gyroSetup?.openEntry();
+      phase.textContent='准备就绪';updateDownload(1);
+      loading.setAttribute('aria-busy','false');
+      await new Promise(resolve=>setTimeout(resolve,reducedMotion.matches?0:120));
+      if(failed)return;
+      loading.classList.add('loaded');
+      await new Promise(resolve=>setTimeout(resolve,reducedMotion.matches?0:160));
+      if(failed)return;
       loading.classList.add('leaving');
-      setTimeout(()=>{loading.hidden=true;help.hidden=Boolean(document.pointerLockElement);},200);
+      await new Promise(resolve=>setTimeout(resolve,reducedMotion.matches?0:180));
+      if(failed)return;
+      loading.hidden=true;
+      help.hidden=Boolean(document.pointerLockElement);
+      gyroSetup?.openEntry();
     };
     document.addEventListener('pointerlockchange',()=>{help.hidden=Boolean(document.pointerLockElement)||!ready;});
     document.querySelector('#canvas').addEventListener('contextmenu',event=>event.preventDefault());
