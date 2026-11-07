@@ -796,12 +796,12 @@ func menu_action(action: String) -> void:
 		"arena":
 			select_session(DefaultSession)
 		"amusement_park":
-			select_session(PARK_SESSION_PATH)
+			select_session(PARK_SESSION_PATH,action)
 		"last_ferry":
-			select_session(FERRY_SESSION_PATH)
+			select_session(FERRY_SESSION_PATH,action)
 		"defuse":
 			if dust_unlocked:
-				select_session("res://data/sessions/defuse.tres")
+				select_session("res://data/sessions/defuse.tres","defuse_mission")
 		"resume":
 			if state != "PAUSED":return
 			state = "CAPTURING" if OS.has_feature("web") and not touch_mode else previous_state
@@ -1330,13 +1330,15 @@ func title_preview_key() -> String:
 	if path in [DefaultSession.resource_path,PARK_SESSION_PATH,FERRY_SESSION_PATH]:return path
 	return ""
 
-func select_session(selection: Variant) -> void:
+func select_session(selection: Variant, highlighted_id: String = "") -> void:
 	if state!="TITLE" or switching_session or not selection:return
 	if selection is Resource:
 		if selection==session:return
+		highlighted_id = selection.session_id
 	elif selection==session.resource_path:return
+	if not highlighted_id.is_empty():title_session_id = highlighted_id
 	switching_session = true
-	map_switch_progress = .08
+	map_switch_progress = 0.0
 	var previous_frame_ready = title_frame_ready
 	title_frame_ready = false
 	load_ticket += 1
@@ -1385,7 +1387,6 @@ func select_session(selection: Variant) -> void:
 		else:
 			await loading_frame()
 			await capture_opening_frame()
-		title_session_id = session.session_id
 	else:
 		push_warning("Map selection reverted: navigation or spawn validation failed")
 		var failed_iteration = NavigationServer3D.map_get_iteration_id(navigation_map)
@@ -1403,6 +1404,7 @@ func select_session(selection: Variant) -> void:
 	finish_session_switch(focus_name)
 
 func finish_session_switch(focus_name: StringName) -> void:
+	title_session_id = session.session_id
 	switching_session = false
 	map_switch_progress = 0.0
 	hud.rebuild_menu()

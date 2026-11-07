@@ -32,13 +32,14 @@ func check() -> void:
 	enter.pressed = true
 	game._unhandled_input(enter)
 	assert(game.switching_session and game.hud.fire_button.disabled)
-	assert(game.hud.fire_progress.value>0 and game.hud.fire_progress.value<1)
-	assert(game.hud.title_frame==old_frame)
+	assert(is_zero_approx(game.hud.fire_progress.value))
+	assert(game.hud.menu.has_node("MapPark/Selected") and not game.hud.menu.has_node("MapYard/Selected"))
+	assert(game.session==YardSession and game.hud.title_frame==old_frame)
 	game.menu_action("play")
 	assert(game.state=="TITLE")
 	if DisplayServer.get_name()!="headless":
 		await RenderingServer.frame_post_draw
-		root.get_texture().get_image().save_png("res://artifacts/local/map-switch-progress.png")
+		root.get_texture().get_image().save_png("res://artifacts/local/map-switch-highlight.png")
 	var stages = await wait_for_switch()
 	assert(stages.size()>=4,"Map loading must yield between visible stages")
 	assert(game.session==ParkSession and game.nav_ready and game.title_frame_ready)
@@ -86,9 +87,12 @@ func check() -> void:
 	invalid.map_scene = bad_scene
 	var yard = game.arena
 	old_frame = game.hud.title_frame
-	await game.select_session(invalid)
+	game.select_session(invalid)
+	assert(game.hud.menu.has_node("MapPark/Selected"))
+	await wait_for_switch()
 	assert(game.session==YardSession and game.arena==yard)
 	assert(game.nav_ready and game.title_frame_ready and game.hud.title_frame==old_frame)
+	assert(game.hud.menu.has_node("MapYard/Selected") and not game.hud.menu.has_node("MapPark/Selected"))
 	assert(game.best==13 and not game.hud.fire_button.disabled)
 	await game.select_session(ParkSession)
 	assert(game.nav_ready and game.title_session_id=="amusement_park")
@@ -100,7 +104,7 @@ func check() -> void:
 	game.menu_action("menu")
 	assert(game.state=="TITLE" and game.session==ParkSession)
 	assert(game.hud.menu.get_node("MapPark/Selected"))
-	print("MAP_SELECTOR_PASS: staged FIRE progress, navigation lockout, cached preview, focus, rollback, records and title return")
+	print("MAP_SELECTOR_PASS: immediate highlight, staged FIRE progress, navigation lockout, cached preview, focus, rollback, records and title return")
 	await process_frame
 	await process_frame
 	if DisplayServer.get_name()=="headless":
