@@ -73,18 +73,38 @@ document.hidden=false;document.emit('visibilitychange');assert.equal(read().bloc
 // Background and foreground may both happen before Godot gets another tick.
 document.hidden=true;document.emit('visibilitychange');document.hidden=false;document.emit('visibilitychange');assert.equal(read().pause,true);
 window.emit('blur');window.emit('resize');assert.equal(read().pause,true);
-document.emit('fullscreenchange');assert.equal(read().pause,true);
+document.emit('fullscreenchange');assert.equal(read().pause,false);
+document.webkitFullscreenElement=document.documentElement;
+document.emit('webkitfullscreenchange');assert.equal(read().pause,false);
+assert.equal(document.body.classes.has('fullscreen'),true);
+document.webkitFullscreenElement=null;
+document.emit('webkitfullscreenchange');assert.equal(read().pause,true);
+document.emit('fullscreenchange');assert.equal(read().pause,false);
+assert.equal(document.body.classes.has('fullscreen'),false);
 pointer('pointerdown',7,780,300,get('#fire'));window.noArtState('PAUSED');p=read();assert.equal(p.fire,false);assert.equal(p.x,0);
 console.log('MOBILE_INPUT_PASS: simultaneous move/look/fire, ownership, one-shot actions, cancellation, orientation, blur, visibility, fullscreen exit, state reset');
 
 // Fullscreen failure must not create an automatic in-game banner.
 const note=get('#immersive-note'),full=get('#immersive');
-window.noArtState('TITLE');get('#canvas').emit('pointerdown');
+const canvas=get('#canvas');
+window.noArtState('TITLE');
+window.navigator={userActivation:{isActive:false}};
+let automaticCalls=0;
+document.documentElement.requestFullscreen=async()=>{automaticCalls++;throw Error('denied');};
+canvas.emit('pointerdown');canvas.emit('pointerup');
+assert.equal(automaticCalls,0);
+window.navigator.userActivation.isActive=true;
+canvas.emit('touchend');canvas.emit('pointerup');
+assert.equal(automaticCalls,1);
 await Promise.resolve();assert.equal(note.hidden,true);
+delete document.documentElement.requestFullscreen;
 await full.onclick();assert.equal(note.hidden,false);
 assert.equal(note.textContent,'此浏览器暂不支持全屏');
 assert.equal([...timers.values()][0].ms,2400);
 [...timers.values()][0].fn();assert.equal(note.hidden,true);
+window.navigator.userAgent='Version/26.0 Mobile/15E148 Safari/604.1';
+await full.onclick();assert.match(note.textContent,/隐藏工具栏/);
+window.navigator.userAgent='';
 await full.onclick();assert.equal(note.hidden,false);
 window.noArtState('LOADING');assert.equal(note.hidden,true);assert.equal(timers.size,0);
 window.noArtState('RUNNING');await full.onclick();assert.equal(note.hidden,true);
@@ -96,7 +116,10 @@ await request;assert.equal(note.hidden,true);assert.equal(timers.size,0);
 // Success must also clear an earlier manual hint.
 window.noArtState('PAUSED');delete document.documentElement.requestFullscreen;
 await full.onclick();assert.equal(note.hidden,false);
-document.documentElement.requestFullscreen=async()=>{document.fullscreenElement=document.documentElement;};
+document.documentElement.requestFullscreen=async options=>{
+  assert.equal(options.navigationUI,'hide');
+  document.fullscreenElement=document.documentElement;
+};
 await full.onclick();assert.equal(note.hidden,true);assert.equal(timers.size,0);
 // SVG child targets resolve to their button, including held feedback.
 window.noArtState('RUNNING');const svgChild={closest:()=>get('#fire')};

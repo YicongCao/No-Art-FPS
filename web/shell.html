@@ -50,7 +50,7 @@
     #stick{position:absolute;left:max(28px,env(safe-area-inset-left));bottom:35px;width:120px;height:120px;border:2px solid #fff5d355;border-radius:50%;background:#24344030;pointer-events:none}
     #stick span{position:absolute;left:38px;top:38px;width:40px;height:40px;border-radius:50%;background:#fff5d366}
     #immersive{display:none;position:fixed;z-index:7;right:max(12px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top));background:#243440bd;color:#fff5d3;border:1px solid #fff5d366;padding:10px 14px}
-    body.mobile:not([data-game=RUNNING]):not(.portrait) #loading[hidden]~#immersive{display:block}
+    body.mobile:not([data-game=RUNNING]):not(.portrait):not(.fullscreen) #loading[hidden]~#immersive{display:block}
     #immersive-note[hidden],body[data-game=RUNNING] #immersive-note,body[data-game=LOADING] #immersive-note{display:none}
     #immersive-note{position:fixed;z-index:21;left:10%;right:10%;bottom:12px;text-align:center;background:#243440e8;padding:12px;font-size:13px;color:#fff5d3}
     #gyro-open{display:none;position:fixed;z-index:7;top:max(10px,env(safe-area-inset-top));right:max(110px,calc(env(safe-area-inset-right) + 98px));min-height:44px;padding:10px 14px;background:#243440bd;color:#fff5d3;border:1px solid #fff5d366}
@@ -247,27 +247,49 @@
     for(const event of ['pointerup','pointercancel','lostpointercapture'])ui.addEventListener(event,release);
     const immersiveNote=document.querySelector('#immersive-note');
     let immersiveTimer=0,immersiveAttempt=0;
+    const isFullscreen=()=>Boolean(document.fullscreenElement||document.webkitFullscreenElement);
+    let fullscreen=isFullscreen();
     function hideImmersiveNote(){clearTimeout(immersiveTimer);immersiveTimer=0;immersiveNote.hidden=true;}
     async function immersive(explain=false){
       hideImmersiveNote();const attempt=++immersiveAttempt;
       try{
-        if(!document.fullscreenElement&&!document.webkitFullscreenElement){
-          const method=document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen;
-          if(!method)throw Error('unsupported');
-          await method.call(document.documentElement);
+        if(!isFullscreen()){
+          const root=document.documentElement;
+          if(root.requestFullscreen&&document.fullscreenEnabled!==false)await root.requestFullscreen({navigationUI:'hide'});
+          else if(root.webkitRequestFullscreen&&document.webkitFullscreenEnabled!==false)await root.webkitRequestFullscreen();
+          else throw Error('unsupported');
         }
         try{await screen.orientation?.lock('landscape');}catch{}
       }catch{
         // Automatic requests stay silent. Never let a late rejection cover play.
         if(!explain||attempt!==immersiveAttempt||['RUNNING','LOADING'].includes(document.body.dataset.game))return;
-        immersiveNote.textContent='此浏览器暂不支持全屏';immersiveNote.hidden=false;
+        const safari=/Version\/[\d.]+.*Safari\//.test(window.navigator?.userAgent??'');
+        immersiveNote.textContent=safari?'可在 Safari 页面菜单选择「隐藏工具栏」。':'此浏览器暂不支持全屏';
+        immersiveNote.hidden=false;
         immersiveTimer=setTimeout(hideImmersiveNote,2400);
       }
     }
     document.querySelector('#immersive').onclick=()=>immersive(true);
     document.querySelector('#rotate-full').onclick=()=>immersive(true);
-    let attempted=false;document.querySelector('#canvas').addEventListener('pointerdown',()=>{if(window.noArtMobile&&!attempted){attempted=true;immersive();}},{capture:true});
-    document.addEventListener('fullscreenchange',()=>{clearTouch();if(!document.fullscreenElement&&document.body.dataset.game==='RUNNING')pauseRequested=true;});
+    let attempted=false;
+    function tryImmersive(){
+      if(!window.noArtMobile||attempted||window.navigator?.userActivation?.isActive===false)return;
+      attempted=true;immersive();
+    }
+    // Touch grants user activation on release. Some engines grant it only at touchend.
+    const gameCanvas=document.querySelector('#canvas');
+    gameCanvas.addEventListener('pointerup',tryImmersive,{capture:true});
+    gameCanvas.addEventListener('touchend',tryImmersive,{capture:true});
+    function syncFullscreen(){
+      const active=isFullscreen();
+      if(active===fullscreen)return;
+      fullscreen=active;
+      document.body.classList.toggle('fullscreen',active);
+      clearTouch();
+      if(!active&&document.body.dataset.game==='RUNNING')pauseRequested=true;
+    }
+    document.addEventListener('fullscreenchange',syncFullscreen);
+    document.addEventListener('webkitfullscreenchange',syncFullscreen);
   </script>
   <script>
     const loading=document.querySelector('#loading'),phase=document.querySelector('#phase'),amount=document.querySelector('#amount'),progress=document.querySelector('#progress'),rounds=document.querySelector('#loaded-rounds'),retry=document.querySelector('#retry'),help=document.querySelector('#help');
