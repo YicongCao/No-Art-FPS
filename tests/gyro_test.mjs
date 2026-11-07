@@ -41,7 +41,12 @@ f.sample(30,20,10);f.advance(300);assert.equal(f.gyro.read().gyroYaw,0,'Stale bu
 f.sample(null,null,null);assert.equal(f.gyro.read().gyroPitch,0);
 f.gyro.disable();assert.equal(f.listeners.size,0);assert.equal(f.gyro.read().gyroYaw,0);
 // Explicit permission, denial, no hardware, insecure context and revoked pending enable.
-f=fixture(async()=>'denied');assert.match(f.gyro.snapshot().status,/运动传感器/);await f.gyro.enable();assert.equal(f.gyro.snapshot().enabled,false);assert.equal(f.listeners.size,0);assert.match(f.gyro.snapshot().status,/权限被拒绝/);
+f=fixture(async()=>'denied');assert.equal(f.gyro.snapshot().canRequest,true);assert.match(f.gyro.snapshot().status,/请求权限/);await f.gyro.enable();assert.equal(f.gyro.snapshot().enabled,false);assert.equal(f.listeners.size,0);assert.match(f.gyro.snapshot().status,/拒绝了运动传感器权限/);
+f=fixture();let orientationRequests=0;
+f.host.DeviceOrientationEvent={requestPermission(){orientationRequests++;return Promise.resolve('granted');}};
+await f.gyro.enable();assert.equal(orientationRequests,1);assert.match(f.gyro.snapshot().status,/权限已允许/);
+for(const timer of [...f.timers.keys()])timer();
+assert.match(f.gyro.snapshot().status,/权限已允许，但未检测到体感数据/);
 f=fixture();await f.gyro.enable();f.sample(null,null,null);for(const timer of [...f.timers.keys()])timer();assert.equal(f.gyro.snapshot().enabled,false);assert.match(f.gyro.snapshot().status,/未检测到/);
 f=fixture();await f.gyro.enable();f.sample();f.advance(3100);for(const timer of [...f.timers.keys()])timer();assert.match(f.gyro.snapshot().status,/未检测到/);
 f=fixture();f.host.isSecureContext=false;await f.gyro.enable();assert.equal(f.listeners.size,0);assert.match(f.gyro.snapshot().status,/HTTPS/);

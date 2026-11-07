@@ -135,7 +135,7 @@
     const gyroPanel=document.querySelector('#gyro-panel'),gyroOpen=document.querySelector('#gyro-open'),gyroToggle=document.querySelector('#gyro-toggle'),gyroSlider=document.querySelector('#gyro-sensitivity'),gyroCalibrate=document.querySelector('#gyro-calibrate');
     let gyro=null,gyroLoadStatus='正在检查浏览器支持';
     function gyroChanged(s){
-      gyroToggle.textContent=s?.pending?'取消':s?.enabled?'关闭':'启用';
+      gyroToggle.textContent=s?.pending?'取消':s?.enabled?'关闭':s?.canRequest?'请求权限':'启用';
       gyroToggle.disabled=!s?.available;gyroToggle.setAttribute('aria-checked',String(Boolean(s?.enabled)));
       const sensitivity=s?.sensitivity??1;
       gyroSlider.disabled=!s?.available;gyroSlider.value=String(sensitivity);document.querySelector('#gyro-value').textContent=sensitivity.toFixed(2)+'x';

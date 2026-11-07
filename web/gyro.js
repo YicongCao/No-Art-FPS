@@ -6,11 +6,20 @@
     let enabled=false,ready=false,pending=false,generation=0,listening=false;
     let context={running:false,landscape:true,visible:true,focused:true};
     let sensitivity=1,last=null,lastSample=null,yaw=0,pitch=0,filtered=[0,0],bias=[0,0,0];
-    const idle='启用后，浏览器可能会请求访问运动传感器。';
-    const noData='未检测到体感数据。请检查站点的运动传感器权限，或用系统浏览器直接打开。';
-    let calibration=null,probe=0,status=unavailable()||idle;
+    let permissionGranted=false;
+    let calibration=null,probe=0,status=unavailable()||idleStatus();
     try {const saved=Number(host.localStorage?.getItem('no-art-gyro-sensitivity'));if(saved>=.25&&saved<=3)sensitivity=saved;}catch{}
-    const snapshot=()=>({enabled,ready,pending,sensitivity,status,calibrating:!!calibration,available:!unavailable()});
+    const snapshot=()=>({enabled,ready,pending,sensitivity,status,calibrating:!!calibration,available:!unavailable(),canRequest:!!permissionAPI()});
+    function permissionAPI(){
+      if(typeof host.DeviceMotionEvent?.requestPermission==='function')return host.DeviceMotionEvent;
+      if(typeof host.DeviceOrientationEvent?.requestPermission==='function')return host.DeviceOrientationEvent;
+      return null;
+    }
+    function idleStatus(){
+      return permissionAPI()
+        ? '点按「请求权限」，由浏览器处理运动与方向访问。'
+        : '点按「启用」后会尝试读取运动传感器。';
+    }
     function unavailable(){
       if(!host.isSecureContext)return '体感瞄准需要 HTTPS。请打开正式试玩页面。';
       if(!host.DeviceMotionEvent)return '当前浏览器不提供运动传感器。请用系统浏览器直接打开。';
@@ -28,12 +37,15 @@
       function check(){
         const remaining=lastSample===null?0:3000-(now()-lastSample);
         if(remaining>0)probe=host.setTimeout(check,remaining);
-        else stop(noData);
+        else stop(permissionGranted
+          ? '权限已允许，但未检测到体感数据。请保持页面在前台后重试。'
+          : '未检测到体感数据。请检查浏览器是否允许此站点访问运动传感器。');
       }
       probe=host.setTimeout(check,3000);
     }
-    function stop(message=idle){
+    function stop(message=idleStatus()){
       generation++;enabled=ready=pending=false;calibration=null;reset();
+      permissionGranted=false;
       host.clearTimeout(probe);probe=0;
       if(listening)host.removeEventListener('devicemotion',sample);
       listening=false;notify(message);
@@ -41,27 +53,29 @@
     function calibrate(){
       if(!enabled)return;
       ready=false;lastSample=null;reset();calibration={start:now(),first:null,count:0,sum:[0,0,0]};
-      notify(active()?'保持手机静止，等待校准完成。':'请回到当前页面，横握手机完成校准。');
+      const instruction=active()?'请保持设备静止，等待校准完成。':'请回到当前页面，横握设备完成校准。';
+      notify((permissionGranted?'权限已允许。':'')+instruction);
       watchForMotion();
     }
     async function enable(){
       if(enabled||pending)return;
       const issue=unavailable();
       if(issue){notify(issue);return;}
-      const Motion=host.DeviceMotionEvent,needsPrompt=typeof Motion.requestPermission==='function';
+      const api=permissionAPI();
       const token=++generation;
       try {
         // Called directly from the switch click, before any other awaited work.
-        const request=needsPrompt?Motion.requestPermission():null;
-        if(needsPrompt){pending=true;notify('请在浏览器弹窗中允许访问运动传感器。');}
-        const permission=needsPrompt?await request:'granted';
+        const request=api?.requestPermission();
+        if(api){pending=true;notify('已向浏览器请求权限。如有弹窗，请允许访问。');}
+        const permission=api?await request:'granted';
         if(token!==generation)return;
         pending=false;
-        if(permission!=='granted'){notify('运动传感器权限被拒绝。请在浏览器中允许此站点访问后重试。');return;}
+        if(permission!=='granted'){notify('浏览器拒绝了运动传感器权限。如果没有弹窗，浏览器可能沿用了之前的选择。');return;}
+        permissionGranted=!!api;
         enabled=true;
         host.addEventListener('devicemotion',sample);listening=true;calibrate();
       }catch(error){
-        if(token===generation)stop(error?.name==='NotAllowedError'?'授权未完成。请在当前页面重新点按启用。':'浏览器无法请求体感权限。请直接打开试玩页后重试。');
+        if(token===generation)stop(error?.name==='NotAllowedError'?'授权未完成。请在当前页面重新点按「请求权限」。':'浏览器无法请求体感权限。请直接打开试玩页后重试。');
       }
     }
     function setContext(next){

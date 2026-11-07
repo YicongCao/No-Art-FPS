@@ -478,7 +478,7 @@ func _draw() -> void:
 		if game.touch_mode:c.y -= 30
 		draw_rect(Rect2(Vector2.ZERO,size),Color(.06,.09,.12,.76))
 		death_marks()
-		label("Sensitivity",Vector2(c.x-200,c.y+65),20)
+		label("Touch sensitivity" if game.touch_mode else "Sensitivity",Vector2(c.x-200,c.y+65),20)
 		label("Camera motion",Vector2(c.x-200,c.y+128),20)
 		label("Music",Vector2(c.x-200,c.y+185),20)
 		return

@@ -1,5 +1,7 @@
 extends Node3D
 
+const TOUCH_LOOK_GAIN = 1.9
+
 const DefaultSession = preload("res://data/sessions/score_attack.tres")
 var session = DefaultSession
 var opening: Array[Dictionary] = []
@@ -674,8 +676,9 @@ func _physics_process(delta: float) -> void:
 				if bool(packet.blocked) or bool(packet.pause):
 					pause_run()
 				elif rules.active:
-					player.rotate_y(-float(packet.dx)*player.sensitivity*1.36+float(packet.get("gyroYaw",0.0)))
-					player.pitch = clampf(player.pitch-float(packet.dy)*player.sensitivity*1.36+float(packet.get("gyroPitch",0.0)),-1.35,1.35)
+					var touch_sensitivity = player.sensitivity*TOUCH_LOOK_GAIN
+					player.rotate_y(-float(packet.dx)*touch_sensitivity+float(packet.get("gyroYaw",0.0)))
+					player.pitch = clampf(player.pitch-float(packet.dy)*touch_sensitivity+float(packet.get("gyroPitch",0.0)),-1.35,1.35)
 					player.touch_jump = bool(packet.jump)
 					if bool(packet.reload):reload_weapon()
 	if music:music.stream_paused = state in ["PAUSED","CAPTURING"]
