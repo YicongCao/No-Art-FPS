@@ -862,7 +862,8 @@ func shoot() -> void:
 	hud.shot = .1
 	play_sound("shot",-10,rng.randf_range(.94,1.05))
 	var origin = player.camera.global_position
-	var endpoint = origin-player.camera.global_basis.z*90
+	var aim_point = get_viewport().get_visible_rect().get_center()+player.crosshair_offset
+	var endpoint = origin+player.camera.project_ray_normal(aim_point)*90
 	var query = PhysicsRayQueryParameters3D.create(origin,endpoint,shot_collision_mask(destroy_active))
 	query.collide_with_areas = true
 	var result = get_world_3d().direct_space_state.intersect_ray(query)

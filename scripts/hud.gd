@@ -477,24 +477,24 @@ func _draw() -> void:
 	draw_top_summary()
 	if game.respawn_time<=0:
 		var gap = 5+shot*24
+		var aim_center = c+game.player.crosshair_offset
 		if hit>0:
 			var col = GOLD if kill_pop>0 else WHITE
-			for a in [Vector2(-1,-1),Vector2(1,-1),Vector2(-1,1),Vector2(1,1)]:draw_line(c+a*7,c+a*12,col,2)
+			for a in [Vector2(-1,-1),Vector2(1,-1),Vector2(-1,1),Vector2(1,1)]:draw_line(aim_center+a*7,aim_center+a*12,col,2)
 		else:
-			draw_circle(c,2,INK)
-			draw_circle(c,1,WHITE)
-			for a in [Vector2.LEFT,Vector2.RIGHT,Vector2.UP,Vector2.DOWN]:draw_line(c+a*gap,c+a*(gap+4),WHITE,1)
+			draw_circle(aim_center,2,INK)
+			draw_circle(aim_center,1,WHITE)
+			for a in [Vector2.LEFT,Vector2.RIGHT,Vector2.UP,Vector2.DOWN]:draw_line(aim_center+a*gap,aim_center+a*(gap+4),WHITE,1)
 	if game.respawn_time>0:
 		draw_respawn(c)
 	else:draw_magazine()
 	if state=="RUNNING" and game.respawn_time<=0 and go_time>0:
 		var opacity = smoothstep(0,.65,go_time)
 		label("GO",c+Vector2(0,22),70,Color(WHITE,opacity),true)
-	if state=="RUNNING" and game.destroy_active and not game.finale_active:
-		var announcing = destroy_time>0 and game.respawn_time<=0
-		var text_size = (66 if game.touch_mode else 82) if announcing else 26
-		var center = Vector2(c.x,c.y-74 if announcing else 114)
-		var opacity = smoothstep(0,.25,destroy_time) if announcing else 1.0
+	if state=="RUNNING" and destroy_time>0 and game.respawn_time<=0:
+		var text_size = 66 if game.touch_mode else 82
+		var center = c-Vector2(0,74)
+		var opacity = smoothstep(0,.25,destroy_time)
 		var width = font.get_string_size("DESTROY ALL",HORIZONTAL_ALIGNMENT_LEFT,-1,text_size).x
 		var extent = Vector2(width+text_size*.56,text_size*.95)
 		draw_rect(Rect2(center-extent*.5,extent),Color(INK,opacity*.88))

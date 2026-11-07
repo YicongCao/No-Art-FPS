@@ -35,15 +35,32 @@ def rifle_shot():
     return sample
 
 
-def magazine_latch(t):
-    noise = random.uniform(-1, 1)
-    slide = .19 * noise * math.exp(-t * 170)
-    snap_time = t - .013
-    if snap_time < 0:
-        return slide
-    snap = (.46 * noise + .4 * math.sin(math.tau * 540 * snap_time)) * math.exp(-snap_time * 135)
-    ring = .19 * math.sin(math.tau * 2350 * snap_time) * math.exp(-snap_time * 105)
-    return slide + snap + ring
+def magazine_latch():
+    rng = random.Random(815)
+    smooth_noise = 0.0
+
+    def sample(t):
+        nonlocal smooth_noise
+        noise = rng.uniform(-1, 1)
+        smooth_noise += .24 * (noise - smooth_noise)
+        # A short guide scrape, the body seating, then the spring catch.
+        scrape = .30 * (noise - smooth_noise) * math.sin(math.pi * t / .021) if t < .021 else 0.0
+        seat_time = t - .023
+        seat = 0.0
+        if seat_time >= 0:
+            body = .69 * math.sin(math.tau * 289 * seat_time) + .24 * math.sin(math.tau * 683 * seat_time)
+            seat = (body + .26 * smooth_noise) * math.exp(-seat_time * 163)
+        catch_time = t - .038
+        catch = 0.0
+        if catch_time >= 0:
+            modes = sum(
+                gain * math.sin(math.tau * frequency * catch_time) * math.exp(-decay * catch_time)
+                for frequency, gain, decay in ((911, .44, 157), (1763, .32, 205), (3227, .23, 273), (5101, .17, 350))
+            )
+            catch = modes + .65 * (noise - smooth_noise) * math.exp(-catch_time * 520)
+        return math.tanh(1.45 * (scrape + seat + catch))
+
+    return sample
 
 
 write('shot',.16,rifle_shot())
@@ -58,5 +75,5 @@ write('fuse',.65,lambda t:math.sin(2*math.pi*(600*t+450*t*t))*.22*(.25+.75*max(0
 write('explosion',.7,lambda t:(random.uniform(-1,1)*.65+math.sin(2*math.pi*(65*t-30*t*t))*.5)*math.exp(-t*7))
 write('charge',.75,lambda t:(math.sin(2*math.pi*(220*t+400*t*t))*.3+math.sin(2*math.pi*660*t)*.08)*min(1,t*30)*math.exp(-t*1.8))
 write('cartridge_insert',.032,lambda t:(random.uniform(-1,1)*.42+math.sin(2*math.pi*1600*t)*.28+math.sin(2*math.pi*3100*t)*.12)*math.exp(-t*180))
-write('magazine_latch',.105,magazine_latch)
+write('magazine_latch',.125,magazine_latch())
 print('Thirteen original WAV effects generated')

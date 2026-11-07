@@ -1,11 +1,16 @@
 extends CharacterBody3D
 
+const WALK_SPEED = 7.0
+const SPRINT_SPEED = 10.5
 var camera: Camera3D
 var gun: Node3D
 var enabled = true
 var pitch = 0.0
 var recoil = 0.0
 var bob = 0.0
+var sprinting = false
+var sprint_blend = 0.0
+var crosshair_offset = Vector2.ZERO
 var gun_origin = Vector3(.25,-.32,-.66)
 var sensitivity = .0022
 var game: Node
@@ -59,15 +64,20 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _physics_process(delta: float) -> void:
 	if not enabled:return
-	var input = Input.get_vector("left","right","forward","back") if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED else Vector2.ZERO
+	var keyboard = Input.mouse_mode==Input.MOUSE_MODE_CAPTURED and not (game and game.touch_mode)
+	var input = Input.get_vector("left","right","forward","back") if keyboard else Vector2.ZERO
 	if game and game.touch_mode:input = touch_move
+	var wants_sprint = keyboard and input.length_squared()>0 and Input.is_action_pressed("sprint")
+	var speed = SPRINT_SPEED if wants_sprint else WALK_SPEED
 	var direction = basis*Vector3(input.x,0,input.y)
-	velocity.x = move_toward(velocity.x,direction.x*7.0,35*delta)
-	velocity.z = move_toward(velocity.z,direction.z*7.0,35*delta)
+	velocity.x = move_toward(velocity.x,direction.x*speed,35*delta)
+	velocity.z = move_toward(velocity.z,direction.z*speed,35*delta)
 	if not is_on_floor():velocity.y -= 22*delta
 	elif touch_jump or (Input.is_action_just_pressed("jump") and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED):velocity.y = 7
 	touch_jump = false
 	move_and_slide()
+	var travel = get_real_velocity()
+	sprinting = wants_sprint and is_on_floor() and Vector2(travel.x,travel.z).length()>WALK_SPEED
 	if position.y < game.arena.fall_limit:
 		if game.rules.respawn_allowed:reset_position()
 		else:
@@ -81,20 +91,30 @@ func _physics_process(delta: float) -> void:
 
 func _process(delta: float) -> void:
 	recoil = move_toward(recoil,0,delta*6)
-	bob += delta*minf(Vector2(velocity.x,velocity.z).length(),7)*1.4
-	var movement = minf(Vector2(velocity.x,velocity.z).length()/7,1)
-	if game and game.reduced_motion:movement = 0
+	var speed = Vector2(velocity.x,velocity.z).length()
+	bob += delta*minf(speed,SPRINT_SPEED)*1.4
+	var movement = minf(speed/WALK_SPEED,1)
+	sprint_blend = move_toward(sprint_blend,1.0 if enabled and sprinting else 0.0,delta*6)
+	if game and game.reduced_motion:
+		movement = 0
+		sprint_blend = 0
+	var stride = Vector2(sin(bob),cos(bob*2))
+	var sprint_sway = stride*sprint_blend
+	crosshair_offset = Vector2(sprint_sway.x*14,-sprint_sway.y*9)
 	camera.rotation.x = pitch+recoil*.018
-	gun.position = gun_origin+Vector3(sin(bob)*.008,cos(bob*2)*.007,0)*movement+Vector3(0,0,recoil*.06)
-	gun.rotation.x = recoil*.04
+	gun.position = gun_origin+Vector3(stride.x*.008,stride.y*.007,0)*movement+Vector3(sprint_sway.x*.046,sprint_sway.y*.025,recoil*.06)
+	gun.rotation.x = recoil*.04+sprint_sway.y*.035
+	gun.rotation.z = -sprint_sway.x*.10
 	if game and game.reload_time>0:
 		var reload_phase = sin((1-game.reload_time/game.RELOAD_DURATION)*PI)
 		gun.position.y -= reload_phase*.18
-		gun.rotation.z = reload_phase*-.25
-	else:gun.rotation.z = 0
+		gun.rotation.z -= reload_phase*.25
 
 func reset_position() -> void:
 	global_transform = game.arena.player_start()
 	velocity = Vector3.ZERO
+	sprinting = false
+	sprint_blend = 0
+	crosshair_offset = Vector2.ZERO
 	rotation.y = global_rotation.y
 	pitch = 0

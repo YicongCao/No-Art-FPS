@@ -12,4 +12,4 @@ A colorful low-poly FPS built with Godot and Blender. Score as many kills as you
 
 Open `project.godot` in Godot 4.7.2 and press **F5**, or run `./tools/run.sh` with Godot on your PATH.
 
-**Controls** · WASD to move, mouse to aim, left click to fire, Space to jump, R to reload, Esc to pause. The browser version also supports landscape touch controls.
+**Controls** · WASD to move, hold Shift to sprint, mouse to aim, left click to fire, Space to jump, R to reload, Esc to pause. The browser version also supports landscape touch controls.
