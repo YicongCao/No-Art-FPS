@@ -41,7 +41,7 @@ var body_shot_button: Button
 var music_slider: HSlider
 var fire_button: Button
 var title_frame: ImageTexture
-var title_gutter_ratios = Vector3.ZERO
+var title_gutter_ratios = Vector4.ZERO
 var web_title_layout_callback: JavaScriptObject
 var results_frame: ImageTexture
 var results_frame_pending = false
@@ -184,14 +184,14 @@ func set_title_frame(image: Image) -> void:
 		JavaScriptBridge.eval("window.noArtSetSky?.('#%s','#%s')"%[menu_sky.to_html(false),sky.to_html(false)])
 
 func update_web_title_layout(args: Array) -> void:
-	var next = Vector3(args[0],args[1],args[2])
+	var next = Vector4(args[0],args[1],args[2],args[3])
 	if next==title_gutter_ratios:return
 	title_gutter_ratios = next
 	if menu_state=="TITLE":menu_size = Vector2.ZERO
 
-func title_gutters() -> Vector3:
-	if title_gutter_ratios==Vector3.ZERO:return Vector3(24,24,24)
-	return title_gutter_ratios*Vector3(size.x,size.x,size.y)
+func title_gutters() -> Vector4:
+	if title_gutter_ratios==Vector4.ZERO:return Vector4.ONE*(40.0 if game.touch_mode else 56.0)
+	return title_gutter_ratios*Vector4(size.x,size.x,size.y,size.y)
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -614,9 +614,10 @@ func _draw() -> void:
 		return
 	if state == "TITLE":
 		var words = ["NO","ART","FPS"]
-		var left = title_gutters().x
+		var gutters = title_gutters()
+		var baseline = maxf(116,gutters.w+90) if game.touch_mode else maxf(220,gutters.w+144)
 		for i in range(words.size()):
-			var pos = Vector2(left,116+i*100) if game.touch_mode else Vector2(left,220+i*150)
+			var pos = Vector2(gutters.x,baseline+i*(100 if game.touch_mode else 150))
 			draw_string(font,pos,words[i],HORIZONTAL_ALIGNMENT_LEFT,-1,106 if game.touch_mode else 160,Color.WHITE)
 		return
 	if state == "RESULTS":
