@@ -194,6 +194,8 @@
       return result;
     };
     ui.addEventListener('contextmenu',e=>e.preventDefault());
+    // iOS Safari can zoom on positioned buttons despite touch-action: none.
+    ui.addEventListener('touchstart',e=>{if(e.cancelable)e.preventDefault();},{passive:false});
     ui.addEventListener('pointerdown',e=>{e.preventDefault();ui.setPointerCapture(e.pointerId);const action=e.target.closest('button')?.id;const kind=action||(e.clientX<innerWidth*.4?'move':'look');if([...fingers.values()].some(f=>f.kind===kind))return;fingers.set(e.pointerId,{kind,x:e.clientX,y:e.clientY});if(action){touch[action]=true;document.getElementById(action).classList.add('held');}});
     ui.addEventListener('pointermove',e=>{const f=fingers.get(e.pointerId);if(!f)return;e.preventDefault();if(f.kind==='move'){const x=(e.clientX-f.x)/50,y=(e.clientY-f.y)/50,length=Math.max(1,Math.hypot(x,y));touch.x=x/length;touch.y=y/length;knob.style.transform=`translate(${touch.x*36}px,${touch.y*36}px)`;}else if(f.kind==='look'||f.kind==='fire'){touch.dx+=e.clientX-f.x;touch.dy+=e.clientY-f.y;f.x=e.clientX;f.y=e.clientY;}});
     function release(e){const f=fingers.get(e.pointerId);if(!f)return;fingers.delete(e.pointerId);if(f.kind==='move'){touch.x=touch.y=0;knob.style.transform='';}if(f.kind==='fire')touch.fire=false;if(f.kind==='interact')touch.interact=false;document.getElementById(f.kind)?.classList.remove('held');}

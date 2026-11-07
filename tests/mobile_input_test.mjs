@@ -5,9 +5,9 @@ import assert from 'node:assert/strict';
 const shell=readFileSync(new URL('../web/shell.html',import.meta.url),'utf8');
 const source=shell.match(/<script>\s*(window.noArtMobile=[\s\S]*?)<\/script>/)[1];
 class Element {
-  handlers={}; style={}; dataset={}; hidden=true; classes=new Set();
+  handlers={}; listenerOptions={}; style={}; dataset={}; hidden=true; classes=new Set();
   classList={add:c=>this.classes.add(c),remove:c=>this.classes.delete(c),toggle:(c,v)=>v?this.classes.add(c):this.classes.delete(c)};
-  addEventListener(type,fn){(this.handlers[type]??=[]).push(fn);}
+  addEventListener(type,fn,options){(this.handlers[type]??=[]).push(fn);this.listenerOptions[type]=options;}
   setPointerCapture(){}
   setAttribute(name,value){this[name]=value;}
   querySelectorAll(){return [];}
@@ -51,6 +51,17 @@ pointer('pointermove',3,795,280);p=read();assert.equal(p.dx,15);assert.equal(p.d
 // A second fire finger must not own/release the first finger's action.
 pointer('pointerdown',4,780,300,get('#fire'));pointer('pointerup',4,780,300);assert.equal(read().fire,true);
 pointer('pointercancel',3,780,300);assert.equal(read().fire,false);
+// Safari's touch event must be canceled while the pointer stream still fires.
+assert.equal(ui.listenerOptions.touchstart.passive,false);
+for(const id of [8,9]){
+  let canceled=false;
+  pointer('pointerdown',id,780,300,get('#fire'));
+  ui.emit('touchstart',{target:get('#fire'),cancelable:true,preventDefault(){canceled=true;}});
+  assert.equal(canceled,true);
+  assert.equal(read().fire,true);
+  pointer('pointerup',id,780,300);
+  assert.equal(read().fire,false);
+}
 pointer('lostpointercapture',1,130,260);assert.equal(read().x,0);
 for(const action of ['jump','reload','pause']){pointer('pointerdown',5,700,200,get('#'+action));assert.equal(read()[action],true);assert.equal(read()[action],false);pointer('pointerup',5,700,200);}
 pointer('pointerdown',6,100,300);pointer('pointermove',6,300,500);p=read();assert.ok(Math.hypot(p.x,p.y)<=1.000001);
