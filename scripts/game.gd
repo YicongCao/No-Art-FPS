@@ -20,7 +20,6 @@ var state = "TITLE"
 var previous_state = "RUNNING"
 const MAGAZINE_SIZE = 20
 const DESTROY_DURATION = 15.0
-const FINALE_DURATION = 1.0
 const ENEMY_BULLET_SPEED = 80.0
 const ENEMY_TRAIL_LENGTH = 2.0
 const ShotLine = preload("res://scripts/shot_line.gd")
@@ -61,6 +60,7 @@ var enemy_model: PackedScene
 var title_frame_ready = false
 var destroy_active = false
 var finale_active = false
+var finale_elapsed = 0.0
 var frozen_process_modes: Dictionary = {}
 var frozen_tweens: Array[Tween] = []
 const MULTIKILL_WINDOW = 1.25
@@ -445,7 +445,7 @@ func _process(delta: float) -> void:
 		if Input.mouse_mode==Input.MOUSE_MODE_CAPTURED:
 			web_capture_wait = 0
 			state = previous_state
-			player.enabled = state=="RUNNING" and respawn_time<=0
+			player.enabled = state=="RUNNING" and rules.active and respawn_time<=0
 		else:
 			web_capture_wait = maxf(0,web_capture_wait-delta)
 			if web_capture_wait<=0:
@@ -553,13 +553,17 @@ func restore_frozen_world() -> void:
 	frozen_tweens.clear()
 
 func start_finale() -> void:
-	if finale_active or state!="RUNNING" or not rules.active:return
+	if finale_active or state!="RUNNING" or rules.active or rules.remaining()>0 or rules.finale_duration<=0:return
 	finale_active = true
+	finale_elapsed = 0
+	player.enabled = false
+	player.velocity = Vector3.ZERO
 	pending_spawn.clear()
-	# Score all remaining enemies once before the strict round deadline.
+	hud.time_pulse = 1
+	# Only the round-ending blast awards kills after the combat clock closes.
 	for enemy in live_enemies():
 		finale_explosion(enemy.global_position+Vector3.UP,1.2,Color("243440"))
-		enemy.take_damage(3)
+		enemy.take_damage(3,false,true)
 	for building in arena.structures:building.collapse()
 	for barrel in arena.barrels:barrel.explode()
 	arena.explode_finale_decor()
@@ -630,7 +634,7 @@ func menu_action(action: String) -> void:
 		"resume":
 			if state != "PAUSED":return
 			state = "CAPTURING" if OS.has_feature("web") and not touch_mode else previous_state
-			player.enabled = state == "RUNNING" and respawn_time<=0
+			player.enabled = state == "RUNNING" and rules.active and respawn_time<=0
 			capture_pointer()
 		"menu":
 			if state != "RESULTS":return
@@ -652,7 +656,7 @@ func _physics_process(delta: float) -> void:
 			if state=="RUNNING":
 				if bool(packet.blocked) or bool(packet.pause):
 					pause_run()
-				else:
+				elif rules.active:
 					player.rotate_y(-float(packet.dx)*player.sensitivity*1.36+float(packet.get("gyroYaw",0.0)))
 					player.pitch = clampf(player.pitch-float(packet.dy)*player.sensitivity*1.36+float(packet.get("gyroPitch",0.0)),-1.35,1.35)
 					player.touch_jump = bool(packet.jump)
@@ -660,15 +664,19 @@ func _physics_process(delta: float) -> void:
 	if music:music.stream_paused = state in ["PAUSED","CAPTURING"]
 	if state != "RUNNING":return
 	if OS.has_feature("web") and not touch_mode and Input.mouse_mode!=Input.MOUSE_MODE_CAPTURED:return
+	if finale_active:
+		finale_elapsed = minf(rules.finale_duration,finale_elapsed+delta)
+		if finale_elapsed>=rules.finale_duration-.000001:finish_run()
+		return
 	rules.tick(delta)
 	if not rules.active:
-		finish_run()
+		if rules.finale_duration>0:start_finale()
+		else:finish_run()
 		return
 	if rules.destroy_duration>0 and not destroy_active and rules.remaining()<=rules.destroy_duration+.000001:
 		destroy_active = true
 		hud.destroy_time = 1.2
 		play_sound("end",-12,1.25)
-	if rules.finale_duration>0 and not finale_active and rules.remaining()<=rules.finale_duration+.000001:start_finale()
 	invulnerable = maxf(0,invulnerable-delta)
 	since_damage += delta
 	if health<MAX_HEALTH and since_damage>=HEAL_DELAY and respawn_time<=0:
@@ -889,7 +897,7 @@ func update_player_bullets(delta: float) -> void:
 
 func reload_weapon() -> void:
 	if objective_focus!=null:return
-	if ammo>=MAGAZINE_SIZE or reload_time>0 or respawn_time>0 or state!="RUNNING":return
+	if ammo>=MAGAZINE_SIZE or reload_time>0 or respawn_time>0 or state!="RUNNING" or not rules.active:return
 	reload_start_ammo = ammo
 	reload_time = RELOAD_DURATION
 	play_sound("reload",-8)
@@ -900,8 +908,8 @@ func play_magazine_feed_sounds(previous: float, current: float, full_count: int)
 	if previous<full_count and current>=full_count:
 		play_sound("magazine_latch",-9)
 
-func on_kill(enemy: Node3D, headshot: bool) -> void:
-	if rules.record_kill(enemy.get_instance_id(),headshot):
+func on_kill(enemy: Node3D, headshot: bool, from_finale: bool = false) -> void:
+	if rules.record_kill(enemy.get_instance_id(),headshot,from_finale):
 		if rules.elapsed-kill_group_start>MULTIKILL_WINDOW:
 			kill_group_start = rules.elapsed
 			kill_group_count = 0
@@ -1059,10 +1067,11 @@ func blast_clear(from: Vector3, to: Vector3, excluded: Array[RID]) -> bool:
 	return get_world_3d().direct_space_state.intersect_ray(ray).is_empty()
 
 func barrel_blast(center: Vector3, radius: float, source: StaticBody3D) -> void:
-	if state!="RUNNING" or not rules.active:return
+	if state!="RUNNING":return
 	if finale_active:
 		finale_explosion(center,1.5,Color("b65745"))
 		return
+	if not rules.active:return
 	play_world_sound("explosion",center,-5)
 	for enemy in live_enemies():
 		var target = enemy.global_position+Vector3.UP
@@ -1102,7 +1111,7 @@ func interact_held() -> bool:
 	return touch_interact if touch_mode else Input.is_action_pressed("interact")
 
 func settle_rules() -> void:
-	if state!="RUNNING":return
+	if state!="RUNNING" or not rules.active:return
 	rules.settle()
 	if objective_focus and rules.completed.has(objective_focus.objective_id):objective_focus.mark_defused()
 	if not rules.active:finish_run()

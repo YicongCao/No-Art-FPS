@@ -304,8 +304,8 @@ func evade_shot(origin: Vector3) -> void:
 		game.play_world_sound("hit",global_position+Vector3.UP,-19)
 		return
 
-func take_damage(amount: int, is_head: bool = false) -> void:
-	if dead or not game.rules.active:return
+func take_damage(amount: int, is_head: bool = false, from_finale: bool = false) -> void:
+	if dead or not (game.rules.active or from_finale):return
 	health -= amount
 	hurt = .2
 	if health <= 0:
@@ -315,7 +315,7 @@ func take_damage(amount: int, is_head: bool = false) -> void:
 		collision_layer = 0
 		collision_mask = 0
 		head_area.collision_layer = 0
-		game.on_kill(self,is_head)
+		game.on_kill(self,is_head,from_finale)
 
 func start_slash() -> void:
 	rush_state = "WINDUP"

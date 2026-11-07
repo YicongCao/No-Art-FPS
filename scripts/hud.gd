@@ -480,6 +480,9 @@ func _draw() -> void:
 		label("Music",Vector2(c.x-200,c.y+185),20)
 		return
 	draw_finale_edges()
+	if game.finale_active:
+		draw_top_summary()
+		return
 	if game.respawn_time>0:draw_rect(Rect2(Vector2.ZERO,size),Color(.06,.09,.12,.28))
 	death_marks()
 	draw_top_summary()
@@ -561,7 +564,7 @@ func draw_top_summary() -> void:
 
 func draw_finale_edges() -> void:
 	if not game.finale_active:return
-	var age = clampf(game.FINALE_DURATION-game.rules.remaining(),0,1)
+	var age = game.finale_elapsed
 	var expansion = smoothstep(0,.28,age)
 	if expansion<=0:return
 	for i in range(24):

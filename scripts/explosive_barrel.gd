@@ -57,7 +57,7 @@ func _physics_process(delta: float) -> void:
 	if fuse<=0:explode()
 
 func explode() -> void:
-	if game==null or spent or game.state!="RUNNING" or not game.rules.active:return
+	if game==null or spent or game.state!="RUNNING" or not (game.rules.active or game.finale_active):return
 	spent = true
 	fuse = -1
 	collision_layer = 0

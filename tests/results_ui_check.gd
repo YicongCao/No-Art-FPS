@@ -14,10 +14,10 @@ func _ready() -> void:
 	game.spawn_time = 999
 	game.best = 6
 	game.rules.kills = 18
-	game.rules.elapsed = 58.99
+	game.rules.elapsed = 59.99
 	game._physics_process(.02)
 	await get_tree().create_timer(.65).timeout
-	game._physics_process(.99)
+	game._physics_process(game.rules.finale_duration)
 	await results_ready()
 	assert(game.new_record and game.rules.kills==26 and game.best==26)
 	assert_results_buttons()

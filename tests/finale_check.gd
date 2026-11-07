@@ -14,8 +14,10 @@ func _ready() -> void:
 	game.spawn_time = 999
 	game.rules.elapsed = 0
 	for _tick in range(3539):game.rules.tick(1.0/60.0)
-	game._physics_process(0)
-	assert(not game.finale_active,"No global blast before the last second")
+	game._physics_process(1.0/60.0)
+	assert(not game.finale_active and is_equal_approx(game.rules.remaining(),1),"The last second is still playable")
+	for _tick in range(59):game._physics_process(1.0/60.0)
+	assert(not game.finale_active and game.rules.active and game.rules.remaining()>0)
 	var score = game.rules.kills
 	var alive = game.live_enemies().size()
 	assert(alive>0)
@@ -23,27 +25,31 @@ func _ready() -> void:
 	game._physics_process(.2)
 	assert(not game.finale_active and game.rules.kills==score)
 	game.menu_action("resume")
-	game.player.enabled = false
 	game._physics_process(1.0/60.0)
-	assert(game.finale_active and is_equal_approx(game.rules.remaining(),1),"Tick 3540 starts the blast")
+	assert(game.finale_active and game.rules.remaining()==0,"Tick 3600 starts the blast")
+	assert(not game.rules.active and not game.player.enabled)
+	assert(not game.rules.record_kill(-1,false),"Late combat kills cannot count")
 	assert(game.live_enemies().is_empty() and game.rules.kills==score+alive)
 	for building in game.arena.structures:assert(building.collapsed)
 	for barrel in game.arena.barrels:assert(barrel.spent and barrel.collision_layer==0)
 	assert(not game.arena.finale_hidden.is_empty() and not game.arena.finale_batches.is_empty(),"Finale decor: props=%d hidden=%d batches=%d"%[game.arena.finale_props.size(),game.arena.finale_hidden.size(),game.arena.finale_batches.size()])
 	var population = game.effects.get_child_count()
 	game._physics_process(0)
+	game.settle_rules()
+	assert(game.state=="RUNNING","Settlement must leave time for the blast")
 	assert(game.effects.get_child_count()==population and game.rules.kills==score+alive,"The global blast cannot repeat")
 	var fx = game.effects.get_children().filter(func(node):return node is CombatFX)[0]
 	game.pause_run()
 	var held = fx.age
+	game._physics_process(.5)
 	await get_tree().create_timer(.15).timeout
-	assert(fx.age==held)
+	assert(fx.age==held and game.finale_elapsed==0)
 	game.menu_action("resume")
-	game.player.enabled = false
+	assert(not game.player.enabled)
 	for tick in range(59):
 		game._physics_process(1.0/60.0)
 		await get_tree().physics_frame
-		assert(game.state=="RUNNING")
+		assert(game.state=="RUNNING" and game.rules.remaining()==0)
 		if tick==25:await capture("finale-blast")
 	game._physics_process(1.0/60.0)
 	assert(game.state=="RESULTS" and game.rules.remaining()==0 and not game.rules.active)
@@ -76,7 +82,7 @@ func _ready() -> void:
 	game.state = "RESULTS"
 	game.clear_round()
 	await get_tree().create_timer(.2).timeout
-	print("FINALE_CHECK_PASS: exact last-second boundary, all enemies/structures/barrels/props, one-shot score, pause, deadline, frozen pixels/camera/FX, full reset")
+	print("FINALE_CHECK_PASS: zero-second boundary, all enemies/structures/barrels/props, one-shot score, pause, deadline, frozen pixels/camera/FX, full reset")
 	get_tree().quit()
 
 func capture(filename: String) -> void:

@@ -49,7 +49,7 @@ func _physics_process(delta: float) -> void:
 	if burn_time<=0:collapse()
 
 func collapse() -> void:
-	if game==null or collapsed or game.state!="RUNNING" or not game.rules.active:return
+	if game==null or collapsed or game.state!="RUNNING" or not (game.rules.active or game.finale_active):return
 	collapsed = true
 	# Remove both visible geometry and collision; respawns/restarts retain sources.
 	for part in parts:
