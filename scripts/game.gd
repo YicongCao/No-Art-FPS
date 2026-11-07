@@ -110,9 +110,8 @@ func _ready() -> void:
 	spark_mesh.radial_segments = 6
 	spark_mesh.rings = 3
 	trace_mesh.size = Vector3.ONE
-	if touch_mode:
-		get_window().content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
-		get_window().content_scale_size = Vector2i(960,540)
+	get_window().content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
+	if touch_mode:get_window().content_scale_size = Vector2i(960,540)
 	process_physics_priority = -100
 	qa_mode = "--qa" in OS.get_cmdline_user_args()
 	rng.seed = 61105
@@ -516,10 +515,10 @@ func cancel_loading() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func _process(delta: float) -> void:
-	if touch_mode and web_ui_state!=state:
+	if OS.has_feature("web") and web_ui_state!=state:
 		web_ui_state = state
 		JavaScriptBridge.eval("window.noArtState("+JSON.stringify(state)+")")
-		JavaScriptBridge.eval("window.noArtMode("+JSON.stringify("defuse" if rules.mission else "arena")+")")
+		if touch_mode:JavaScriptBridge.eval("window.noArtMode("+JSON.stringify("defuse" if rules.mission else "arena")+")")
 	if OS.has_feature("web") and state=="CAPTURING":
 		if Input.mouse_mode==Input.MOUSE_MODE_CAPTURED:
 			web_capture_wait = 0

@@ -18,7 +18,11 @@ func check() -> void:
 	assert(game.title_frame_ready and game.nav_ready and game.session==YardSession)
 	assert(game.hud.fire_button.text=="FIRE")
 	assert(game.hud.menu.get_child_count()==4)
-	assert(game.hud.menu.get_node("MapYard/Selected"))
+	var selected = game.hud.menu.get_node("MapYard/Selected")
+	assert(selected.get_theme_stylebox("panel").border_width_left==4)
+	var fire: Rect2 = game.hud.fire_button.get_rect()
+	var last_card: Rect2 = game.hud.menu.get_node("MapFerry").get_rect()
+	assert(is_equal_approx(fire.end.y,last_card.end.y),"FIRE and the last map share a baseline")
 	var old_frame = game.hud.title_frame
 	var park_card = game.hud.menu.get_node("MapPark")
 	assert(park_card.text.is_empty() and not park_card.accessibility_name.is_empty())

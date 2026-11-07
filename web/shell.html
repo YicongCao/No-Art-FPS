@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#243440">
+  <meta name="theme-color" content="#29395a">
   <meta name="description" content="No-Art-FPS — 60 秒击杀冲刺。pixelcao 的明亮低多边形 FPS 小品。">
   <title>No-Art-FPS · pixelcao</title>
   <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -13,10 +13,13 @@
   <link rel="preload" href="Rajdhani-Bold.woff2" as="font" type="font/woff2" crossorigin>
   <style>
     @font-face{font-family:Rajdhani;src:url('Rajdhani-Bold.woff2') format('woff2');font-weight:700;font-display:block}
-    *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#243440;color:#fff5d3;font-family:Arial,"PingFang SC",sans-serif;overflow:hidden}
+    :root{--sky-tint:#29395a;--title-left:max(16px,calc(env(safe-area-inset-left) + 8px));--title-right:max(16px,calc(env(safe-area-inset-right) + 8px));--title-top:max(12px,calc(env(safe-area-inset-top) + 8px));--title-bottom:max(16px,calc(env(safe-area-inset-bottom) + 8px))}
+    *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:var(--sky-tint);color:#fff5d3;font-family:Arial,"PingFang SC",sans-serif;overflow:hidden}
     button,a{-webkit-tap-highlight-color:transparent}button{font:inherit;cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #e9ba50;outline-offset:5px}
     .ui-icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle;pointer-events:none}.touch-button .ui-icon{width:26px;height:26px}
     #canvas{display:block;width:100%;height:100%;outline:0;touch-action:none}
+    #title-safe-area{position:fixed;inset:var(--title-top) var(--title-right) var(--title-bottom) var(--title-left);visibility:hidden;pointer-events:none}
+    #sky-edge{position:fixed;inset:0 0 auto;height:max(2px,env(safe-area-inset-top));background:var(--sky-tint);pointer-events:none;z-index:6}
     #loading{position:fixed;inset:0;background:#000;z-index:5;transition:opacity .18s}
     #loading[hidden]{display:none}#loading.leaving{opacity:0;pointer-events:none}
     #loader-scene{display:block;width:100%;height:100%;font-family:Rajdhani,sans-serif;font-weight:700;fill:white}
@@ -27,7 +30,7 @@
     #loading.error .loader-status,.loader-noscript{position:absolute;left:50%;bottom:10%;transform:translateX(-50%);width:min(480px,90%);height:auto;clip-path:none;white-space:normal;text-align:center;padding:16px;background:#243440;font-size:16px;line-height:1.5}
     #retry{display:block;margin:12px auto 0;border:0;background:#754c87;color:white;padding:10px 22px}#retry[hidden]{display:none}
     #help{position:fixed;right:max(16px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));color:#fff5d3;background:#243440ce;border:1px solid #fff5d340;padding:8px 12px;font-size:12px;z-index:2;max-width:calc(100% - 32px);text-align:center}
-    #help[hidden]{display:none}.mobile-warning{display:none}@media(pointer:coarse){.desktop-controls{display:none}.mobile-warning{display:inline}}
+    #help[hidden],body[data-game=TITLE] #help{display:none}.mobile-warning{display:none}@media(pointer:coarse){.desktop-controls{display:none}.mobile-warning{display:inline}}
 
     body.mobile .desktop-controls{display:none}body.mobile .mobile-warning{display:inline}
     body{height:100dvh;overscroll-behavior:none}body.mobile #help{display:none}
@@ -49,12 +52,12 @@
     #pause{right:max(24px,env(safe-area-inset-right));top:max(12px,env(safe-area-inset-top));width:48px;height:48px;font-size:16px}
     #stick{position:absolute;left:max(28px,env(safe-area-inset-left));bottom:35px;width:120px;height:120px;border:2px solid #fff5d355;border-radius:50%;background:#24344030;pointer-events:none}
     #stick span{position:absolute;left:38px;top:38px;width:40px;height:40px;border-radius:50%;background:#fff5d366}
-    #immersive{display:none;position:fixed;z-index:7;right:max(12px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top));background:#243440bd;color:#fff5d3;border:1px solid #fff5d366;padding:10px 14px}
-    body.mobile:not([data-game=RUNNING]):not(.portrait):not(.fullscreen) #loading[hidden]~#immersive{display:block}
+    #title-tools{position:fixed;top:var(--title-top);right:var(--title-right);display:flex;gap:8px;z-index:7}
+    #title-tools button{display:none;min-height:44px;padding:8px 14px;background:#173b30;color:#fff5d3;border:1px solid #fff5d366}
+    body:not(.mobile.portrait):not(.fullscreen):is([data-game=TITLE],[data-game=PAUSED],[data-game=RESULTS]) #loading[hidden]~#title-tools #immersive{display:block}
     #immersive-note[hidden],body[data-game=RUNNING] #immersive-note,body[data-game=LOADING] #immersive-note{display:none}
     #immersive-note{position:fixed;z-index:21;left:10%;right:10%;bottom:12px;text-align:center;background:#243440e8;padding:12px;font-size:13px;color:#fff5d3}
-    #gyro-open{display:none;position:fixed;z-index:7;top:max(10px,env(safe-area-inset-top));right:max(110px,calc(env(safe-area-inset-right) + 98px));min-height:44px;padding:10px 14px;background:#243440bd;color:#fff5d3;border:1px solid #fff5d366}
-    body.mobile:is([data-game=TITLE],[data-game=RESULTS]):not(.portrait) #loading[hidden]~#gyro-open{display:block}
+    body.mobile:is([data-game=TITLE],[data-game=RESULTS]):not(.portrait) #loading[hidden]~#title-tools #gyro-open{display:block}
     #gyro-panel[hidden]{display:none}#gyro-panel{position:fixed;inset:0;z-index:22;background:#0f1721b8;display:grid;place-items:center;padding:max(12px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left))}
     #gyro-panel section{background:#17242f;border:1px solid #f2d08478;padding:20px 24px;width:min(420px,100%);max-height:100%;overflow:auto;border-radius:12px;box-shadow:0 12px 40px #0006}
     #gyro-panel[data-step=settings] section{width:min(520px,100%)}
@@ -104,8 +107,8 @@
       <rect id="loader-sky" width="1440" height="810" fill="#5b7fc8"/>
       <image id="loader-background" href="title-background.webp" width="1440" height="810" preserveAspectRatio="xMidYMid slice"/>
       <rect id="loader-shade" width="1440" height="810" fill="black" opacity=".55"/>
-      <g id="loader-title" font-size="160"><text x="104" y="220">NO</text><text x="104" y="370">ART</text><text x="104" y="520">FPS</text></g>
-      <g id="loader-action" transform="translate(104 622)">
+      <g id="loader-title" font-size="160"><text x="16" y="220">NO</text><text x="16" y="370">ART</text><text x="16" y="520">FPS</text></g>
+      <g id="loader-action" transform="translate(16 682)">
         <rect id="loader-button" width="300" height="112" fill="#754c87"/>
         <svg id="loader-cartridges" x="10" y="36" width="280" height="40" viewBox="0 0 280 40" preserveAspectRatio="none" aria-hidden="true">
           <rect width="280" height="40" fill="url(#rounds-empty)"/>
@@ -122,10 +125,15 @@
     <noscript class="loader-noscript">请启用 JavaScript 后再试玩。</noscript>
   </div>
   <canvas id="canvas" tabindex="0" aria-label="No-Art-FPS 游戏画面"></canvas>
+  <div id="sky-edge" aria-hidden="true"></div><div id="title-safe-area" aria-hidden="true"></div>
   <div id="help" hidden><span class="desktop-controls">WASD 移动 · Shift 冲刺 · 鼠标瞄准 · 左键开火 · Esc 暂停</span><span class="mobile-warning">左侧移动 · 右侧瞄准</span></div>
 
   <div id="rotate"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="28" y="13" width="44" height="74" rx="7" transform="rotate(30 50 50)"/><path d="M8 48a42 42 0 0 1 70-30m0-12v12H65M92 52a42 42 0 0 1-70 30m0 12V82h13"/></svg><p>横过来，准备开火</p><small>左手移动，右手瞄准</small><button id="rotate-full">横屏全屏</button></div>
-  <button id="immersive" aria-label="进入沉浸全屏"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 4H4v5m11-5h5v5M4 15v5h5m11-5v5h-5"/></svg> 全屏</button><div id="immersive-note" role="status" hidden></div>
+  <div id="title-tools">
+    <button id="gyro-open" aria-haspopup="dialog">体感瞄准</button>
+    <button id="immersive" aria-label="进入沉浸全屏"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 4H4v5m11-5h5v5M4 15v5h5m11-5v5h-5"/></svg> 全屏</button>
+  </div>
+  <div id="immersive-note" role="status" hidden></div>
   <div id="touch-ui" aria-label="触控操作">
     <div id="stick"><span></span></div>
     <button class="touch-button" id="fire" aria-label="按住开火"><svg class="touch-action-icon" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
@@ -143,7 +151,6 @@
     <button class="touch-button" id="interact" aria-label="按住拆除 C4">拆除</button>
     <button class="touch-button" id="pause" aria-label="暂停"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5v14M16 5v14"/></svg></button>
   </div>
-  <button id="gyro-open" aria-haspopup="dialog">体感瞄准</button>
   <div id="gyro-panel" hidden>
     <section role="dialog" aria-modal="true" aria-labelledby="gyro-title" tabindex="-1">
       <header>
@@ -230,7 +237,7 @@
     document.body.classList.toggle('mobile',window.noArtMobile);syncScreenLayout();window.addEventListener('resize',()=>{clearTouch();syncScreenLayout();});window.addEventListener('orientationchange',()=>{clearTouch();syncScreenLayout();});screen.orientation?.addEventListener?.('change',()=>{clearTouch();syncScreenLayout();});
     document.addEventListener('visibilitychange',()=>{clearTouch();syncScreenLayout();if(document.hidden)pauseRequested=true;});window.addEventListener('blur',()=>{focused=false;clearTouch();if(document.body.dataset.game==='RUNNING')pauseRequested=true;syncGyro();});window.addEventListener('focus',()=>{focused=true;syncGyro();});
     window.noArtMode=mode=>{document.body.dataset.mode=mode;clearTouch();};
-    window.noArtState=state=>{document.body.dataset.game=state;clearTouch();hideImmersiveNote();immersiveAttempt++;if(state!=='RUNNING')pauseRequested=false;if(state==='RUNNING'||state==='LOADING')gyroSetup?.close(false);syncGyro();};
+    window.noArtState=state=>{document.body.dataset.game=state;window.noArtUpdateSky?.();clearTouch();hideImmersiveNote();immersiveAttempt++;if(state!=='RUNNING')pauseRequested=false;if(state==='RUNNING'||state==='LOADING')gyroSetup?.close(false);syncGyro();};
     window.noArtReadTouch=(alive=true)=>{
       syncGyro(alive);
       const motion=gyroSetup?.practicing?null:gyroSetup?.gyro.read();
@@ -295,10 +302,22 @@
     const loading=document.querySelector('#loading'),phase=document.querySelector('#phase'),amount=document.querySelector('#amount'),progress=document.querySelector('#progress'),rounds=document.querySelector('#loaded-rounds'),retry=document.querySelector('#retry'),help=document.querySelector('#help');
     let ready=false,failed=false,downloaded=0;
     const reducedMotion=matchMedia('(prefers-reduced-motion:reduce)');
+    const themeColor=document.querySelector('meta[name="theme-color"]');
+    let menuSky='#29395a',liveSky='#5b7fc8';
+    window.noArtUpdateSky=()=>{
+      const tint=['RUNNING','CAPTURING','PAUSED','RESULTS'].includes(document.body.dataset.game)?liveSky:menuSky;
+      document.documentElement.style.setProperty('--sky-tint',tint);
+      themeColor.content=tint;
+    };
+    window.noArtSetSky=(menu,live)=>{menuSky=menu;liveSky=live;window.noArtUpdateSky();};
+    const safeArea=document.querySelector('#title-safe-area');
     function layoutLoader(){
       const mobile=window.noArtMobile;
-      const scale=Math.min(innerWidth/960,innerHeight/540);
-      const width=mobile?innerWidth/scale:1440,height=mobile?innerHeight/scale:810;
+      const scale=mobile?Math.min(innerWidth/960,innerHeight/540):Math.min(innerWidth/1440,innerHeight/810);
+      const width=innerWidth/scale,height=innerHeight/scale;
+      const safe=safeArea.getBoundingClientRect();
+      const left=safe.left/scale,bottom=safe.bottom/scale;
+      window.noArtTitleLayoutChanged?.(safe.left/innerWidth,(innerWidth-safe.right)/innerWidth,(innerHeight-safe.bottom)/innerHeight);
       document.querySelector('#loader-scene').setAttribute('viewBox',`0 0 ${width} ${height}`);
       for(const id of ['loader-sky','loader-background','loader-shade']){
         const element=document.getElementById(id);
@@ -307,11 +326,11 @@
       const title=document.querySelector('#loader-title');
       title.setAttribute('font-size',mobile?106:160);
       [...title.children].forEach((word,index)=>{
-        word.setAttribute('x',mobile?64:104);
+        word.setAttribute('x',left);
         word.setAttribute('y',mobile?116+100*index:220+150*index);
       });
       const buttonWidth=mobile?260:300,buttonHeight=mobile?100:112;
-      document.querySelector('#loader-action').setAttribute('transform',`translate(${mobile?64:104} ${height-(mobile?156:188)})`);
+      document.querySelector('#loader-action').setAttribute('transform',`translate(${left} ${bottom-buttonHeight})`);
       const button=document.querySelector('#loader-button');
       button.setAttribute('width',buttonWidth);button.setAttribute('height',buttonHeight);
       const cartridges=document.querySelector('#loader-cartridges');
@@ -319,7 +338,10 @@
       const fire=document.querySelector('#loader-fire');
       fire.setAttribute('x',buttonWidth/2);fire.setAttribute('y',buttonHeight/2);
     }
+    window.noArtSyncTitleLayout=layoutLoader;
     layoutLoader();window.addEventListener('resize',layoutLoader);
+    window.addEventListener('orientationchange',layoutLoader);
+    window.visualViewport?.addEventListener('resize',layoutLoader);
     retry.addEventListener('click',()=>location.reload());
     function fail(message){if(failed)return;failed=true;loading.hidden=false;loading.classList.remove('leaving','loaded');loading.classList.add('error');loading.setAttribute('aria-busy','false');phase.textContent=message;amount.textContent='';progress.hidden=true;retry.hidden=false;}
     function updateDownload(fraction){

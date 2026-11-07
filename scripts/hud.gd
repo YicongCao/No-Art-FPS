@@ -41,6 +41,8 @@ var body_shot_button: Button
 var music_slider: HSlider
 var fire_button: Button
 var title_frame: ImageTexture
+var title_gutter_ratios = Vector3.ZERO
+var web_title_layout_callback: JavaScriptObject
 var results_frame: ImageTexture
 var results_frame_pending = false
 var results_frame_ticket = 0
@@ -171,10 +173,34 @@ func set_title_frame(image: Image) -> void:
 	loading_cover.material.set_shader_parameter("opening_frame",title_frame)
 	loading_cover.material.set_shader_parameter("shade_opacity",TITLE_SHADE_OPACITY)
 	sync_loading_cover()
+	if OS.has_feature("web"):
+		# Reuse the existing opening capture and avoid the mast or sun skewing the tint.
+		var samples: Array[Color] = []
+		for i in range(7):
+			samples.append(image.get_pixel(roundi(image.get_width()*(.14+i*.12)),0))
+		samples.sort_custom(func(a: Color,b: Color):return a.get_luminance()<b.get_luminance())
+		var sky = samples[3]
+		var menu_sky = sky.darkened(TITLE_SHADE_OPACITY)
+		JavaScriptBridge.eval("window.noArtSetSky?.('#%s','#%s')"%[menu_sky.to_html(false),sky.to_html(false)])
+
+func update_web_title_layout(args: Array) -> void:
+	var next = Vector3(args[0],args[1],args[2])
+	if next==title_gutter_ratios:return
+	title_gutter_ratios = next
+	if menu_state=="TITLE":menu_size = Vector2.ZERO
+
+func title_gutters() -> Vector3:
+	if title_gutter_ratios==Vector3.ZERO:return Vector3(24,24,24)
+	return title_gutter_ratios*Vector3(size.x,size.x,size.y)
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if OS.has_feature("web"):
+		web_title_layout_callback = JavaScriptBridge.create_callback(update_web_title_layout)
+		var browser = JavaScriptBridge.get_interface("window")
+		browser.noArtTitleLayoutChanged = web_title_layout_callback
+		JavaScriptBridge.eval("window.noArtSyncTitleLayout?.()")
 	font = preload("res://assets/fonts/Rajdhani-Bold.ttf")
 	vignette = ColorRect.new()
 	vignette.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -343,8 +369,8 @@ func map_button(node_name: String, map_name: String, action: String, thumbnail: 
 		outline.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var border = StyleBoxFlat.new()
 		border.draw_center = false
-		border.set_border_width_all(2)
-		border.border_color = GOLD
+		border.set_border_width_all(4)
+		border.border_color = Color("ffe445")
 		outline.add_theme_stylebox_override("panel",border)
 		card.add_child(outline)
 		outline.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -360,7 +386,10 @@ func rebuild_menu() -> void:
 	menu_size = size
 	var c = size*.5
 	if menu_state == "TITLE":
-		fire_button = menu_button("FIRE",Rect2(64 if game.touch_mode else 104,size.y-156 if game.touch_mode else size.y-188,260 if game.touch_mode else 300,100 if game.touch_mode else 112),"play",false,"Enter")
+		var gutters = title_gutters()
+		var bottom = size.y-gutters.z
+		var fire_height = 100 if game.touch_mode else 112
+		fire_button = menu_button("FIRE",Rect2(gutters.x,bottom-fire_height,260 if game.touch_mode else 300,fire_height),"play",false,"Enter")
 		fire_button.name = "fire"
 		fire_button.disabled = game.switching_session
 		fire_button.add_theme_font_size_override("font_size",68)
@@ -383,8 +412,7 @@ func rebuild_menu() -> void:
 		var width = 176.0 if game.touch_mode else 216.0
 		var height = width*9/16
 		var gap = 10.0 if game.touch_mode else 12.0
-		var right = size.x-(64 if game.touch_mode else 104)
-		var bottom = size.y-(56 if game.touch_mode else 76)
+		var right = size.x-gutters.y
 		var yard_card = map_button("MapYard","货场","arena",YARD_THUMBNAIL,
 			Rect2(right-width,bottom-3*height-2*gap,width,height),game.title_session_id=="score_attack")
 		var park_card = map_button("MapPark","夕阳游乐园","amusement_park",PARK_THUMBNAIL,
@@ -586,8 +614,9 @@ func _draw() -> void:
 		return
 	if state == "TITLE":
 		var words = ["NO","ART","FPS"]
+		var left = title_gutters().x
 		for i in range(words.size()):
-			var pos = Vector2(64,116+i*100) if game.touch_mode else Vector2(104,220+i*150)
+			var pos = Vector2(left,116+i*100) if game.touch_mode else Vector2(left,220+i*150)
 			draw_string(font,pos,words[i],HORIZONTAL_ALIGNMENT_LEFT,-1,106 if game.touch_mode else 160,Color.WHITE)
 		return
 	if state == "RESULTS":
