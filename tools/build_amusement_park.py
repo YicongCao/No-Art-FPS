@@ -221,6 +221,9 @@ for x in (-3.38,3.38):
     collider((x,1.8,24),(.42,3.6,.46),"Entry")
 gate.box("Gate roof", (0,3.66,0), (8.3,.38,2.8), "blue")
 gate.box("Cream marquee", (0,3.65,1.43), (7.5,.56,.17), "edge")
+for x, sign in ((-3.42,1),(3.42,-1)):
+    gate.rod("Flag mast",(x,3.85,0),(x,5.1,0),.065,"blue",6)
+    gate.box("Pennant",(x+.30*sign,4.88,0),(.60,.36,.065),"brick")
 for i in range(16):
     x = (i-7.5)*.475
     gate.part("Striped canopy",[(x-.2375,3.42,1.32),(x+.2375,3.42,1.32),
@@ -261,15 +264,15 @@ for a in range(sides):
 for side in (-1,1):
     z=8.99*side
     ramp=[(-2.0,.43,z),(2.0,.43,z),(2.0,0,z+side*2.2),(-2.0,0,z+side*2.2)]
-    face=[(0,1,2,3) if side==1 else (3,2,1,0)]
+    face=[(3,2,1,0) if side==1 else (0,1,2,3)]
     skate.part("Walk-in ramp",ramp,face,"gold")
     surface([(x-19,y,z+1) for x,y,z in ramp],face)
-side_entry=[(10,.43,-2),(10,.43,2),(12.2,0,2),(12.2,0,-2)]
+side_entry=[(10,.43,-2.75),(10,.43,2.75),(12.2,0,2.75),(12.2,0,-2.75)]
 skate.part("Plaza access ramp",side_entry,[(0,1,2,3)],"cream")
 surface([(x-19,y,z+1) for x,y,z in side_entry],[(0,1,2,3)])
 for a,b in [((-9.85,-8.95),(-2,-8.95)),((2,-8.95),(9.85,-8.95)),
             ((-9.85,8.95),(-2,8.95)),((2,8.95),(9.85,8.95)),
-            ((-9.85,-8.95),(-9.85,8.95)),((9.85,-8.95),(9.85,-2)),((9.85,2),(9.85,8.95))]:
+            ((-9.85,-8.95),(-9.85,8.95)),((9.85,-8.95),(9.85,-2.75)),((9.85,2.75),(9.85,8.95))]:
     start,end=Vector((a[0],.43,a[1])),Vector((b[0],.43,b[1]))
     for y in (.4,.9):
         skate.rod("Apron rail",start+Vector((0,y,0)),end+Vector((0,y,0)),.045,"purple",6)
@@ -280,8 +283,8 @@ for a,b in [((-9.85,-8.95),(-2,-8.95)),((2,-8.95),(9.85,-8.95)),
 skate.export()
 place("SkateApron","skate",(-19,0,1))
 collider((-28.9,.61,1),(.22,1.22,18))
-for z in (-4.5,6.5):
-    collider((-9.1,.61,z),(.22,1.22,7))
+for z in (-4.875,6.875):
+    collider((-9.1,.61,z),(.22,1.22,6.25))
 for z in (-7.95,9.95):
     for x in (-25,-13):
         collider((x,.61,z),(8,1.22,.22))
@@ -402,10 +405,10 @@ for i, p in enumerate(track):
         collider(tuple(p),(1.55,.36,2.0),"Coaster",math.atan2(tangent.x,tangent.z),16)
     if i%11==0 and p.y>3.15:
         for sign in (-1,1):
-            foot=p+side*sign*1.28
+            foot=p+side*sign*1.44
             foot.y=.12
             track_asset.box("Pier footing",(foot.x,.13,foot.z),(.62,.26,.62),"cream")
-            track_asset.rod("A frame leg",foot,p+side*sign*.44-up*.16,.15,"gold",6,.095)
+            track_asset.rod("A frame leg",foot,p+side*sign*.36-up*.16,.205,"gold",6,.13)
             collider((foot.x,.6,foot.z),(.53,1.2,.53),"Coaster")
         track_asset.rod("Cross beam",p-side*.9-up*.22,p+side*.9-up*.22,.09,"gold",6)
 track_asset.export()
@@ -434,7 +437,7 @@ platform.box("Gold fascia",(22.95,2.01,1),(.13,.35,10),"gold")
 collider((25.6,1.97,1),(5.3,.46,10))
 for z0,sign in ((6,1),(-4,-1)):
     ramp=[(24.08,2.2,z0),(27.12,2.2,z0),(27.12,0,z0+sign*7.8),(24.08,0,z0+sign*7.8)]
-    surface(ramp,[(0,1,2,3) if sign==1 else (3,2,1,0)])
+    surface(ramp,[(3,2,1,0) if sign==1 else (0,1,2,3)])
     for i in range(14):
         step_height=2.2*(1-i/14)
         platform.box("Visible stair",(25.6,step_height-.08,z0+sign*(i+.5)*7.8/14),(3.04,.16,7.8/14),"gold" if i%2==0 else "gold_light")

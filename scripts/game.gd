@@ -3,6 +3,7 @@ extends Node3D
 const TOUCH_LOOK_GAIN = 1.9
 
 const DefaultSession = preload("res://data/sessions/score_attack.tres")
+const PARK_SESSION_PATH = "res://data/sessions/amusement_park.tres"
 var session = DefaultSession
 var opening: Array[Dictionary] = []
 const Player = preload("res://scripts/player.gd")
@@ -13,6 +14,8 @@ const LoadingTransition = preload("res://scripts/loading_transition.gd")
 const CombatFX = preload("res://scripts/combat_fx.gd")
 var arena: Node3D
 var sun: DirectionalLight3D
+var world_environment: WorldEnvironment
+var daylight_environment: Environment
 var player: CharacterBody3D
 var hud: Control
 var enemies: Node3D
@@ -113,10 +116,13 @@ func _ready() -> void:
 	if "--mission" in OS.get_cmdline_user_args():
 		session = load("res://data/sessions/defuse.tres")
 		rules = session.make_rules()
+	elif "--park" in OS.get_cmdline_user_args():
+		session = load(PARK_SESSION_PATH)
+		rules = session.make_rules()
 	var settlement = Settlement.new()
 	settlement.game = self
 	add_child(settlement)
-	var env = WorldEnvironment.new()
+	world_environment = WorldEnvironment.new()
 	var settings = Environment.new()
 	settings.background_mode = Environment.BG_COLOR
 	settings.background_color = Color("5b7fc8")
@@ -124,18 +130,16 @@ func _ready() -> void:
 	settings.ambient_light_color = Color("dce8ff")
 	settings.ambient_light_energy = .52
 	settings.tonemap_mode = Environment.TONE_MAPPER_LINEAR
-	env.environment = settings
-	add_child(env)
+	daylight_environment = settings
+	add_child(world_environment)
 	sun = DirectionalLight3D.new()
-	sun.light_color = Color("fff3d5")
-	sun.light_energy = .22
 	sun.shadow_enabled = true
 	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
 	sun.directional_shadow_split_1 = .24
 	sun.directional_shadow_max_distance = 65
 	add_child(sun)
 	arena = session.map_scene.instantiate()
-	sun.rotation_degrees = arena.sun_rotation_degrees
+	apply_map_lighting()
 	arena.game = self
 	add_child(arena)
 	arena.bake_navigation()
@@ -177,20 +181,7 @@ func _ready() -> void:
 	load_record()
 	set_music_volume(music_volume)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	await get_tree().physics_frame
-	await get_tree().physics_frame
-	# Baking and server synchronization are separate. Do not expose a playable round
-	# until the actual navigation map contains the walkable starting plaza.
-	for attempt in range(300):
-		if NavigationServer3D.map_get_iteration_id(get_world_3d().navigation_map)==0:
-			await get_tree().physics_frame
-			continue
-		var closest = NavigationServer3D.map_get_closest_point(get_world_3d().navigation_map,arena.player_start().origin)
-		if closest.distance_to(arena.player_start().origin)<1.0:
-			nav_ready = true
-			break
-		await get_tree().physics_frame
-	if nav_ready and not arena.validate_navigation():nav_ready = false
+	nav_ready = await wait_for_map_navigation()
 	if not nav_ready:push_error("Navigation map failed to synchronize or targets are unreachable")
 	await capture_opening_frame()
 	if "--capture" in OS.get_cmdline_user_args():
@@ -231,14 +222,28 @@ func _ready() -> void:
 		qa.game = self
 		add_child(qa)
 
+func apply_map_lighting() -> void:
+	world_environment.environment = arena.environment_override if arena.environment_override else daylight_environment
+	sun.rotation_degrees = arena.sun_rotation_degrees
+	sun.light_color = arena.sun_color
+	sun.light_energy = arena.sun_energy
+	sun.shadow_bias = arena.sun_shadow_bias
+
+func score_record_key() -> String:
+	if session.session_id==DefaultSession.session_id:return "score"
+	return "score_%s_v%d"%[session.session_id,session.layout_version]
+
+func load_session_record(cfg: ConfigFile) -> void:
+	best = int(cfg.get_value(score_record_key(),"best",0))
+	best_mission = float(cfg.get_value(mission_record_key(),"fastest",0.0))
+
 func load_record() -> void:
 	if qa_mode:return
 	var cfg = ConfigFile.new()
 	if cfg.load("user://record.cfg") == OK:
-		best = int(cfg.get_value("score","best",0))
+		load_session_record(cfg)
 		player.sensitivity = clampf(float(cfg.get_value("settings","sensitivity",.0022)),.0006,.006)
 		reduced_motion = bool(cfg.get_value("settings","reduced_motion",false))
-		best_mission = float(cfg.get_value(mission_record_key(),"fastest",0.0))
 		music_volume = clampf(float(cfg.get_value("settings","music_volume",.7)),0,1)
 
 func spawn_opening_actor(index: int) -> Node3D:
@@ -262,7 +267,7 @@ func capture_opening_frame() -> void:
 	if DisplayServer.get_name()=="headless":
 		title_frame_ready = true
 		return
-	hud.hide()
+	if not switching_session:hud.hide()
 	for i in range(opening.size()):spawn_opening_actor(i)
 	arena.prepare_rooms()
 	opening_prepared = true
@@ -279,20 +284,44 @@ func capture_opening_frame() -> void:
 		warmup.show_pieces()
 		await loading_frame()
 		warmup.free()
-	await loading_frame()
-	hud.set_title_frame(get_viewport().get_texture().get_image())
+	if switching_session:
+		hud.set_title_frame(await capture_map_preview())
+	else:
+		await loading_frame()
+		hud.set_title_frame(get_viewport().get_texture().get_image())
 	title_frame_ready = true
 	hud.show()
-	if OS.has_feature("web"):
+	if OS.has_feature("web") and not switching_session:
 		await RenderingServer.frame_post_draw
 		JavaScriptBridge.eval("window.noArtReady && window.noArtReady()")
+
+func capture_map_preview() -> Image:
+	# The visible viewport keeps its old title frame while the new camera renders.
+	var preview = SubViewport.new()
+	preview.size = get_viewport().get_texture().get_size()
+	preview.world_3d = get_world_3d()
+	preview.msaa_3d = get_viewport().msaa_3d
+	add_child(preview)
+	var eye = Camera3D.new()
+	eye.fov = player.camera.fov
+	eye.near = player.camera.near
+	eye.far = player.camera.far
+	eye.keep_aspect = player.camera.keep_aspect
+	preview.add_child(eye)
+	eye.global_transform = player.camera.global_transform
+	eye.make_current()
+	preview.render_target_update_mode = SubViewport.UPDATE_ONCE
+	await loading_frame()
+	var image = preview.get_texture().get_image()
+	preview.queue_free()
+	return image
 
 func save_record() -> void:
 	if qa_mode:return
 	var cfg = ConfigFile.new()
 	cfg.load("user://record.cfg")
 	if rules.mission:cfg.set_value(mission_record_key(),"fastest",best_mission)
-	cfg.set_value("score","best",best)
+	else:cfg.set_value(score_record_key(),"best",best)
 	cfg.set_value("settings","sensitivity",player.sensitivity)
 	cfg.set_value("settings","reduced_motion",reduced_motion)
 	cfg.set_value("settings","music_volume",music_volume)
@@ -1177,39 +1206,64 @@ func settle_rules() -> void:
 	if not rules.active:finish_run()
 
 func select_session(resource: Resource) -> void:
-	if state!="TITLE" or switching_session:return
+	if state!="TITLE" or switching_session or not resource or resource==session:return
 	switching_session = true
 	title_frame_ready = false
 	load_ticket += 1
+	var old_map = arena
+	var old_session = session
+	var old_rules = rules
+	hud.rebuild_menu()
+	await loading_frame()
 	clear_round()
-	remove_child(arena)
-	arena.queue_free()
+	var navigation_map = get_world_3d().navigation_map
+	var old_iteration = NavigationServer3D.map_get_iteration_id(navigation_map)
+	remove_child(old_map)
 	session = resource
 	rules = session.make_rules()
-	var cfg = ConfigFile.new()
-	if not qa_mode and cfg.load("user://record.cfg")==OK:best_mission = float(cfg.get_value(mission_record_key(),"fastest",0.0))
 	nav_ready = false
 	arena = session.map_scene.instantiate()
-	sun.rotation_degrees = arena.sun_rotation_degrees
+	apply_map_lighting()
 	arena.game = self
 	add_child(arena)
 	arena.bake_navigation()
 	opening = arena.opening_actors()
-	assert(arena.validate_map(),"Invalid map objectives or patrol markers")
 	player.reset_position()
 	player.enabled = false
-	for attempt in range(300):
-		await get_tree().physics_frame
-		if NavigationServer3D.map_get_iteration_id(get_world_3d().navigation_map)>0:
-			var closest = NavigationServer3D.map_get_closest_point(get_world_3d().navigation_map,arena.player_start().origin)
-			if closest.distance_to(arena.player_start().origin)<1:
-				nav_ready = true
-				break
-	if nav_ready and not arena.validate_navigation():nav_ready = false
-	if not nav_ready:push_error("Map navigation is not ready or targets are unreachable")
-	await capture_opening_frame()
+	if arena.validate_map():nav_ready = await wait_for_map_navigation(old_iteration)
+	if nav_ready:
+		old_map.queue_free()
+		var cfg = ConfigFile.new()
+		if not qa_mode:cfg.load("user://record.cfg")
+		load_session_record(cfg)
+		await capture_opening_frame()
+	else:
+		push_warning("Map selection reverted: navigation or spawn validation failed")
+		var failed_iteration = NavigationServer3D.map_get_iteration_id(navigation_map)
+		remove_child(arena)
+		arena.queue_free()
+		arena = old_map
+		session = old_session
+		rules = old_rules
+		add_child(arena)
+		apply_map_lighting()
+		opening = arena.opening_actors()
+		player.reset_position()
+		nav_ready = await wait_for_map_navigation(failed_iteration)
+		title_frame_ready = nav_ready
 	switching_session = false
 	hud.rebuild_menu()
+
+func wait_for_map_navigation(previous_iteration: int = 0) -> bool:
+	var map = get_world_3d().navigation_map
+	var start = arena.player_start().origin
+	for _frame in range(300):
+		await get_tree().physics_frame
+		var iteration = NavigationServer3D.map_get_iteration_id(map)
+		if iteration==0 or iteration==previous_iteration:continue
+		if NavigationServer3D.map_get_closest_point(map,start).distance_to(start)<1.0:
+			return arena.validate_navigation()
+	return false
 
 func mission_record_key() -> String:
 	return session.session_id+"_v"+str(session.layout_version)+"_"+str(int(rules.duration))
