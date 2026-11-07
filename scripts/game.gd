@@ -37,6 +37,7 @@ const HEAL_RATE = 12.0
 const RESPAWN_DELAY = 2.3
 const RANGED_ATTACK_LIMIT = 3
 const SCENERY_TARGET_LAYER = 16
+const SCENERY_BLAST_RADIUS = 5.0
 var ammo = MAGAZINE_SIZE
 var reload_time = 0.0
 const RELOAD_DURATION = .9
@@ -59,6 +60,7 @@ var web_rifle: AudioStreamPlayer
 var audio_index = 0
 var spark_mesh = SphereMesh.new()
 var trace_mesh = BoxMesh.new()
+var blast_ring_mesh = TorusMesh.new()
 var effect_materials: Dictionary = {}
 var last_tick = 0
 var spawn_cooldowns: Array[float] = [0,0,0,0,0,0]
@@ -84,7 +86,7 @@ var kill_group_start = -99.0
 var kill_group_count = 0
 var web_capture_wait = 0.0
 var touch_mode = false
-var touch_body_one_shot = true
+var touch_body_one_shot = false
 var touch_fire = false
 var web_ui_state = ""
 var switching_session = false
@@ -110,6 +112,10 @@ func _ready() -> void:
 	spark_mesh.radial_segments = 6
 	spark_mesh.rings = 3
 	trace_mesh.size = Vector3.ONE
+	blast_ring_mesh.inner_radius = .85
+	blast_ring_mesh.outer_radius = 1.0
+	blast_ring_mesh.rings = 24
+	blast_ring_mesh.ring_segments = 6
 	get_window().content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
 	if touch_mode:get_window().content_scale_size = Vector2i(960,540)
 	process_physics_priority = -100
@@ -251,7 +257,7 @@ func load_record() -> void:
 		player.sensitivity = clampf(float(cfg.get_value("settings","sensitivity",.0022)),.0006,.006)
 		reduced_motion = bool(cfg.get_value("settings","reduced_motion",false))
 		music_volume = clampf(float(cfg.get_value("settings","music_volume",.7)),0,1)
-		touch_body_one_shot = bool(cfg.get_value("settings","touch_body_one_shot",true))
+		touch_body_one_shot = bool(cfg.get_value("settings","touch_body_one_shot",false))
 
 func spawn_opening_actor(index: int) -> Node3D:
 	var actor = spawn_enemy(opening[index].position,opening[index].fast)
@@ -968,7 +974,7 @@ func resolve_shot(result: Dictionary, origin: Vector3, target: Vector3, burning:
 			collider.shot_hit(burning)
 			hud.hit = .12
 		elif enemy!=null:
-			if enemy.fast and origin.distance_to(enemy.global_position)>Enemy.CLOSE_SHOT_RANGE:
+			if not burning and enemy.fast and origin.distance_to(enemy.global_position)>Enemy.CLOSE_SHOT_RANGE:
 				enemy.evade_shot(origin)
 				spark(target,Color("fff1b7"),.11,.1)
 				return
@@ -976,8 +982,7 @@ func resolve_shot(result: Dictionary, origin: Vector3, target: Vector3, burning:
 			hud.hit = .12
 			play_sound("hit",-14)
 			var is_head = collider is Area3D
-			enemy.take_hit(is_head,touch_mode and touch_body_one_shot)
-			if burning and not enemy.dead:enemy.ignite()
+			enemy.take_hit(is_head,burning or (touch_mode and touch_body_one_shot))
 			if is_head:spark(target,Color("f2d084"),.07,.12)
 			else:spark(target,Color("ed9957"),.12,.16)
 		else:spark(target,Color("e5e0d2"),.045,.1)
@@ -1176,6 +1181,18 @@ func blast_clear(from: Vector3, to: Vector3, excluded: Array[RID]) -> bool:
 	var ray = PhysicsRayQueryParameters3D.create(from,to,1,excluded)
 	return get_world_3d().direct_space_state.intersect_ray(ray).is_empty()
 
+func blast_damage_enemies(center: Vector3, radius: float, excluded: Array[RID]) -> void:
+	for enemy in live_enemies():
+		var target = enemy.global_position+Vector3.UP
+		var distance = center.distance_to(target)
+		if distance<=radius and blast_clear(center,target,excluded):
+			enemy.take_damage(Enemy.MAX_HEALTH if distance<=radius*.64 else (2 if distance<radius*.84 else 1))
+
+func scenery_blast(center: Vector3, excluded: Array[RID]) -> void:
+	if state!="RUNNING" or not rules.active or not destroy_active:return
+	blast_damage_enemies(center,SCENERY_BLAST_RADIUS,excluded)
+	blast_ring(center,SCENERY_BLAST_RADIUS)
+
 func barrel_blast(center: Vector3, radius: float, source: StaticBody3D) -> void:
 	if state!="RUNNING":return
 	if finale_active:
@@ -1183,11 +1200,7 @@ func barrel_blast(center: Vector3, radius: float, source: StaticBody3D) -> void:
 		return
 	if not rules.active:return
 	play_world_sound("explosion",center,-5)
-	for enemy in live_enemies():
-		var target = enemy.global_position+Vector3.UP
-		var distance = center.distance_to(target)
-		if distance<=radius and blast_clear(center,target,[source.get_rid()]):
-			enemy.take_damage(3 if distance<=radius*.64 else (2 if distance<radius*.84 else 1))
+	blast_damage_enemies(center,radius,[source.get_rid()])
 	var player_target = player.global_position+Vector3.UP
 	var player_distance = center.distance_to(player_target)
 	if player_distance<=radius and blast_clear(center,player_target,[source.get_rid()]):
@@ -1202,13 +1215,11 @@ func barrel_blast(center: Vector3, radius: float, source: StaticBody3D) -> void:
 		var direction = Vector3(cos(i*TAU/8),.25+float(i%3)*.2,sin(i*TAU/8))
 		spark(center+direction*.7,Color("ef7833"),.65,.45)
 		trace(center+direction,center+direction*2.2,Color("573e37"),.12,.4)
+	blast_ring(center,radius)
+
+func blast_ring(center: Vector3, radius: float) -> void:
 	var ring = MeshInstance3D.new()
-	var torus = TorusMesh.new()
-	torus.inner_radius = .85
-	torus.outer_radius = 1.0
-	torus.rings = 24
-	torus.ring_segments = 6
-	ring.mesh = torus
+	ring.mesh = blast_ring_mesh
 	ring.material_override = effect_material(Color("f6bc62"))
 	ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	effects.add_child(ring)

@@ -134,9 +134,9 @@ func check_nonstructural_hits() -> void:
 	assert(head.dead and game.rules.kills==1,"Burning headshots still score on ordinary enemies")
 	await get_tree().physics_frame
 	shoot_nonstructural(body.position+Vector3.UP*.8)
-	assert(body.health==2 and body.burn_ticks==3,"Burning body shots still damage and ignite enemies")
+	assert(body.dead and game.rules.kills==2 and game.rules.headshots==1,"Burning body shots immediately kill without counting as headshots")
 	shoot_nonstructural(Vector3(18,0,12))
-	assert(game.rules.kills==1,"Ground hits cannot score or be treated as a building")
+	assert(game.rules.kills==2,"Ground hits cannot score or be treated as a building")
 	game.player.position = Vector3(-8,.05,8)
 	await get_tree().physics_frame
 	var barrel = game.arena.barrels[0]
@@ -144,6 +144,8 @@ func check_nonstructural_hits() -> void:
 	assert(barrel.destroy_hits==1 and not barrel.spent,"First burning hit damages a barrel")
 	shoot_nonstructural(barrel.global_position+Vector3.UP*.8)
 	assert(barrel.spent,"Second burning hit detonates a barrel")
+	# Let any barrel chain reaction settle before measuring the forklift blast.
+	await get_tree().create_timer(1.2).timeout
 	game.player.position = Vector3(0,.05,10.5)
 	await get_tree().physics_frame
 	var forklift_point = Vector3(-2,1.3,-1)
@@ -151,14 +153,33 @@ func check_nonstructural_hits() -> void:
 	var cover = game.get_world_3d().direct_space_state.intersect_ray(ray)
 	var forklift = cover.collider.get_meta("structure")
 	assert(forklift.scenery,"The forklift is independently destructible")
+	var before_blast = game.rules.kills
 	aim(forklift_point)
 	shoot_rounds(1)
 	assert(forklift.hits==1 and forklift.burn_time<0)
 	shoot_rounds(1)
 	assert(forklift.hits==2 and forklift.burn_time>0)
+	var blast_origin: Vector3 = forklift.world_bounds().get_center()
+	blast_origin.y = 0
+	var core = stationary(blast_origin+Vector3(0,0,2.4))
+	var rim = stationary(blast_origin+Vector3(0,0,4.6))
+	var beyond = stationary(blast_origin+Vector3(0,0,5.5))
+	var screened = stationary(blast_origin+Vector3(-2.4,0,1.2))
+	var blocker = StaticBody3D.new()
+	var shape = CollisionShape3D.new()
+	shape.shape = BoxShape3D.new()
+	shape.shape.size = Vector3(.3,2,1.4)
+	blocker.position = blast_origin+Vector3(-1.8,1,.9)
+	blocker.add_child(shape)
+	add_child(blocker)
 	for _tick in range(20):await get_tree().physics_frame
 	assert(forklift.collapsed)
+	assert(core.dead and rim.health==2 and beyond.health==3 and screened.health==3,"Scenery explosion must respect distance, falloff and cover: %s"%[[core.health,rim.health,beyond.health,screened.health]])
+	assert(game.rules.kills==before_blast+1 and game.rules.headshots==1)
+	print("SCENERY_BLAST_PASS: actual two-hit prop, lethal core, rim damage, cover and score")
 	for collider in forklift.collision_states:assert(collider.collision_layer==0)
+	blocker.queue_free()
+	for enemy in [core,rim,beyond,screened]:enemy.queue_free()
 	forklift.restore()
 	assert(not forklift.collapsed and forklift.hits==0)
 	# The light post has no movement collider. Its shot target still removes

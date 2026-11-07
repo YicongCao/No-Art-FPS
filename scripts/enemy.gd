@@ -7,6 +7,7 @@ var patrol_brain: Node
 var visual: Node3D
 var agent: NavigationAgent3D
 const MAX_HEALTH = 3
+const BODY_SHOT_DAMAGE = 2
 const BODY_HIT_DURATION = .16
 var health = MAX_HEALTH
 var dead = false
@@ -259,8 +260,8 @@ func can_see_player() -> bool:
 
 func take_hit(is_head: bool, body_one_shot: bool = false) -> void:
 	var previous_health = health
-	take_damage(MAX_HEALTH if is_head or body_one_shot else 1,is_head)
-	if not is_head and health<previous_health:
+	take_damage(MAX_HEALTH if is_head or body_one_shot else BODY_SHOT_DAMAGE,is_head)
+	if not dead and not is_head and health<previous_health:
 		if armor_hit==null:
 			armor_hit = ShaderMaterial.new()
 			armor_hit.shader = preload("res://assets/shaders/armor_hit.gdshader")

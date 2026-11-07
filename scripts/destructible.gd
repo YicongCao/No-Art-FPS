@@ -72,14 +72,22 @@ func collapse(show_effects: bool = true) -> void:
 			var at: Vector3 = arena.initial_batches[batch][index].origin
 			batch.multimesh.set_instance_transform(index,Transform3D(Basis.from_scale(Vector3.ZERO),at))
 	for path in supported_paths:get_node(path).collapse(false)
-	if not scenery:
+	var area = world_bounds()
+	if not scenery and game.rules.active:
 		for enemy in game.live_enemies():
-			if (bounds.grow(.35).has_point(to_local(enemy.global_position+Vector3.UP)) if local_bounds else bounds.grow(.35).has_point(enemy.global_position+Vector3.UP)):enemy.take_damage(3)
+			if (bounds.grow(.35).has_point(to_local(enemy.global_position+Vector3.UP)) if local_bounds else bounds.grow(.35).has_point(enemy.global_position+Vector3.UP)):enemy.take_damage(enemy.MAX_HEALTH)
 	if show_effects:
+		var blast_center = hit_point
 		if scenery:
-			game.finale_explosion(hit_point,clampf(bounds.size.length()*.2,.45,1.5),palette)
-			game.play_world_sound("explosion",hit_point,-14)
-		else:game.collapse_effect(world_bounds(),palette)
+			blast_center = area.get_center()
+			blast_center.y = area.position.y+minf(area.size.y*.5,.85)
+			game.finale_explosion(blast_center,clampf(area.size.length()*.2,.65,1.5),palette)
+			game.play_world_sound("explosion",blast_center,-11)
+		else:game.collapse_effect(area,palette)
+		if hits>=2 and not keep_boundary:
+			var excluded: Array[RID] = []
+			for body in collision_states:excluded.append(body.get_rid())
+			game.scenery_blast(blast_center,excluded)
 	# Removing small cover leaves the existing paths walkable. Only structural
 	# changes need a bake, especially on the single-threaded Web build.
 	if not scenery:arena.request_navigation_update()

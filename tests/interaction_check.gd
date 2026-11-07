@@ -42,32 +42,31 @@ func _ready() -> void:
 		enemy.set_physics_process(false)
 		await get_tree().physics_frame
 		var before = game.rules.kills
-		for i in range(1 if head else 3):
+		for i in range(1 if head else 2):
 			aim(enemy.position+Vector3(0,1.7 if head else 1.1,0))
 			game.fire_time = 0
 			game.shoot()
-			if not head and i<2:
-				assert(game.rules.kills==before and enemy.health==2-i)
+			if not head and i==0:
+				assert(game.rules.kills==before and enemy.health==1)
 				assert(enemy.visual.rotation.x>0 and enemy.armor_hit.get_shader_parameter("flash")>0)
-				if i==0:await capture("body-hit-flash")
+				await capture("body-hit-flash")
 				enemy.update_body_hit(enemy.BODY_HIT_DURATION)
 				assert(enemy.visual.rotation.x==0 and enemy.armor_hit.get_shader_parameter("flash")==0)
-				assert(enemy.armor_hit.get_shader_parameter("damage_level")==i+1)
-				if i==1:
-					await get_tree().create_timer(.18).timeout
-					await capture("body-hit-damage")
+				assert(enemy.armor_hit.get_shader_parameter("damage_level")>0)
+				await get_tree().create_timer(.18).timeout
+				await capture("body-hit-damage")
 		assert(game.rules.kills==before+1,"Raycast damage must kill exactly once")
 		enemy.take_hit(true)
 		assert(game.rules.kills==before+1)
 		enemy.queue_free()
 		await get_tree().physics_frame
 	print("QA_HEAD_BODY_DUPLICATE_PASS")
-	assert(game.touch_body_one_shot,"Touch body shots default to one hit")
-	for enabled in [true,false]:
-		var enemy = game.spawn_enemy(Vector3(0,0,5),enabled)
+	assert(not game.touch_body_one_shot,"Touch uses the standard damage by default")
+	for enabled in [false,true]:
+		var enemy = game.spawn_enemy(Vector3(0,0,5),not enabled)
 		enemy.set_physics_process(false)
 		await get_tree().physics_frame
-		if not enabled:
+		if enabled:
 			game.state = "PAUSED"
 			game.touch_mode = true
 			game.menu_action("touch_body_shots")
@@ -76,17 +75,17 @@ func _ready() -> void:
 		assert(game.touch_body_one_shot==enabled)
 		var before = game.rules.kills
 		var headshots = game.rules.headshots
-		for shot in range(1 if enabled else 3):
+		for shot in range(1 if enabled else 2):
 			aim(enemy.position+Vector3(0,1.1,0))
 			game.fire_time = 0
 			game.touch_mode = true
 			game.shoot()
 			game.touch_mode = false
-			assert(enemy.dead==(enabled or shot==2))
+			assert(enemy.dead==(enabled or shot==1))
 		assert(game.rules.kills==before+1 and game.rules.headshots==headshots)
 		enemy.queue_free()
 		await get_tree().physics_frame
-	print("QA_TOUCH_BODY_PASS: default one-hit, pause setting, three hits with assist off, normal kill scoring")
+	print("QA_TOUCH_BODY_PASS: default two-hit, optional one-hit assist, normal kill scoring")
 	game.player.position = Vector3(5,.05,8)
 	var blocked = game.spawn_enemy(Vector3(5,0,-5),false)
 	blocked.set_physics_process(false)
