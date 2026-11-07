@@ -114,6 +114,8 @@ func _ready() -> void:
 	sun.light_color = Color("fff3d5")
 	sun.light_energy = .22
 	sun.shadow_enabled = true
+	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
+	sun.directional_shadow_split_1 = .24
 	sun.directional_shadow_max_distance = 65
 	add_child(sun)
 	arena = session.map_scene.instantiate()
@@ -242,8 +244,20 @@ func capture_opening_frame() -> void:
 	for i in range(opening.size()):spawn_opening_actor(i)
 	arena.prepare_rooms()
 	opening_prepared = true
-	await get_tree().process_frame
-	await RenderingServer.frame_post_draw
+	# Submit the two instanced materials before the first DESTROY shot or collapse.
+	# The tiny batch is below the starting floor and removed before the title capture.
+	if rules.destroy_duration>0:
+		var warmup = CombatFX.new()
+		warmup.game = self
+		effects.add_child(warmup)
+		var at = player.camera.to_global(Vector3(0,-1.85,-4))
+		warmup.chunk(at,Vector3.ONE*.04,Color.WHITE,Vector3.ZERO)
+		warmup.flame(at,.04,Color.WHITE)
+		warmup.bloom(at,.04,Color.WHITE)
+		warmup.show_pieces()
+		await loading_frame()
+		warmup.free()
+	await loading_frame()
 	hud.set_title_frame(get_viewport().get_texture().get_image())
 	title_frame_ready = true
 	hud.show()
@@ -582,6 +596,7 @@ func finale_explosion(center: Vector3, extent: float, debris_color: Color) -> vo
 		var offset = Vector3(cos(i*TAU/5),float(i%2)*.4,sin(i*TAU/5))*extent*.45
 		fx.bloom(center+offset,extent*(.7 if i%2==0 else .5),Color("ef7833") if i%2==0 else Color("f2d084"))
 	fx.bloom(center+Vector3.UP*extent*.6,extent*.65,Color("573e37"))
+	fx.show_pieces()
 
 func _notification(what: int) -> void:
 	if state=="LOADING" and not qa_mode:
@@ -985,6 +1000,7 @@ func fire_effect(at: Vector3, extent: float) -> void:
 	effects.add_child(fx)
 	fx.flame(at,extent,Color("ef7833"))
 	fx.flame(at+Vector3.UP*extent*.25,extent*.55,Color("fff1b7"))
+	fx.show_pieces()
 
 func collapse_effect(bounds: AABB, color: Color) -> void:
 	var fx = CombatFX.new()
@@ -1006,6 +1022,7 @@ func collapse_effect(bounds: AABB, color: Color) -> void:
 		var point = center+Vector3(cos(i*TAU/7)*bounds.size.x*.25,-bounds.size.y*.25,sin(i*TAU/7)*bounds.size.z*.25)
 		fx.flame(point,1.5,Color("ef7833"))
 		fx.flame(point+Vector3.UP*.4,.85,Color("ffe78e"))
+	fx.show_pieces()
 	if finale_active:finale_explosion(center,clampf(bounds.size.length()*.12,1.8,4),color)
 
 func spark(pos: Vector3, color: Color, radius: float, duration: float) -> void:
