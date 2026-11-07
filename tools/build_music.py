@@ -14,9 +14,8 @@ import numpy as np
 OUT = Path(__file__).resolve().parents[1] / "assets/music"
 PPQ = 480
 RATE = 32000
-TRACK_NAMES = ("Drive bass", "Brass stabs", "Pressure drone", "Industrial drums")
-PROGRAMS = (38, 62, 89, 0)
-CHANNELS = (0, 1, 2, 9)
+PARTS = (("Drive bass", 38, 0), ("Brass stabs", 62, 1),
+         ("Pressure drone", 89, 2), ("Industrial drums", 0, 9))
 
 
 def compose(bars, frantic):
@@ -68,19 +67,18 @@ def chunk(data):
     return b"MTrk" + struct.pack(">I", len(data)) + data
 
 
-def write_midi(name, tracks, bpm, bars):
+def write_midi(name, tracks, bpm, bars, parts=PARTS):
     end = bars * 4 * PPQ
     tempo = round(60000000 / bpm)
     conductor = b"\x00" + meta(3, name.encode())
     conductor += b"\x00" + meta(0x51, tempo.to_bytes(3, "big"))
     conductor += b"\x00" + meta(0x58, bytes([4, 2, 24, 8]))
     conductor += vlq(end) + meta(0x2f, b"")
-    midi = b"MThd" + struct.pack(">IHHH", 6, 1, 5, PPQ) + chunk(conductor)
-    for index, events in enumerate(tracks):
-        channel = CHANNELS[index]
-        data = b"\x00" + meta(3, TRACK_NAMES[index].encode())
+    midi = b"MThd" + struct.pack(">IHHH", 6, 1, len(parts) + 1, PPQ) + chunk(conductor)
+    for events, (part_name, program, channel) in zip(tracks, parts, strict=True):
+        data = b"\x00" + meta(3, part_name.encode())
         if channel != 9:
-            data += bytes([0, 0xc0 | channel, PROGRAMS[index]])
+            data += bytes([0, 0xc0 | channel, program])
         ordered = []
         for start, length, pitch, velocity in events:
             ordered.append((start, bytes([0x90 | channel, pitch, velocity])))
@@ -135,6 +133,11 @@ def render(name, tracks, bpm, bars):
     audio = np.tanh(audio * 1.3) * .92
     fade = round(.038 * RATE)
     audio[-fade:] *= np.linspace(1, 0, fade)[:, None]
+    write_ogg(name, audio)
+    print(f"MUSIC_OK {name}: {bpm} BPM, {length / RATE:g}s, peak {np.abs(audio).max():.2f}")
+
+
+def write_ogg(name, audio):
     with TemporaryDirectory() as tmp:
         pcm = Path(tmp) / "cue.wav"
         with wave.open(str(pcm), "wb") as output:
@@ -143,10 +146,10 @@ def render(name, tracks, bpm, bars):
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(pcm),
                         "-c:a", "vorbis", "-strict", "experimental", "-q:a", "4",
                         str(OUT / f"{name}.ogg")], check=True)
-    print(f"MUSIC_OK {name}: {bpm} BPM, {length / RATE:g}s, peak {np.abs(audio).max():.2f}")
 
 
-for name, bpm, bars, frantic in (("sixty", 160, 30, False), ("destroy", 192, 12, True)):
-    score = compose(bars, frantic)
-    write_midi(name, score, bpm, bars)
-    render(name, score, bpm, bars)
+if __name__ == "__main__":
+    for name, bpm, bars, frantic in (("sixty", 160, 30, False), ("destroy", 192, 12, True)):
+        score = compose(bars, frantic)
+        write_midi(name, score, bpm, bars)
+        render(name, score, bpm, bars)
