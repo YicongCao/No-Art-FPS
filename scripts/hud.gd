@@ -4,6 +4,14 @@ const SKULL_ICON = preload("res://assets/ui/skull.svg")
 const DAMAGE_IMPACT = preload("res://assets/ui/damage-impact.svg")
 const YARD_THUMBNAIL = preload("res://assets/ui/maps/yard.webp")
 const PARK_THUMBNAIL = preload("res://assets/ui/maps/amusement-park.webp")
+const PAUSE_ICON = preload("res://assets/ui/settings/pause.svg")
+const AIM_ICON = preload("res://assets/ui/settings/aim.svg")
+const MOTION_ICON = preload("res://assets/ui/settings/motion.svg")
+const MUSIC_ICON = preload("res://assets/ui/settings/music.svg")
+const GYRO_ICON = preload("res://assets/ui/settings/gyro.svg")
+const RESUME_ICON = preload("res://assets/ui/settings/resume.svg")
+const RESTART_ICON = preload("res://assets/ui/settings/restart.svg")
+const SLIDER_GRIP = preload("res://assets/ui/settings/grip.svg")
 var game: Node
 var font: Font
 var hit = 0.0
@@ -393,35 +401,95 @@ func rebuild_menu() -> void:
 			results_button(RETRY_ICON,Rect2(c.x-174,c.y+106,160,88),"retry",true,"重试 · Enter")
 			results_button(HOME_ICON,Rect2(c.x+14,c.y+106,160,88),"menu",false,"返回标题 · Esc")
 	elif menu_state == "PAUSED":
-		if game.touch_mode:c.y -= 30
-		menu_button("RESUME",Rect2(c.x-200,c.y-150,400,64 if game.touch_mode else 60),"resume",true,"Esc")
-		menu_button("RESTART",Rect2(c.x-200,c.y-74,400,64 if game.touch_mode else 56),"retry",false,"Enter")
-		sensitivity_slider = HSlider.new()
-		sensitivity_slider.name = "Sensitivity"
-		sensitivity_slider.position = Vector2(c.x+10,c.y+44)
-		sensitivity_slider.size = Vector2(190,48 if game.touch_mode else 28)
-		sensitivity_slider.min_value = .0006
-		sensitivity_slider.max_value = .006
-		sensitivity_slider.step = .0002
-		sensitivity_slider.value = game.player.sensitivity
-		sensitivity_slider.value_changed.connect(func(value):
+		var card = pause_card()
+		sensitivity_slider = pause_slider("Sensitivity",pause_row(card,0),Vector3(.0006,.006,.0002),game.player.sensitivity,func(value):
 			game.player.sensitivity = value
 			game.save_record())
-		menu.add_child(sensitivity_slider)
-		motion_button = menu_button("",Rect2(c.x+80,c.y+98,120,60 if game.touch_mode else 44),"motion",false,"M")
-		music_slider = HSlider.new()
-		music_slider.name = "Music"
-		music_slider.position = Vector2(c.x+10,c.y+164)
-		music_slider.size = Vector2(190,48 if game.touch_mode else 28)
-		music_slider.min_value = 0
-		music_slider.max_value = 1
-		music_slider.step = .05
-		music_slider.value = game.music_volume
-		music_slider.value_changed.connect(func(value):
+		var motion_row = pause_row(card,1)
+		motion_button = pause_button("",Rect2(motion_row.end.x-136,motion_row.position.y+3,124,48),"motion",false,"M")
+		motion_button.accessibility_description = "Camera motion"
+		music_slider = pause_slider("Music",pause_row(card,2),Vector3(0,1,.05),game.music_volume,func(value):
 			game.set_music_volume(value)
 			game.save_record())
-		menu.add_child(music_slider)
-		if game.touch_mode:menu_button("GYRO AIM",Rect2(c.x-200,c.y+220,400,50),"gyro")
+		if game.touch_mode:pause_button("GYRO AIM",pause_row(card,3),"gyro",false,"",GYRO_ICON)
+		var footer = card.position+Vector2(24,card.size.y-76)
+		pause_button("RESUME",Rect2(footer,Vector2(230,52)),"resume",true,"Esc",RESUME_ICON)
+		pause_button("RESTART",Rect2(footer+Vector2(242,0),Vector2(230,52)),"retry",false,"Enter",RESTART_ICON)
+
+func pause_card() -> Rect2:
+	var extent = Vector2(520,428 if game.touch_mode else 364)
+	return Rect2((size-extent)*.5,extent)
+
+func pause_row(card: Rect2, index: int) -> Rect2:
+	return Rect2(card.position+Vector2(24,82+index*64),Vector2(card.size.x-48,54))
+
+func pause_button(text: String, rect: Rect2, action: String, primary: bool, shortcut: String, icon: Texture2D = null) -> Button:
+	var button = menu_button(text,rect,action,false,shortcut)
+	button.icon = icon
+	if icon:button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	button.add_theme_constant_override("icon_max_width",24)
+	button.add_theme_constant_override("h_separation",12)
+	for state_name in ["normal","hover","pressed","focus"]:
+		var style = button.get_theme_stylebox(state_name).duplicate()
+		style.set_corner_radius_all(6)
+		style.set_content_margin(SIDE_LEFT,14)
+		style.set_content_margin(SIDE_RIGHT,14)
+		if state_name!="focus":
+			style.bg_color = Color("754c87") if primary else Color("263645")
+			if state_name=="hover":style.bg_color = style.bg_color.lightened(.12)
+			if state_name=="pressed":style.bg_color = style.bg_color.darkened(.14)
+		button.add_theme_stylebox_override(state_name,style)
+	return button
+
+func pause_slider(title: String, row: Rect2, limits: Vector3, value: float, on_change: Callable) -> HSlider:
+	var slider = HSlider.new()
+	slider.name = title
+	slider.accessibility_name = title
+	slider.position = Vector2(row.end.x-186,row.position.y+3)
+	slider.size = Vector2(170,48)
+	slider.min_value = limits.x
+	slider.max_value = limits.y
+	slider.step = limits.z
+	slider.value = value
+	slider.add_theme_icon_override("grabber",SLIDER_GRIP)
+	slider.add_theme_icon_override("grabber_highlight",SLIDER_GRIP)
+	for style_name in ["slider","grabber_area","grabber_area_highlight"]:
+		var track = StyleBoxFlat.new()
+		track.bg_color = Color("46586a") if style_name=="slider" else GOLD
+		track.set_corner_radius_all(2)
+		track.set_content_margin(SIDE_TOP,2)
+		track.set_content_margin(SIDE_BOTTOM,2)
+		slider.add_theme_stylebox_override(style_name,track)
+	slider.value_changed.connect(on_change)
+	menu.add_child(slider)
+	return slider
+
+func draw_pause() -> void:
+	draw_rect(Rect2(Vector2.ZERO,size),Color(.06,.09,.12,.58))
+	death_marks()
+	var card = pause_card()
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color("17242f")
+	style.set_corner_radius_all(12)
+	style.set_border_width_all(1)
+	style.border_color = Color(GOLD,.48)
+	style.shadow_color = Color(0,0,0,.32)
+	style.shadow_size = 12
+	draw_style_box(style,card)
+	var top = card.position
+	draw_line(top+Vector2(24,1),top+Vector2(100,1),GOLD,3)
+	draw_texture_rect(PAUSE_ICON,Rect2(top+Vector2(24,24),Vector2(30,30)),false)
+	label("PAUSED",top+Vector2(64,52),34)
+	var names = ["Touch sensitivity" if game.touch_mode else "Sensitivity","Camera motion","Music"]
+	var icons = [AIM_ICON,MOTION_ICON,MUSIC_ICON]
+	var row_style = StyleBoxFlat.new()
+	row_style.bg_color = Color("1f2e3c")
+	row_style.set_corner_radius_all(6)
+	for index in range(names.size()):
+		var row = pause_row(card,index)
+		draw_style_box(row_style,row)
+		draw_texture_rect(icons[index],Rect2(row.position+Vector2(14,14),Vector2(26,26)),false)
+		label(names[index],row.position+Vector2(52,36),24)
 
 func results_button(texture: Texture2D, rect: Rect2, action: String, primary: bool, tooltip: String) -> Button:
 	var button = menu_button("",rect,action,primary,tooltip)
@@ -509,12 +577,7 @@ func _draw() -> void:
 		draw_results()
 		return
 	if state == "PAUSED":
-		if game.touch_mode:c.y -= 30
-		draw_rect(Rect2(Vector2.ZERO,size),Color(.06,.09,.12,.76))
-		death_marks()
-		label("Touch sensitivity" if game.touch_mode else "Sensitivity",Vector2(c.x-200,c.y+65),20)
-		label("Camera motion",Vector2(c.x-200,c.y+128),20)
-		label("Music",Vector2(c.x-200,c.y+185),20)
+		draw_pause()
 		return
 	draw_finale_edges()
 	if game.finale_active:

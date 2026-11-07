@@ -55,18 +55,40 @@
     #immersive-note{position:fixed;z-index:21;left:10%;right:10%;bottom:12px;text-align:center;background:#243440e8;padding:12px;font-size:13px;color:#fff5d3}
     #gyro-open{display:none;position:fixed;z-index:7;top:max(10px,env(safe-area-inset-top));right:max(110px,calc(env(safe-area-inset-right) + 98px));min-height:44px;padding:10px 14px;background:#243440bd;color:#fff5d3;border:1px solid #fff5d366}
     body.mobile:is([data-game=TITLE],[data-game=RESULTS]):not(.portrait) #loading[hidden]~#gyro-open{display:block}
-    #gyro-panel[hidden]{display:none}#gyro-panel{position:fixed;inset:0;z-index:22;background:#13202bd9;display:grid;place-items:center;padding:max(12px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left))}
-    #gyro-panel section{background:#243440;border:1px solid #fff5d355;padding:20px 24px;width:min(380px,100%);max-height:100%;overflow:auto;border-radius:8px}
-    #gyro-panel header,.gyro-row{display:flex;align-items:center;justify-content:space-between;gap:16px}#gyro-panel h2{margin:0;font-size:22px}#gyro-panel header{margin-bottom:16px}
-    #gyro-panel button{min-height:44px;min-width:44px;border:1px solid #fff5d366;background:#344650;color:#fff5d3;padding:8px 12px;border-radius:4px}#gyro-toggle[aria-checked=true]{background:#e9ba50;color:#243440}#gyro-panel button:disabled{opacity:.45;cursor:default}
-    #gyro-panel [hidden]{display:none}#gyro-panel input{accent-color:#e9ba50}#gyro-panel input[type=range]{width:100%;height:36px;touch-action:pan-y}#gyro-panel input:focus-visible{outline:2px solid #e9ba50}#gyro-panel output{font-variant-numeric:tabular-nums}.gyro-row{margin-bottom:8px}#gyro-status{font-size:14px;margin:0 0 12px;color:#fff5d3;line-height:1.5}
+    #gyro-panel[hidden]{display:none}#gyro-panel{position:fixed;inset:0;z-index:22;background:#0f1721b8;display:grid;place-items:center;padding:max(12px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left))}
+    #gyro-panel section{background:#17242f;border:1px solid #f2d08478;padding:20px 24px;width:min(420px,100%);max-height:100%;overflow:auto;border-radius:12px;box-shadow:0 12px 40px #0006}
+    #gyro-panel[data-step=settings] section{width:min(520px,100%)}
+    #gyro-panel header,.gyro-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    #gyro-panel header{margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #fff5d328}
+    #gyro-panel h2{margin:0;font-size:22px}
+    #gyro-title:focus{outline:none}
+    .gyro-label{display:inline-flex;align-items:center;gap:9px}.gyro-label .ui-icon{color:#f2d084;flex:none}
+    #gyro-panel button{min-height:44px;min-width:44px;border:1px solid #fff5d32e;background:#263645;color:#fff5d3;padding:8px 12px;border-radius:6px}
+    #gyro-panel #gyro-close{padding:0}
+    #gyro-panel #gyro-toggle{min-width:70px}
+    #gyro-toggle[aria-checked=true]{background:#f2d084;color:#17242f}#gyro-panel button:disabled{opacity:.45;cursor:default}
+    #gyro-panel [hidden]{display:none}
+    #gyro-panel input{accent-color:#f2d084}#gyro-panel input[type=range]{display:block;width:100%;height:28px;margin:0;touch-action:pan-y}#gyro-panel input:focus-visible{outline:2px solid #e9ba50}
+    #gyro-panel output{color:#f2d084;font-variant-numeric:tabular-nums}
+    .gyro-setting-card{background:#1f2e3c;border-radius:8px;padding:8px 12px}.gyro-setting-card>.gyro-row:first-child{margin-bottom:7px}
+    #gyro-status{font-size:14px;margin:0 0 12px;color:#c9c4b8;line-height:1.45}
     #gyro-panel .gyro-primary{background:#754c87;color:white}
     .gyro-actions,.gyro-axis-list{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-    #gyro-panel fieldset{margin:8px 0;padding:0;border:0;font-size:14px}
-    .gyro-axis-list label{min-height:40px;display:flex;align-items:center;gap:5px;padding:0 8px;border:1px solid #fff5d344;border-radius:3px}
+    .gyro-actions[data-gyro-step=settings],.gyro-axis-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+    #gyro-panel fieldset{margin:10px 0;padding:0;border:0;font-size:14px}#gyro-panel legend{padding:0 0 5px}
+    .gyro-axis-list{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .gyro-axis-list label{min-height:44px;display:flex;justify-content:center;align-items:center;gap:5px;padding:0 8px;background:#1f2e3c;border:1px solid #fff5d32e;border-radius:6px}
+    .gyro-axis-list label:has(input:checked){border-color:#f2d084;color:#f2d084}
+    .gyro-axis-list input{width:16px;height:16px;margin:0}
     #gyro-panel[data-step=practice] section{width:min(550px,100%)}
     #gyro-room{display:block;width:100%;height:min(38vh,220px);background:#1c2b3e;border:2px solid #17202a}
-    @media(max-height:400px){#gyro-panel section{padding:12px 20px}#gyro-panel header{margin-bottom:8px}}
+    @media(max-height:400px){
+      #gyro-panel section{padding:10px 20px}
+      #gyro-panel header{margin-bottom:6px;padding-bottom:5px}
+      #gyro-status{margin-bottom:8px}
+      .gyro-setting-card{padding:6px 12px}.gyro-setting-card>.gyro-row:first-child{margin-bottom:5px}
+      #gyro-panel fieldset{margin:7px 0}
+    }
     @media(prefers-reduced-motion:reduce){#loading,#loader-cartridges,#loader-fire{transition:none}}
   </style>
   $GODOT_HEAD_INCLUDE
@@ -124,7 +146,10 @@
   <button id="gyro-open" aria-haspopup="dialog">体感瞄准</button>
   <div id="gyro-panel" hidden>
     <section role="dialog" aria-modal="true" aria-labelledby="gyro-title" tabindex="-1">
-      <header><h2 id="gyro-title" tabindex="-1">体感瞄准</h2><button id="gyro-close" aria-label="关闭体感设置"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18"/></svg></button></header>
+      <header>
+        <div class="gyro-label"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><ellipse cx="12" cy="12" rx="8" ry="3.6" transform="rotate(36 12 12)"/><ellipse cx="12" cy="12" rx="3.6" ry="8" transform="rotate(36 12 12)"/></svg><h2 id="gyro-title" tabindex="-1">体感瞄准</h2></div>
+        <button id="gyro-close" aria-label="关闭体感设置"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+      </header>
       <p id="gyro-status" role="status">正在检查浏览器支持</p>
       <div class="gyro-actions" data-gyro-step="choice" hidden>
         <button id="gyro-yes" class="gyro-primary">启用体感</button><button data-gyro-touch>使用触控</button>
@@ -146,13 +171,13 @@
           <circle id="gyro-hold" cx="280" cy="110" r="22" pathLength="100" transform="rotate(-90 280 110)" fill="none" stroke="#fff5d3" stroke-width="2.5" stroke-dasharray="0 100"/>
         </svg>
       </div>
-      <div data-gyro-step="settings" hidden>
-        <div class="gyro-row"><label for="gyro-toggle">运动传感器</label><button id="gyro-toggle" role="switch" aria-checked="false" aria-describedby="gyro-status">启用</button></div>
-        <label class="gyro-row" for="gyro-sensitivity">灵敏度 <output id="gyro-value" for="gyro-sensitivity">1.00x</output></label>
+      <div class="gyro-setting-card" data-gyro-step="settings" hidden>
+        <div class="gyro-row"><label class="gyro-label" for="gyro-toggle"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2 12h4l2.5-5 4 10 3-7 2 2h4.5"/></svg>运动传感器</label><button id="gyro-toggle" role="switch" aria-checked="false" aria-describedby="gyro-status">启用</button></div>
+        <label class="gyro-row" for="gyro-sensitivity"><span class="gyro-label"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="6"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg>灵敏度</span><output id="gyro-value" for="gyro-sensitivity">1.00x</output></label>
         <input id="gyro-sensitivity" type="range" min="0.25" max="3" step="0.25" value="1">
       </div>
       <fieldset data-gyro-step="settings practice" hidden>
-        <legend>翻转设备轴</legend>
+        <legend><span class="gyro-label"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4v9m0 0 7 5m-7-5-7 5m5-12 2-2 2 2m2 12h3v-3M5 15v3h3"/></svg>翻转设备轴</span></legend>
         <div class="gyro-axis-list">
           <label><input type="checkbox" data-gyro-axis="x">X 轴</label>
           <label><input type="checkbox" data-gyro-axis="y">Y 轴</label>
