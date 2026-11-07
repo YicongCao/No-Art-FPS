@@ -692,7 +692,12 @@ func _unhandled_input(event: InputEvent) -> void:
 			pause_run()
 		elif state == "PAUSED":menu_action("resume")
 		elif state == "RESULTS":menu_action("menu")
-	elif event.is_action_pressed("restart") and state in ["TITLE","RESULTS","PAUSED"]:request_run()
+	elif event.is_action_pressed("restart") and state in ["TITLE","RESULTS","PAUSED"]:
+		var focused = get_viewport().gui_get_focus_owner()
+		if state=="TITLE" and focused is Button and focused.get_parent()==hud.menu and focused!=hud.fire_button:
+			if not focused.disabled:focused.pressed.emit()
+			get_viewport().set_input_as_handled()
+		else:request_run()
 	elif event.is_action_pressed("reload") and state == "RUNNING":reload_weapon()
 	elif event is InputEventKey and event.pressed and state == "PAUSED":
 		if event.physical_keycode == KEY_MINUS:player.sensitivity = maxf(.0006,player.sensitivity-.0002)

@@ -22,7 +22,10 @@ func check() -> void:
 	var park_card = game.hud.menu.get_node("MapPark")
 	assert(park_card.text.is_empty() and not park_card.accessibility_name.is_empty())
 	park_card.grab_focus()
-	park_card.pressed.emit()
+	var enter = InputEventKey.new()
+	enter.physical_keycode = KEY_ENTER
+	enter.pressed = true
+	game._unhandled_input(enter)
 	assert(game.switching_session and game.hud.fire_button.disabled)
 	assert(game.hud.title_frame==old_frame)
 	game.menu_action("play")
