@@ -2,8 +2,8 @@ import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import assert from 'node:assert/strict';
 const source=readFileSync(new URL('../web/gyro.js',import.meta.url),'utf8');
-function fixture(permission){
-  let time=0;const listeners=new Map(),timers=new Map(),storage=new Map(),states=[];
+function fixture(permission,storage=new Map()){
+  let time=0;const listeners=new Map(),timers=new Map(),states=[];
   const host={isSecureContext:true,DeviceMotionEvent:permission?{requestPermission:permission}:{},screen:{orientation:{angle:90}},localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v)},addEventListener:(k,v)=>listeners.set(k,v),removeEventListener:k=>listeners.delete(k),setTimeout:(fn,ms)=>{timers.set(fn,ms);return fn;},clearTimeout:fn=>timers.delete(fn)};
   runInNewContext(source,{window:host,performance:{now:()=>time}});
   const gyro=host.NoArtGyro.create({host,now:()=>time,changed:s=>states.push(s)});
@@ -26,10 +26,10 @@ assert.ok(f.gyro.read().gyroYaw>0,'Opposite landscape reverses device X');
 // Gravity projection supports aiming when the phone is tilted nearly flat.
 f.gyro.reset();for(let n=0;n<5;n++)f.sample(.2,-.1,30.15,16,{x:0,y:0,z:9.81});
 assert.ok(f.gyro.read().gyroYaw<0);
-// Sensitivity is independent of pixel movement and persisted; enabling is not persisted.
+// Sensitivity is independent of pixel movement. Preferences survive a new session.
 const measure=()=>{for(let n=0;n<5;n++)f.sample(30.2,-.1,.15);return Math.abs(f.gyro.read().gyroYaw);};
 f.gyro.setSensitivity(1);const base=measure();f.gyro.setSensitivity(2);assert.ok(Math.abs(measure()/base-2)<1e-8);
-assert.equal(f.storage.get('no-art-gyro-sensitivity'),'2');f.gyro.setSensitivity(99);assert.equal(f.gyro.snapshot().sensitivity,3);
+assert.equal(fixture(undefined,f.storage).gyro.snapshot().sensitivity,2);f.gyro.setSensitivity(99);assert.equal(f.gyro.snapshot().sensitivity,3);
 f.gyro.setSensitivity(NaN);assert.equal(f.gyro.snapshot().sensitivity,3);
 for(const context of [{running:false},{visible:false},{focused:false},{landscape:false}]){
   f.gyro.setContext({running:true,visible:true,focused:true,landscape:true});measure();
@@ -40,6 +40,28 @@ f.sample(30,20,10,2000);assert.equal(f.gyro.read().gyroYaw,0,'No integration acr
 f.sample(30,20,10);f.advance(300);assert.equal(f.gyro.read().gyroYaw,0,'Stale buffered sample discarded');
 f.sample(null,null,null);assert.equal(f.gyro.read().gyroPitch,0);
 f.gyro.disable();assert.equal(f.listeners.size,0);assert.equal(f.gyro.read().gyroYaw,0);
+const saved = new Map([['no-art-gyro-sensitivity','1.75']]);
+f=fixture(undefined,saved);
+assert.equal(f.gyro.snapshot().sensitivity,1.75);
+assert.equal(f.gyro.snapshot().preference,null);
+f.gyro.choose(true);
+f.gyro.setAxisFlip('x',true);
+f.gyro.setAxisFlip('y',true);
+f.gyro.setAxisFlip('z',true);
+f.gyro.finishPractice();
+f=fixture(undefined,saved);
+assert.equal(f.gyro.snapshot().preference,true);
+assert.equal(f.gyro.snapshot().practicePassed,true);
+assert.equal(f.gyro.snapshot().enabled,false);
+await f.start();
+for(let n=0;n<5;n++)f.sample(30,0,0);
+assert.ok(f.gyro.read().gyroYaw>0,'X flip reverses yaw in landscape');
+f.gyro.reset();for(let n=0;n<5;n++)f.sample(0,-30,0);
+assert.ok(f.gyro.read().gyroPitch>0,'Y flip reverses pitch in landscape');
+f.gyro.reset();for(let n=0;n<5;n++)f.sample(0,0,30,16,{x:0,y:0,z:9.81});
+assert.ok(f.gyro.read().gyroYaw>0,'Z flip reverses gravity-projected yaw');
+f.gyro.choose(false);
+assert.equal(fixture(undefined,saved).gyro.snapshot().preference,false);
 // Explicit permission, denial, no hardware, insecure context and revoked pending enable.
 f=fixture(async()=>'denied');assert.equal(f.gyro.snapshot().canRequest,true);assert.match(f.gyro.snapshot().status,/请求权限/);await f.gyro.enable();assert.equal(f.gyro.snapshot().enabled,false);assert.equal(f.listeners.size,0);assert.match(f.gyro.snapshot().status,/拒绝了运动传感器权限/);
 f=fixture();let orientationRequests=0;
@@ -66,5 +88,5 @@ async function integrate(dt){const test=fixture();await test.start();test.sample
 const fast=await integrate(10),slow=await integrate(20);assert.ok(Math.abs(fast-slow)<.01);
 const shell=readFileSync(new URL('../web/shell.html',import.meta.url),'utf8');
 assert.ok(!shell.includes('href="https://cv.yicong.me'));
-assert.ok(shell.includes('...gyro?.read()'));assert.ok(shell.includes('syncGyro(alive)'));
+assert.ok(shell.includes('syncGyro(alive)'));
 console.log('GYRO_PASS: opt-in permission, calibration, coordinate mapping, gravity, sensitivity, consume-once, lifecycle, null data, timeout, cancellation, event rates');

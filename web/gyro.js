@@ -1,15 +1,44 @@
-/* Optional motion aim. Sensor samples stay in memory; only sensitivity is saved. */
+/* Optional motion aim. Store preferences locally and keep sensor samples in memory. */
 (function(root){
   'use strict';
   const clamp=(v,a,b)=>Math.min(b,Math.max(a,v)), RAD=Math.PI/180;
+  const SETTINGS_KEY='no-art-gyro-settings';
   function create({host=root,now=()=>performance.now(),changed=()=>{}}={}){
     let enabled=false,ready=false,pending=false,generation=0,listening=false;
     let context={running:false,landscape:true,visible:true,focused:true};
     let sensitivity=1,last=null,lastSample=null,yaw=0,pitch=0,filtered=[0,0],bias=[0,0,0];
+    let preference=null,practicePassed=false;
+    const flipped={x:false,y:false,z:false};
     let permissionGranted=false;
     let calibration=null,probe=0,status=unavailable()||idleStatus();
-    try {const saved=Number(host.localStorage?.getItem('no-art-gyro-sensitivity'));if(saved>=.25&&saved<=3)sensitivity=saved;}catch{}
-    const snapshot=()=>({enabled,ready,pending,sensitivity,status,calibrating:!!calibration,available:!unavailable(),canRequest:!!permissionAPI()});
+    try {
+      const legacy=Number(host.localStorage?.getItem('no-art-gyro-sensitivity'));
+      if(legacy>=.25&&legacy<=3)sensitivity=legacy;
+      const saved=JSON.parse(host.localStorage?.getItem(SETTINGS_KEY)||'null');
+      if(typeof saved?.preference==='boolean')preference=saved.preference;
+      if(Number.isFinite(saved?.sensitivity))sensitivity=clamp(saved.sensitivity,.25,3);
+      practicePassed=saved?.practicePassed===true;
+      for(const axis of Object.keys(flipped))flipped[axis]=saved?.flipped?.[axis]===true;
+    }catch{}
+    const snapshot=()=>({enabled,ready,pending,sensitivity,preference,practicePassed,flipped:{...flipped},status,calibrating:!!calibration,available:!unavailable(),canRequest:!!permissionAPI()});
+    function savePreferences(){
+      try{host.localStorage?.setItem(SETTINGS_KEY,JSON.stringify({preference,sensitivity,practicePassed,flipped}));}catch{}
+      notify();
+    }
+    function choose(value){
+      preference=value;
+      savePreferences();
+    }
+    function setAxisFlip(axis,value){
+      if(!Object.hasOwn(flipped,axis))return;
+      flipped[axis]=value;
+      reset();
+      savePreferences();
+    }
+    function finishPractice(){
+      practicePassed=true;
+      savePreferences();
+    }
     function permissionAPI(){
       if(typeof host.DeviceMotionEvent?.requestPermission==='function')return host.DeviceMotionEvent;
       if(typeof host.DeviceOrientationEvent?.requestPermission==='function')return host.DeviceOrientationEvent;
@@ -92,8 +121,7 @@
     function setSensitivity(value){
       const n=Number(value);if(!Number.isFinite(n))return;
       sensitivity=clamp(n,.25,3);reset();
-      try{host.localStorage?.setItem('no-art-gyro-sensitivity',String(sensitivity));}catch{}
-      notify();
+      savePreferences();
     }
     function sample(event){
       if(!enabled||!active())return;
@@ -116,6 +144,9 @@
       const dt=last===null?0:(t-last)/1000;last=t;
       if(dt<=0||dt>.1){yaw=pitch=0;filtered=[0,0];return;}
       const rates=raw.map((v,i)=>clamp(v-bias[i],-300,300));
+      if(flipped.x)rates[0]*=-1;
+      if(flipped.y)rates[1]*=-1;
+      if(flipped.z)rates[2]*=-1;
       const screenAngle=host.screen?.orientation?.angle ?? host.orientation ?? 0;
       const a=Number(screenAngle)*RAD,c=Math.cos(a),s=Math.sin(a);
       // Screen X is the pitch axis. Screen Y is a fallback when gravity is absent.
@@ -137,7 +168,7 @@
       if(!enabled||!ready||!active()||!context.running||lastSample===null||now()-lastSample>250)reset();
       const result={gyroYaw:yaw,gyroPitch:pitch};yaw=pitch=0;return result;
     }
-    return {enable,disable:()=>stop(),calibrate,setContext,setSensitivity,read,snapshot,reset};
+    return {enable,disable:()=>stop(),calibrate,choose,setContext,setSensitivity,setAxisFlip,finishPractice,read,snapshot,reset};
   }
   root.NoArtGyro={create};
 })(typeof window!=='undefined'?window:globalThis);
