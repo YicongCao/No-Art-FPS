@@ -27,6 +27,9 @@ func generate() -> void:
 	root.add_child(map)
 	await process_frame
 	map.bake_navigation()
+	var batches = map.find_children("*","MultiMeshInstance3D",true,false)
+	var batch_by_color: Dictionary = {}
+	for batch in batches:batch_by_color[batch.get_meta("palette")] = map.get_path_to(batch)
 	# Preserve the layout while placing all parts under their editable building.
 	for building in map.structures:
 		building.position = building.bounds.position
@@ -34,6 +37,9 @@ func generate() -> void:
 		building.local_bounds = true
 		for part in building.parts:part.reparent(building,true)
 		building.saved_parts = paths(building,building.parts)
+		building.supported_paths = paths(building,map.supported_scenery.get(building,[]))
+		var batch_parts: Dictionary = map.scenery_batches.get(building,{})
+		for color in batch_parts:building.batch_parts[batch_by_color[color]] = batch_parts[color]
 	map.nav.navigation_mesh.geometry_source_geometry_mode = NavigationMesh.SOURCE_GEOMETRY_GROUPS_WITH_CHILDREN
 	map.nav.navigation_mesh.geometry_source_group_name = "yard_navigation"
 	map.add_to_group("yard_navigation",true)
@@ -42,7 +48,6 @@ func generate() -> void:
 	for key in ["structures","barrels","containers","traffic_lights","palms","loungers","pool","warehouse_structure","deck_structure","nav","materials","finale_props","spawn_points","boxes"]:saved[key] = map.get(key)
 	var actors = map.opening_actors()
 	var respawns = map.respawn_candidates()
-	var batches = map.find_children("*","MultiMeshInstance3D",true,false)
 	var collision_nodes = map.find_children("*","StaticBody3D",true,false).filter(func(node):return not node.has_meta("structure") and not node is Barrel and node.global_position.y>=0)
 	map.set_script(Runtime)
 	map.map_id = "yard"

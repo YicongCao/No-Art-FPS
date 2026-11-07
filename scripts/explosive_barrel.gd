@@ -6,6 +6,7 @@ var visual: Node3D
 var paint: StandardMaterial3D
 var fuse = -1.0
 var spent = false
+var destroy_hits = 0
 
 func _ready() -> void:
 	collision_layer = 1
@@ -36,6 +37,7 @@ func _ready() -> void:
 
 func reset() -> void:
 	spent = false
+	destroy_hits = 0
 	fuse = -1
 	collision_layer = 1
 	visual.show()
@@ -48,6 +50,13 @@ func ignite(delay: float = .65) -> void:
 		fuse = delay
 		game.play_world_sound("fuse",global_position+Vector3.UP*.6,-12)
 	else:fuse = minf(fuse,delay)
+
+func shot_hit(burning: bool) -> void:
+	if not burning:
+		ignite()
+		return
+	destroy_hits += 1
+	if destroy_hits>=2:explode()
 
 func _physics_process(delta: float) -> void:
 	if game==null or game.state!="RUNNING" or not game.rules.active or spent or fuse<0:return

@@ -28,7 +28,9 @@ const ShotLine = preload("res://scripts/shot_line.gd")
 const MAX_HEALTH = 150.0
 const HEAL_DELAY = 5.0
 const HEAL_RATE = 12.0
-const RESPAWN_DELAY = 3.0
+const RESPAWN_DELAY = 2.3
+const RANGED_ATTACK_LIMIT = 3
+const SCENERY_TARGET_LAYER = 16
 var ammo = MAGAZINE_SIZE
 var reload_time = 0.0
 const RELOAD_DURATION = .9
@@ -43,6 +45,7 @@ var respawn_time = 0.0
 var best = 0
 var reduced_motion = false
 var bullets: Array[Dictionary] = []
+var ranged_aimers: Dictionary = {}
 var player_bullets: Array[Dictionary] = []
 var sounds: Dictionary = {}
 var audio_voices: Array[AudioStreamPlayer] = []
@@ -324,6 +327,7 @@ func reset_run_state() -> void:
 	player.enabled = false
 	hud.hit = 0
 	hud.damage = 0
+	hud.damage_source = null
 	hud.kill_pop = 0
 	hud.reset_magazine()
 
@@ -346,6 +350,7 @@ func request_run() -> void:
 	hud.health_shade = 0
 	hud.hit = 0
 	hud.damage = 0
+	hud.damage_source = null
 	hud.kill_pop = 0
 	hud.sync_loading_cover()
 	prepare_loaded_run.call_deferred(load_ticket)
@@ -360,6 +365,7 @@ func prepare_loaded_run(ticket: int) -> void:
 	if ticket!=load_ticket:return
 	opening_prepared = false
 	bullets.clear()
+	ranged_aimers.clear()
 	player_bullets.clear()
 	for voice in audio_voices:voice.stop()
 	var old_nodes = enemies.get_children()+effects.get_children()
@@ -498,6 +504,7 @@ func clear_round() -> void:
 	for room in arena.containers:room.reset()
 	arena.restore_structures()
 	bullets.clear()
+	ranged_aimers.clear()
 	player_bullets.clear()
 	for node in enemies.get_children():
 		enemies.remove_child(node)
@@ -581,7 +588,8 @@ func start_finale() -> void:
 	for enemy in live_enemies():
 		finale_explosion(enemy.global_position+Vector3.UP,1.2,Color("243440"))
 		enemy.take_damage(3,false,true)
-	for building in arena.structures:building.collapse()
+	for building in arena.structures:
+		if not building.scenery:building.collapse()
 	for barrel in arena.barrels:barrel.explode()
 	arena.explode_finale_decor()
 	play_sound("explosion",-6)
@@ -696,7 +704,8 @@ func _physics_process(delta: float) -> void:
 		return
 	if rules.destroy_duration>0 and not destroy_active and rules.remaining()<=rules.destroy_duration+.000001:
 		destroy_active = true
-		hud.destroy_time = 1.2
+		hud.go_time = 0
+		hud.destroy_time = 1.7
 		play_sound("end",-12,1.25)
 	invulnerable = maxf(0,invulnerable-delta)
 	since_damage += delta
@@ -831,7 +840,7 @@ func shoot() -> void:
 	play_sound("shot",-10,rng.randf_range(.94,1.05))
 	var origin = player.camera.global_position
 	var endpoint = origin-player.camera.global_basis.z*90
-	var query = PhysicsRayQueryParameters3D.create(origin,endpoint,1|4|8)
+	var query = PhysicsRayQueryParameters3D.create(origin,endpoint,shot_collision_mask(destroy_active))
 	query.collide_with_areas = true
 	var result = get_world_3d().direct_space_state.intersect_ray(query)
 	var target = result.position if not result.is_empty() else endpoint
@@ -840,7 +849,7 @@ func shoot() -> void:
 	var clearance = PhysicsRayQueryParameters3D.create(origin,muzzle,1)
 	var blockage = get_world_3d().direct_space_state.intersect_ray(clearance)
 	if blockage.is_empty():
-		var muzzle_query = PhysicsRayQueryParameters3D.create(muzzle,target,1)
+		var muzzle_query = PhysicsRayQueryParameters3D.create(muzzle,target,1|SCENERY_TARGET_LAYER if destroy_active else 1)
 		blockage = get_world_3d().direct_space_state.intersect_ray(muzzle_query)
 	if not blockage.is_empty() and blockage.position.distance_to(target)>.12:
 		target = blockage.position
@@ -871,6 +880,9 @@ func enemy_from_hit(result: Dictionary) -> Node3D:
 		return collider.get_meta("enemy") if collider.has_meta("enemy") else null
 	return collider if collider.has_method("take_hit") else null
 
+func shot_collision_mask(burning: bool) -> int:
+	return 1|4|8|SCENERY_TARGET_LAYER if burning else 1|4|8
+
 func resolve_shot(result: Dictionary, origin: Vector3, target: Vector3, burning: bool = false) -> void:
 	if state!="RUNNING" or not rules.active:return
 	if not result.is_empty():
@@ -881,7 +893,7 @@ func resolve_shot(result: Dictionary, origin: Vector3, target: Vector3, burning:
 			if building:building.ignite_hit(target)
 			else:fire_effect(target,.3)
 		if enemy==null and collider.has_method("ignite"):
-			collider.ignite()
+			collider.shot_hit(burning)
 			hud.hit = .12
 		elif enemy!=null:
 			if enemy.fast and origin.distance_to(enemy.global_position)>Enemy.CLOSE_SHOT_RANGE:
@@ -906,7 +918,7 @@ func update_player_bullets(delta: float) -> void:
 			continue
 		var from: Vector3 = b.node.global_position
 		var to: Vector3 = from+b.velocity*delta
-		var query = PhysicsRayQueryParameters3D.create(from,to,1|4|8)
+		var query = PhysicsRayQueryParameters3D.create(from,to,shot_collision_mask(b.burning))
 		query.collide_with_areas = true
 		var hit = get_world_3d().direct_space_state.intersect_ray(query)
 		b.life -= delta
@@ -940,6 +952,11 @@ func on_kill(enemy: Node3D, headshot: bool, from_finale: bool = false) -> void:
 		hud.multi_time = .65 if kill_group_count>=2 else 0.0
 		play_sound("headshot" if headshot else "kill",-7,minf(1.25,1+(kill_group_count-1)*.08))
 
+func reserve_ranged_aim(enemy: Node3D) -> bool:
+	if ranged_aimers.size()+bullets.size()>=RANGED_ATTACK_LIMIT:return false
+	ranged_aimers[enemy] = true
+	return true
+
 func enemy_shoot(origin: Vector3, target: Vector3) -> void:
 	if state!="RUNNING" or not rules.active or respawn_time>0:return
 	var trail = ShotLine.new()
@@ -964,14 +981,14 @@ func update_bullets(delta: float) -> void:
 		b.node.set_segment(end-b.direction*length,end,.045)
 		b.life -= delta
 		if not hit.is_empty() or b.life<=0:
-			if not hit.is_empty() and hit.collider==player:damage_player()
+			if not hit.is_empty() and hit.collider==player:damage_player(34,b.origin)
 			var fade = b.node.create_tween()
 			fade.tween_property(b.node.material_override,"albedo_color:a",0.0,.075)
 			fade.tween_callback(b.node.queue_free)
 			bullets.remove_at(i)
 		else:b.position = to
 
-func damage_player(amount: float = 34.0) -> void:
+func damage_player(amount: float = 34.0, source: Variant = null) -> void:
 	if state!="RUNNING" or not rules.active or respawn_time>0:return
 	since_damage = 0
 	if invulnerable>0:return
@@ -979,6 +996,7 @@ func damage_player(amount: float = 34.0) -> void:
 	invulnerable = .65
 	since_damage = 0
 	hud.damage = .8
+	hud.damage_source = source
 	play_sound("hurt",-8)
 	if objective_focus:objective_focus.cancel()
 	if health<=0:
@@ -1104,7 +1122,7 @@ func barrel_blast(center: Vector3, radius: float, source: StaticBody3D) -> void:
 	var player_target = player.global_position+Vector3.UP
 	var player_distance = center.distance_to(player_target)
 	if player_distance<=radius and blast_clear(center,player_target,[source.get_rid()]):
-		damage_player(lerpf(60,15,player_distance/radius))
+		damage_player(lerpf(60,15,player_distance/radius),center)
 	for barrel in arena.barrels:
 		if barrel==source or barrel.spent:continue
 		var target = barrel.global_position+Vector3.UP*.65

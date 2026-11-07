@@ -2,6 +2,7 @@ extends Control
 
 const REAR_THREAT = preload("res://assets/ui/rear-threat.svg")
 const SKULL_ICON = preload("res://assets/ui/skull.svg")
+const DAMAGE_IMPACT = preload("res://assets/ui/damage-impact.svg")
 var rear_markers: Array[TextureRect] = []
 var rear_threats: Array[Dictionary] = []
 var rear_sample_time = 0.0
@@ -12,6 +13,7 @@ var kill_pop = 0.0
 var kill_group = 1
 var multi_time = 0.0
 var damage = 0.0
+var damage_source: Variant = null
 var shot = 0.0
 var time_pulse = 0.0
 var go_time = 0.0
@@ -232,8 +234,8 @@ func _process(delta: float) -> void:
 	time_pulse = maxf(0,time_pulse-delta*2.5)
 	damage = maxf(0,damage-delta)
 	if game:
-		var target = clampf((50.0-game.health)/40.0,0,1) if game.state in ["RUNNING","PAUSED"] else 0.0
-		health_shade = move_toward(health_shade,target,delta*.65)
+		var target = clampf(1.0-game.health/game.MAX_HEALTH,0,1) if game.state in ["RUNNING","PAUSED","CAPTURING"] else 0.0
+		health_shade = move_toward(health_shade,target,delta*(1.15 if target>health_shade else .85))
 		vignette.material.set_shader_parameter("severity",health_shade)
 		vignette.material.set_shader_parameter("hit_flash",pow(clampf(damage/.8,0,1),2))
 	hit = maxf(0,hit-delta)
@@ -504,8 +506,16 @@ func _draw() -> void:
 	if state=="RUNNING" and game.respawn_time<=0 and go_time>0:
 		var opacity = smoothstep(0,.65,go_time)
 		label("GO",c+Vector2(0,22),70,Color(WHITE,opacity),true)
-	if state=="RUNNING" and destroy_time>0:
-		label("DESTROY",c+Vector2(0,22),64,Color(GOLD,smoothstep(0,.8,destroy_time)),true)
+	if state=="RUNNING" and game.destroy_active and not game.finale_active:
+		var announcing = destroy_time>0 and game.respawn_time<=0
+		var text_size = (66 if game.touch_mode else 82) if announcing else 26
+		var center = Vector2(c.x,c.y-74 if announcing else 114)
+		var opacity = smoothstep(0,.25,destroy_time) if announcing else 1.0
+		var width = font.get_string_size("DESTROY ALL",HORIZONTAL_ALIGNMENT_LEFT,-1,text_size).x
+		var extent = Vector2(width+text_size*.56,text_size*.95)
+		draw_rect(Rect2(center-extent*.5,extent),Color(INK,opacity*.88))
+		label("DESTROY ALL",center+Vector2(0,text_size*.32),text_size,Color(GOLD,opacity),true)
+	draw_damage_impact()
 	if game.rules.mission:
 		draw_mission_radar()
 		for objective in game.arena.objectives:
@@ -519,8 +529,26 @@ func _draw() -> void:
 				draw_style_box(mission_time_style(),Rect2(center+Vector2(-35,46),Vector2(70,24)))
 				label("HOLD" if game.touch_mode else "HOLD E",center+Vector2(0,64),18,WHITE,true)
 				break
-	if damage>0:
-		draw_line(Vector2(c.x-30,c.y+44),Vector2(c.x+30,c.y+44),Color(1,.35,.2,damage),3)
+
+func damage_edge_direction() -> Vector2:
+	if damage<=0 or damage_source==null or game.finale_active:return Vector2.ZERO
+	var camera = game.player.camera
+	if camera.is_position_in_frustum(damage_source):return Vector2.ZERO
+	var local: Vector3 = camera.to_local(damage_source)
+	if local.z>=0:return Vector2(local.x,maxf(.05,local.z)).normalized()
+	return Vector2(local.x,-local.y).normalized()
+
+func draw_damage_impact() -> void:
+	var direction = damage_edge_direction()
+	if direction==Vector2.ZERO:return
+	var half = size*.5
+	var distance = minf(half.x/maxf(.001,absf(direction.x)),half.y/maxf(.001,absf(direction.y)))
+	var center = half+direction*distance
+	var extent = minf(1,size.y/810.0)
+	var pulse = 1.0 if game.reduced_motion else lerpf(1,1.1,smoothstep(.56,.8,damage))
+	draw_set_transform(center,(-direction).angle(),Vector2.ONE*extent*pulse)
+	draw_texture_rect(DAMAGE_IMPACT,Rect2(-5,-67,101,134),false,Color(1,1,1,smoothstep(0,.23,damage)))
+	draw_set_transform(Vector2.ZERO)
 
 func draw_top_summary() -> void:
 	var origin = Vector2(size.x*.5,0)
@@ -661,6 +689,7 @@ func _physics_process(delta: float) -> void:
 		refresh_rear_threats()
 	for marker in rear_markers:marker.hide()
 	if game.state!="RUNNING" or game.respawn_time>0 or game.finale_active:return
+	if damage_edge_direction()!=Vector2.ZERO:return
 	var centers = [Vector2(44,size.y*.67),Vector2(size.x*.5,size.y-66),Vector2(size.x-44,size.y*.67)]
 	for threat in rear_threats:
 		var marker = rear_markers[threat.sector]

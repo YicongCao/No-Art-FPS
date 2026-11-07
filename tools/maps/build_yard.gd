@@ -5,6 +5,8 @@ const ContainerRoom = preload("res://scripts/container.gd")
 const Destructible = preload("res://scripts/destructible.gd")
 var structures: Array[Node3D] = []
 var active_structure: Node3D
+var scenery_batches: Dictionary = {}
+var supported_scenery: Dictionary = {}
 var finale_props: Array[Node3D] = []
 var finale_hidden: Array[Node3D] = []
 var finale_collisions: Dictionary = {}
@@ -55,7 +57,7 @@ func _ready() -> void:
 	batch_boxes()
 
 func solid(pos: Vector3, size: Vector3, color: String, collision: bool = true) -> void:
-	if active_structure:
+	if active_structure and not active_structure.scenery:
 		var visual = MeshInstance3D.new()
 		var mesh = BoxMesh.new()
 		mesh.size = size
@@ -64,11 +66,14 @@ func solid(pos: Vector3, size: Vector3, color: String, collision: bool = true) -
 		visual.position = pos
 		add_child(visual)
 		active_structure.register(visual)
-	else:boxes[color].append(Transform3D(Basis.from_scale(size),pos))
+	else:batch_box(color,Transform3D(Basis.from_scale(size),pos))
 	if collision:collider(pos,size)
+	elif active_structure and active_structure.scenery and not active_structure.keep_boundary:
+		collider(pos,size,16)
 
-func collider(pos: Vector3, size: Vector3) -> void:
+func collider(pos: Vector3, size: Vector3, layer: int = 1) -> void:
 	var body = StaticBody3D.new()
+	body.collision_layer = layer
 	var shape = CollisionShape3D.new()
 	var box = BoxShape3D.new()
 	box.size = size
@@ -76,7 +81,9 @@ func collider(pos: Vector3, size: Vector3) -> void:
 	body.add_child(shape)
 	body.position = pos
 	add_child(body)
-	if active_structure:active_structure.register(body)
+	if active_structure:
+		active_structure.register(body)
+		if active_structure.scenery:active_structure.bounds = active_structure.bounds.merge(AABB(pos-size*.5,size))
 
 func explosive_barrel(pos: Vector3) -> void:
 	var barrel = Barrel.new()
@@ -91,7 +98,14 @@ func model(kind: String, pos: Vector3, yaw: float = 0.0, size: Vector3 = Vector3
 	node.position = pos
 	node.rotation.y = yaw
 	node.scale = size
-	if active_structure:active_structure.register(node)
+	if active_structure:
+		active_structure.register(node)
+		if active_structure.scenery:
+			var bounds = AABB()
+			for mesh in node.find_children("*","MeshInstance3D",true,false):
+				var world_box: AABB = mesh.global_transform*mesh.get_aabb()
+				bounds = world_box if not bounds.has_volume() else bounds.merge(world_box)
+			if bounds.has_volume():collider(bounds.get_center(),bounds.size,16)
 	elif kind!="cloud":finale_props.append(node)
 	return node
 
@@ -104,6 +118,24 @@ func structure(region: AABB, color: String) -> Node3D:
 	add_child(node)
 	structures.append(node)
 	return node
+
+func start_scenery(at: Vector3, color: String, boundary: bool = false) -> Node3D:
+	var support = active_structure
+	active_structure = structure(AABB(at,Vector3.ONE*.01),color)
+	active_structure.scenery = true
+	active_structure.keep_boundary = boundary
+	if support:
+		if not supported_scenery.has(support):supported_scenery[support] = []
+		supported_scenery[support].append(active_structure)
+	return support
+
+func batch_box(color: String, transform: Transform3D) -> void:
+	if active_structure and active_structure.scenery:
+		if not scenery_batches.has(active_structure):scenery_batches[active_structure] = {}
+		var parts: Dictionary = scenery_batches[active_structure]
+		if not parts.has(color):parts[color] = []
+		parts[color].append(boxes[color].size())
+	boxes[color].append(transform)
 
 func container(color: String, pos: Vector3, turn: bool = false) -> void:
 	var parent_structure = active_structure
@@ -228,19 +260,25 @@ func build() -> void:
 	solid(Vector3(.5,7,-11.2),Vector3(1,.5,.035),"red",false)
 	active_structure = null
 	# Foreground cover and recognizable props.
+	start_scenery(Vector3(-2,0,-1),"yellow")
 	model("forklift",Vector3(-2,0,-1),-.25)
 	collider(Vector3(-2,.7,-1),Vector3(1.7,1.4,2.5))
-	for p in [Vector3(-8,0,5),Vector3(-8.9,0,5.5),Vector3(10,0,5),Vector3(2,0,-6)]:
+	active_structure = null
+	for p in [Vector3(-6.75,0,2.834937),Vector3(-8.252952,0,3.085186),Vector3(9.352952,0,7.414814),Vector3(.75,0,-3.834937)]:
 		explosive_barrel(p)
 	for p in [Vector3(-13,0,-2),Vector3(12,0,3),Vector3(-4,0,10)]:
+		start_scenery(p,"yellow")
 		solid(p+Vector3(0,.55,0),Vector3(1.5,1.1,1.2),"yellow")
 		solid(p+Vector3(0,1.13,0),Vector3(1.56,.08,1.26),"cream",false)
+		active_structure = null
 	street()
 	warehouse()
 	for p in [Vector3(-22,0,1),Vector3(-22,0,11),Vector3(11,0,21.5),Vector3(33,0,18),Vector3(33,0,-20),Vector3(-23,0,-21)]:
+		start_scenery(p,"green")
 		var palm = model("palm",p,float(p.x)*.2)
 		palms.append(palm)
 		collider(p+Vector3(0,1.7,0),Vector3(.5,3.4,.5))
+		active_structure = null
 	# Expanded perimeter has no collision walls across the old map boundary.
 	fence(Vector3(-26,0,-24),Vector3(38,0,-24))
 	fence(Vector3(-26,0,24),Vector3(38,0,24))
@@ -251,12 +289,16 @@ func build() -> void:
 	for i in range(18):
 		var x = -31+(i%9)*9
 		var z = -30 if i<9 else 31
+		start_scenery(Vector3(x,0,z),"green")
 		model("tree",Vector3(x,0,z),float(i),Vector3.ONE*(.8+float(i%3)*.3))
+		active_structure = null
 	for i in range(8):
 		model("cloud",Vector3(-30+i*9,10+float(i%3)*2,-30-float(i%2)*8),0,Vector3.ONE*(1.0+float(i%3)*.3))
 	for p in [Vector3(-15,0,3),Vector3(23,0,-19),Vector3(-20,0,-12),Vector3(13,0,-12),Vector3(13,0,8),Vector3(23,0,22),Vector3(-10,0,21),Vector3(-23,0,15)]:
+		start_scenery(p,"ink")
 		solid(p+Vector3(0,2.7,0),Vector3(.1,5.4,.1),"ink",false)
 		solid(p+Vector3(.3,5.35,0),Vector3(.7,.12,.15),"cream",false)
+		active_structure = null
 	wall_paint(preload("res://assets/graffiti/sector-01.png"),Vector3(-6,1.48,-1.58),Vector2(5.55,2.18),["red"])
 	wall_paint(preload("res://assets/graffiti/sixty-yard.png"),Vector3(0,1.48,-8.94),Vector2(7.1,2.35),["cream","yellow","ink"])
 
@@ -320,15 +362,21 @@ func pool_terrace() -> void:
 	add_child(water)
 	if active_structure:active_structure.register(water)
 	for p in [Vector3(-6.8,3.1,-15.8),Vector3(-6.8,3.1,-19.2),Vector3(7,3.1,-17.4)]:
+		var support = start_scenery(p,"blue")
 		var chair = model("lounger",p,PI/2 if p.x<0 else -PI/2)
 		loungers.append(chair)
 		collider(p+Vector3(0,.4,0),Vector3(2.2,.8,.85))
+		active_structure = support
 	for p in [Vector3(-8,3.1,-17.5),Vector3(8,3.1,-20.5)]:
+		var support = start_scenery(p,"cream")
 		model("parasol",p)
 		collider(p+Vector3(0,1.25,0),Vector3(.12,2.5,.12))
+		active_structure = support
 	for p in [Vector3(-7.2,3.1,-17.5),Vector3(7,3.1,-19.7)]:
+		var support = start_scenery(p,"yellow")
 		solid(p+Vector3(0,.38,0),Vector3(.55,.76,.55),"yellow")
 		solid(p+Vector3(0,.79,0),Vector3(.8,.08,.8),"cream")
+		active_structure = support
 
 func bake_navigation() -> void:
 	nav = NavigationRegion3D.new()
@@ -340,6 +388,7 @@ func bake_navigation() -> void:
 	mesh.cell_size = .25
 	mesh.cell_height = .25
 	mesh.geometry_parsed_geometry_type = NavigationMesh.PARSED_GEOMETRY_STATIC_COLLIDERS
+	mesh.geometry_collision_mask = 1
 	mesh.geometry_source_geometry_mode = NavigationMesh.SOURCE_GEOMETRY_ROOT_NODE_CHILDREN
 	nav.navigation_mesh = mesh
 	# Navigation owns the existing collision geometry, so baking uses exactly the walkable world.
@@ -362,13 +411,13 @@ func chain_link(a: Vector3, b: Vector3) -> void:
 				var p = a+direction*(u+low)+Vector3.UP*(.3+(low if sign>0 else height-low))
 				var q = a+direction*(u+high)+Vector3.UP*(.3+(high if sign>0 else height-high))
 				var basis = Basis.looking_at(p.direction_to(q))*Basis.from_scale(Vector3(.018,.018,p.distance_to(q)))
-				boxes["net"].append(Transform3D(basis,(p+q)*.5))
+				batch_box("net",Transform3D(basis,(p+q)*.5))
 			u += .8
 
 func beam(a: Vector3, b: Vector3, width: float, color: String, collision: bool = false) -> void:
 	var basis = Basis.looking_at(a.direction_to(b))
 	var length = a.distance_to(b)
-	if active_structure:
+	if active_structure and not active_structure.scenery:
 		var visual = MeshInstance3D.new()
 		var mesh = BoxMesh.new()
 		mesh.size = Vector3(width,width,length)
@@ -377,7 +426,7 @@ func beam(a: Vector3, b: Vector3, width: float, color: String, collision: bool =
 		visual.transform = Transform3D(basis,(a+b)*.5)
 		add_child(visual)
 		active_structure.register(visual)
-	else:boxes[color].append(Transform3D(basis*Basis.from_scale(Vector3(width,width,length)),(a+b)*.5))
+	else:batch_box(color,Transform3D(basis*Basis.from_scale(Vector3(width,width,length)),(a+b)*.5))
 	if collision:
 		var body = StaticBody3D.new()
 		var shape = CollisionShape3D.new()
@@ -390,6 +439,7 @@ func beam(a: Vector3, b: Vector3, width: float, color: String, collision: bool =
 		if active_structure:active_structure.register(body)
 
 func fence(a: Vector3, b: Vector3) -> void:
+	var support = start_scenery((a+b)*.5,"blue",true)
 	var direction = a.direction_to(b)
 	var length = a.distance_to(b)
 	var count = ceili(length/3)
@@ -398,6 +448,7 @@ func fence(a: Vector3, b: Vector3) -> void:
 	for h in [.4,2.5]:beam(a+Vector3.UP*h,b+Vector3.UP*h,.07,"blue")
 	collider((a+b)*.5+Vector3.UP*2.5,(b-a).abs()+Vector3(.18,5,.18))
 	chain_link(a,b)
+	active_structure = support
 
 func street() -> void:
 	# Two streets form a T junction: low curbs are visual, so movement stays step-free.
@@ -417,25 +468,31 @@ func street() -> void:
 	solid(Vector3(18,.052,9.7),Vector3(7.6,.015,.22),"cream",false)
 	for index in range(4):
 		var positions = [Vector3(13,0,9.2),Vector3(23,0,21.5),Vector3(23,0,-12),Vector3(13,0,-4)]
+		start_scenery(positions[index],"ink")
 		var signal_node = model("traffic_light",positions[index],PI if index%2==0 else 0.0)
 		traffic_lights.append(signal_node)
 		collider(positions[index]+Vector3(0,1.6,0),Vector3(.25,3.2,.25))
+		active_structure = null
 	for p in [Vector3(-21,0,-18),Vector3(-21,0,-6),Vector3(-21,0,5),Vector3(-21,0,21),Vector3(32,0,21),Vector3(9,0,-21)]:
+		start_scenery(p,"green")
 		solid(p+Vector3(0,.25,0),Vector3(2.1,.5,2.1),"cream",true)
 		model("tree",p+Vector3(0,.5,0),0,Vector3.ONE*1.2)
 		collider(p+Vector3(0,1.2,0),Vector3(.4,1.8,.4))
-	for p in [Vector3(-18,0,-13),Vector3(-18.9,0,-13.5),Vector3(-19.5,0,-12.5),Vector3(11,0,-17),Vector3(10,0,-17),Vector3(25,0,11),Vector3(26,0,11),Vector3(34,0,11),Vector3(-11,0,10.8),Vector3(29,0,-20)]:
+		active_structure = null
+	for p in [Vector3(-19.767767,0,-11.232233),Vector3(-21.4,0,-13.5),Vector3(-20.948889,0,-12.111772),Vector3(13.5,0,-17),Vector3(12.165064,0,-18.25),Vector3(23.232233,0,12.767767),Vector3(24.75,0,13.165064),Vector3(32.232231,0,9.232233),Vector3(-9.232233,0,9.032233),Vector3(29,0,-20)]:
 		explosive_barrel(p)
 	for p in [Vector3(-18,0,2),Vector3(29,0,11),Vector3(9,0,-17)]:
+		start_scenery(p,"yellow")
 		model("forklift",p,.35)
 		collider(p+Vector3(0,.8,0),Vector3(2,1.6,2.6))
+		active_structure = null
 	# Distribute readable cover without sealing routes to the street.
 	container("red",Vector3(-18,0,-16),true)
 	container("green",Vector3(-18,0,9))
 	container("purple",Vector3(-13,0,-21))
 
 func warehouse() -> void:
-	for p in [Vector3(28.5,0,-7),Vector3(29.5,0,-7.7)]:explosive_barrel(p)
+	for p in [Vector3(28.5,0,-9.5),Vector3(27.334936,0,-8.95)]:explosive_barrel(p)
 	# An actual hollow 12 x 25 m building. West has two five-metre doors, south a six-metre loading bay.
 	solid(Vector3(30,.019,-3.5),Vector3(12,.025,25),"pavement",false)
 	warehouse_structure = structure(AABB(Vector3(23.6,0,-16.4),Vector3(12.9,5.8,25.8)),"green")
@@ -456,15 +513,19 @@ func warehouse() -> void:
 		solid(Vector3(30,5.15,z),Vector3(12,.18,.18),"ink",false)
 		for x in [24.35,35.65]:solid(Vector3(x,2.7,z),Vector3(.18,5.4,.18),"blue",true)
 	for p in [Vector3(27,0,-13),Vector3(33.5,0,-12),Vector3(33,0,-4),Vector3(27,0,-2),Vector3(33,0,4)]:
+		var support = start_scenery(p,"timber")
 		model("pallet",p)
 		for level in range(2):
 			for dx in [-.58,.58]:model("crate",p+Vector3(dx,.32+level*1.1,0))
 		collider(p+Vector3(0,1.26,0),Vector3(2.3,2.52,1.2))
+		active_structure = support
 	for p in [Vector3(26.5,0,-5),Vector3(34,0,0)]:
+		var support = start_scenery(p,"blue")
 		model("pallet",p)
 		model("steel_bundle",p+Vector3(0,.35,0))
 		model("steel_bundle",p+Vector3(0,1.02,0))
 		collider(p+Vector3(0,.85,0),Vector3(1.3,1.7,3.2))
+		active_structure = support
 	for z in [-11,-3,5]:
 		solid(Vector3(30,4.9,z),Vector3(2,.06,.3),"light",false)
 		var light = OmniLight3D.new()

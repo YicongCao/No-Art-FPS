@@ -64,10 +64,17 @@ func _ready() -> void:
 	for path in decoration_paths:finale_props.append(get_node(path))
 	for path in batch_paths:
 		var node = get_node(path)
-		node.multimesh = node.multimesh.duplicate()
+		var source: MultiMesh = node.multimesh
+		var batch = MultiMesh.new()
+		batch.transform_format = MultiMesh.TRANSFORM_3D
+		batch.mesh = source.mesh
+		batch.instance_count = source.instance_count
 		var transforms: Array[Transform3D] = []
-		for i in range(node.multimesh.instance_count):
-			transforms.append(batch_transforms[path][i] if batch_transforms.has(path) else node.multimesh.get_instance_transform(i))
+		for i in range(source.instance_count):
+			var transform: Transform3D = batch_transforms[path][i] if batch_transforms.has(path) else source.get_instance_transform(i)
+			transforms.append(transform)
+			batch.set_instance_transform(i,transform)
+		node.multimesh = batch
 		initial_batches[node] = transforms
 
 func bake_navigation() -> void:
@@ -98,7 +105,7 @@ func zone_intact(zone: String) -> bool:
 func restore_structures() -> void:
 	var changed = false
 	for node in structures:
-		changed = changed or node.collapsed
+		changed = changed or (node.collapsed and not node.scenery)
 		node.restore()
 	if changed:
 		restore_navigation_pending = true
@@ -144,6 +151,11 @@ func _process(_delta: float) -> void:
 
 func explode_finale_decor() -> void:
 	var centers: Dictionary = {}
+	for prop in structures:
+		if not prop.scenery or prop.collapsed:continue
+		var at: Vector3 = prop.world_bounds().get_center()
+		centers[Vector2i(floori(at.x/5),floori(at.z/5))] = at
+		prop.collapse(false)
 	for prop in finale_props:
 		if not prop.visible:continue
 		finale_hidden.append(prop)
@@ -157,7 +169,7 @@ func explode_finale_decor() -> void:
 		var transforms: Dictionary = {}
 		for i in range(node.multimesh.instance_count):
 			var transform: Transform3D = initial_batches[node][i]
-			if transform.origin.y<=.12:continue
+			if transform.origin.y<=.12 or node.multimesh.get_instance_transform(i).basis==Basis.from_scale(Vector3.ZERO):continue
 			transforms[i] = transform
 			var at = node.to_global(transform.origin)
 			centers[Vector2i(floori(at.x/5),floori(at.z/5))] = at

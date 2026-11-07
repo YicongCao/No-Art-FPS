@@ -201,6 +201,9 @@ func advance_ranged_attack(delta: float, can_aim: bool) -> void:
 		attack = .1
 		return
 	if starting:
+		if not game.reserve_ranged_aim(self):
+			attack = randf_range(.12,.24)
+			return
 		aim_duration = randf_range(.5,1.0)
 		windup = aim_duration
 		if not aim_line:
@@ -210,7 +213,7 @@ func advance_ranged_attack(delta: float, can_aim: bool) -> void:
 	else:
 		windup = maxf(0,windup-delta)
 		if windup==0:
-			aim_line.hide()
+			cancel_ranged_aim()
 			game.enemy_shoot(origin,target)
 			attack = 2.3 if patrol_brain else 1.8+randf()*1.2
 			return
@@ -219,8 +222,12 @@ func advance_ranged_attack(delta: float, can_aim: bool) -> void:
 	aim_line.set_segment(origin,target,lerpf(.018,.031,progress))
 
 func cancel_ranged_aim() -> void:
+	game.ranged_aimers.erase(self)
 	windup = 0
 	if aim_line:aim_line.hide()
+
+func _exit_tree() -> void:
+	if is_instance_valid(game):game.ranged_aimers.erase(self)
 
 func steer_around_neighbors(desired: Vector3) -> Vector3:
 	if desired.length_squared()<.01:return desired
@@ -384,7 +391,7 @@ func process_rusher(delta: float) -> void:
 				slash_hit = true
 				var flat = Vector3(to_player.x,0,to_player.z)
 				if in_front and flat.length()<2.1 and absf(to_player.y)<1 and rush_direction.dot(flat.normalized())>.5 and can_see_player():
-					game.damage_player(34)
+					game.damage_player(34,global_position+Vector3.UP)
 			if rush_time<=0:recover_charge()
 		"RECOVER":
 			rush_time -= delta

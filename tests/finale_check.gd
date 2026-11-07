@@ -32,7 +32,7 @@ func _ready() -> void:
 	assert(game.live_enemies().is_empty() and game.rules.kills==score+alive)
 	for building in game.arena.structures:assert(building.collapsed)
 	for barrel in game.arena.barrels:assert(barrel.spent and barrel.collision_layer==0)
-	assert(not game.arena.finale_hidden.is_empty() and not game.arena.finale_batches.is_empty(),"Finale decor: props=%d hidden=%d batches=%d"%[game.arena.finale_props.size(),game.arena.finale_hidden.size(),game.arena.finale_batches.size()])
+	assert(game.arena.structures.any(func(part):return part.scenery and part.collapsed),"Finale destroys any remaining scenery")
 	var population = game.effects.get_child_count()
 	game._physics_process(0)
 	game.settle_rules()

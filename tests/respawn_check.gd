@@ -18,7 +18,7 @@ func _ready() -> void:
 		assert(game.player.enabled and game.respawn_time==0,"Four standard hits are survivable")
 	game.invulnerable = 0
 	game.damage_player()
-	assert(game.rules.deaths==1 and game.respawn_time==3 and not game.player.enabled)
+	assert(game.rules.deaths==1 and game.respawn_time==2.3 and not game.player.enabled)
 	assert(not game.player.gun.visible)
 	var shots = game.rules.shots
 	game.shoot()
@@ -27,32 +27,34 @@ func _ready() -> void:
 	await capture("death-wait")
 	game.pause_run()
 	game._physics_process(1)
-	assert(game.respawn_time==3)
+	assert(game.respawn_time==2.3)
 	game.menu_action("resume")
 	assert(not game.player.enabled,"Resume must not re-enable a dead player")
 	var start = game.player.position
 	var clock = game.rules.elapsed
 	Input.action_press("forward")
-	for frame in range(179):
+	for frame in range(137):
 		game._physics_process(1.0/60.0)
 		await get_tree().physics_frame
 		assert(game.respawn_time>0 and not game.player.enabled,"No early respawn")
 		assert(game.player.position.is_equal_approx(start),"Cannot move during death wait")
-		if frame==89:await capture("death-half")
+		if frame==68:await capture("death-half")
 	Input.action_release("forward")
 	game._physics_process(1.0/60.0)
 	assert(game.respawn_time==0 and game.player.enabled and game.player.gun.visible)
 	assert(game.health==game.MAX_HEALTH and game.ammo==20 and game.rules.deaths==1)
-	assert(is_equal_approx(game.rules.elapsed-clock,3),"Round clock keeps running during death")
+	assert(is_equal_approx(game.rules.elapsed-clock,2.3),"Round clock keeps running during death")
 	await capture("death-one")
 	defeat()
-	for frame in range(180):game._physics_process(1.0/60.0)
+	for frame in range(138):game._physics_process(1.0/60.0)
 	assert(game.rules.deaths==2 and game.respawn_time==0)
 	await capture("death-two")
 	# A death near the deadline ends at results; it must not respawn after time is up.
 	game.rules.elapsed = 59
 	defeat()
 	game._physics_process(1)
+	assert(game.finale_active and not game.player.enabled)
+	game._physics_process(game.rules.finale_duration)
 	assert(game.state=="RESULTS" and not game.player.enabled)
 	game._physics_process(6)
 	assert(game.state=="RESULTS" and game.rules.deaths==3)
@@ -71,7 +73,7 @@ func _ready() -> void:
 	game.menu_action("resume")
 	game.state = "TITLE"
 	await capture("text-review-title")
-	print("RESPAWN_CHECK_PASS: exact 180 ticks, pause/input lock, one count per death, deadline, restart")
+	print("RESPAWN_CHECK_PASS: exact 138 ticks, pause/input lock, one count per death, deadline, restart")
 	game.state = "RESULTS"
 	game.clear_round()
 	await get_tree().create_timer(.3).timeout

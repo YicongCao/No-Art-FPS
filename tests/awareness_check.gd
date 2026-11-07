@@ -84,6 +84,13 @@ func _ready() -> void:
 	guard.advance_ranged_attack(0,true)
 	guard.advance_ranged_attack(guard.windup,true)
 	assert(not guard.aim_line.visible and game.bullets.size()==1)
+	assert(game.reserve_ranged_aim(guard))
+	var second = stationary(Vector3(15,0,-2))
+	assert(game.reserve_ranged_aim(second))
+	var waiting = stationary(Vector3(15,0,-2))
+	assert(not game.reserve_ranged_aim(waiting),"In-flight rounds also occupy an attack slot")
+	guard.cancel_ranged_aim()
+	assert(game.reserve_ranged_aim(waiting),"Interrupted aims release their slot")
 	print("ENEMY_AIM_PASS: duration, darkening, interruption, shot release")
 	game.clear_round()
 	game.health = game.MAX_HEALTH
@@ -107,6 +114,13 @@ func _ready() -> void:
 	game.hud._process(0)
 	assert(game.hud.vignette.material.get_shader_parameter("hit_flash")>.9)
 	await capture("player-hit-flash",false)
+	game.invulnerable = 0
+	game.damage_player(12,game.player.camera.to_global(Vector3(-8,0,-1)))
+	assert(game.hud.damage_edge_direction().x<-.99)
+	await capture("damage-offscreen-left",false)
+	game.invulnerable = 0
+	game.damage_player(12,game.player.camera.to_global(Vector3(0,0,8)))
+	assert(game.hud.damage_edge_direction().y>.99)
 	print("ENEMY_SHOT_SPEED_PAUSE_PASS")
 	# A long physics step still sweeps into cover, never through it.
 	game.health = game.MAX_HEALTH
