@@ -1,0 +1,92 @@
+extends SceneTree
+
+const YardSession = preload("res://data/sessions/score_attack.tres")
+const ParkSession = preload("res://data/sessions/amusement_park.tres")
+var game: Node3D
+
+func _initialize() -> void:
+	check.call_deferred()
+
+func check() -> void:
+	game = load("res://scenes/main.tscn").instantiate()
+	root.add_child(game)
+	for _frame in range(900):
+		await process_frame
+		if game.title_frame_ready:break
+	game.qa_mode = true
+	assert(game.title_frame_ready and game.nav_ready and game.session==YardSession)
+	assert(game.hud.fire_button.text=="FIRE")
+	assert(game.hud.menu.get_child_count()==3)
+	assert(game.hud.menu.get_node("MapYard/Selected"))
+	var old_frame = game.hud.title_frame
+	var park_card = game.hud.menu.get_node("MapPark")
+	assert(park_card.text.is_empty() and not park_card.accessibility_name.is_empty())
+	park_card.grab_focus()
+	park_card.pressed.emit()
+	assert(game.switching_session and game.hud.fire_button.disabled)
+	assert(game.hud.title_frame==old_frame)
+	game.menu_action("play")
+	assert(game.state=="TITLE")
+	await wait_for_switch()
+	assert(game.session==ParkSession and game.nav_ready and game.title_frame_ready)
+	assert(game.title_session_id=="amusement_park")
+	assert(game.hud.menu.get_node("MapPark/Selected"))
+	assert(game.hud.menu.get_node("MapPark").has_focus())
+	assert(game.world_environment.environment==game.arena.environment_override)
+	if DisplayServer.get_name()!="headless":
+		assert(game.hud.title_frame!=old_frame and game.hud.title_frame.get_image().get_size()==Vector2i(root.get_texture().get_size()))
+		await capture("park-title")
+
+	var records = ConfigFile.new()
+	records.set_value("score","best",13)
+	records.set_value("score_amusement_park_v1","best",7)
+	game.load_session_record(records)
+	assert(game.best==7)
+	await game.select_session(YardSession)
+	assert(game.nav_ready and game.world_environment.environment==game.daylight_environment)
+	assert(game.title_session_id=="score_attack" and game.hud.menu.get_node("MapYard/Selected"))
+	game.load_session_record(records)
+	assert(game.best==13)
+	if DisplayServer.get_name()!="headless":await capture("yard-title-selector")
+
+	# Try a real, packed map whose start cannot reach its baked navigation.
+	var bad_map = ParkSession.map_scene.instantiate()
+	bad_map.get_node(bad_map.start_path).position.y += 100
+	var bad_scene = PackedScene.new()
+	assert(bad_scene.pack(bad_map)==OK)
+	bad_map.free()
+	var invalid = ParkSession.duplicate()
+	invalid.map_scene = bad_scene
+	var yard = game.arena
+	old_frame = game.hud.title_frame
+	await game.select_session(invalid)
+	assert(game.session==YardSession and game.arena==yard)
+	assert(game.nav_ready and game.title_frame_ready and game.hud.title_frame==old_frame)
+	assert(game.best==13 and not game.hud.fire_button.disabled)
+	await game.select_session(ParkSession)
+	assert(game.nav_ready and game.title_session_id=="amusement_park")
+
+	game.start_run()
+	game.begin_running()
+	game.finish_run()
+	game.menu_action("menu")
+	assert(game.state=="TITLE" and game.session==ParkSession)
+	assert(game.hud.menu.get_node("MapPark/Selected"))
+	print("MAP_SELECTOR_PASS: two image buttons, focus, switch and rollback, preview, lighting, separate records and title return")
+	await process_frame
+	await process_frame
+	if DisplayServer.get_name()=="headless":
+		var audio_deadline = Time.get_ticks_msec()+450
+		while Time.get_ticks_msec()<audio_deadline:await process_frame
+	quit()
+
+func wait_for_switch() -> void:
+	for _frame in range(900):
+		if not game.switching_session:return
+		await process_frame
+	assert(false,"Map selection did not settle")
+
+func capture(name: String) -> void:
+	await process_frame
+	await RenderingServer.frame_post_draw
+	root.get_texture().get_image().save_png("res://artifacts/local/"+name+".png")

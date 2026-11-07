@@ -2,6 +2,8 @@ extends Control
 
 const SKULL_ICON = preload("res://assets/ui/skull.svg")
 const DAMAGE_IMPACT = preload("res://assets/ui/damage-impact.svg")
+const YARD_THUMBNAIL = preload("res://assets/ui/maps/yard.webp")
+const PARK_THUMBNAIL = preload("res://assets/ui/maps/amusement-park.webp")
 var game: Node
 var font: Font
 var hit = 0.0
@@ -305,6 +307,39 @@ func menu_button(text: String, rect: Rect2, action: String, primary: bool = fals
 	menu.add_child(button)
 	return button
 
+func map_button(node_name: String, map_name: String, action: String, thumbnail: Texture2D,
+		rect: Rect2, selected: bool) -> Button:
+	var card = Button.new()
+	card.name = node_name
+	card.accessibility_name = map_name
+	card.position = rect.position
+	card.size = rect.size
+	card.disabled = game.switching_session
+	var image = StyleBoxTexture.new()
+	image.texture = thumbnail
+	for state_name in ["normal","hover","pressed","disabled"]:
+		card.add_theme_stylebox_override(state_name,image)
+	var focus = StyleBoxFlat.new()
+	focus.draw_center = false
+	focus.set_border_width_all(2)
+	focus.set_expand_margin_all(4)
+	focus.border_color = Color.WHITE
+	card.add_theme_stylebox_override("focus",focus)
+	if selected:
+		var outline = Panel.new()
+		outline.name = "Selected"
+		outline.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var border = StyleBoxFlat.new()
+		border.draw_center = false
+		border.set_border_width_all(2)
+		border.border_color = GOLD
+		outline.add_theme_stylebox_override("panel",border)
+		card.add_child(outline)
+		outline.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	card.pressed.connect(func():game.menu_action(action))
+	menu.add_child(card)
+	return card
+
 func rebuild_menu() -> void:
 	for child in menu.get_children():
 		menu.remove_child(child)
@@ -315,6 +350,7 @@ func rebuild_menu() -> void:
 	if menu_state == "TITLE":
 		fire_button = menu_button("FIRE",Rect2(64 if game.touch_mode else 104,size.y-156 if game.touch_mode else size.y-188,260 if game.touch_mode else 300,100 if game.touch_mode else 112),"play",false,"Enter")
 		fire_button.name = "fire"
+		fire_button.disabled = game.switching_session
 		fire_button.add_theme_font_size_override("font_size",68)
 		fire_button.add_theme_constant_override("outline_size",0)
 		for color_name in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]:
@@ -332,10 +368,22 @@ func rebuild_menu() -> void:
 		fire_button.pivot_offset = fire_button.size*.5
 		fire_button.button_down.connect(func():fire_button.scale = Vector2.ONE*.96)
 		fire_button.button_up.connect(func():fire_button.scale = Vector2.ONE)
+		var width = 176.0 if game.touch_mode else 216.0
+		var height = width*9/16
+		var gap = 10.0 if game.touch_mode else 12.0
+		var right = size.x-(64 if game.touch_mode else 104)
+		var bottom = size.y-(56 if game.touch_mode else 76)
+		var yard_card = map_button("MapYard","货场","arena",YARD_THUMBNAIL,
+			Rect2(right-width,bottom-2*height-gap,width,height),game.title_session_id=="score_attack")
+		var park_card = map_button("MapPark","夕阳游乐园","amusement_park",PARK_THUMBNAIL,
+			Rect2(right-width,bottom-height,width,height),game.title_session_id=="amusement_park")
+		var tab_order = [fire_button,yard_card,park_card]
+		for i in range(tab_order.size()):
+			tab_order[i].focus_next = tab_order[i].get_path_to(tab_order[(i+1)%tab_order.size()])
+			tab_order[i].focus_previous = tab_order[i].get_path_to(tab_order[i-1])
 		if game.dust_unlocked:
-			var mode_x = size.x-370 if not game.touch_mode else size.x-300
-			menu_button("SCORE ATTACK",Rect2(mode_x,size.y*.5-75,260,62),"arena",not game.rules.mission)
-			menu_button("DEFUSE C4",Rect2(mode_x,size.y*.5+5,260,62),"defuse",game.rules.mission)
+			menu_button("SCORE ATTACK",Rect2(c.x-130,c.y-75,260,62),"arena",game.title_session_id=="score_attack")
+			menu_button("DEFUSE C4",Rect2(c.x-130,c.y+5,260,62),"defuse",game.title_session_id=="defuse_mission")
 
 	elif menu_state == "RESULTS":
 		if game.rules.mission:

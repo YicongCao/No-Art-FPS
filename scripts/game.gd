@@ -72,6 +72,7 @@ var load_ticket = 0
 var opening_prepared = false
 var enemy_model: PackedScene
 var title_frame_ready = false
+var title_session_id = DefaultSession.session_id
 var destroy_active = false
 var finale_active = false
 var finale_elapsed = 0.0
@@ -119,6 +120,7 @@ func _ready() -> void:
 	elif "--park" in OS.get_cmdline_user_args():
 		session = load(PARK_SESSION_PATH)
 		rules = session.make_rules()
+	title_session_id = session.session_id
 	var settlement = Settlement.new()
 	settlement.game = self
 	add_child(settlement)
@@ -298,7 +300,7 @@ func capture_opening_frame() -> void:
 func capture_map_preview() -> Image:
 	# The visible viewport keeps its old title frame while the new camera renders.
 	var preview = SubViewport.new()
-	preview.size = get_viewport().get_texture().get_size()
+	preview.size = Vector2i(get_viewport().get_texture().get_size())
 	preview.world_3d = get_world_3d()
 	preview.msaa_3d = get_viewport().msaa_3d
 	add_child(preview)
@@ -378,7 +380,7 @@ func reset_run_state() -> void:
 	hud.reset_magazine()
 
 func request_run() -> void:
-	if not title_frame_ready or state not in ["TITLE","RESULTS","PAUSED"]:return
+	if switching_session or not title_frame_ready or state not in ["TITLE","RESULTS","PAUSED"]:return
 	load_ticket += 1
 	restore_frozen_world()
 	hud.reset_results_frame()
@@ -704,6 +706,8 @@ func menu_action(action: String) -> void:
 			request_run()
 		"arena":
 			select_session(DefaultSession)
+		"amusement_park":
+			select_session(load(PARK_SESSION_PATH))
 		"defuse":
 			if dust_unlocked:
 				select_session(load("res://data/sessions/defuse.tres"))
@@ -1213,6 +1217,8 @@ func select_session(resource: Resource) -> void:
 	var old_map = arena
 	var old_session = session
 	var old_rules = rules
+	var focused = get_viewport().gui_get_focus_owner()
+	var focus_name: StringName = focused.name if focused and focused.get_parent()==hud.menu else &""
 	hud.rebuild_menu()
 	await loading_frame()
 	clear_round()
@@ -1237,6 +1243,7 @@ func select_session(resource: Resource) -> void:
 		if not qa_mode:cfg.load("user://record.cfg")
 		load_session_record(cfg)
 		await capture_opening_frame()
+		title_session_id = session.session_id
 	else:
 		push_warning("Map selection reverted: navigation or spawn validation failed")
 		var failed_iteration = NavigationServer3D.map_get_iteration_id(navigation_map)
@@ -1253,6 +1260,9 @@ func select_session(resource: Resource) -> void:
 		title_frame_ready = nav_ready
 	switching_session = false
 	hud.rebuild_menu()
+	if focus_name!=&"":
+		var button = hud.menu.get_node_or_null(NodePath(String(focus_name)))
+		if button:button.grab_focus()
 
 func wait_for_map_navigation(previous_iteration: int = 0) -> bool:
 	var map = get_world_3d().navigation_map
@@ -1261,6 +1271,7 @@ func wait_for_map_navigation(previous_iteration: int = 0) -> bool:
 		await get_tree().physics_frame
 		var iteration = NavigationServer3D.map_get_iteration_id(map)
 		if iteration==0 or iteration==previous_iteration:continue
+		if NavigationServer3D.map_get_closest_point_owner(map,start)!=arena.nav.get_rid():continue
 		if NavigationServer3D.map_get_closest_point(map,start).distance_to(start)<1.0:
 			return arena.validate_navigation()
 	return false
