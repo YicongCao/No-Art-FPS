@@ -17,15 +17,15 @@ for(let n=0;n<40;n++)f.sample(.2,-.1,.15);
 assert.equal(f.gyro.read().gyroYaw,0);assert.equal(f.gyro.read().gyroPitch,0);
 // 90 degrees landscape: beta is screen Y; -gamma is screen X.
 for(let n=0;n<5;n++)f.sample(30.2,-.1,.15);
-let packet=f.gyro.read();assert.ok(packet.gyroYaw>0);assert.ok(Math.abs(packet.gyroPitch)<1e-9);
+let packet=f.gyro.read();assert.ok(packet.gyroYaw<0);assert.ok(Math.abs(packet.gyroPitch)<1e-9);
 assert.equal(f.gyro.read().gyroYaw,0,'Consume deltas once');
 f.gyro.reset();for(let n=0;n<5;n++)f.sample(.2,-30.1,.15);
-assert.ok(f.gyro.read().gyroPitch>0);
+assert.ok(f.gyro.read().gyroPitch<0);
 f.host.screen.orientation.angle=270;f.gyro.reset();for(let n=0;n<5;n++)f.sample(30.2,-.1,.15);
-assert.ok(f.gyro.read().gyroYaw<0,'Opposite landscape reverses device X');
+assert.ok(f.gyro.read().gyroYaw>0,'Opposite landscape reverses device X');
 // Gravity projection supports aiming when the phone is tilted nearly flat.
 f.gyro.reset();for(let n=0;n<5;n++)f.sample(.2,-.1,30.15,16,{x:0,y:0,z:9.81});
-assert.ok(f.gyro.read().gyroYaw>0);
+assert.ok(f.gyro.read().gyroYaw<0);
 // Sensitivity is independent of pixel movement and persisted; enabling is not persisted.
 const measure=()=>{for(let n=0;n<5;n++)f.sample(30.2,-.1,.15);return Math.abs(f.gyro.read().gyroYaw);};
 f.gyro.setSensitivity(1);const base=measure();f.gyro.setSensitivity(2);assert.ok(Math.abs(measure()/base-2)<1e-8);

@@ -130,8 +130,8 @@
       const blend=1-Math.exp(-dt/.025);
       [yawRate,pitchRate].forEach((v,i)=>filtered[i]+=(v-filtered[i])*blend);
       const softDeadzone=v=>Math.sign(v)*Math.max(0,Math.abs(v)-.08);
-      yaw=clamp(yaw+softDeadzone(filtered[0])*RAD*dt*sensitivity,-.25,.25);
-      pitch=clamp(pitch+softDeadzone(filtered[1])*RAD*dt*sensitivity,-.25,.25);
+      yaw=clamp(yaw-softDeadzone(filtered[0])*RAD*dt*sensitivity,-.25,.25);
+      pitch=clamp(pitch-softDeadzone(filtered[1])*RAD*dt*sensitivity,-.25,.25);
     }
     function read(){
       if(!enabled||!ready||!active()||!context.running||lastSample===null||now()-lastSample>250)reset();
