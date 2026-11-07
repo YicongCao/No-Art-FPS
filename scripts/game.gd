@@ -1023,7 +1023,7 @@ func shoot() -> void:
 			projectile = ordinary
 		effects.add_child(projectile)
 		projectile.global_position = origin
-		player_bullets.append({"node":projectile,"flame":flame,"velocity":origin.direction_to(target)*65,"life":1.4,"origin":origin,"burning":destroy_active})
+		player_bullets.append({"node":projectile,"flame":flame,"velocity":origin.direction_to(target)*65,"life":1.4,"origin":origin,"muzzle":muzzle,"burning":destroy_active})
 	else:
 		if destroy_active:
 			var flame = FlameBolt.new()
@@ -1032,7 +1032,6 @@ func shoot() -> void:
 		else:trace(muzzle,target,Color("fff1b7"),.025,.045)
 		resolve_shot(result,origin,target,destroy_active)
 	spark(muzzle,Color("ffe19a"),.1,.035)
-	if destroy_active:fire_effect(muzzle,.13)
 	if ammo==0:reload_weapon()
 
 func enemy_from_hit(result: Dictionary) -> Node3D:
@@ -1053,7 +1052,7 @@ func resolve_shot(result: Dictionary, origin: Vector3, target: Vector3, burning:
 		if burning:
 			var building = collider.get_meta("structure") if collider.has_meta("structure") else null
 			if building:building.ignite_hit(target)
-			else:fire_effect(target,.3)
+			spark(target,Color("ef7833"),.16,.10)
 		if enemy==null and collider.has_method("ignite"):
 			collider.shot_hit(burning)
 			hud.hit = .12
@@ -1090,8 +1089,14 @@ func update_player_bullets(delta: float) -> void:
 		else:
 			b.node.global_position = to
 			if b.flame:
-				var length = minf(b.origin.distance_to(to),FlameBolt.LENGTH)
-				b.flame.set_segment(to-b.velocity.normalized()*length,to,player.camera.global_position)
+				var travelled = b.origin.distance_to(to)
+				var tail_distance = maxf(0,travelled-FlameBolt.LENGTH)
+				# Draw the launch from the muzzle, then merge into the collision path.
+				var offset: Vector3 = b.muzzle-b.origin
+				var tail = b.origin+b.velocity.normalized()*tail_distance
+				tail += offset*maxf(0,1-tail_distance/Enemy.CLOSE_SHOT_RANGE)
+				var tip = to+offset*maxf(0,1-travelled/Enemy.CLOSE_SHOT_RANGE)
+				b.flame.set_segment(tail,tip,player.camera.global_position)
 
 func reload_weapon() -> void:
 	if objective_focus!=null:return

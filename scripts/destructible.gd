@@ -44,7 +44,6 @@ func ignite_hit(point: Vector3) -> void:
 	if game==null or collapsed or game.state!="RUNNING" or not game.destroy_active:return
 	hits += 1
 	hit_point = point
-	game.fire_effect(point,.45)
 	if hits>=2 and burn_time<0:
 		burn_time = .22 if scenery else .55
 		game.play_world_sound("fuse",world_bounds().get_center(),-12)

@@ -28,12 +28,14 @@ func set_segment(tail: Vector3, tip: Vector3, eye: Vector3) -> void:
 		return
 	var forward = (tip-tail)/length
 	var center = (tail+tip)*.5
-	var vertical = (eye-center).cross(forward)
+	var vertical = (eye-center).normalized().cross(forward)
+	# Keep the bolt lean when viewed almost along its flight path.
+	var height = clampf(length*vertical.length()*.42,.02,HEIGHT)
 	if vertical.length_squared()<.0001:
 		vertical = (Vector3.UP if absf(forward.y)<.98 else Vector3.RIGHT).cross(forward)
 	vertical = vertical.normalized()
 	# Keep the generated tip aligned to flight while turning the flat art toward the camera.
-	global_transform = Transform3D(Basis(forward*length,vertical*minf(HEIGHT,length*.35),forward.cross(vertical)),center)
+	global_transform = Transform3D(Basis(forward*length,vertical*height,forward.cross(vertical)),center)
 	show()
 
 func fly(from: Vector3, to: Vector3, camera: Camera3D) -> void:
