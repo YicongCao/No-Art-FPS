@@ -74,6 +74,7 @@ var music_volume = .7
 var loading = LoadingTransition.new()
 var load_ticket = 0
 var opening_prepared = false
+var destroy_effects_warmed = false
 var enemy_model: PackedScene
 var title_frame_ready = false
 var title_session_id = DefaultSession.session_id
@@ -91,6 +92,7 @@ var touch_body_one_shot = false
 var touch_fire = false
 var web_ui_state = ""
 var switching_session = false
+var map_switch_progress = 0.0
 var dust_unlocked = false
 var objective_focus: Node3D
 var touch_interact = false
@@ -287,7 +289,7 @@ func capture_opening_frame() -> void:
 	opening_prepared = true
 	# Submit the two instanced materials before the first DESTROY shot or collapse.
 	# The tiny batch is below the starting floor and removed before the title capture.
-	if rules.destroy_duration>0:
+	if rules.destroy_duration>0 and not destroy_effects_warmed:
 		var warmup = CombatFX.new()
 		warmup.game = self
 		effects.add_child(warmup)
@@ -298,11 +300,13 @@ func capture_opening_frame() -> void:
 		warmup.show_pieces()
 		await loading_frame()
 		warmup.free()
+		destroy_effects_warmed = true
 	if switching_session:
-		hud.set_title_frame(await capture_map_preview())
+		map_switch_progress = .92
+		hud.set_title_frame(await capture_map_preview(),title_preview_key())
 	else:
 		await loading_frame()
-		hud.set_title_frame(get_viewport().get_texture().get_image())
+		hud.set_title_frame(get_viewport().get_texture().get_image(),title_preview_key())
 	title_frame_ready = true
 	hud.show()
 	if OS.has_feature("web") and not switching_session:
@@ -725,12 +729,12 @@ func menu_action(action: String) -> void:
 		"arena":
 			select_session(DefaultSession)
 		"amusement_park":
-			select_session(load(PARK_SESSION_PATH))
+			select_session(PARK_SESSION_PATH)
 		"last_ferry":
-			select_session(load(FERRY_SESSION_PATH))
+			select_session(FERRY_SESSION_PATH)
 		"defuse":
 			if dust_unlocked:
-				select_session(load("res://data/sessions/defuse.tres"))
+				select_session("res://data/sessions/defuse.tres")
 		"resume":
 			if state != "PAUSED":return
 			state = "CAPTURING" if OS.has_feature("web") and not touch_mode else previous_state
@@ -1254,9 +1258,19 @@ func settle_rules() -> void:
 	if objective_focus and rules.completed.has(objective_focus.objective_id):objective_focus.mark_defused()
 	if not rules.active:finish_run()
 
-func select_session(resource: Resource) -> void:
-	if state!="TITLE" or switching_session or not resource or resource==session:return
+func title_preview_key() -> String:
+	var path: String = session.resource_path
+	if path in [DefaultSession.resource_path,PARK_SESSION_PATH,FERRY_SESSION_PATH]:return path
+	return ""
+
+func select_session(selection: Variant) -> void:
+	if state!="TITLE" or switching_session or not selection:return
+	if selection is Resource:
+		if selection==session:return
+	elif selection==session.resource_path:return
 	switching_session = true
+	map_switch_progress = .08
+	var previous_frame_ready = title_frame_ready
 	title_frame_ready = false
 	load_ticket += 1
 	var old_map = arena
@@ -1266,6 +1280,16 @@ func select_session(resource: Resource) -> void:
 	var focus_name: StringName = focused.name if focused and focused.get_parent()==hud.menu else &""
 	hud.rebuild_menu()
 	await loading_frame()
+	var resource: Resource = selection if selection is Resource else load(selection)
+	if not resource:
+		title_frame_ready = previous_frame_ready
+		finish_session_switch(focus_name)
+		return
+	map_switch_progress = .35
+	await loading_frame()
+	var next_map = resource.map_scene.instantiate()
+	map_switch_progress = .55
+	await loading_frame()
 	clear_round()
 	var navigation_map = get_world_3d().navigation_map
 	var old_iteration = NavigationServer3D.map_get_iteration_id(navigation_map)
@@ -1273,7 +1297,7 @@ func select_session(resource: Resource) -> void:
 	session = resource
 	rules = session.make_rules()
 	nav_ready = false
-	arena = session.map_scene.instantiate()
+	arena = next_map
 	apply_map_lighting()
 	arena.game = self
 	add_child(arena)
@@ -1281,13 +1305,19 @@ func select_session(resource: Resource) -> void:
 	opening = arena.opening_actors()
 	player.reset_position()
 	player.enabled = false
+	map_switch_progress = .72
 	if arena.validate_map():nav_ready = await wait_for_map_navigation(old_iteration)
 	if nav_ready:
 		old_map.queue_free()
 		var cfg = ConfigFile.new()
 		if not qa_mode:cfg.load("user://record.cfg")
 		load_session_record(cfg)
-		await capture_opening_frame()
+		map_switch_progress = .84
+		if hud.reuse_title_frame(title_preview_key()):
+			title_frame_ready = true
+		else:
+			await loading_frame()
+			await capture_opening_frame()
 		title_session_id = session.session_id
 	else:
 		push_warning("Map selection reverted: navigation or spawn validation failed")
@@ -1303,7 +1333,11 @@ func select_session(resource: Resource) -> void:
 		player.reset_position()
 		nav_ready = await wait_for_map_navigation(failed_iteration)
 		title_frame_ready = nav_ready
+	finish_session_switch(focus_name)
+
+func finish_session_switch(focus_name: StringName) -> void:
 	switching_session = false
+	map_switch_progress = 0.0
 	hud.rebuild_menu()
 	if focus_name!=&"":
 		var button = hud.menu.get_node_or_null(NodePath(String(focus_name)))

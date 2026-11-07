@@ -40,7 +40,9 @@ var motion_button: Button
 var body_shot_button: Button
 var music_slider: HSlider
 var fire_button: Button
+var fire_progress: ProgressBar
 var title_frame: ImageTexture
+var title_previews: Dictionary = {}
 var title_gutter_ratios = Vector4.ZERO
 var web_title_layout_callback: JavaScriptObject
 var results_frame: ImageTexture
@@ -48,6 +50,8 @@ var results_frame_pending = false
 var results_frame_ticket = 0
 const TOP_HUD_SCALE = 1.5
 const TITLE_SHADE_OPACITY = .55
+const FIRE_PURPLE = Color("754c87")
+const FIRE_PROGRESS_TRACK = Color("452d53")
 const WHITE = Color("fff8e8")
 const INK = Color("243440")
 const GOLD = Color("f2d084")
@@ -164,15 +168,17 @@ func loading_magazine_rect() -> Rect2:
 func sync_loading_cover() -> void:
 	if not is_instance_valid(loading_cover):return
 	loading_cover.visible = game.state in ["TITLE","LOADING"] and title_frame!=null
+	# The opaque title snapshot already supplies every scene pixel. A new
+	# preview is rendered independently, and gameplay keeps its live viewport.
+	var title_only = game.state=="TITLE" and loading_cover.is_visible_in_tree()
+	if get_viewport().disable_3d!=title_only:get_viewport().disable_3d = title_only
 	vignette.visible = game.state not in ["TITLE","LOADING","RESULTS"]
 	loading_cover.material.set_shader_parameter("progress",game.loading.reveal_progress() if game.state=="LOADING" else 0.0)
 	loading_cover.material.set_shader_parameter("viewport_size",size)
 
-func set_title_frame(image: Image) -> void:
-	title_frame = ImageTexture.create_from_image(image)
-	loading_cover.material.set_shader_parameter("opening_frame",title_frame)
-	loading_cover.material.set_shader_parameter("shade_opacity",TITLE_SHADE_OPACITY)
-	sync_loading_cover()
+func set_title_frame(image: Image, preview_key: String = "") -> void:
+	var texture = ImageTexture.create_from_image(image)
+	var tints = PackedStringArray()
 	if OS.has_feature("web"):
 		# Reuse the existing opening capture and avoid the mast or sun skewing the tint.
 		var samples: Array[Color] = []
@@ -181,7 +187,27 @@ func set_title_frame(image: Image) -> void:
 		samples.sort_custom(func(a: Color,b: Color):return a.get_luminance()<b.get_luminance())
 		var sky = samples[3]
 		var menu_sky = sky.darkened(TITLE_SHADE_OPACITY)
-		JavaScriptBridge.eval("window.noArtSetSky?.('#%s','#%s')"%[menu_sky.to_html(false),sky.to_html(false)])
+		tints = PackedStringArray([menu_sky.to_html(false),sky.to_html(false)])
+	if not preview_key.is_empty() and image.get_width()*image.get_height()<=2560*1440:
+		title_previews[preview_key] = {"texture":texture,"tints":tints}
+	show_title_frame(texture,tints)
+
+func reuse_title_frame(preview_key: String) -> bool:
+	if not title_previews.has(preview_key):return false
+	var preview: Dictionary = title_previews[preview_key]
+	if preview.texture.get_size()!=get_viewport().get_texture().get_size():
+		title_previews.erase(preview_key)
+		return false
+	show_title_frame(preview.texture,preview.tints)
+	return true
+
+func show_title_frame(texture: ImageTexture, tints: PackedStringArray) -> void:
+	title_frame = texture
+	loading_cover.material.set_shader_parameter("opening_frame",title_frame)
+	loading_cover.material.set_shader_parameter("shade_opacity",TITLE_SHADE_OPACITY)
+	sync_loading_cover()
+	if not tints.is_empty():
+		JavaScriptBridge.eval("window.noArtSetSky?.('#%s','#%s')"%[tints[0],tints[1]])
 
 func update_web_title_layout(args: Array) -> void:
 	var next = Vector4(args[0],args[1],args[2],args[3])
@@ -267,6 +293,8 @@ func _process(delta: float) -> void:
 	shot = maxf(0,shot-delta)
 	if game and (menu_state != game.state or menu_size != size):
 		rebuild_menu()
+	if is_instance_valid(fire_progress):
+		fire_progress.value = game.map_switch_progress
 	if game and game.state == "PAUSED":
 		sensitivity_slider.set_value_no_signal(game.player.sensitivity)
 		motion_button.text = "LOW" if game.reduced_motion else "FULL"
@@ -382,6 +410,7 @@ func rebuild_menu() -> void:
 	for child in menu.get_children():
 		menu.remove_child(child)
 		child.queue_free()
+	fire_progress = null
 	menu_state = game.state
 	menu_size = size
 	var c = size*.5
@@ -394,11 +423,11 @@ func rebuild_menu() -> void:
 		fire_button.disabled = game.switching_session
 		fire_button.add_theme_font_size_override("font_size",68)
 		fire_button.add_theme_constant_override("outline_size",0)
-		for color_name in ["font_color","font_hover_color","font_pressed_color","font_focus_color"]:
+		for color_name in ["font_color","font_hover_color","font_pressed_color","font_focus_color","font_disabled_color"]:
 			fire_button.add_theme_color_override(color_name,Color.WHITE)
 		for style_name in ["normal","hover","pressed","focus"]:
 			var style = StyleBoxFlat.new()
-			style.bg_color = Color("754c87")
+			style.bg_color = FIRE_PURPLE
 			if style_name=="hover":style.bg_color = style.bg_color.lightened(.12)
 			if style_name=="pressed":style.bg_color = style.bg_color.darkened(.14)
 			if style_name=="focus":
@@ -406,6 +435,24 @@ func rebuild_menu() -> void:
 				style.set_border_width_all(2)
 				style.border_color = Color.WHITE
 			fire_button.add_theme_stylebox_override(style_name,style)
+		if game.switching_session:
+			fire_button.add_theme_stylebox_override("disabled",StyleBoxEmpty.new())
+			fire_progress = ProgressBar.new()
+			fire_progress.accessibility_name = "地图加载进度"
+			fire_progress.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			fire_progress.show_percentage = false
+			fire_progress.show_behind_parent = true
+			fire_progress.max_value = 1.0
+			fire_progress.step = 0.0
+			fire_progress.value = game.map_switch_progress
+			var track = StyleBoxFlat.new()
+			track.bg_color = FIRE_PROGRESS_TRACK
+			var fill = StyleBoxFlat.new()
+			fill.bg_color = FIRE_PURPLE
+			fire_progress.add_theme_stylebox_override("background",track)
+			fire_progress.add_theme_stylebox_override("fill",fill)
+			fire_button.add_child(fire_progress)
+			fire_progress.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		fire_button.pivot_offset = fire_button.size*.5
 		fire_button.button_down.connect(func():fire_button.scale = Vector2.ONE*.96)
 		fire_button.button_up.connect(func():fire_button.scale = Vector2.ONE)

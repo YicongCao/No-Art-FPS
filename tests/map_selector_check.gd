@@ -32,11 +32,17 @@ func check() -> void:
 	enter.pressed = true
 	game._unhandled_input(enter)
 	assert(game.switching_session and game.hud.fire_button.disabled)
+	assert(game.hud.fire_progress.value>0 and game.hud.fire_progress.value<1)
 	assert(game.hud.title_frame==old_frame)
 	game.menu_action("play")
 	assert(game.state=="TITLE")
-	await wait_for_switch()
+	if DisplayServer.get_name()!="headless":
+		await RenderingServer.frame_post_draw
+		root.get_texture().get_image().save_png("res://artifacts/local/map-switch-progress.png")
+	var stages = await wait_for_switch()
+	assert(stages.size()>=4,"Map loading must yield between visible stages")
 	assert(game.session==ParkSession and game.nav_ready and game.title_frame_ready)
+	assert(not game.hud.fire_button.disabled and game.hud.fire_progress==null)
 	assert(game.title_session_id=="amusement_park")
 	assert(game.hud.menu.get_node("MapPark/Selected"))
 	assert(game.hud.menu.get_node("MapPark").has_focus())
@@ -44,6 +50,7 @@ func check() -> void:
 	if DisplayServer.get_name()!="headless":
 		assert(game.hud.title_frame!=old_frame and game.hud.title_frame.get_image().get_size()==Vector2i(root.get_texture().get_size()))
 		await capture("park-title")
+	var park_frame = game.hud.title_frame
 
 	var records = ConfigFile.new()
 	records.set_value("score","best",13)
@@ -85,6 +92,7 @@ func check() -> void:
 	assert(game.best==13 and not game.hud.fire_button.disabled)
 	await game.select_session(ParkSession)
 	assert(game.nav_ready and game.title_session_id=="amusement_park")
+	assert(game.hud.title_frame==park_frame,"Revisiting a map reuses its opening texture at the same size")
 
 	game.start_run()
 	game.begin_running()
@@ -92,7 +100,7 @@ func check() -> void:
 	game.menu_action("menu")
 	assert(game.state=="TITLE" and game.session==ParkSession)
 	assert(game.hud.menu.get_node("MapPark/Selected"))
-	print("MAP_SELECTOR_PASS: three image buttons, focus, switch and rollback, preview, lighting, separate records and title return")
+	print("MAP_SELECTOR_PASS: staged FIRE progress, navigation lockout, cached preview, focus, rollback, records and title return")
 	await process_frame
 	await process_frame
 	if DisplayServer.get_name()=="headless":
@@ -100,11 +108,16 @@ func check() -> void:
 		while Time.get_ticks_msec()<audio_deadline:await process_frame
 	quit()
 
-func wait_for_switch() -> void:
+func wait_for_switch() -> Array[float]:
+	var stages: Array[float] = []
 	for _frame in range(900):
-		if not game.switching_session:return
+		if not game.switching_session:return stages
+		var progress: float = game.map_switch_progress
+		if stages.is_empty() or progress>stages[-1]:stages.append(progress)
+		assert(game.hud.fire_button.disabled)
 		await process_frame
 	assert(false,"Map selection did not settle")
+	return stages
 
 func capture(name: String) -> void:
 	await process_frame
