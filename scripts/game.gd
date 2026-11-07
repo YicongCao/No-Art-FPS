@@ -4,6 +4,7 @@ const TOUCH_LOOK_GAIN = 1.9
 
 const DefaultSession = preload("res://data/sessions/score_attack.tres")
 const PARK_SESSION_PATH = "res://data/sessions/amusement_park.tres"
+const FERRY_SESSION_PATH = "res://data/sessions/last_ferry.tres"
 var session = DefaultSession
 var opening: Array[Dictionary] = []
 const Player = preload("res://scripts/player.gd")
@@ -120,6 +121,9 @@ func _ready() -> void:
 		rules = session.make_rules()
 	elif "--park" in OS.get_cmdline_user_args():
 		session = load(PARK_SESSION_PATH)
+		rules = session.make_rules()
+	elif "--ferry" in OS.get_cmdline_user_args():
+		session = load(FERRY_SESSION_PATH)
 		rules = session.make_rules()
 	title_session_id = session.session_id
 	var settlement = Settlement.new()
