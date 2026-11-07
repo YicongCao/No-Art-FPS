@@ -1,0 +1,82 @@
+name: Deploy Web game to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/pages.yml'
+      - 'project.godot'
+      - 'export_presets.cfg'
+      - 'assets/**'
+      - 'data/**'
+      - 'scenes/**'
+      - 'scripts/**'
+      - 'web/**'
+      - 'tools/export_web.sh'
+      - 'tools/verify_web.py'
+      - 'tools/vendor/LICENSE-dust2.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+env:
+  GODOT_VERSION: '4.7.2'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Cache Godot and the Web export template
+        id: godot
+        uses: actions/cache@v6.1.0
+        with:
+          path: |
+            ~/.local/bin/godot
+            ~/.local/share/godot/export_templates/${{ env.GODOT_VERSION }}.stable
+          key: godot-linux-x86_64-${{ env.GODOT_VERSION }}-web
+      - name: Install Godot
+        if: steps.godot.outputs.cache-hit != 'true'
+        working-directory: ${{ runner.temp }}
+        run: |
+          release="${GODOT_VERSION}-stable"
+          base="https://github.com/godotengine/godot-builds/releases/download/$release"
+          editor="Godot_v${release}_linux.x86_64"
+          templates="Godot_v${release}_export_templates.tpz"
+          curl --fail --silent --show-error --location --retry 3 -O "$base/$editor.zip"
+          curl --fail --silent --show-error --location --retry 3 -O "$base/$templates"
+          printf '%s  %s\n' \
+            cadd3204e728a35d3f13adb7fd0d7902636b79f6b95c40c265eb73b6c35329e4 "$editor.zip" \
+            f298490b8d44d934be425a5a65a51bf15f422428b229a06a6e11d9ffea248011 "$templates" \
+            | sha256sum --check
+          template_dir="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          mkdir -p "$HOME/.local/bin" "$template_dir"
+          unzip -p "$editor.zip" "$editor" > "$HOME/.local/bin/godot"
+          chmod +x "$HOME/.local/bin/godot"
+          unzip -j "$templates" templates/version.txt templates/web_nothreads_release.zip -d "$template_dir"
+      - name: Export and verify the Web bundle
+        run: GODOT_BIN="$HOME/.local/bin/godot" ./tools/export_web.sh
+      - name: Upload the Web bundle
+        uses: actions/upload-pages-artifact@v5.0.0
+        with:
+          path: builds/web
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5.0.1
