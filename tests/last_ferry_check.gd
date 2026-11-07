@@ -31,6 +31,8 @@ func check() -> void:
 	game.start_run()
 	game.begin_running()
 	game.invulnerable = 999
+	assert(game.music.playing and game.music.stream==game.session.combat_music)
+	assert(is_equal_approx(game.music.stream.get_length(),45.0) and game.music.stream.loop)
 	assert(game.live_enemies().size()==8)
 	var spawned = false
 	var tested_cover = false
@@ -49,6 +51,8 @@ func check() -> void:
 			game.invulnerable = 999
 		if game.destroy_active and not tested_cover:
 			assert(is_equal_approx(elapsed,45.0))
+			assert(game.music.playing and game.music.stream==game.session.destroy_music)
+			assert(is_equal_approx(game.music.stream.get_length(),15.0) and game.music.stream.loop)
 			var cover = ferry.get_node("PortCrates")
 			var target: Vector3 = cover.world_bounds().get_center()
 			var origin = target+Vector3.BACK*3
@@ -63,7 +67,7 @@ func check() -> void:
 			tested_cover = true
 		if game.finale_active:finale = game.rules.remaining()==0
 		if game.state=="RESULTS":break
-	assert(game.rules.elapsed==60 and game.state=="RESULTS")
+	assert(game.rules.elapsed==60 and game.state=="RESULTS" and not game.music.playing)
 	assert(spawned and tested_cover and revived and finale)
 	assert(ferry.get_node("ForeCrates").collapsed and ferry.get_node("Catwalk").visible)
 	game.start_run()

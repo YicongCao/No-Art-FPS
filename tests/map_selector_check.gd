@@ -2,6 +2,7 @@ extends SceneTree
 
 const YardSession = preload("res://data/sessions/score_attack.tres")
 const ParkSession = preload("res://data/sessions/amusement_park.tres")
+const FerrySession = preload("res://data/sessions/last_ferry.tres")
 var game: Node3D
 
 func _initialize() -> void:
@@ -16,7 +17,7 @@ func check() -> void:
 	game.qa_mode = true
 	assert(game.title_frame_ready and game.nav_ready and game.session==YardSession)
 	assert(game.hud.fire_button.text=="FIRE")
-	assert(game.hud.menu.get_child_count()==3)
+	assert(game.hud.menu.get_child_count()==4)
 	assert(game.hud.menu.get_node("MapYard/Selected"))
 	var old_frame = game.hud.title_frame
 	var park_card = game.hud.menu.get_node("MapPark")
@@ -43,8 +44,20 @@ func check() -> void:
 	var records = ConfigFile.new()
 	records.set_value("score","best",13)
 	records.set_value("score_amusement_park_v1","best",7)
+	records.set_value("score_last_ferry_v1","best",5)
 	game.load_session_record(records)
 	assert(game.best==7)
+	var ferry_card = game.hud.menu.get_node("MapFerry")
+	assert(ferry_card.text.is_empty() and not ferry_card.accessibility_name.is_empty())
+	ferry_card.grab_focus()
+	game._unhandled_input(enter)
+	await wait_for_switch()
+	assert(game.nav_ready and game.session==FerrySession and game.title_session_id=="last_ferry")
+	assert(game.hud.menu.get_node("MapFerry/Selected") and game.hud.menu.get_node("MapFerry").has_focus())
+	assert(game.world_environment.environment==game.arena.environment_override)
+	game.load_session_record(records)
+	assert(game.best==5)
+	if DisplayServer.get_name()!="headless":await capture("ferry-title")
 	await game.select_session(YardSession)
 	assert(game.nav_ready and game.world_environment.environment==game.daylight_environment)
 	assert(game.title_session_id=="score_attack" and game.hud.menu.get_node("MapYard/Selected"))
@@ -75,7 +88,7 @@ func check() -> void:
 	game.menu_action("menu")
 	assert(game.state=="TITLE" and game.session==ParkSession)
 	assert(game.hud.menu.get_node("MapPark/Selected"))
-	print("MAP_SELECTOR_PASS: two image buttons, focus, switch and rollback, preview, lighting, separate records and title return")
+	print("MAP_SELECTOR_PASS: three image buttons, focus, switch and rollback, preview, lighting, separate records and title return")
 	await process_frame
 	await process_frame
 	if DisplayServer.get_name()=="headless":

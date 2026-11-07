@@ -121,7 +121,7 @@ def instrument(part, pitch, t, rng):
     return .062 * crisp * np.exp((-32 if pitch == 46 else -78) * t)
 
 
-def render(name, tracks, bars):
+def render(name, tracks, bars, synth=instrument):
     beat = 60 / BPM
     frames = round(bars * 4 * beat * RATE)
     mix = np.zeros((frames, 2), dtype=np.float32)
@@ -135,7 +135,7 @@ def render(name, tracks, bars):
             duration = ticks * beat / PPQ
             t = np.arange(round((duration + release) * RATE)) / RATE
             envelope = np.minimum(t / attack, 1) * np.clip((duration + release - t) / release, 0, 1)
-            signal = instrument(part, pitch, t, rng) * envelope * velocity / 127
+            signal = synth(part, pitch, t, rng) * envelope * velocity / 127
             # Wrap the final tails into the next downbeat for seamless looping.
             head = min(len(signal), frames - offset)
             stem[offset:offset + head] += signal[:head]

@@ -720,6 +720,8 @@ func menu_action(action: String) -> void:
 			select_session(DefaultSession)
 		"amusement_park":
 			select_session(load(PARK_SESSION_PATH))
+		"last_ferry":
+			select_session(load(FERRY_SESSION_PATH))
 		"defuse":
 			if dust_unlocked:
 				select_session(load("res://data/sessions/defuse.tres"))
