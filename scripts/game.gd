@@ -29,6 +29,7 @@ const DESTROY_DURATION = 15.0
 const ENEMY_BULLET_SPEED = 80.0
 const ENEMY_TRAIL_LENGTH = 2.0
 const ShotLine = preload("res://scripts/shot_line.gd")
+const FlameBolt = preload("res://scripts/flame_bolt.gd")
 const COMBAT_MUSIC = preload("res://assets/music/sixty.ogg")
 const DESTROY_MUSIC = preload("res://assets/music/destroy.ogg")
 const MAX_HEALTH = 150.0
@@ -937,15 +938,27 @@ func shoot() -> void:
 	var shot_enemy = enemy_from_hit(result)
 	if shot_enemy and shot_enemy.fast and origin.distance_to(shot_enemy.global_position)>Enemy.CLOSE_SHOT_RANGE:
 		shot_enemy.evade_shot(origin)
-		var projectile = MeshInstance3D.new()
-		projectile.mesh = spark_mesh
-		projectile.scale = Vector3.ONE*.08
-		projectile.material_override = effect_material(Color("fff1b7"))
+		var projectile: Node3D
+		var flame: MeshInstance3D
+		if destroy_active:
+			projectile = Node3D.new()
+			flame = FlameBolt.new()
+			projectile.add_child(flame)
+		else:
+			var ordinary = MeshInstance3D.new()
+			ordinary.mesh = spark_mesh
+			ordinary.scale = Vector3.ONE*.08
+			ordinary.material_override = effect_material(Color("fff1b7"))
+			projectile = ordinary
 		effects.add_child(projectile)
 		projectile.global_position = origin
-		player_bullets.append({"node":projectile,"velocity":origin.direction_to(target)*65,"life":1.4,"origin":origin,"burning":destroy_active})
+		player_bullets.append({"node":projectile,"flame":flame,"velocity":origin.direction_to(target)*65,"life":1.4,"origin":origin,"burning":destroy_active})
 	else:
-		trace(muzzle,target,Color("ff8533") if destroy_active else Color("fff1b7"),.055 if destroy_active else .025,.09 if destroy_active else .045)
+		if destroy_active:
+			var flame = FlameBolt.new()
+			effects.add_child(flame)
+			flame.fly(muzzle,target,player.camera)
+		else:trace(muzzle,target,Color("fff1b7"),.025,.045)
 		resolve_shot(result,origin,target,destroy_active)
 	spark(muzzle,Color("ffe19a"),.1,.035)
 	if destroy_active:fire_effect(muzzle,.13)
@@ -1003,7 +1016,11 @@ func update_player_bullets(delta: float) -> void:
 			resolve_shot(hit,b.origin,hit.position if not hit.is_empty() else to,b.burning)
 			b.node.queue_free()
 			player_bullets.remove_at(i)
-		else:b.node.global_position = to
+		else:
+			b.node.global_position = to
+			if b.flame:
+				var length = minf(b.origin.distance_to(to),FlameBolt.LENGTH)
+				b.flame.set_segment(to-b.velocity.normalized()*length,to,player.camera.global_position)
 
 func reload_weapon() -> void:
 	if objective_focus!=null:return
