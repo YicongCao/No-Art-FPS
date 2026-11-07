@@ -68,11 +68,14 @@ func _ready() -> void:
 	game.rules.elapsed = 59.99
 	before = game.audio_index
 	game._physics_process(.02)
-	assert(game.state=="RESULTS" and game.audio_index==before+1)
-	assert(game.audio_voices[before%game.audio_voices.size()].stream==game.sounds.end)
+	assert(game.finale_active and game.audio_index==before+1)
+	assert(game.audio_voices[before%game.audio_voices.size()].stream==game.sounds.explosion)
 	before = game.audio_index
 	game._physics_process(.2)
 	assert_feed_sounds(before,0)
+	game._physics_process(game.rules.finale_duration)
+	assert(game.state=="RESULTS" and game.audio_index==before+1)
+	assert(game.audio_voices[before%game.audio_voices.size()].stream==game.sounds.end)
 	# Loading uses the same sound at the same whole-round boundary.
 	game.clear_round()
 	game.state = "LOADING"

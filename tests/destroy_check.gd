@@ -25,6 +25,7 @@ func _ready() -> void:
 	assert(not game.destroy_active)
 	game._physics_process(1.0/60.0)
 	assert(game.destroy_active and game.hud.destroy_time>1.5)
+	assert(game.music.stream==game.DESTROY_MUSIC and game.music.playing)
 	assert(is_equal_approx(game.rules.remaining(),15),"DESTROY starts at exactly 45 seconds / 2700 ticks")
 	var audio_before = game.audio_index
 	game._physics_process(1.0/60.0)
@@ -106,6 +107,8 @@ func _ready() -> void:
 	var upstairs = NavigationServer3D.map_get_path(game.arena.nav.get_navigation_map(),Vector3(0,0,10.5),Vector3(4,3.1,-11),true)
 	assert(upstairs.size()>1 and upstairs[-1].distance_to(Vector3(4,3.1,-11))<.7)
 	assert(game.rules.kills==0 and game.effects.get_child_count()==0)
+	game.begin_running()
+	assert(game.music.stream==game.COMBAT_MUSIC and game.music.playing)
 	print("DESTROY_CHECK_PASS: boundary, real fire shots, burn/pause, rubble, burial score, collision/nav, deadline, full reset")
 	game.state = "RESULTS"
 	game.clear_round()
@@ -153,7 +156,7 @@ func check_nonstructural_hits() -> void:
 	assert(forklift.hits==1 and forklift.burn_time<0)
 	shoot_rounds(1)
 	assert(forklift.hits==2 and forklift.burn_time>0)
-	await get_tree().create_timer(.3).timeout
+	for _tick in range(20):await get_tree().physics_frame
 	assert(forklift.collapsed)
 	for collider in forklift.collision_states:assert(collider.collision_layer==0)
 	forklift.restore()
@@ -170,7 +173,7 @@ func check_nonstructural_hits() -> void:
 	assert(lamp.batch_parts.size()==2)
 	aim(lamp_point)
 	shoot_rounds(2)
-	await get_tree().create_timer(.3).timeout
+	for _tick in range(20):await get_tree().physics_frame
 	assert(lamp.collapsed)
 	if DisplayServer.get_name()!="headless":
 		for path in lamp.batch_parts:

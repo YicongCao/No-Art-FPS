@@ -25,6 +25,8 @@ const DESTROY_DURATION = 15.0
 const ENEMY_BULLET_SPEED = 80.0
 const ENEMY_TRAIL_LENGTH = 2.0
 const ShotLine = preload("res://scripts/shot_line.gd")
+const COMBAT_MUSIC = preload("res://assets/music/sixty.ogg")
+const DESTROY_MUSIC = preload("res://assets/music/destroy.ogg")
 const MAX_HEALTH = 150.0
 const HEAL_DELAY = 5.0
 const HEAL_RATE = 12.0
@@ -49,7 +51,11 @@ var ranged_aimers: Dictionary = {}
 var player_bullets: Array[Dictionary] = []
 var sounds: Dictionary = {}
 var audio_voices: Array[AudioStreamPlayer] = []
+var web_rifle: AudioStreamPlayer
 var audio_index = 0
+var spark_mesh = SphereMesh.new()
+var trace_mesh = BoxMesh.new()
+var effect_materials: Dictionary = {}
 var last_tick = 0
 var spawn_cooldowns: Array[float] = [0,0,0,0,0,0]
 var pending_spawn: Dictionary = {}
@@ -92,7 +98,12 @@ func capture_pointer() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _ready() -> void:
-	if OS.has_feature("web"):touch_mode = bool(JavaScriptBridge.eval("Boolean(window.noArtMobile)"))
+	if OS.has_feature("web"):
+		Engine.max_fps = 60
+		touch_mode = bool(JavaScriptBridge.eval("Boolean(window.noArtMobile)"))
+	spark_mesh.radial_segments = 6
+	spark_mesh.rings = 3
+	trace_mesh.size = Vector3.ONE
 	if touch_mode:
 		get_window().content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
 		get_window().content_scale_size = Vector2i(960,540)
@@ -152,10 +163,16 @@ func _ready() -> void:
 		var voice = AudioStreamPlayer.new()
 		add_child(voice)
 		audio_voices.append(voice)
+	if OS.has_feature("web"):
+		# A dedicated, fixed-stream player keeps rapid gunshots out of the
+		# single-threaded stream mixer and avoids swapping Web Audio samples.
+		web_rifle = AudioStreamPlayer.new()
+		web_rifle.stream = sounds.shot
+		web_rifle.playback_type = AudioServer.PLAYBACK_TYPE_SAMPLE
+		web_rifle.max_polyphony = 4
+		add_child(web_rifle)
 	music = AudioStreamPlayer.new()
-	music.stream = preload("res://assets/music/sixty.wav")
-	music.finished.connect(func():
-		if rules.mission and state=="RUNNING":music.play())
+	music.stream = COMBAT_MUSIC
 	add_child(music)
 	load_record()
 	set_music_volume(music_volume)
@@ -368,6 +385,7 @@ func prepare_loaded_run(ticket: int) -> void:
 	ranged_aimers.clear()
 	player_bullets.clear()
 	for voice in audio_voices:voice.stop()
+	if web_rifle:web_rifle.stop()
 	var old_nodes = enemies.get_children()+effects.get_children()
 	for i in range(old_nodes.size()):
 		var node = old_nodes[i]
@@ -513,10 +531,12 @@ func clear_round() -> void:
 		effects.remove_child(node)
 		node.queue_free()
 	for voice in audio_voices:voice.stop()
+	if web_rifle:web_rifle.stop()
 	if music:music.stop()
 
 func begin_running() -> void:
 	state = "RUNNING"
+	music.stream = COMBAT_MUSIC
 	music.stream_paused = false
 	music.play()
 	rules.start()
@@ -580,6 +600,7 @@ func start_finale() -> void:
 	if finale_active or state!="RUNNING" or rules.active or rules.remaining()>0 or rules.finale_duration<=0:return
 	finale_active = true
 	finale_elapsed = 0
+	music.stop()
 	player.enabled = false
 	player.velocity = Vector3.ZERO
 	pending_spawn.clear()
@@ -706,6 +727,8 @@ func _physics_process(delta: float) -> void:
 		destroy_active = true
 		hud.go_time = 0
 		hud.destroy_time = 1.7
+		music.stream = DESTROY_MUSIC
+		music.play()
 		play_sound("end",-12,1.25)
 	invulnerable = maxf(0,invulnerable-delta)
 	since_damage += delta
@@ -858,10 +881,8 @@ func shoot() -> void:
 	if shot_enemy and shot_enemy.fast and origin.distance_to(shot_enemy.global_position)>Enemy.CLOSE_SHOT_RANGE:
 		shot_enemy.evade_shot(origin)
 		var projectile = MeshInstance3D.new()
-		var mesh = SphereMesh.new()
-		mesh.radius = .04
-		mesh.height = .08
-		projectile.mesh = mesh
+		projectile.mesh = spark_mesh
+		projectile.scale = Vector3.ONE*.08
 		projectile.material_override = effect_material(Color("fff1b7"))
 		effects.add_child(projectile)
 		projectile.global_position = origin
@@ -1010,9 +1031,11 @@ func damage_player(amount: float = 34.0, source: Variant = null) -> void:
 		player.gun.hide()
 
 func effect_material(color: Color) -> StandardMaterial3D:
+	if effect_materials.has(color):return effect_materials[color]
 	var material = StandardMaterial3D.new()
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	material.albedo_color = color
+	effect_materials[color] = material
 	return material
 
 func fire_effect(at: Vector3, extent: float) -> void:
@@ -1051,39 +1074,34 @@ func collapse_effect(bounds: AABB, color: Color) -> void:
 
 func spark(pos: Vector3, color: Color, radius: float, duration: float) -> void:
 	var node = MeshInstance3D.new()
-	var mesh = SphereMesh.new()
-	mesh.radius = radius
-	mesh.height = radius*2
-	mesh.radial_segments = 6
-	mesh.rings = 3
-	node.mesh = mesh
+	node.mesh = spark_mesh
+	node.scale = Vector3.ONE*radius*2
 	node.material_override = effect_material(color)
 	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	effects.add_child(node)
 	node.global_position = pos
 	var tween = node.create_tween()
-	tween.tween_property(node,"scale",Vector3.ONE*.05,duration)
+	tween.tween_property(node,"scale",node.scale*.05,duration)
 	tween.tween_callback(node.queue_free)
 
 func trace(from: Vector3, to: Vector3, color: Color, width: float, duration: float) -> MeshInstance3D:
 	var node = MeshInstance3D.new()
-	var mesh = BoxMesh.new()
-	mesh.size = Vector3(width,width,maxf(.01,from.distance_to(to)))
-	node.mesh = mesh
+	node.mesh = trace_mesh
 	node.material_override = effect_material(color)
 	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	effects.add_child(node)
 	node.global_position = (from+to)*.5
 	if from.distance_to(to)>.01:node.look_at(to,Vector3.UP)
+	node.scale = Vector3(width,width,maxf(.01,from.distance_to(to)))
 	var tween = node.create_tween()
 	tween.tween_interval(duration)
 	tween.tween_callback(node.queue_free)
 	return node
 
 func play_sound(key: String, volume: float = -10, pitch: float = 1) -> void:
-	var voice = audio_voices[audio_index%audio_voices.size()]
+	var voice = web_rifle if key=="shot" and web_rifle else audio_voices[audio_index%audio_voices.size()]
 	audio_index += 1
-	voice.stream = sounds[key]
+	if voice!=web_rifle:voice.stream = sounds[key]
 	voice.volume_db = volume
 	voice.pitch_scale = pitch
 	voice.play()
