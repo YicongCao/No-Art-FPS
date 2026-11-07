@@ -567,7 +567,7 @@ func clear_round() -> void:
 
 func begin_running() -> void:
 	state = "RUNNING"
-	music.stream = COMBAT_MUSIC
+	music.stream = session.combat_music if session.combat_music else COMBAT_MUSIC
 	music.stream_paused = false
 	music.play()
 	rules.start()
@@ -765,7 +765,7 @@ func _physics_process(delta: float) -> void:
 		destroy_active = true
 		hud.go_time = 0
 		hud.destroy_time = 1.7
-		music.stream = DESTROY_MUSIC
+		music.stream = session.destroy_music if session.destroy_music else DESTROY_MUSIC
 		music.play()
 		play_sound("end",-12,1.25)
 	invulnerable = maxf(0,invulnerable-delta)

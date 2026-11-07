@@ -32,6 +32,8 @@ func check() -> void:
 
 	game.start_run()
 	game.begin_running()
+	assert(game.music.playing and game.music.stream==game.session.combat_music)
+	assert(is_equal_approx(game.music.stream.get_length(),45.0) and game.music.stream.loop)
 	game.invulnerable = 999
 	var opening_count: int = game.live_enemies().size()
 	assert(opening_count==8)
@@ -42,9 +44,11 @@ func check() -> void:
 	assert(park.cars[0].progress!=initial_car and park.horses[0].position.y!=initial_horse)
 	game.pause_run()
 	var stopped: float = park.cars[0].progress
-	for _frame in range(6):await process_frame
-	assert(park.cars[0].progress==stopped)
+	for _frame in range(6):await physics_frame
+	assert(park.cars[0].progress==stopped and game.music.stream_paused)
 	game.menu_action("resume")
+	for _frame in range(2):await physics_frame
+	assert(not game.music.stream_paused and game.music.stream==game.session.combat_music)
 	var spawn_seen = false
 	var revived = false
 	var destroyed = false
@@ -69,6 +73,8 @@ func check() -> void:
 			previous_progress = park.cars[0].progress
 		if game.destroy_active and not destroyed:
 			assert(is_equal_approx(elapsed,45.0))
+			assert(game.music.playing and game.music.stream==game.session.destroy_music)
+			assert(is_equal_approx(game.music.stream.get_length(),15.0) and game.music.stream.loop)
 			var kiosk = park.get_node("Kiosk1")
 			game.player.position = Vector3(14,.05,19)
 			game.player.velocity = Vector3.ZERO
@@ -90,13 +96,16 @@ func check() -> void:
 			finale_seen = true
 		if game.state=="RESULTS":break
 	assert(game.state=="RESULTS" and game.rules.elapsed==60)
+	assert(not game.music.playing)
 	assert(spawn_seen and revived and destroyed and finale_seen and first_car_wrap)
 	assert(park.get_node("Carousel").collapsed and park.get_node("Coaster").collapsed)
 	game.start_run()
 	assert(park.get_node("Carousel/Turntable").visible and park.get_node("Coaster/RailPath").visible)
 	assert(is_equal_approx(park.cars[0].progress,initial_car) and park.horses[0].position.y==initial_horse)
 	assert(not park.get_node("Kiosk1").collapsed)
-	print("AMUSEMENT_PARK_PASS: navigation, ride loop, pause, 60-second round, spawns, respawn, two-hit scenery, finale and reset")
+	game.begin_running()
+	assert(game.music.playing and game.music.stream==game.session.combat_music)
+	print("AMUSEMENT_PARK_PASS: navigation, ride loop, pause, 60-second round, spawns, respawn, two-hit scenery, finale, reset and both music cues")
 	game.state = "RESULTS"
 	game.clear_round()
 	await process_frame

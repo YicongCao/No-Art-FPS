@@ -7,6 +7,8 @@ class_name SessionDefinition
 @export var rules_script: Script
 @export var layout_version = 1
 @export var time_limit = 60.0
+@export var combat_music: AudioStream
+@export var destroy_music: AudioStream
 
 func make_rules() -> RefCounted:
 	var result = rules_script.new()
