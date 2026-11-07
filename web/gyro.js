@@ -6,13 +6,33 @@
     let enabled=false,ready=false,pending=false,generation=0,listening=false;
     let context={running:false,landscape:true,visible:true,focused:true};
     let sensitivity=1,last=null,lastSample=null,yaw=0,pitch=0,filtered=[0,0],bias=[0,0,0];
-    let calibration=null,probe=0,status='关闭';
+    const idle='启用后，浏览器可能会请求访问运动传感器。';
+    const noData='未检测到体感数据。请检查站点的运动传感器权限，或用系统浏览器直接打开。';
+    let calibration=null,probe=0,status=unavailable()||idle;
     try {const saved=Number(host.localStorage?.getItem('no-art-gyro-sensitivity'));if(saved>=.25&&saved<=3)sensitivity=saved;}catch{}
-    const snapshot=()=>({enabled,ready,pending,sensitivity,status,calibrating:!!calibration});
+    const snapshot=()=>({enabled,ready,pending,sensitivity,status,calibrating:!!calibration,available:!unavailable()});
+    function unavailable(){
+      if(!host.isSecureContext)return '体感瞄准需要 HTTPS。请打开正式试玩页面。';
+      if(!host.DeviceMotionEvent)return '当前浏览器不提供运动传感器。请用系统浏览器直接打开。';
+      const policy=host.document?.permissionsPolicy||host.document?.featurePolicy;
+      const features=policy?.features?.()??[];
+      if(['accelerometer','gyroscope'].some(feature=>features.includes(feature)&&!policy.allowsFeature(feature)))return '当前页面禁止访问运动传感器。请在浏览器中直接打开试玩页。';
+      return '';
+    }
     function notify(message){if(message!==undefined)status=message;changed(snapshot());}
     function reset(){last=null;yaw=pitch=0;filtered=[0,0];}
     function active(){return context.visible&&context.focused&&context.landscape;}
-    function stop(message='关闭'){
+    function watchForMotion(){
+      host.clearTimeout(probe);probe=0;
+      if(!enabled||!active())return;
+      function check(){
+        const remaining=lastSample===null?0:3000-(now()-lastSample);
+        if(remaining>0)probe=host.setTimeout(check,remaining);
+        else stop(noData);
+      }
+      probe=host.setTimeout(check,3000);
+    }
+    function stop(message=idle){
       generation++;enabled=ready=pending=false;calibration=null;reset();
       host.clearTimeout(probe);probe=0;
       if(listening)host.removeEventListener('devicemotion',sample);
@@ -20,32 +40,40 @@
     }
     function calibrate(){
       if(!enabled)return;
-      ready=false;reset();calibration={start:now(),first:null,count:0,sum:[0,0,0]};
-      notify('保持手机静止，正在校准');
+      ready=false;lastSample=null;reset();calibration={start:now(),first:null,count:0,sum:[0,0,0]};
+      notify(active()?'保持手机静止，等待校准完成。':'请回到当前页面，横握手机完成校准。');
+      watchForMotion();
     }
     async function enable(){
       if(enabled||pending)return;
-      const Motion=host.DeviceMotionEvent;
-      if(!host.isSecureContext||!Motion){notify('当前浏览器不支持体感');return;}
-      const token=++generation;pending=true;notify('等待体感授权');
+      const issue=unavailable();
+      if(issue){notify(issue);return;}
+      const Motion=host.DeviceMotionEvent,needsPrompt=typeof Motion.requestPermission==='function';
+      const token=++generation;
       try {
         // Called directly from the switch click, before any other awaited work.
-        const permission=typeof Motion.requestPermission==='function'?await Motion.requestPermission():'granted';
+        const request=needsPrompt?Motion.requestPermission():null;
+        if(needsPrompt){pending=true;notify('请在浏览器弹窗中允许访问运动传感器。');}
+        const permission=needsPrompt?await request:'granted';
         if(token!==generation)return;
         pending=false;
-        if(permission!=='granted'){notify('未获得体感权限，可继续触屏操作');return;}
-        enabled=true;lastSample=null;
+        if(permission!=='granted'){notify('运动传感器权限被拒绝。请在浏览器中允许此站点访问后重试。');return;}
+        enabled=true;
         host.addEventListener('devicemotion',sample);listening=true;calibrate();
-        probe=host.setTimeout(()=>{if(enabled&&lastSample===null)stop('未检测到体感数据，可继续触屏操作');},3000);
-      }catch{if(token===generation)stop('无法开启体感，可继续触屏操作');}
+      }catch(error){
+        if(token===generation)stop(error?.name==='NotAllowedError'?'授权未完成。请在当前页面重新点按启用。':'浏览器无法请求体感权限。请直接打开试玩页后重试。');
+      }
     }
     function setContext(next){
-      const merged={...context,...next};
-      if(Object.keys(merged).some(k=>merged[k]!==context[k])){
+      const wasActive=active(),wasRunning=context.running;
+      context={...context,...next};
+      if(wasActive!==active()){
+        reset();lastSample=null;
+        if(calibration)calibrate();
+        else if(enabled)watchForMotion();
+      }else if(wasRunning!==context.running){
         reset();
-        if(calibration)calibration={start:now(),first:null,count:0,sum:[0,0,0]};
       }
-      context=merged;
     }
     function setSensitivity(value){
       const n=Number(value);if(!Number.isFinite(n))return;
@@ -54,19 +82,17 @@
       notify();
     }
     function sample(event){
-      if(!enabled)return;
+      if(!enabled||!active())return;
       const r=event.rotationRate;
       if(!r||![r.beta,r.gamma,r.alpha].every(Number.isFinite)){reset();return;}
       const t=now(),raw=[r.beta,r.gamma,r.alpha];lastSample=t;
-      host.clearTimeout(probe);probe=0;
-      if(!active()){reset();return;}
       if(calibration){
         if(raw.some(v=>Math.abs(v)>3)){calibration.first=null;calibration.count=0;calibration.sum=[0,0,0];}
         else{
           if(calibration.first===null)calibration.first=t;
           raw.forEach((v,i)=>calibration.sum[i]+=v);calibration.count++;
           if(t-calibration.first>=650&&calibration.count>=15){
-            bias=calibration.sum.map(v=>v/calibration.count);calibration=null;ready=true;reset();notify('已开启');return;
+            bias=calibration.sum.map(v=>v/calibration.count);calibration=null;ready=true;reset();notify('校准完成，可以用体感瞄准。');return;
           }
         }
         if(t-calibration.start>6000){calibration=null;ready=false;notify('手机移动较多，请重新校准');}

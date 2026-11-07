@@ -52,12 +52,12 @@
     @media(max-height:560px){.loader-title{font-size:clamp(50px,11vh,86px);margin-bottom:16px}}
     @media(max-height:400px) and (orientation:landscape){.loader-title{display:flex;gap:.17em;flex-wrap:wrap}}
     #gyro-open{display:none;position:fixed;z-index:7;top:max(10px,env(safe-area-inset-top));right:max(110px,calc(env(safe-area-inset-right) + 98px));min-height:44px;padding:10px 14px;background:#243440bd;color:#fff5d3;border:1px solid #fff5d366}
-    body.mobile:is([data-game=TITLE],[data-game=PAUSED],[data-game=RESULTS]):not(.portrait) #gyro-open{display:block}
+    body.mobile:is([data-game=TITLE],[data-game=RESULTS]):not(.portrait) #loading[hidden]~#gyro-open{display:block}
     #gyro-panel[hidden]{display:none}#gyro-panel{position:fixed;inset:0;z-index:18;background:#13202bd9;display:grid;place-items:center;padding:max(12px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left))}
     #gyro-panel section{background:#243440;border:1px solid #fff5d355;padding:20px 24px;width:min(380px,100%);max-height:100%;overflow:auto;border-radius:8px}
     #gyro-panel header,.gyro-row{display:flex;align-items:center;justify-content:space-between;gap:16px}#gyro-panel h2{margin:0;font-size:22px}#gyro-panel header{margin-bottom:16px}
     #gyro-panel button{min-height:44px;min-width:44px;border:1px solid #fff5d366;background:#344650;color:#fff5d3;padding:8px 12px;border-radius:4px}#gyro-toggle[aria-checked=true]{background:#e9ba50;color:#243440}#gyro-panel button:disabled{opacity:.45;cursor:default}
-    #gyro-panel input{width:100%;height:44px;accent-color:#e9ba50;touch-action:pan-y}#gyro-panel input:focus-visible{outline:2px solid #e9ba50}#gyro-panel output{font-variant-numeric:tabular-nums}.gyro-row{margin-bottom:8px}#gyro-status{font-size:13px;min-height:20px;margin:12px 0 0;color:#c4bfb2;line-height:1.5}
+    #gyro-panel input{width:100%;height:44px;accent-color:#e9ba50;touch-action:pan-y}#gyro-panel input:focus-visible{outline:2px solid #e9ba50}#gyro-panel output{font-variant-numeric:tabular-nums}.gyro-row{margin-bottom:8px}#gyro-status{font-size:14px;min-height:3em;margin:0 0 12px;color:#fff5d3;line-height:1.5}
     @media(max-height:400px){#gyro-panel section{padding:12px 20px}#gyro-panel header{margin-bottom:8px}}
     @media(prefers-reduced-motion:reduce){#loading{transition:none}}
   </style>
@@ -121,11 +121,11 @@
   <div id="gyro-panel" hidden>
     <section role="dialog" aria-modal="true" aria-labelledby="gyro-title" tabindex="-1">
       <header><h2 id="gyro-title">体感瞄准</h2><button id="gyro-close" aria-label="关闭体感设置"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18"/></svg></button></header>
-      <div class="gyro-row"><label for="gyro-toggle">体感辅助</label><button id="gyro-toggle" role="switch" aria-checked="false">关闭</button></div>
+      <div class="gyro-row"><label for="gyro-toggle">运动传感器</label><button id="gyro-toggle" role="switch" aria-checked="false" aria-describedby="gyro-status" disabled>启用</button></div>
+      <p id="gyro-status" role="status">正在检查浏览器支持</p>
       <label class="gyro-row" for="gyro-sensitivity">灵敏度 <output id="gyro-value" for="gyro-sensitivity">1.00x</output></label>
       <input id="gyro-sensitivity" type="range" min="0.25" max="3" step="0.25" value="1" aria-label="体感灵敏度">
       <button id="gyro-calibrate" disabled>重新校准</button>
-      <p id="gyro-status" role="status">关闭</p>
     </section>
   </div>
   <script>
@@ -133,32 +133,38 @@
     const touch={x:0,y:0,dx:0,dy:0,fire:false,interact:false,jump:false,reload:false,pause:false,blocked:false};
     let pauseRequested=false,focused=true;
     const gyroPanel=document.querySelector('#gyro-panel'),gyroOpen=document.querySelector('#gyro-open'),gyroToggle=document.querySelector('#gyro-toggle'),gyroSlider=document.querySelector('#gyro-sensitivity'),gyroCalibrate=document.querySelector('#gyro-calibrate');
-    function gyroChanged(s){gyroToggle.textContent=s.pending?'取消':s.enabled?'开启':'关闭';gyroToggle.setAttribute('aria-checked',String(s.enabled));gyroSlider.value=String(s.sensitivity);document.querySelector('#gyro-value').textContent=s.sensitivity.toFixed(2)+'x';gyroCalibrate.disabled=!s.enabled||s.calibrating;document.querySelector('#gyro-status').textContent=s.status;}
-    let gyro={read:()=>({gyroYaw:0,gyroPitch:0}),setContext(){},reset(){},snapshot:()=>({enabled:false,pending:false,sensitivity:1,status:'体感组件加载中'}),enable(){},disable(){},calibrate(){},setSensitivity(){}};
-    gyroChanged(gyro.snapshot());
-    function closeGyro(restore=true){const wasOpen=!gyroPanel.hidden;gyroPanel.hidden=true;if(wasOpen&&restore)gyroOpen.focus();}
-    function syncGyro(alive=true){gyro.setContext({running:alive&&document.body.dataset.game==='RUNNING'&&!pauseRequested,landscape:innerWidth>=innerHeight,visible:!document.hidden,focused});}
+    let gyro=null,gyroLoadStatus='正在检查浏览器支持';
+    function gyroChanged(s){
+      gyroToggle.textContent=s?.pending?'取消':s?.enabled?'关闭':'启用';
+      gyroToggle.disabled=!s?.available;gyroToggle.setAttribute('aria-checked',String(Boolean(s?.enabled)));
+      const sensitivity=s?.sensitivity??1;
+      gyroSlider.disabled=!s?.available;gyroSlider.value=String(sensitivity);document.querySelector('#gyro-value').textContent=sensitivity.toFixed(2)+'x';
+      gyroCalibrate.disabled=!s?.enabled||s.calibrating;document.querySelector('#gyro-status').textContent=s?.status??gyroLoadStatus;
+    }
+    function closeGyro(restore=true){const wasOpen=!gyroPanel.hidden;gyroPanel.hidden=true;if(wasOpen&&restore)(gyroOpen.offsetWidth?gyroOpen:document.querySelector('#canvas')).focus({preventScroll:true});}
+    function syncGyro(alive=true){gyro?.setContext({running:alive&&document.body.dataset.game==='RUNNING'&&!pauseRequested,landscape:innerWidth>=innerHeight,visible:!document.hidden,focused});}
     if(window.noArtMobile){
       const gyroScript=document.createElement('script');
       gyroScript.onload=()=>{gyro=window.NoArtGyro.create({changed:gyroChanged});gyroChanged(gyro.snapshot());syncGyro();};
-      gyroScript.onerror=()=>{document.querySelector('#gyro-status').textContent='体感组件加载失败';};
+      gyroScript.onerror=()=>{gyroLoadStatus='体感组件加载失败。请刷新页面后重试。';gyroChanged();};
       gyroScript.src='gyro.js';document.head.appendChild(gyroScript);
     }
-    gyroOpen.onclick=()=>{if(document.body.dataset.game==='RUNNING')return;gyroPanel.hidden=false;gyroChanged(gyro.snapshot());document.querySelector('#gyro-close').focus();};
+    window.noArtOpenGyro=()=>{if(!window.noArtMobile||!['TITLE','PAUSED','RESULTS'].includes(document.body.dataset.game))return;gyroPanel.hidden=false;gyroChanged(gyro?.snapshot());document.querySelector('#gyro-close').focus();};
+    gyroOpen.onclick=window.noArtOpenGyro;
     document.querySelector('#gyro-close').onclick=()=>closeGyro();
     gyroPanel.addEventListener('click',e=>{if(e.target===gyroPanel)closeGyro();});
-    gyroPanel.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeGyro();}if(e.key==='Tab'){const items=[document.querySelector('#gyro-close'),gyroToggle,gyroSlider,...(gyroCalibrate.disabled?[]:[gyroCalibrate])],index=items.indexOf(document.activeElement);e.preventDefault();items[(index+(e.shiftKey?-1:1)+items.length)%items.length].focus();}});
-    gyroToggle.onclick=()=>{const s=gyro.snapshot();if(s.enabled||s.pending)gyro.disable();else gyro.enable();};
-    gyroSlider.addEventListener('input',()=>gyro.setSensitivity(gyroSlider.value));
-    gyroCalibrate.onclick=()=>gyro.calibrate();
+    gyroPanel.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeGyro();}if(e.key==='Tab'){const items=[...gyroPanel.querySelectorAll('button:not(:disabled),input:not(:disabled)')],index=items.indexOf(document.activeElement);e.preventDefault();items[(index+(e.shiftKey?-1:1)+items.length)%items.length].focus();}});
+    gyroToggle.onclick=()=>{const s=gyro?.snapshot();if(!s?.available)return;if(s.enabled||s.pending)gyro.disable();else gyro.enable();};
+    gyroSlider.addEventListener('input',()=>gyro?.setSensitivity(gyroSlider.value));
+    gyroCalibrate.onclick=()=>gyro?.calibrate();
     const fingers=new Map(),ui=document.querySelector('#touch-ui'),knob=document.querySelector('#stick span');
-    function clearTouch(){gyro.reset();fingers.clear();Object.assign(touch,{x:0,y:0,dx:0,dy:0,fire:false,interact:false,jump:false,reload:false,pause:false});knob.style.transform='';document.querySelectorAll('.held').forEach(e=>e.classList.remove('held'));}
+    function clearTouch(){gyro?.reset();fingers.clear();Object.assign(touch,{x:0,y:0,dx:0,dy:0,fire:false,interact:false,jump:false,reload:false,pause:false});knob.style.transform='';document.querySelectorAll('.held').forEach(e=>e.classList.remove('held'));}
     function orientation(){const portrait=innerHeight>innerWidth;document.body.classList.toggle('portrait',portrait);touch.blocked=portrait||document.hidden;if(portrait){clearTouch();closeGyro(false);pauseRequested=true;}syncGyro();}
     document.body.classList.toggle('mobile',window.noArtMobile);orientation();window.addEventListener('resize',()=>{clearTouch();orientation();});window.addEventListener('orientationchange',()=>{clearTouch();orientation();});screen.orientation?.addEventListener?.('change',()=>{clearTouch();orientation();});
     document.addEventListener('visibilitychange',()=>{clearTouch();orientation();if(document.hidden)pauseRequested=true;});window.addEventListener('blur',()=>{focused=false;clearTouch();if(document.body.dataset.game==='RUNNING')pauseRequested=true;syncGyro();});window.addEventListener('focus',()=>{focused=true;syncGyro();});
     window.noArtMode=mode=>{document.body.dataset.mode=mode;clearTouch();};
     window.noArtState=state=>{document.body.dataset.game=state;clearTouch();hideImmersiveNote();immersiveAttempt++;if(state!=='RUNNING')pauseRequested=false;if(state==='RUNNING'||state==='LOADING')closeGyro(false);syncGyro();};
-    window.noArtReadTouch=(alive=true)=>{syncGyro(alive);const result=JSON.stringify({...touch,...gyro.read(),pause:touch.pause||pauseRequested});pauseRequested=false;touch.dx=touch.dy=0;touch.jump=touch.reload=touch.pause=false;return result;};
+    window.noArtReadTouch=(alive=true)=>{syncGyro(alive);const result=JSON.stringify({...touch,...gyro?.read(),pause:touch.pause||pauseRequested});pauseRequested=false;touch.dx=touch.dy=0;touch.jump=touch.reload=touch.pause=false;return result;};
     ui.addEventListener('contextmenu',e=>e.preventDefault());
     ui.addEventListener('pointerdown',e=>{e.preventDefault();ui.setPointerCapture(e.pointerId);const action=e.target.closest('button')?.id;const kind=action||(e.clientX<innerWidth*.4?'move':'look');if([...fingers.values()].some(f=>f.kind===kind))return;fingers.set(e.pointerId,{kind,x:e.clientX,y:e.clientY});if(action){touch[action]=true;document.getElementById(action).classList.add('held');}});
     ui.addEventListener('pointermove',e=>{const f=fingers.get(e.pointerId);if(!f)return;e.preventDefault();if(f.kind==='move'){const x=(e.clientX-f.x)/50,y=(e.clientY-f.y)/50,length=Math.max(1,Math.hypot(x,y));touch.x=x/length;touch.y=y/length;knob.style.transform=`translate(${touch.x*36}px,${touch.y*36}px)`;}else if(f.kind==='look'||f.kind==='fire'){touch.dx+=e.clientX-f.x;touch.dy+=e.clientY-f.y;f.x=e.clientX;f.y=e.clientY;}});

@@ -660,6 +660,8 @@ func menu_action(action: String) -> void:
 			if state != "PAUSED":return
 			reduced_motion = not reduced_motion
 			save_record()
+		"gyro":
+			if touch_mode and state=="PAUSED":JavaScriptBridge.eval("window.noArtOpenGyro()")
 
 func _physics_process(delta: float) -> void:
 	if touch_mode:

@@ -41,16 +41,25 @@ f.sample(30,20,10);f.advance(300);assert.equal(f.gyro.read().gyroYaw,0,'Stale bu
 f.sample(null,null,null);assert.equal(f.gyro.read().gyroPitch,0);
 f.gyro.disable();assert.equal(f.listeners.size,0);assert.equal(f.gyro.read().gyroYaw,0);
 // Explicit permission, denial, no hardware, insecure context and revoked pending enable.
-f=fixture(async()=>'denied');await f.gyro.enable();assert.equal(f.gyro.snapshot().enabled,false);assert.equal(f.listeners.size,0);
+f=fixture(async()=>'denied');assert.match(f.gyro.snapshot().status,/运动传感器/);await f.gyro.enable();assert.equal(f.gyro.snapshot().enabled,false);assert.equal(f.listeners.size,0);assert.match(f.gyro.snapshot().status,/权限被拒绝/);
 f=fixture();await f.gyro.enable();f.sample(null,null,null);for(const timer of [...f.timers.keys()])timer();assert.equal(f.gyro.snapshot().enabled,false);assert.match(f.gyro.snapshot().status,/未检测到/);
-f=fixture();f.host.isSecureContext=false;await f.gyro.enable();assert.equal(f.listeners.size,0);
+f=fixture();await f.gyro.enable();f.sample();f.advance(3100);for(const timer of [...f.timers.keys()])timer();assert.match(f.gyro.snapshot().status,/未检测到/);
+f=fixture();f.host.isSecureContext=false;await f.gyro.enable();assert.equal(f.listeners.size,0);assert.match(f.gyro.snapshot().status,/HTTPS/);
+f=fixture();f.host.document={featurePolicy:{features:()=>['gyroscope'],allowsFeature:()=>false}};await f.gyro.enable();assert.equal(f.listeners.size,0);assert.match(f.gyro.snapshot().status,/禁止访问/);
 let resolvePermission;f=fixture(()=>new Promise(resolve=>{resolvePermission=resolve;}));const enabling=f.gyro.enable();f.gyro.disable();resolvePermission('granted');await enabling;assert.equal(f.listeners.size,0);
 f=fixture(async()=>{throw Error('permission');});await f.gyro.enable();assert.equal(f.gyro.snapshot().enabled,false);
+f=fixture();f.gyro.setContext({focused:false});await f.gyro.enable();assert.equal(f.timers.size,0);assert.match(f.gyro.snapshot().status,/回到当前页面/);
+f.sample();f.gyro.setContext({focused:true});assert.equal(f.timers.size,1);
+for(let n=0;n<25;n++)f.sample();
+f.gyro.setContext({running:true});
+for(let n=0;n<25;n++)f.sample();
+assert.equal(f.gyro.snapshot().ready,true,'Opening a round does not restart in-progress calibration');
+f.gyro.calibrate();for(const timer of [...f.timers.keys()])timer();assert.match(f.gyro.snapshot().status,/未检测到/);
 f=fixture();await f.gyro.enable();for(let n=0;n<400;n++)f.sample(10,0,0);assert.equal(f.gyro.snapshot().ready,false);assert.match(f.gyro.snapshot().status,/重新校准/);f.gyro.calibrate();for(let n=0;n<50;n++)f.sample();assert.equal(f.gyro.snapshot().ready,true);
 // Rate integration should be stable across sensor event frequencies.
 async function integrate(dt){const test=fixture();await test.start();test.sample(30,0,0,dt);let total=0;for(let n=0;n<1000/dt;n++){test.sample(30,0,0,dt);total+=test.gyro.read().gyroYaw;}return total;}
 const fast=await integrate(10),slow=await integrate(20);assert.ok(Math.abs(fast-slow)<.01);
 const shell=readFileSync(new URL('../web/shell.html',import.meta.url),'utf8');
 assert.ok(!shell.includes('href="https://cv.yicong.me'));
-assert.ok(shell.includes('...gyro.read()'));assert.ok(shell.includes('syncGyro(alive)'));
+assert.ok(shell.includes('...gyro?.read()'));assert.ok(shell.includes('syncGyro(alive)'));
 console.log('GYRO_PASS: opt-in permission, calibration, coordinate mapping, gravity, sensitivity, consume-once, lifecycle, null data, timeout, cancellation, event rates');

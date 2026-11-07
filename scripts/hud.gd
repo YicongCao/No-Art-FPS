@@ -359,6 +359,7 @@ func rebuild_menu() -> void:
 			results_button(RETRY_ICON,Rect2(c.x-174,c.y+106,160,88),"retry",true,"重试 · Enter")
 			results_button(HOME_ICON,Rect2(c.x+14,c.y+106,160,88),"menu",false,"返回标题 · Esc")
 	elif menu_state == "PAUSED":
+		if game.touch_mode:c.y -= 30
 		menu_button("RESUME",Rect2(c.x-200,c.y-150,400,64 if game.touch_mode else 60),"resume",true,"Esc")
 		menu_button("RESTART",Rect2(c.x-200,c.y-74,400,64 if game.touch_mode else 56),"retry",false,"Enter")
 		sensitivity_slider = HSlider.new()
@@ -386,6 +387,7 @@ func rebuild_menu() -> void:
 			game.set_music_volume(value)
 			game.save_record())
 		menu.add_child(music_slider)
+		if game.touch_mode:menu_button("GYRO AIM",Rect2(c.x-200,c.y+220,400,50),"gyro")
 
 func results_button(texture: Texture2D, rect: Rect2, action: String, primary: bool, tooltip: String) -> Button:
 	var button = menu_button("",rect,action,primary,tooltip)
@@ -473,6 +475,7 @@ func _draw() -> void:
 		draw_results()
 		return
 	if state == "PAUSED":
+		if game.touch_mode:c.y -= 30
 		draw_rect(Rect2(Vector2.ZERO,size),Color(.06,.09,.12,.76))
 		death_marks()
 		label("Sensitivity",Vector2(c.x-200,c.y+65),20)
