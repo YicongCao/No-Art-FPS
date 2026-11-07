@@ -22,7 +22,7 @@ A colorful low-poly FPS built with Godot and Blender. Score as many kills as you
   </tr>
 </table>
 
-[Watch the full automated QA run (uncut MP4)](artifacts/qa-run.mp4)
+[Watch the 45-second gameplay trailer](artifacts/gameplay-trailer.mp4) · [Watch the full automated QA run (uncut MP4)](artifacts/qa-run.mp4)
 
 ## Play locally
 
