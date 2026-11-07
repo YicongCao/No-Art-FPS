@@ -37,8 +37,12 @@
     #rotate p{font-size:22px;margin:0}#rotate small{max-width:280px;color:#c4bfb2;line-height:1.6}
     #touch-ui{display:none;position:fixed;inset:0;z-index:3;touch-action:none;user-select:none;-webkit-user-select:none}
     body.mobile[data-game=RUNNING]:not(.portrait) #touch-ui{display:block}
-    .touch-button{position:absolute;width:62px;height:62px;border-radius:50%;border:2px solid #fff5d388;color:#fff5d3;background:#24344080;font-size:18px;touch-action:none}
+    .touch-button{position:absolute;width:62px;height:62px;border-radius:50%;border:2px solid #fff5d388;color:#fff5d3;background:#182631b8;font-size:18px;touch-action:none}
     .touch-button.held{background:#e9ba50aa;color:#243440}
+    .touch-action-icon{display:block;width:34px;height:34px;margin:auto;fill:currentColor;pointer-events:none;--accent:#f2d084}
+    .touch-action-icon .accent{fill:var(--accent)}
+    .touch-button.held .touch-action-icon{--accent:#754c87}
+    #fire .touch-action-icon{width:50px;height:50px}
     #fire{width:92px;height:92px;right:max(24px,env(safe-area-inset-right));bottom:max(42px,env(safe-area-inset-bottom));font-size:22px}
     #interact{display:none;right:134px;bottom:114px;width:90px;border-radius:8px}body[data-mode=defuse] #interact{display:block}
     #jump{right:max(134px,calc(env(safe-area-inset-right) + 110px));bottom:28px}#reload{right:max(32px,env(safe-area-inset-right));bottom:154px}
@@ -100,7 +104,23 @@
 
   <div id="rotate"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="28" y="13" width="44" height="74" rx="7" transform="rotate(30 50 50)"/><path d="M8 48a42 42 0 0 1 70-30m0-12v12H65M92 52a42 42 0 0 1-70 30m0 12V82h13"/></svg><p>横过来，准备开火</p><small>左手移动，右手瞄准</small><button id="rotate-full">横屏全屏</button></div>
   <button id="immersive" aria-label="进入沉浸全屏"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 4H4v5m11-5h5v5M4 15v5h5m11-5v5h-5"/></svg> 全屏</button><div id="immersive-note" role="status" hidden></div>
-  <div id="touch-ui" aria-label="触控操作"><div id="stick"><span></span></div><button class="touch-button" id="fire" aria-label="按住开火"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg></button><button class="touch-button" id="jump" aria-label="跳跃"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 10 6-6 6 6M12 4v14M6 21h12"/></svg></button><button class="touch-button" id="reload" aria-label="换弹"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 7a8 8 0 1 0 1 8M19 3v5h-5"/></svg></button><button class="touch-button" id="interact" aria-label="按住拆除 C4">拆除</button><button class="touch-button" id="pause" aria-label="暂停"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5v14M16 5v14"/></svg></button></div>
+  <div id="touch-ui" aria-label="触控操作">
+    <div id="stick"><span></span></div>
+    <button class="touch-button" id="fire" aria-label="按住开火"><svg class="touch-action-icon" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+      <path d="M14.5 2h3v7h-3zM14.5 23h3v7h-3zM2 14.5h7v3H2zM23 14.5h7v3h-7zM5 13a11.4 11.4 0 0 1 8-8v2.7A9 9 0 0 0 7.7 13zm14-8a11.4 11.4 0 0 1 4.2 2l-2 1.7A9 9 0 0 0 19 7.7zm8 8h-2.7l-.8-1.9 1.6-2A11.4 11.4 0 0 1 27 13zM5 19h2.7a9 9 0 0 0 5.3 5.3V27a11.4 11.4 0 0 1-8-8zm22 0a11.4 11.4 0 0 1-8 8v-2.7a9 9 0 0 0 5.3-5.3z"/>
+      <path class="accent" d="m27.5 4-6.2 11 3 2.7-5.5.7.9 5.2-3.8-3.4-4.5 4.3 1.6-5.7-6.1.8 5-3.9-2.2-4 4.6 1.6 1.6-5.4 1.4 5z"/>
+    </svg></button>
+    <button class="touch-button" id="jump" aria-label="跳跃"><svg class="touch-action-icon" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+      <path d="M5 17c2.1 0 3.8-.3 5.3-1.1l-.8-1.6c-.5-.9-.1-2.1.7-2.6l2.7-1.5 2.3 2.6-1.4 2.1 1.5 1 1.5-2 1.4.8-1.2 2.1 1.5.8 1.2-2c3.2 1.2 7.3-2.6 9.6 2.3l-7 2.9-7.3 1L6 25l-1-8zm1.6 9.4 8.7-3.2 7.2-1 7.2-2.8c.3 2.2-1.9 3.8-5.1 4.8L16 26l-6.5 2.4c-1.5.5-2.3-.5-2.9-2zM2.6 27.5l4.1-2.7 1 1.5-4.1 2.7zm2 2.3 4.2-2.7 1 1.5-4.2 2.7z"/>
+      <path class="accent" d="m26.2 2-2.3 7.8-1.5-2.2-5.3 3.5-1.7-2.6 5.3-3.4-1.5-2.2z"/>
+    </svg></button>
+    <button class="touch-button" id="reload" aria-label="换弹"><svg class="touch-action-icon" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+      <path class="accent" d="M25.1 7.4 28 5l1.2 8.5-8.4-2.1 2.3-2A10.2 10.2 0 1 0 26 15l3-.5A13.2 13.2 0 1 1 25.1 7.4Z"/>
+      <path fill-rule="evenodd" d="M12.8 8.7 22 11.9l-4 11.5-3.1.4-5.8-2 3.7-13.1zm1 3.3-.6 1.8 5.7 2 .6-1.8zm-1.2 3.7-.6 1.8 5.7 2 .6-1.8z"/>
+    </svg></button>
+    <button class="touch-button" id="interact" aria-label="按住拆除 C4">拆除</button>
+    <button class="touch-button" id="pause" aria-label="暂停"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5v14M16 5v14"/></svg></button>
+  </div>
   <button id="gyro-open" aria-haspopup="dialog">体感瞄准</button>
   <div id="gyro-panel" hidden>
     <section role="dialog" aria-modal="true" aria-labelledby="gyro-title" tabindex="-1">
