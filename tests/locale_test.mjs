@@ -24,7 +24,7 @@ for(const [locale,expected] of [['','zh'],['zh','zh'],['zh-Hans-CN','zh'],['zh-H
 const app=launch('en-US');
 assert.equal(app.heading.textContent,'Sensitivity');
 assert.equal(app.button.label,'Close gyro settings');
-assert.equal(app.window.noArtText('权限已允许。让抖动保持在刻度线以内。'),'Permission granted. Keep motion below the threshold.');
+assert.equal(app.window.noArtText('校准进度'),'Calibration progress');
 for(const mark of ['NO ART FPS','FIRE'])assert.equal(app.window.noArtText(mark),mark);
 app.window.noArtSetLanguage('zh');
 assert.equal(app.document.documentElement.lang,'zh-CN');

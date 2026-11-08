@@ -3,7 +3,7 @@
   'use strict';
   const clamp=(v,a,b)=>Math.min(b,Math.max(a,v)), RAD=Math.PI/180;
   const SETTINGS_KEY='no-art-gyro-settings';
-  const CALIBRATION_LIMIT=3, CALIBRATION_HOLD_MS=650, CALIBRATION_SAMPLES=15;
+  const CALIBRATION_LIMIT=3, CALIBRATION_HOLD_MS=1000;
   const MOTION_STALE_MS=250;
   function create({host=root,now=()=>performance.now(),changed=()=>{}}={}){
     let enabled=false,ready=false,pending=false,generation=0,listening=false;
@@ -96,17 +96,17 @@
     function calibrate(){
       if(!enabled)return;
       ready=false;lastSample=null;reset();calibration={start:now(),first:null,count:0,sum:[0,0,0],rates:null};
-      const instruction=active()?'让抖动保持在刻度线以内。':'请回到当前页面，横握设备完成校准。';
+      const instruction=active()?'':'请回到当前页面，横握设备完成校准。';
       notify((permissionGranted?'权限已允许。':'')+instruction);
       watchForMotion();
     }
     function calibrationFeedback(){
       const receiving=calibration&&lastSample!==null&&now()-lastSample<=MOTION_STALE_MS;
       const rates=receiving?calibration.rates:null;
-      const progress=rates&&calibration.first!==null
-        ? Math.min(1,(lastSample-calibration.first)/CALIBRATION_HOLD_MS,calibration.count/CALIBRATION_SAMPLES)
+      const progress=ready?1:rates&&calibration.first!==null
+        ? (lastSample-calibration.first)/CALIBRATION_HOLD_MS
         : 0;
-      return {rates,limit:CALIBRATION_LIMIT,holdMs:CALIBRATION_HOLD_MS,progress};
+      return {rates,limit:CALIBRATION_LIMIT,progress};
     }
     async function enable(){
       if(enabled||pending)return;
@@ -160,7 +160,7 @@
         if(!shaky){
           if(calibration.first===null)calibration.first=t;
           raw.forEach((v,i)=>calibration.sum[i]+=v);calibration.count++;
-          if(t-calibration.first>=CALIBRATION_HOLD_MS&&calibration.count>=CALIBRATION_SAMPLES){
+          if(t-calibration.first>=CALIBRATION_HOLD_MS){
             bias=calibration.sum.map(v=>v/calibration.count);calibration=null;ready=true;reset();notify('校准完成，可以用体感瞄准。');return;
           }
         }

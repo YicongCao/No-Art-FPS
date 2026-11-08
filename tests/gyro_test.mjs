@@ -8,7 +8,7 @@ function fixture(permission,storage=new Map()){
   runInNewContext(source,{window:host,performance:{now:()=>time}});
   const gyro=host.NoArtGyro.create({host,now:()=>time,changed:s=>states.push(s)});
   const sample=(x=0,y=0,z=0,dt=16,g=null)=>{time+=dt;listeners.get('devicemotion')?.({rotationRate:{alpha:x,beta:y,gamma:z},accelerationIncludingGravity:g});};
-  async function start(bias=[0,0,0]){await gyro.enable();for(let n=0;n<50;n++)sample(...bias);assert.equal(gyro.snapshot().ready,true);gyro.setContext({running:true});}
+  async function start(bias=[0,0,0]){await gyro.enable();for(let n=0;n<64;n++)sample(...bias);assert.equal(gyro.snapshot().ready,true);gyro.setContext({running:true});}
   return {gyro,host,listeners,timers,storage,states,sample,start,advance:ms=>{time+=ms;}};
 }
 let f=fixture();assert.equal(f.gyro.snapshot().enabled,false);assert.equal(f.listeners.size,0);
@@ -35,7 +35,7 @@ assert.ok(f.gyro.read().gyroYaw>0);
 const ipad=fixture();
 ipad.host.navigator={platform:'MacIntel',maxTouchPoints:5};
 const ipadGyro=ipad.host.NoArtGyro.create({host:ipad.host});
-await ipadGyro.enable();for(let n=0;n<50;n++)ipad.sample();
+await ipadGyro.enable();for(let n=0;n<64;n++)ipad.sample();
 assert.equal(ipadGyro.snapshot().ready,true);ipadGyro.setContext({running:true});
 for(const side of [1,-1]){
   ipad.host.orientation=90*side;
@@ -101,24 +101,23 @@ let resolvePermission;f=fixture(()=>new Promise(resolve=>{resolvePermission=reso
 f=fixture(async()=>{throw Error('permission');});await f.gyro.enable();assert.equal(f.gyro.snapshot().enabled,false);
 f=fixture();f.gyro.setContext({focused:false});await f.gyro.enable();assert.equal(f.timers.size,0);assert.match(f.gyro.snapshot().status,/回到当前页面/);
 f.sample();f.gyro.setContext({focused:true});assert.equal(f.timers.size,1);
-for(let n=0;n<25;n++)f.sample();
+for(let n=0;n<32;n++)f.sample();
 f.gyro.setContext({running:true});
-for(let n=0;n<25;n++)f.sample();
+for(let n=0;n<32;n++)f.sample();
 assert.equal(f.gyro.snapshot().ready,true,'Opening a round does not restart in-progress calibration');
 f.gyro.calibrate();for(const timer of [...f.timers.keys()])timer();assert.match(f.gyro.snapshot().status,/未检测到/);
-f=fixture();await f.gyro.enable();for(let n=0;n<400;n++)f.sample(10,0,0);assert.equal(f.gyro.snapshot().ready,false);assert.match(f.gyro.snapshot().status,/重新校准/);f.gyro.calibrate();for(let n=0;n<50;n++)f.sample();assert.equal(f.gyro.snapshot().ready,true);
+f=fixture();await f.gyro.enable();for(let n=0;n<400;n++)f.sample(10,0,0);assert.equal(f.gyro.snapshot().ready,false);assert.match(f.gyro.snapshot().status,/重新校准/);f.gyro.calibrate();for(let n=0;n<64;n++)f.sample();assert.equal(f.gyro.snapshot().ready,true);
 // The visual guide reports the same threshold and uninterrupted hold as calibration.
 f=fixture();await f.gyro.enable();
 const feedback=()=>f.gyro.calibrationFeedback();
 assert.equal(feedback().rates,null);
 assert.equal(feedback().limit,3);
-assert.equal(feedback().holdMs,650);
 for(let n=0;n<16;n++)f.sample(0,0,3);
-assert.equal(feedback().progress,240/650);
+assert.equal(feedback().progress,240/1000);
 f.sample(0,0,-3.1);
 assert.equal(feedback().rates[2],-3.1);
 assert.equal(feedback().progress,0);
-for(let n=0;n<35;n++)f.sample();
+for(let n=0;n<53;n++)f.sample();
 assert.ok(feedback().progress>.8);
 f.advance(300);
 assert.equal(feedback().rates,null);
@@ -126,7 +125,18 @@ assert.equal(feedback().progress,0);
 f.sample();
 assert.equal(f.gyro.snapshot().ready,false);
 assert.equal(feedback().progress,0);
-for(let n=0;n<42;n++)f.sample();
+for(let n=0;n<62;n++)f.sample();
+assert.equal(f.gyro.snapshot().ready,false);
+assert.equal(feedback().progress,.992);
+f.sample(0,0,0,8);
+assert.equal(f.gyro.snapshot().ready,true);
+assert.equal(feedback().progress,1);
+// Sparse but continuous motion data completes in one second, too.
+f.gyro.calibrate();
+for(let n=0;n<5;n++)f.sample(0,0,0,200);
+assert.equal(f.gyro.snapshot().ready,false);
+assert.equal(feedback().progress,.8);
+f.sample(0,0,0,200);
 assert.equal(f.gyro.snapshot().ready,true);
 // Rate integration should be stable across sensor event frequencies.
 async function integrate(dt){const test=fixture();await test.start();test.sample(30,0,0,dt);let total=0;for(let n=0;n<1000/dt;n++){test.sample(30,0,0,dt);total+=test.gyro.read().gyroYaw;}return total;}
@@ -134,4 +144,4 @@ const fast=await integrate(10),slow=await integrate(20);assert.ok(Math.abs(fast-
 const shell=readFileSync(new URL('../web/shell.html',import.meta.url),'utf8');
 assert.ok(!shell.includes('href="https://cv.yicong.me'));
 assert.ok(shell.includes('syncGyro(alive)'));
-console.log('GYRO_PASS: opt-in permission, calibration, coordinate mapping, gravity, sensitivity, consume-once, lifecycle, null data, timeout, cancellation, event rates');
+console.log('GYRO_PASS: opt-in permission, exact one-second calibration, coordinate mapping, gravity, sensitivity, consume-once, lifecycle, null data, timeout, cancellation, event rates');

@@ -45,9 +45,7 @@ export function setupGyroPanel({makeGyro, sync, isActive}) {
   const practiceButton = get('gyro-practice-again');
   const practiceBack = get('gyro-practice-back');
   const calibrationView = get('gyro-calibration');
-  const calibrationRate = get('gyro-rate');
-  const calibrationMeter = get('gyro-meter');
-  const calibrationHold = get('gyro-hold-meter');
+  const calibrationRing = get('gyro-calibration-ring');
   const gimbalRings = [...calibrationView.querySelectorAll('[data-gyro-ring]')];
   const reticleTarget = get('gyro-target');
   const holdRing = get('gyro-hold');
@@ -62,9 +60,8 @@ export function setupGyroPanel({makeGyro, sync, isActive}) {
   let yaw = 0, pitch = 0, held = 0, index = 0;
   let returnFocus = null;
   let displayedRates;
+  let displayedProgress = -1;
   const gyro = makeGyro(update);
-  const {limit,holdMs}=gyro.calibrationFeedback();
-  calibrationMeter.setAttribute('aria-valuemax',String(limit*2));
 
   function stopFrame() {
     cancelAnimationFrame(frame);
@@ -84,8 +81,7 @@ export function setupGyroPanel({makeGyro, sync, isActive}) {
     heading.textContent=t(titles[step]);
     if(step==='setup'){
       displayedRates=undefined;
-      get('gyro-limit').textContent=`${t('通过线')} ≤ ${limit}${t('°/秒')}`;
-      get('gyro-hold-label').textContent=t('稳住 {seconds} 秒').replace('{seconds}',holdMs/1000);
+      displayedProgress=-1;
     }
     heading.focus({preventScroll:true});
     sync();
@@ -115,18 +111,14 @@ export function setupGyroPanel({makeGyro, sync, isActive}) {
   }
 
   function drawCalibration() {
-    const {rates,progress}=gyro.calibrationFeedback();
-    if(rates===displayedRates)return;
+    const {rates,limit,progress}=gyro.calibrationFeedback();
+    const fill=started?progress:0;
+    if(rates===displayedRates&&fill===displayedProgress)return;
     displayedRates=rates;
-    const speed=rates?Math.max(...rates.map(Math.abs)):0;
-    const level=Math.min(1,speed/(limit*2));
-    const text=rates?`${(Math.ceil(speed*10)/10).toFixed(1)}${t('°/秒')}`:t('等待传感器');
-    calibrationView.dataset.signal=rates?(speed<=limit?'steady':'shaky'):'waiting';
-    calibrationRate.textContent=text;
-    calibrationMeter.style.setProperty('--level',String(level));
-    calibrationMeter.setAttribute('aria-valuenow',String(level*limit*2));
-    calibrationMeter.setAttribute('aria-valuetext',text);
-    calibrationHold.value=progress;
+    displayedProgress=fill;
+    calibrationView.dataset.signal=rates?(rates.some(rate=>Math.abs(rate)>limit)?'shaky':'steady'):'waiting';
+    calibrationRing.setAttribute('stroke-dashoffset',String(1-fill));
+    calibrationView.setAttribute('aria-valuenow',String(Math.floor(fill*100)));
     gimbalRings.forEach((ring,i)=>{
       const turn=rates?Math.max(-2.5,Math.min(2.5,rates[i]/limit))*22:0;
       ring.setAttribute('transform',`rotate(${GIMBAL_ANGLES[i]+turn})`);
@@ -188,9 +180,15 @@ export function setupGyroPanel({makeGyro, sync, isActive}) {
 
   function update(state) {
     if(step==='setup'&&started&&state.ready){
-      if(!state.practicePassed)beginPractice();
-      else if(entering)show('ready');
-      else show('settings');
+      stopFrame();
+      drawCalibration();
+      // Paint the closed ring before replacing the calibration view.
+      frame=requestAnimationFrame(()=>{
+        frame=requestAnimationFrame(()=>{
+          if(!state.practicePassed)beginPractice();
+          else show(entering?'ready':'settings');
+        });
+      });
       return;
     }
     if(step==='practice'&&!state.ready){
@@ -220,7 +218,10 @@ export function setupGyroPanel({makeGyro, sync, isActive}) {
       else if(!state.calibrating&&frame)stopFrame();
     }
     if(step==='choice')status.textContent=t(state.available?'用转动设备来微调准星。':state.status);
-    else if(step==='setup')status.textContent=t(!state.available||started?state.status:'横握设备，调整到舒服的姿势，再保持静止。');
+    else if(step==='setup'){
+      const showStatus=!state.available||state.pending||(state.calibrating?!isActive():started);
+      status.textContent=showStatus?t(state.status):'';
+    }
     else if(step==='practice')status.textContent=`${t('转动设备，把准星停在亮靶上。')} ${index}/${TARGETS.length}`;
     else if(step==='ready')status.textContent=t(state.practicePassed?'校准完成，瞄准练习已通过。':'校准完成。');
     else status.textContent=t(state.status);

@@ -28,10 +28,7 @@
     '正在检查浏览器支持':'Checking browser support',
     '启用体感':'Enable gyro aim',
     '使用触控':'Use touch',
-    '抖动':'Motion',
-    '等待传感器':'Waiting for sensor',
-    '三轴最大抖动':'Peak motion across three axes',
-    '稳住':'Hold steady',
+    '校准进度':'Calibration progress',
     '开始校准':'Calibrate',
     '用体感瞄准亮靶的练习间':'Gyro aim practice room with a lit target',
     '运动传感器':'Motion sensor',
@@ -58,9 +55,6 @@
     '场景初始化失败，请重试':'The arena failed to load. Please try again.',
     '游戏已退出':'The game has closed.',
     '游戏加载失败，请检查网络后重试':'The game failed to load. Check your connection and try again.',
-    '通过线':'Threshold',
-    '°/秒':'°/s',
-    '稳住 {seconds} 秒':'Hold steady for {seconds} s',
     '启用体感瞄准？':'Enable gyro aim?',
     '校准体感':'Calibrate Gyro Aim',
     '体感练习':'Aim Practice',
@@ -70,7 +64,6 @@
     '请求权限并校准':'Allow motion and calibrate',
     '返回设置':'Back to settings',
     '用转动设备来微调准星。':'Tilt your device to fine-tune your aim.',
-    '横握设备，调整到舒服的姿势，再保持静止。':'Hold your device sideways in a comfortable position, then hold steady.',
     '转动设备，把准星停在亮靶上。':'Tilt your device and hold the crosshair on the lit target.',
     '校准完成，瞄准练习已通过。':'Calibrated. Aim practice passed.',
     '校准完成。':'Calibrated.',
@@ -81,9 +74,7 @@
     '当前页面禁止访问运动传感器。请在浏览器中直接打开试玩页。':'This page blocks motion access. Open the game directly in your browser.',
     '权限已允许，但未检测到体感数据。请保持页面在前台后重试。':'Permission granted, but no motion data arrived. Keep this page in the foreground and try again.',
     '未检测到体感数据。请检查浏览器是否允许此站点访问运动传感器。':'No motion data arrived. Check whether your browser allows motion access for this site.',
-    '让抖动保持在刻度线以内。':'Keep motion below the threshold.',
     '请回到当前页面，横握设备完成校准。':'Return to this page and hold your device sideways to calibrate.',
-    '权限已允许。让抖动保持在刻度线以内。':'Permission granted. Keep motion below the threshold.',
     '权限已允许。请回到当前页面，横握设备完成校准。':'Permission granted. Return to this page and hold your device sideways to calibrate.',
     '已向浏览器请求权限。如有弹窗，请允许访问。':'Motion access requested. Allow access if your browser prompts you.',
     '浏览器拒绝了运动传感器权限。如果没有弹窗，浏览器可能沿用了之前的选择。':'The browser denied motion access. If no prompt appeared, it may have reused an earlier choice.',
@@ -110,7 +101,7 @@
 
   const text = (source) => language === 'en' && Object.hasOwn(english, source) ? english[source] : source;
   const staticText = [...document.querySelectorAll('[data-i18n]')].map(node => [node, node.textContent]);
-  const attributes = ['aria-label', 'aria-valuetext', 'content'];
+  const attributes = ['aria-label', 'content'];
   const staticAttributes = attributes.flatMap(attribute => [...document.querySelectorAll(`[data-i18n-${attribute}]`)]
     .map(node => [node, attribute, node.getAttribute(attribute)]));
 

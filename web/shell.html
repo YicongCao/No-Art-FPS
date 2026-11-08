@@ -82,6 +82,7 @@
     #gyro-panel output{color:#f2d084;font-variant-numeric:tabular-nums}
     .gyro-setting-card{background:#1f2e3c;border-radius:8px;padding:8px 12px}.gyro-setting-card>.gyro-row:first-child{margin-bottom:7px}
     #gyro-status{font-size:14px;margin:0 0 12px;color:#c9c4b8;line-height:1.45}
+    #gyro-status:empty{display:none}
     #gyro-panel .gyro-primary{background:#754c87;color:white}
     #gyro-panel .gyro-secondary{background:#39434b}
     .gyro-actions,.gyro-axis-list{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
@@ -93,19 +94,10 @@
     .gyro-axis-list input{width:16px;height:16px;margin:0}
     #gyro-panel[data-step=practice] section{width:min(550px,100%)}
     #gyro-room{display:block;width:100%;height:min(38vh,220px);background:#1c2b3e;border:2px solid #17202a}
-    .gyro-calibration{display:grid;grid-template-columns:clamp(78px,24vw,132px) minmax(0,1fr);align-items:center;gap:12px;margin:0 0 12px;padding:8px 12px;background:#1f2e3c;border-radius:8px;font-size:14px;--gyro-signal:#8796a4}
+    .gyro-calibration{width:min(176px,46vh);margin:10px auto 16px;--gyro-signal:#8796a4}
     .gyro-calibration[data-signal=steady]{--gyro-signal:#f2d084}
     .gyro-calibration[data-signal=shaky]{--gyro-signal:#ff9676}
     #gyro-gimbal{display:block;width:100%;height:auto;color:var(--gyro-signal)}
-    #gyro-rate{color:var(--gyro-signal);font-variant-numeric:tabular-nums}
-    .gyro-meter{position:relative;height:8px;margin:6px 0 3px;background:#101b25;border-radius:3px}
-    .gyro-meter-fill{display:block;width:100%;height:100%;border-radius:inherit;transform-origin:left;transform:scaleX(var(--level,0));background:var(--gyro-signal)}
-    .gyro-meter-limit{position:absolute;inset:-2px auto -2px 50%;border-left:2px solid #fff5d3}
-    #gyro-limit{display:block;margin:0 0 9px;color:#c9c4b8;font-size:12px}
-    #gyro-hold-meter{appearance:none;width:100%;height:8px;display:block;margin-top:6px;border:0;border-radius:3px;background:#101b25}
-    #gyro-hold-meter::-webkit-progress-bar{background:#101b25;border-radius:3px}
-    #gyro-hold-meter::-webkit-progress-value{background:#f2d084;border-radius:3px}
-    #gyro-hold-meter::-moz-progress-bar{background:#f2d084;border-radius:3px}
     @media(max-height:400px){
       #gyro-panel section{padding:10px 20px}
       #gyro-panel header{margin-bottom:6px;padding-bottom:5px}
@@ -184,11 +176,12 @@
       <div class="gyro-actions" data-gyro-step="choice" hidden>
         <button id="gyro-yes" class="gyro-primary" data-i18n>启用体感</button><button data-gyro-touch data-i18n>使用触控</button>
       </div>
-      <div id="gyro-calibration" class="gyro-calibration" data-gyro-step="setup" hidden>
-        <svg id="gyro-gimbal" viewBox="0 0 140 128" aria-hidden="true" focusable="false">
-          <circle cx="70" cy="64" r="54" fill="#152333" stroke="#3b4a60"/>
-          <path d="M70 4v8m0 104v8M10 64h8m104 0h8" stroke="#778598" stroke-width="2"/>
-          <g transform="translate(70 64)" fill="none">
+      <div id="gyro-calibration" class="gyro-calibration" data-gyro-step="setup" role="progressbar" aria-label="校准进度" data-i18n-aria-label aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" hidden>
+        <svg id="gyro-gimbal" viewBox="0 0 156 156" aria-hidden="true" focusable="false">
+          <g transform="translate(78 78)" fill="none">
+            <circle r="67" stroke="#34455a" stroke-width="5"/>
+            <circle id="gyro-calibration-ring" r="67" transform="rotate(-90)" pathLength="1" stroke="#f2d084" stroke-width="5" stroke-dasharray="1 1" stroke-dashoffset="1"/>
+            <circle r="55" fill="#152333" stroke="#3b4a60"/>
             <g data-gyro-ring transform="rotate(-38)"><ellipse rx="51" ry="28" stroke="#526b94" stroke-width="7"/><path d="M-46-13a51 28 0 0 1 71-11" stroke="#b2cae1" stroke-width="2"/></g>
             <g data-gyro-ring transform="rotate(32)"><ellipse rx="45" ry="19" stroke="#917bb9" stroke-width="5"/><circle cx="44" r="4" fill="#d0b5ef"/></g>
             <g data-gyro-ring transform="rotate(86)"><ellipse rx="38" ry="14" stroke="currentColor" stroke-width="4"/><circle cx="-38" r="4" fill="currentColor"/></g>
@@ -196,13 +189,6 @@
             <path d="m0-6 5 3v6L0 6l-5-3v-6Z" fill="currentColor"/>
           </g>
         </svg>
-        <div>
-          <div class="gyro-row"><span data-i18n>抖动</span><span id="gyro-rate" data-i18n>等待传感器</span></div>
-          <div id="gyro-meter" class="gyro-meter" role="meter" aria-label="三轴最大抖动" data-i18n-aria-label aria-valuemin="0" aria-valuemax="6" aria-valuenow="0" aria-valuetext="等待传感器" data-i18n-aria-valuetext><span class="gyro-meter-fill"></span><span class="gyro-meter-limit"></span></div>
-          <span id="gyro-limit"></span>
-          <label id="gyro-hold-label" for="gyro-hold-meter" data-i18n>稳住</label>
-          <progress id="gyro-hold-meter" max="1" value="0"></progress>
-        </div>
       </div>
       <div class="gyro-actions" data-gyro-step="setup" hidden>
         <button id="gyro-start" class="gyro-primary" data-i18n>开始校准</button><button data-gyro-touch data-i18n>使用触控</button>
