@@ -63,6 +63,22 @@ def magazine_latch():
     return sample
 
 
+def comedy_plop():
+    rng = random.Random(302)
+    filtered = 0.0
+
+    def sample(t):
+        nonlocal filtered
+        filtered += .22 * (rng.uniform(-1, 1) - filtered)
+        body = .72 * math.sin(math.tau * (220 * t - 425 * t * t)) * math.exp(-t * 22)
+        splash = .72 * filtered * math.exp(-t * 35)
+        bubble = max(0.0, t - .063)
+        tail = .26 * math.sin(math.tau * (470 * bubble - 1250 * bubble * bubble)) * math.exp(-bubble * 47)
+        return min(1.0, t * 650) * (body + splash + tail)
+
+    return sample
+
+
 write('shot',.16,rifle_shot())
 write('hit',.07,lambda t:(math.sin(2*math.pi*850*t)*.5+random.uniform(-1,1)*.2)*math.exp(-t*55))
 write('kill',.20,lambda t:math.sin(2*math.pi*(850*t+1800*t*t))*.4*math.exp(-t*18))
@@ -76,4 +92,5 @@ write('explosion',.7,lambda t:(random.uniform(-1,1)*.65+math.sin(2*math.pi*(65*t
 write('charge',.75,lambda t:(math.sin(2*math.pi*(220*t+400*t*t))*.3+math.sin(2*math.pi*660*t)*.08)*min(1,t*30)*math.exp(-t*1.8))
 write('cartridge_insert',.032,lambda t:(random.uniform(-1,1)*.42+math.sin(2*math.pi*1600*t)*.28+math.sin(2*math.pi*3100*t)*.12)*math.exp(-t*180))
 write('magazine_latch',.125,magazine_latch())
-print('Thirteen original WAV effects generated')
+write('comedy_plop',.18,comedy_plop())
+print('Fourteen original WAV effects generated')
