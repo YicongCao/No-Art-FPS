@@ -848,7 +848,7 @@ func rebuild_menu() -> void:
 					JavaScriptBridge.eval("window.noArtSetControlInset(%d)"%roundi(value)))
 				gyro_row += 1
 			pause_button(tr("GYRO AIM"),pause_row(card,gyro_row),"gyro",false,"",GYRO_ICON)
-		var language = pause_button(tr("Language · English"),Rect2(card.end.x-238,card.position.y+17,214,44),"language",false,"")
+		var language = pause_button(tr("语言：英文"),Rect2(card.end.x-238,card.position.y+17,214,44),"language",false,"")
 		language.add_theme_font_size_override("font_size",21)
 		var footer = card.position+Vector2(24,card.size.y-76)
 		var button_size = Vector2((card.size.x-68)/3,52)
