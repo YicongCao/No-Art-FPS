@@ -62,6 +62,7 @@ var title_badge_buttons: Array[TextureButton] = []
 var hovered_badge: TextureButton
 var selected_badge: TextureButton
 var badge_detail: PanelContainer
+var badge_pointer = Vector2.ZERO
 var fire_progress: ProgressBar
 var title_frame: ImageTexture
 var title_previews: Dictionary = {}
@@ -478,19 +479,20 @@ func sync_comedy_buttons() -> void:
 	if OS.has_feature("web"):
 		JavaScriptBridge.eval("window.noArtSetComedy?.(%s)"%JSON.stringify(game.comedy_mode))
 
-func badge_display(id: String, center: Vector2, extent: float) -> void:
-	var badge: Array = BadgeCatalog.BADGES[id]
-	var icon = TextureRect.new()
-	icon.name = "Badge_"+id
-	icon.texture = badge[3]
-	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.size = Vector2.ONE*extent
-	icon.position = center-icon.size*.5
-	icon.tooltip_text = "%s\n%s"%[tr(badge[0]),tr(badge[1])]
-	icon.accessibility_name = icon.tooltip_text
-	menu.add_child(icon)
+func badge_copy(title: String, description: String, font_size: int, wrap_width: float = 0.0) -> VBoxContainer:
+	var column = VBoxContainer.new()
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_theme_constant_override("separation",1)
+	for i in range(2):
+		var text = Label.new()
+		text.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		text.size.x = wrap_width
+		text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		text.text = title if i==0 else description
+		text.add_theme_font_size_override("font_size",font_size-i*4)
+		text.add_theme_color_override("font_color",GOLD if i==0 else WHITE)
+		column.add_child(text)
+	return column
 
 func title_badges(gutters: Vector4) -> void:
 	var ids = BadgeCatalog.BADGES.keys()
@@ -517,7 +519,11 @@ func title_badges(gutters: Vector4) -> void:
 		menu.add_child(button)
 		title_badge_buttons.append(button)
 		button.gui_input.connect(func(event: InputEvent):
-			if not event is InputEventMouseMotion or event.device==InputEvent.DEVICE_ID_EMULATION or hovered_badge==button:return
+			if not event is InputEventMouseMotion or event.device==InputEvent.DEVICE_ID_EMULATION:return
+			badge_pointer = button.get_transform()*event.position
+			if hovered_badge==button:
+				place_badge_detail()
+				return
 			hovered_badge = button
 			update_badge_detail())
 		button.mouse_exited.connect(func():
@@ -557,36 +563,59 @@ func update_badge_detail() -> void:
 	for side in [SIDE_LEFT,SIDE_RIGHT,SIDE_TOP,SIDE_BOTTOM]:
 		style.set_content_margin(side,12)
 	detail.add_theme_stylebox_override("panel",style)
-	var column = VBoxContainer.new()
-	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	column.custom_minimum_size.x = minf(272,size.x-gutters.x-gutters.y-24)
+	var width = minf(272,size.x-gutters.x-gutters.y-24)
+	var column = badge_copy(active.accessibility_name,active.accessibility_description,24,width)
+	column.custom_minimum_size.x = width
 	detail.add_child(column)
-	for i in range(2):
-		var text = Label.new()
-		text.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		text.size.x = column.custom_minimum_size.x
-		text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		text.text = active.accessibility_name if i==0 else active.accessibility_description
-		text.add_theme_font_size_override("font_size",24 if i==0 else 20)
-		text.add_theme_color_override("font_color",GOLD if i==0 else WHITE)
-		column.add_child(text)
 	menu.add_child(detail)
 	badge_detail = detail
-	var text_size = 106 if game.touch_mode else 160
-	var right = gutters.x
-	for word in TITLE_WORDS:
-		right = maxf(right,gutters.x+font.get_string_size(word,HORIZONTAL_ALIGNMENT_LEFT,-1,text_size).x)
-	var place = func():
-		detail.position = Vector2(minf(right+16,size.x-gutters.y-detail.size.x),
-			clampf(active.position.y,gutters.w,maxf(gutters.w,size.y-gutters.z-detail.size.y)))
-	detail.resized.connect(place)
+	detail.resized.connect(place_badge_detail)
 	detail.reset_size()
-	place.call()
+	place_badge_detail()
+
+func place_badge_detail() -> void:
+	if not is_instance_valid(badge_detail):return
+	const GAP = 12.0
+	var anchor = Rect2(badge_pointer,Vector2.ZERO)
+	if not is_instance_valid(hovered_badge):
+		if not is_instance_valid(selected_badge):return
+		anchor = selected_badge.get_rect()
+	var gutters = title_gutters()
+	var first = Vector2(gutters.x,gutters.w)
+	var last = (size-Vector2(gutters.y,gutters.z)-badge_detail.size).max(first)
+	var pos = anchor.end+Vector2.ONE*GAP
+	if pos.x>last.x:pos.x = anchor.position.x-GAP-badge_detail.size.x
+	if pos.y>last.y:pos.y = anchor.position.y-GAP-badge_detail.size.y
+	badge_detail.position = pos.clamp(first,last)
 
 func results_badges(center: Vector2) -> void:
-	var ids: Array[String] = game.achievements.run_unlocks
-	var left = center.x-(ids.size()-1)*18.0
-	for i in range(ids.size()):badge_display(ids[i],Vector2(left+i*36.0,center.y+84),34)
+	var list = ScrollContainer.new()
+	list.name = "ResultBadges"
+	list.position = center+Vector2(-250,-40)
+	list.size = Vector2(500,184)
+	list.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	menu.add_child(list)
+	var column = VBoxContainer.new()
+	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	column.add_theme_constant_override("separation",5)
+	list.add_child(column)
+	for id in game.achievements.run_unlocks:
+		var badge: Array = BadgeCatalog.BADGES[id]
+		var row = HBoxContainer.new()
+		row.name = "Badge_"+id
+		row.add_theme_constant_override("separation",12)
+		column.add_child(row)
+		var icon = TextureRect.new()
+		icon.texture = badge[3]
+		icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.custom_minimum_size = Vector2(36,36)
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(icon)
+		var copy = badge_copy(tr(badge[0]),tr(badge[1]),20)
+		copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(copy)
 
 func rebuild_menu() -> void:
 	title_badge_buttons.clear()
@@ -692,9 +721,12 @@ func rebuild_menu() -> void:
 			menu_button(tr("RETRY"),Rect2(c.x-174,c.y+106,160,70),"retry",true,tr("Retry · Enter"))
 			menu_button(tr("TITLE"),Rect2(c.x+14,c.y+106,160,70),"menu",false,tr("Title · Esc"))
 		else:
-			results_button(RETRY_ICON,Rect2(c.x-174,c.y+106,160,88),"retry",true,tr("Retry · Enter"))
-			results_button(HOME_ICON,Rect2(c.x+14,c.y+106,160,88),"menu",false,tr("Title · Esc"))
-			results_badges(c)
+			var earned_badges = not game.achievements.run_unlocks.is_empty()
+			var actions_y = c.y+(156 if earned_badges else 106)
+			var button_height = 78 if earned_badges else 88
+			results_button(RETRY_ICON,Rect2(c.x-174,actions_y,160,button_height),"retry",true,tr("Retry · Enter"))
+			results_button(HOME_ICON,Rect2(c.x+14,actions_y,160,button_height),"menu",false,tr("Title · Esc"))
+			if earned_badges:results_badges(c)
 	elif menu_state == "PAUSED":
 		touch_inset_available = game.touch_mode and OS.has_feature("web") and bool(JavaScriptBridge.eval("window.noArtHasControlInset?.()"))
 		var card = pause_card()
@@ -851,8 +883,10 @@ func draw_results() -> void:
 	card.border_color = Color(GOLD,.5)
 	card.shadow_color = Color(0,0,0,.25)
 	card.shadow_size = 14
-	draw_style_box(card,Rect2(c-Vector2(238,220),Vector2(476,440)))
-	draw_line(c+Vector2(-46,-219),c+Vector2(46,-219),GOLD,3)
+	var earned_badges = not game.rules.mission and not game.achievements.run_unlocks.is_empty()
+	var half = Vector2(276,250) if earned_badges else Vector2(238,220)
+	draw_style_box(card,Rect2(c-half,half*2))
+	draw_line(c+Vector2(-46,1-half.y),c+Vector2(46,1-half.y),GOLD,3)
 	if game.rules.mission:
 		var success = game.rules.outcome=="SUCCESS"
 		label(tr("DEFUSED" if success else "FAILED"),c+Vector2(0,-125),56,GOLD if success else WHITE,true)
@@ -861,12 +895,14 @@ func draw_results() -> void:
 		label(detail,c+Vector2(0,8),26,WHITE,true)
 		if success and game.best_mission>0:label(tr("BEST %.1f s")%game.best_mission,c+Vector2(0,54),20,GOLD,true)
 		return
+	if earned_badges:c.y -= 90
 	var score = str(game.rules.kills)
 	var score_size = 104 if score.length()<=3 else 80
 	var width = font.get_string_size(score,HORIZONTAL_ALIGNMENT_LEFT,-1,score_size).x
 	var left = c.x-(76+18+width)*.5
 	draw_texture_rect(KILLS_ICON,Rect2(Vector2(left,c.y-146),Vector2(76,76)),false)
 	label(score,Vector2(left+94,c.y-70),score_size,WHITE)
+	if earned_badges:c.y -= 28
 	var best = str(game.best)
 	var best_width = font.get_string_size(best,HORIZONTAL_ALIGNMENT_LEFT,-1,34).x
 	var row_left = c.x-(42+12+best_width)*.5

@@ -51,9 +51,41 @@ func check() -> void:
 	assert(game.rules.kills==4 and game.achievements.combat_kills==3)
 	game.finish_run()
 	for _frame in range(5):await process_frame
-	assert(game.hud.menu.has_node("Badge_first") and game.hud.menu.has_node("Badge_barrel"))
-	assert(not game.hud.menu.has_node("Badge_headshot"))
+	var results = game.hud.menu.get_node("ResultBadges")
+	assert(not results.find_child("Badge_headshot",true,false))
+	for id in ["first","barrel","triple"]:
+		var row = results.find_child("Badge_"+id,true,false)
+		assert(row.get_child(0).texture==Progress.BADGES[id][3])
+		assert_badge_copy(id,row.get_child(1))
 	await capture("achievement-results")
+	game.touch_mode = true
+	var window = game.get_window()
+	var desktop_size = window.size
+	window.content_scale_size = Vector2i(960,540)
+	window.size = Vector2i(844,390)
+	var locale = TranslationServer.get_locale()
+	TranslationServer.set_locale("en")
+	for _frame in range(3):await process_frame
+	game.hud.rebuild_menu()
+	for _frame in range(3):await process_frame
+	results = game.hud.menu.get_node("ResultBadges")
+	assert(not results.get_v_scroll_bar().visible)
+	assert_badge_copy("barrel",results.find_child("Badge_barrel",true,false).get_child(1))
+	await capture("achievement-results-touch")
+	var saved_unlocks: Array[String] = game.achievements.run_unlocks.duplicate()
+	for id in Progress.BADGES:
+		if id not in saved_unlocks:game.achievements.run_unlocks.append(id)
+	game.hud.rebuild_menu()
+	for _frame in range(5):await process_frame
+	results = game.hud.menu.get_node("ResultBadges")
+	assert(results.get_v_scroll_bar().visible and results.get_child(0).get_child_count()==12)
+	assert(results.get_rect().end.y<game.hud.menu.get_node("retry").position.y)
+	game.achievements.run_unlocks = saved_unlocks
+	game.touch_mode = false
+	window.content_scale_size = Vector2i(1440,810)
+	window.size = desktop_size
+	TranslationServer.set_locale(locale)
+	for _frame in range(3):await process_frame
 	game.menu_action("menu")
 	game.hud.rebuild_menu()
 	assert(game.hud.menu.has_node("Badge_first"))
@@ -62,9 +94,22 @@ func check() -> void:
 	assert(game.hud.menu.get_children().filter(func(n):return str(n.name).begins_with("Badge_")).size()==12)
 	await capture("achievement-title")
 	var badge = game.hud.menu.get_node("Badge_first")
-	badge.gui_input.emit(InputEventMouseMotion.new())
+	var motion = InputEventMouseMotion.new()
+	motion.position = Vector2(3,4)
+	badge.gui_input.emit(motion)
 	assert_badge_detail("first")
+	var detail: Control = game.hud.badge_detail
+	assert(detail.position.distance_to(badge.position+motion.position)<24)
+	var first_position = detail.position
+	motion.position += Vector2(15,16)
+	badge.gui_input.emit(motion)
+	assert(game.hud.badge_detail==detail and detail.position.is_equal_approx(first_position+Vector2(15,16)))
 	await capture("achievement-hover")
+	var gutters: Vector4 = game.hud.title_gutters()
+	badge.position = game.hud.size-Vector2(gutters.y,gutters.z)-badge.size
+	badge.gui_input.emit(motion)
+	assert(detail.get_rect().end.x<badge.position.x+motion.position.x)
+	assert(detail.get_rect().end.y<badge.position.y+motion.position.y)
 	badge.mouse_exited.emit()
 	assert(game.hud.badge_detail==null)
 	game.touch_mode = true
@@ -75,6 +120,7 @@ func check() -> void:
 	badge = game.hud.menu.get_node("Badge_headshot")
 	badge.pressed.emit()
 	assert_badge_detail("headshot")
+	for _frame in range(3):await process_frame
 	await capture("achievement-tap")
 	assert(game.hud.badge_detail.size.y<160)
 	var outside = InputEventScreenTouch.new()
@@ -94,7 +140,10 @@ func check() -> void:
 func assert_badge_detail(id: String) -> void:
 	var detail = game.hud.badge_detail
 	assert(is_instance_valid(detail) and detail.mouse_filter==Control.MOUSE_FILTER_IGNORE)
-	var labels = detail.get_child(0).get_children()
+	assert_badge_copy(id,detail.get_child(0))
+
+func assert_badge_copy(id: String, column: Control) -> void:
+	var labels = column.get_children()
 	for i in range(2):assert(labels[i].text==game.hud.tr(Progress.BADGES[id][i]))
 
 func check_catalog() -> void:
