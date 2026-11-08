@@ -67,13 +67,18 @@ def chunk(data):
     return b"MTrk" + struct.pack(">I", len(data)) + data
 
 
-def write_midi(name, tracks, bpm, bars, parts=PARTS):
-    end = bars * 4 * PPQ
+def write_midi(name, tracks, bpm, bars, parts=PARTS, *, meter=4, markers=()):
+    end = bars * meter * PPQ
     tempo = round(60000000 / bpm)
     conductor = b"\x00" + meta(3, name.encode())
     conductor += b"\x00" + meta(0x51, tempo.to_bytes(3, "big"))
-    conductor += b"\x00" + meta(0x58, bytes([4, 2, 24, 8]))
-    conductor += vlq(end) + meta(0x2f, b"")
+    conductor += b"\x00" + meta(0x58, bytes([meter, 2, 24, 8]))
+    last_marker = 0
+    for beat, label in markers:
+        at = round(beat * PPQ)
+        conductor += vlq(at - last_marker) + meta(6, label.encode())
+        last_marker = at
+    conductor += vlq(end - last_marker) + meta(0x2f, b"")
     midi = b"MThd" + struct.pack(">IHHH", 6, 1, len(parts) + 1, PPQ) + chunk(conductor)
     for events, (part_name, program, channel) in zip(tracks, parts, strict=True):
         data = b"\x00" + meta(3, part_name.encode())

@@ -3,7 +3,7 @@ extends Node3D
 const BOARD_SHADER = preload("res://assets/shaders/airport_split_flap.gdshader")
 const WARNING_COLORS = [Color("ff3553"),Color("3d91ff")]
 const OFF_COLOR = Color("212e45")
-const PHASE_SECONDS = .58
+const PHASE_SECONDS = 60.0/104.0
 const LENS_STATIONS = [-9,-5,-1,3,7]
 
 var board_paint: ShaderMaterial
@@ -94,9 +94,9 @@ func warning_lights(active: bool, elapsed: float, reduced_motion: bool) -> Vecto
 		if reduced_motion:
 			red = .5
 			blue = .5
-		else:
+		elif elapsed>=0.0:
 			var beat = elapsed/PHASE_SECONDS
-			var brightness = lerpf(.70,1.0,sin(fmod(beat,1.0)*PI))
+			var brightness = lerpf(1.0,.58,smoothstep(0.0,.76,fposmod(beat,1.0)))
 			red = brightness if floori(beat)%2==0 else .015
 			blue = brightness if floori(beat)%2==1 else .015
 	lens_paints[0].albedo_color = OFF_COLOR.lerp(WARNING_COLORS[0],red)

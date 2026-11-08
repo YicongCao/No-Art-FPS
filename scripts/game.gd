@@ -101,6 +101,8 @@ var nav_ready = false
 var rng = RandomNumberGenerator.new()
 var qa_mode = false
 var music: AudioStreamPlayer
+var music_output_latency = 0.0
+var last_music_position = 0.0
 var music_volume = .7
 var loading = LoadingTransition.new()
 var load_ticket = 0
@@ -819,8 +821,12 @@ func prepare_comedy_toilet() -> void:
 func begin_running() -> void:
 	state = "RUNNING"
 	if web_rifle:web_rifle.stream = sounds[shot_sound_key()]
-	music.stream = session.combat_music if session.combat_music else COMBAT_MUSIC
+	music.stream = session.round_music
+	if not music.stream:
+		music.stream = session.combat_music if session.combat_music else COMBAT_MUSIC
 	music.stream_paused = false
+	music_output_latency = AudioServer.get_output_latency()
+	last_music_position = 0.0
 	music.play()
 	rules.start()
 	player.enabled = true
@@ -1057,8 +1063,9 @@ func _physics_process(delta: float) -> void:
 		set_destroy_active(true)
 		hud.go_time = 0
 		hud.destroy_time = hud.DESTROY_NOTICE_DURATION
-		music.stream = session.destroy_music if session.destroy_music else DESTROY_MUSIC
-		music.play()
+		if not session.round_music:
+			music.stream = session.destroy_music if session.destroy_music else DESTROY_MUSIC
+			music.play()
 	update_grenades(delta)
 	if grenade_pressed:request_grenade()
 	invulnerable = maxf(0,invulnerable-delta)
@@ -1662,6 +1669,12 @@ func play_sound(key: String, volume: float = -10, pitch: float = 1) -> void:
 	voice.volume_db = volume
 	voice.pitch_scale = pitch
 	voice.play()
+
+func round_music_position() -> float:
+	if qa_mode or not music.playing:return rules.elapsed
+	var audible = music.get_playback_position()+AudioServer.get_time_since_last_mix()-music_output_latency
+	last_music_position = maxf(last_music_position,audible)
+	return last_music_position
 
 func set_music_volume(value: float) -> void:
 	music_volume = clampf(value,0,1)

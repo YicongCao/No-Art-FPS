@@ -281,8 +281,8 @@ func pose_frenzy(elapsed: float) -> void:
 	var dome_sweep := sin(elapsed*.60)
 	var warning = Vector2.ZERO
 	if airport_display:
-		var frenzy_seconds: float = game.rules.elapsed-(game.rules.duration-game.rules.destroy_duration)
-		warning = airport_display.warning_lights(true,maxf(0.0,frenzy_seconds),game.reduced_motion)
+		var frenzy_seconds: float = game.round_music_position()-(game.rules.duration-game.rules.destroy_duration)
+		warning = airport_display.warning_lights(true,frenzy_seconds,game.reduced_motion)
 	if is_instance_valid(dome):
 		dome.rotation.y = 1.04+dome_sweep*.32
 		if is_instance_valid(shutter_lights):

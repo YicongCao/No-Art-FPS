@@ -7,6 +7,7 @@ class_name SessionDefinition
 @export var rules_script: Script
 @export var layout_version = 1
 @export var time_limit = 60.0
+@export var round_music: AudioStream
 @export var combat_music: AudioStream
 @export var destroy_music: AudioStream
 
