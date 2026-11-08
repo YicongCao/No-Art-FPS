@@ -23,6 +23,9 @@ document.body=new Element();document.documentElement=new Element();document.hidd
 document.querySelector=get;document.getElementById=id=>get('#'+id);
 document.querySelectorAll=()=>[...elements.values()].filter(e=>e.classes.has('held'));
 const window=new Element();
+const visualViewport=new Element();
+visualViewport.height=390;
+window.visualViewport=visualViewport;
 const timers=new Map();let nextTimer=0;
 const context={window,document,location:{search:'?touch=1'},matchMedia:()=>({matches:false}),URLSearchParams,innerWidth:844,innerHeight:390,screen:{},setTimeout:(fn,ms)=>{timers.set(++nextTimer,{fn,ms});return nextTimer;},clearTimeout:id=>timers.delete(id),console};
 let sensorTime=0;
@@ -31,6 +34,8 @@ Object.assign(window,{isSecureContext:true,DeviceMotionEvent:{},screen:{orientat
 // returning-player settings flow; browser QA exercises the first-use practice.
 const stored=new Map([['no-art-gyro-settings',JSON.stringify({preference:true,practicePassed:true})]]);
 window.localStorage={getItem:key=>stored.get(key)??null,setItem:(key,value)=>stored.set(key,value)};
+const session=new Map();
+window.sessionStorage={getItem:key=>session.get(key)??null,setItem:(key,value)=>session.set(key,value)};
 context.cancelAnimationFrame=()=>{};
 context.requestAnimationFrame=()=>0;
 context.performance={now:()=>sensorTime};
@@ -149,6 +154,39 @@ document.documentElement.requestFullscreen=async options=>{
   document.fullscreenElement=document.documentElement;
 };
 await full.onclick();assert.equal(note.hidden,true);assert.equal(timers.size,0);
+// Automatic Safari guidance follows the visible viewport and stays on the title.
+const toolbarTip=get('#toolbar-tip');
+const safariAgent='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15) Version/26.0 Safari/605.1.15';
+window.navigator={userAgent:safariAgent,maxTouchPoints:5};
+document.fullscreenElement=null;
+get('#loading').hidden=false;
+visualViewport.height=290;
+window.noArtState('TITLE');
+assert.equal(toolbarTip.hidden,true);
+get('#loading').hidden=true;
+visualViewport.emit('resize');
+assert.equal(toolbarTip.hidden,false);
+visualViewport.height=320;visualViewport.emit('resize');
+assert.equal(toolbarTip.hidden,true);
+visualViewport.height=290;
+window.navigator.userAgent=safariAgent+' CriOS/140.0';
+visualViewport.emit('resize');
+assert.equal(toolbarTip.hidden,true);
+window.navigator.userAgent=safariAgent;
+context.innerWidth=390;context.innerHeight=844;window.emit('resize');
+assert.equal(toolbarTip.hidden,true);
+context.innerWidth=844;context.innerHeight=390;window.emit('resize');
+assert.equal(toolbarTip.hidden,false);
+window.noArtState('RUNNING');
+assert.equal(toolbarTip.hidden,true);
+window.noArtState('TITLE');
+assert.equal(toolbarTip.hidden,false);
+get('#toolbar-tip-ignore').onclick();
+assert.equal(toolbarTip.hidden,true);
+assert.equal(session.get('no-art-ignore-toolbar-tip'),'1');
+window.noArtState('TITLE');visualViewport.emit('resize');
+assert.equal(toolbarTip.hidden,true);
+console.log('SAFARI_TOOLBAR_PASS: short visible viewport, Safari iPad desktop mode, rotation, game state and dismissal');
 // SVG child targets resolve to their button, including held feedback.
 window.noArtState('RUNNING');const svgChild={closest:()=>get('#fire')};
 pointer('pointerdown',9,780,300,svgChild);assert.equal(get('#fire').classes.has('held'),true);

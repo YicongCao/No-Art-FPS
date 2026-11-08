@@ -63,6 +63,10 @@
     body:not(.mobile.portrait):not(.fullscreen):is([data-game=TITLE],[data-game=PAUSED],[data-game=RESULTS]) #loading[hidden]~#title-tools #immersive{display:block}
     #immersive-note[hidden],body[data-game=RUNNING] #immersive-note,body[data-game=LOADING] #immersive-note{display:none}
     #immersive-note{position:fixed;z-index:21;left:10%;right:10%;bottom:12px;text-align:center;background:#243440e8;padding:12px;font-size:13px;color:#fff5d3}
+    #toolbar-tip[hidden],#toolbar-tip:has(~#gyro-panel:not([hidden])){display:none}
+    #toolbar-tip{position:fixed;z-index:8;top:calc(var(--visible-height,100dvh)*.42);left:50%;transform:translate(-50%,-50%);width:min(372px,54vw);display:flex;align-items:center;gap:10px;padding:8px 10px 8px 14px;background:#17242f;border:1px solid #f2d08478;border-radius:8px;box-shadow:0 6px 20px #0005}
+    #toolbar-tip p{margin:0;font-size:13px;line-height:1.4}
+    #toolbar-tip button{flex:none;min-height:44px;min-width:44px;padding:6px 10px;border:1px solid #fff5d32e;border-radius:5px;background:#39434b;color:#fff5d3}
     body.mobile:is([data-game=TITLE],[data-game=RESULTS]):not(.portrait) #loading[hidden]~#title-tools #gyro-open{display:block}
     #gyro-open .ui-icon{fill:currentColor;stroke:none;shape-rendering:crispEdges}
     #gyro-panel[hidden]{display:none}#gyro-panel{position:fixed;inset:0 0 auto;height:var(--visible-height,100dvh);z-index:22;background:#0f1721b8;display:grid;grid-template-rows:minmax(0,1fr);place-items:center;padding:max(12px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left))}
@@ -153,6 +157,10 @@
     <button id="roach-mode" class="comedy-toggle" type="button" aria-label="蟑螂模式" data-i18n-aria-label aria-pressed="false"><img src="roach.svg" alt="" width="28" height="28"></button>
   </div>
   <div id="immersive-note" role="status" hidden></div>
+  <aside id="toolbar-tip" hidden>
+    <p role="status" data-i18n>点按 Safari 地址栏左侧的页面菜单，选择「隐藏工具栏」。</p>
+    <button id="toolbar-tip-ignore" type="button" data-i18n>忽略</button>
+  </aside>
   <div id="touch-ui" aria-label="触控操作" data-i18n-aria-label>
     <div id="stick"><span></span></div>
     <button class="touch-button" id="fire" aria-label="按住开火" data-i18n-aria-label><svg class="touch-action-icon" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
@@ -239,6 +247,28 @@
   <script>
     window.noArtMobile=matchMedia('(pointer:coarse)').matches||new URLSearchParams(location.search).has('touch');
     const t=text=>window.noArtText?.(text)??text;
+    const toolbarTip=document.querySelector('#toolbar-tip');
+    const toolbarTipKey='no-art-ignore-toolbar-tip';
+    let toolbarTipIgnored=false;
+    try{toolbarTipIgnored=window.sessionStorage.getItem(toolbarTipKey)==='1';}catch{}
+    function isMobileSafari(){
+      const browser=window.navigator;
+      const agent=browser?.userAgent??'';
+      const mobile=/iPhone|iPad|iPod|Mobile\//.test(agent)||(/Macintosh/.test(agent)&&browser.maxTouchPoints>1);
+      return mobile&&/Version\/[\d.]+.*Safari\//.test(agent)&&!/CriOS|FxiOS|EdgiOS|OPiOS|DuckDuckGo|GSA/.test(agent);
+    }
+    function syncToolbarTip(){
+      const height=window.visualViewport?.height||innerHeight;
+      toolbarTip.hidden=toolbarTipIgnored||document.hidden||document.body.dataset.game!=='TITLE'||
+        !document.querySelector('#loading').hidden||innerWidth<=innerHeight||height>=320||
+        isFullscreen()||window.navigator?.standalone||matchMedia('(display-mode: standalone)').matches||!isMobileSafari();
+    }
+    document.querySelector('#toolbar-tip-ignore').onclick=()=>{
+      toolbarTipIgnored=true;
+      toolbarTip.hidden=true;
+      try{window.sessionStorage.setItem(toolbarTipKey,'1');}catch{}
+    };
+    window.visualViewport?.addEventListener('resize',syncToolbarTip);
     const touch={x:0,y:0,dx:0,dy:0,fire:false,interact:false,jump:false,reload:false,pause:false,blocked:false};
     let pauseRequested=false,focused=true;
     let gyroSetup=null;
@@ -318,11 +348,11 @@
       try{window.localStorage.setItem(controlInsetKey,String(savedControlInset));}catch{}
     };
     function clearTouch(){gyroSetup?.gyro.reset();fingers.clear();Object.assign(touch,{x:0,y:0,dx:0,dy:0,fire:false,interact:false,jump:false,reload:false,pause:false});knob.style.transform='';document.querySelectorAll('.held').forEach(e=>e.classList.remove('held'));}
-    function syncScreenLayout(){const portrait=innerHeight>innerWidth;document.body.classList.toggle('portrait',portrait);touch.blocked=portrait||document.hidden;syncControlInset();if(portrait){clearTouch();pauseRequested=true;}syncGyro();}
+    function syncScreenLayout(){const portrait=innerHeight>innerWidth;document.body.classList.toggle('portrait',portrait);touch.blocked=portrait||document.hidden;syncControlInset();if(portrait){clearTouch();pauseRequested=true;}syncGyro();syncToolbarTip();}
     document.body.classList.toggle('mobile',window.noArtMobile);syncScreenLayout();window.addEventListener('resize',()=>{clearTouch();syncScreenLayout();});window.addEventListener('orientationchange',()=>{clearTouch();syncScreenLayout();});screen.orientation?.addEventListener?.('change',()=>{clearTouch();syncScreenLayout();});
     document.addEventListener('visibilitychange',()=>{clearTouch();syncScreenLayout();if(document.hidden)pauseRequested=true;});window.addEventListener('blur',()=>{focused=false;clearTouch();if(document.body.dataset.game==='RUNNING')pauseRequested=true;syncGyro();});window.addEventListener('focus',()=>{focused=true;syncGyro();});
     window.noArtMode=mode=>{document.body.dataset.mode=mode;clearTouch();};
-    window.noArtState=state=>{document.body.dataset.game=state;window.noArtUpdateSky?.();clearTouch();hideImmersiveNote();immersiveAttempt++;if(state!=='RUNNING')pauseRequested=false;if(state==='RUNNING'||state==='LOADING')gyroSetup?.close(false);syncGyro();};
+    window.noArtState=state=>{document.body.dataset.game=state;window.noArtUpdateSky?.();clearTouch();hideImmersiveNote();immersiveAttempt++;if(state!=='RUNNING')pauseRequested=false;if(state==='RUNNING'||state==='LOADING')gyroSetup?.close(false);syncGyro();syncToolbarTip();};
     window.noArtReadTouch=(alive=true)=>{
       syncGyro(alive);
       const motion=gyroSetup?.practicing?null:gyroSetup?.gyro.read();
@@ -339,7 +369,7 @@
     for(const event of ['pointerup','pointercancel','lostpointercapture'])ui.addEventListener(event,release);
     const immersiveNote=document.querySelector('#immersive-note');
     let immersiveTimer=0,immersiveAttempt=0;
-    const isFullscreen=()=>Boolean(document.fullscreenElement||document.webkitFullscreenElement);
+    function isFullscreen(){return Boolean(document.fullscreenElement||document.webkitFullscreenElement);}
     let fullscreen=isFullscreen();
     function hideImmersiveNote(){clearTimeout(immersiveTimer);immersiveTimer=0;immersiveNote.hidden=true;}
     async function immersive(explain=false){
@@ -354,9 +384,8 @@
         try{await screen.orientation?.lock('landscape');}catch{}
       }catch{
         // Automatic requests stay silent. Never let a late rejection cover play.
-        if(!explain||attempt!==immersiveAttempt||['RUNNING','LOADING'].includes(document.body.dataset.game))return;
-        const safari=/Version\/[\d.]+.*Safari\//.test(window.navigator?.userAgent??'');
-        immersiveNote.textContent=t(safari?'可在 Safari 页面菜单选择「隐藏工具栏」。':'此浏览器暂不支持全屏');
+        if(!explain||!toolbarTip.hidden||attempt!==immersiveAttempt||['RUNNING','LOADING'].includes(document.body.dataset.game))return;
+        immersiveNote.textContent=t(isMobileSafari()?'可在 Safari 页面菜单选择「隐藏工具栏」。':'此浏览器暂不支持全屏');
         immersiveNote.hidden=false;
         immersiveTimer=setTimeout(hideImmersiveNote,2400);
       }
@@ -379,6 +408,7 @@
       document.body.classList.toggle('fullscreen',active);
       clearTouch();
       if(!active&&document.body.dataset.game==='RUNNING')pauseRequested=true;
+      syncToolbarTip();
     }
     document.addEventListener('fullscreenchange',syncFullscreen);
     document.addEventListener('webkitfullscreenchange',syncFullscreen);
@@ -458,6 +488,7 @@
       loading.hidden=true;
       help.hidden=Boolean(document.pointerLockElement);
       gyroSetup?.openEntry();
+      syncToolbarTip();
     };
     document.addEventListener('pointerlockchange',()=>{help.hidden=Boolean(document.pointerLockElement)||!ready;});
     document.querySelector('#canvas').addEventListener('contextmenu',event=>event.preventDefault());

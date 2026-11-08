@@ -46,6 +46,8 @@
     '进入游戏':'Continue',
     '体感组件加载失败。请刷新页面后重试。':'Gyro aim failed to load. Reload the page and try again.',
     '可在 Safari 页面菜单选择「隐藏工具栏」。':'Choose Hide Toolbar in the Safari page menu.',
+    '点按 Safari 地址栏左侧的页面菜单，选择「隐藏工具栏」。':'Tap the Page Menu to the left of Safari’s address bar and choose Hide Toolbar.',
+    '忽略':'Dismiss',
     '此浏览器暂不支持全屏':'Fullscreen is unavailable in this browser.',
     '准备就绪':'Ready',
     '加载遇到问题，请重试':'Loading failed. Please try again.',
