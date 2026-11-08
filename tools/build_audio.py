@@ -79,6 +79,13 @@ def comedy_plop():
     return sample
 
 
+def roach_buzz(t):
+    flap = math.sin(math.tau * (51 * t - 72 * t * t))
+    buzz = math.sin(math.tau * (405 * t - 650 * t * t) + flap * 1.6)
+    pop = math.sin(math.tau * (205 * t - 215 * t * t)) * math.exp(-t * 52)
+    return min(1.0, t * 260) * (.48 * buzz * math.exp(-t * 24) + .5 * pop)
+
+
 write('shot',.16,rifle_shot())
 write('hit',.07,lambda t:(math.sin(2*math.pi*850*t)*.5+random.uniform(-1,1)*.2)*math.exp(-t*55))
 write('kill',.20,lambda t:math.sin(2*math.pi*(850*t+1800*t*t))*.4*math.exp(-t*18))
@@ -93,4 +100,5 @@ write('charge',.75,lambda t:(math.sin(2*math.pi*(220*t+400*t*t))*.3+math.sin(2*m
 write('cartridge_insert',.032,lambda t:(random.uniform(-1,1)*.42+math.sin(2*math.pi*1600*t)*.28+math.sin(2*math.pi*3100*t)*.12)*math.exp(-t*180))
 write('magazine_latch',.125,magazine_latch())
 write('comedy_plop',.18,comedy_plop())
-print('Fourteen original WAV effects generated')
+write('roach_buzz',.16,roach_buzz)
+print('Fifteen original WAV effects generated')
