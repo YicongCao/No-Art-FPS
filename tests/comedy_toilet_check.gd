@@ -18,7 +18,7 @@ func check() -> void:
 	game.start_run()
 	assert(not is_instance_valid(game.comedy_toilet))
 	return_to_title()
-	var maps = ["score_attack","amusement_park","last_ferry","night_studio"]
+	var maps = ["score_attack","amusement_park","last_ferry","night_studio","bb_office"]
 	for i in range(maps.size()):
 		if i>0:await game.select_session(load("res://data/sessions/"+maps[i]+".tres"))
 		assert(game.nav_ready and not is_instance_valid(game.comedy_toilet))
@@ -52,7 +52,7 @@ func check() -> void:
 			return_to_title()
 			assert(not is_instance_valid(game.comedy_toilet))
 			game.menu_action(mode)
-	print("TOILET_PASS: seven clear placements, both toy modes on each new map, real shot, cover and 10 m boundary, no duplicates and reset")
+	print("TOILET_PASS: eight clear placements, both toy modes on each new map, real shot, cover and 10 m boundary, no duplicates and reset")
 	game.queue_free()
 	await process_frame
 	if DisplayServer.get_name()=="headless":

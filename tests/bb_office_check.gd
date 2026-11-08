@@ -37,11 +37,17 @@ func check() -> void:
 	game.clear_round()
 
 	var office = game.arena
+	var desks = office.get_node("Props").get_children().filter(func(node):
+		return node.name.begins_with("Programmer") or node.name.begins_with("PM") or node.name.begins_with("BackDesk")
+	)
+	assert(desks.size()==48 and office.power_faults.size()==12)
+	assert(not office.arc.visible and not office.arc_light.visible)
 	game.touch_mode = true
 	game.player.rotation.y = 0
 	for point in [Vector3(22,.05,10), Vector3(22,.05,-9), Vector3(-22,.05,-9),
 			Vector3(-22,.05,10), Vector3(-6,.05,13.5), Vector3(0,.05,18.4),
-			Vector3(3.85,.05,-15.5)]:
+			Vector3(3.85,.05,-15.5),Vector3(6.6,.05,1.1),Vector3(-6.5,.05,1.1),
+			Vector3(-2.1,.05,6.6),Vector3(2.1,.05,6.6)]:
 		assert(await walk_to(point), "Office walk blocked at %s toward %s" % [game.player.position,point])
 	game.touch_mode = false
 
@@ -85,6 +91,14 @@ func check() -> void:
 	game.rules.elapsed = 46.0
 	office._process(0)
 	assert(previous != office.sweeps[0].basis)
+	assert(office.arc.visible and office.arc_light.visible and office.arc_mesh.get_surface_count()==1)
+	assert(game.effects.get_children().any(func(effect):return str(effect.name).begins_with("OfficePowerSparks")))
+	var pulse: int = office.last_fault
+	game.pause_run()
+	office._process(0)
+	assert(office.last_fault==pulse and office.arc.visible)
+	game.menu_action("resume")
+	game.player.enabled = false
 	var computer = office.get_node("Props/Programmer10R")
 	place_player(Vector3(-12.75,.05,1.35))
 	await physics_frame
@@ -105,6 +119,7 @@ func check() -> void:
 	game.start_run()
 	assert(not computer.collapsed and not office.get_node("Props/ManagerDoor0").collapsed)
 	assert(game.grenade_stock == 3 and not game.destroy_active and office.sweeps.all(func(spot):return not spot.visible))
+	assert(not office.arc.visible and not office.arc_light.visible and office.last_fault==-1)
 	print("BB_OFFICE_PASS: connected floor, two normal-phase breaches, props, six frenzy sweeps, finale, isolated record and reset")
 	var deadline = Time.get_ticks_msec()+450
 	while Time.get_ticks_msec() < deadline:

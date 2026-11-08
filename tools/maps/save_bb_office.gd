@@ -144,6 +144,9 @@ func build() -> void:
 		mount.position = vec(entry[0])
 		add(mounts, mount, "Mount%d"%mounts.get_child_count())
 		office.sweep_centers.append(vec(entry[1]))
+	for entry in layout.faults:
+		office.power_faults.append(vec(entry[0]))
+		office.power_faults.append(vec(entry[1]))
 	for entry in layout.barrels:
 		var barrel = Barrel.new()
 		barrel.position = vec(entry)

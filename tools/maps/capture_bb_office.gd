@@ -1,12 +1,14 @@
 extends SceneTree
 
 const SHOTS = {
-	"workstations": [Vector3(-3.3,1.62,2.9),Vector3(1.8,1.48,-4.7),66.0],
+	"workstations": [Vector3(4.5,1.72,7.45),Vector3(-.55,1.28,3.1),75.0],
 	"rooms": [Vector3(-.65,1.63,-9.65),Vector3(.2,1.64,-16.9),72.0],
 	"manager": [Vector3(21.1,1.66,-10.15),Vector3(17.9,1.43,-16.1),66.0],
 	"pantry": [Vector3(-21.35,1.63,16.2),Vector3(-22,1.41,13.7),66.0],
 	"entrance": [Vector3(-2.2,1.65,12.0),Vector3(0,1.91,20.1),59.0],
 	"skyline": [Vector3(21.3,1.64,11.3),Vector3(23,1.72,-8),66.0],
+	"building-services": [Vector3(-3.12,1.68,9.63),Vector3(.39,2.72,7.32),65.0],
+	"water-cooler": [Vector3(7.7,1.66,15.65),Vector3(9.35,1.22,13.9),62.0],
 	"screen": [Vector3(-.05,1.52,1.1),Vector3(1.25,1.29,-1.62),59.0],
 }
 
@@ -42,7 +44,8 @@ func capture() -> void:
 	game.enemies.hide()
 	game.rules.elapsed = 46.0
 	game.set_destroy_active(true)
-	for id in ["workstations","screen"]:
+	for id in ["workstations","screen","building-services"]:
+		game.rules.elapsed = 45.14 if id=="building-services" else 46.0
 		var shot: Array = SHOTS[id]
 		camera.global_position = shot[0]
 		camera.look_at(shot[1])

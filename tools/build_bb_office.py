@@ -19,6 +19,8 @@ COLORS = {
     "mint": "82B9A3", "dark_teal": "305963", "teal": "477B82", "leaf": "72A164",
     "card": "D8A86B", "paper": "FFF9E9", "screen": "92C4DF", "tally": "FF4D4B",
     "carpet": "B2A7AC", "carpet_dark": "9C929F", "carpet_light": "C1B3B5", "carpet_seam": "827E90",
+    "soffit": "817D89", "galvanized": "8099A7", "duct_joint": "4B6577",
+    "copper": "D89964", "sprinkler": "B8494E", "cable": "2F354B",
     "display_glass": "3E5268", "laptop_glass": "A2C1DA", "wood": "AB6C51", "timber": "E4A17C",
     "screen_dark": "253950", "code": "76DCC3", "white": "F5F3E8",
     "orange": "F48A54", "coffee": "68412F", "facade": "788FA8", "glass_blue": "54809C",
@@ -115,7 +117,7 @@ class Kit:
         bpy.data.meshes.remove(mesh)
 
 
-layout = {"boxes": [], "glass": [], "props": [], "spots": []}
+layout = {"boxes": [], "glass": [], "props": [], "spots": [], "faults": []}
 kits = {}
 
 
@@ -142,7 +144,7 @@ def wall_between(item, label, left, right, z, color):
 
 shell = kit("architecture")
 solid(shell, "Floor slab", (0,-.20,0), (54,.4,42), "carpet")
-solid(shell, "Ceiling", (0,3.93,0), (54,.30,42), "navy")
+solid(shell, "Exposed concrete slab", (0,3.93,0), (54,.30,42), "soffit")
 for z in (-20.9,20.9):
     solid(shell,"Exterior wall",(0,1.8,z),(54,3.6,.22),"slate")
 for i in range(14):
@@ -174,6 +176,54 @@ for x in (-21,-14,-7,0,7,14,21):
         shell.box("Strip diffuser",(x,3.435,z),(3.63,.04,.13),"lamp")
         for end in (-1,1):
             shell.box("Pendant support",(x+end*1.47,3.69,z),(.044,.28,.045),"navy")
+
+services = kit("building_services")
+# Route the mechanical mains beside the light tracks and cross the room over the aisle ends.
+for x in (-9.4,9.4):
+    services.box("Central supply duct",(x,3.47,-.9),(.96,.50,23.8),"galvanized")
+    services.box("Insulated duct spine",(x,3.69,-.9),(.91,.12,23.8),"duct_joint")
+    for z in range(-12,12,2):
+        services.box("Flanged duct joint",(x,3.47,z),(1.03,.55,.075),"duct_joint")
+    for z in (-9.2,-3.15,2.85,8.85):
+        for target_x in (x-4.05,x+4.05):
+            services.box("Rectangular branch duct",((x+target_x)*.5,3.51,z),
+                         (abs(x-target_x),.34,.54),"galvanized")
+            services.box("Ceiling diffuser",(target_x,3.29,z),(.76,.105,.74),"ivory")
+            for offset in (-.23,-.115,0,.115,.23):
+                services.box("Diffuser grille",(target_x+offset,3.228,z),(.046,.026,.61),"duct_joint")
+        for shift in (-.65,.65):
+            services.rod("Galvanized hanger rod",(x+shift,3.48,z),(x+shift,3.77,z),.026,"slate",6)
+        services.box("Duct hanger rail",(x,3.185,z),(1.42,.056,.07),"slate")
+    for offset,color in ((-.94,"sprinkler"),(-1.25,"copper"),(-1.54,"blue")):
+        at=x+offset
+        services.rod("Exposed service pipe",(at,3.60,-12.6),(at,3.60,11.0),.065,color,8)
+        for z in (-11,-5,1,7):
+            services.rod("Service pipe union",(at,3.6,z-.08),(at,3.6,z+.08),.088,"galvanized",8)
+            if color=="sprinkler":
+                services.rod("Sprinkler head drop",(at,3.6,z),(at,3.26,z),.035,color,7)
+                services.rod("Sprinkler deflector",(at,3.22,z),(at,3.27,z),.077,"gold",8)
+
+for z in (-10.65,-4.65,1.35,7.35,12.35):
+    for x in (-14,0,14):
+        services.box("Open cable ladder rail",(x,3.67,z-.23),(7.8,.084,.056),"duct_joint")
+        services.box("Open cable ladder rail",(x,3.67,z+.23),(7.8,.084,.056),"duct_joint")
+        for i in range(13):
+            services.box("Cable ladder rung",(x+(i-6)*.58,3.64,z),(.055,.065,.49),"galvanized")
+        for offset,color in ((-.15,"cable"),(-.045,"blue"),(.09,"copper"),(.16,"cable")):
+            services.rod("Bundled power and network line",(x-3.86,3.60,z+offset),
+                         (x+3.86,3.60,z+offset),.024,color,6)
+        if z in (-4.65,7.35):
+            services.box("Junction box with lid",(x+.2,3.52,z),(.58,.24,.50),"duct_joint")
+            services.box("Junction box service lid",(x+.20,3.382,z),(.51,.042,.43),"galvanized")
+            for shift,color in ((-.05,"cable"),(.10,"sprinkler")):
+                drop=[(x+.08,3.53,z+shift),(x+.31,3.29,z+shift),(x+.66,3.29,z+shift),(x+.83,3.55,z+shift)]
+                for first,last in zip(drop,drop[1:]):
+                    services.rod("Loose junction cable",first,last,.031,color,7)
+            layout["faults"].append([[x+.31,3.29,z-.05],[x+.66,3.29,z+.10]])
+        if z in (-10.65,1.35,12.35):
+            services.rod("Wireless AP mounting stem",(x,3.36,z+.57),(x,3.62,z+.57),.061,"slate",8)
+            services.rod("Ceiling wireless access point",(x,3.26,z+.57),(x,3.38,z+.57),.19,"ivory",12,.22)
+            services.rod("Wireless AP status LED",(x+.08,3.245,z+.57),(x+.08,3.265,z+.57),.029,"code",8)
 
 city = kit("city")
 for side in (-1,1):
@@ -306,6 +356,14 @@ def desk(item,width=2.4):
     item.box("Cable tray",(0,.68,-.33),(width*.82,.20,.14),"teal")
     item.box("Document stack",(-width*.37,.936,.19),(.31,.032,.22),"paper")
     item.box("Note",(-width*.36,.958,.17),(.15,.013,.11),"gold",.16)
+    item.box("Rolling three-drawer pedestal",(width*.36,.33,-.04),(.41,.65,.70),"slate")
+    for y in (.17,.37,.56):
+        item.box("Drawer face",(width*.36,y,.32),(.37,.168,.042),"carpet_dark")
+        item.box("Inset drawer handle",(width*.36,y+.037,.352),(.125,.034,.026),"ink")
+    item.box("Mouse mat",(.46,.933,.25),(.27,.022,.24),"dark_teal")
+    item.rod("Wireless mouse",(.46,.951,.25),(.46,.999,.25),.064,"slate",8,.049)
+    item.rod("Steel travel mug",(-width*.43,.92,.35),(-width*.43,1.108,.35),.064,"galvanized",9,.058)
+    item.rod("Travel mug lid",(-width*.43,1.106,.35),(-width*.43,1.126,.35),.067,"ink",9)
     seat(item,0,.93,math.pi)
 
 def penguin(item,x,y,z,s):
@@ -374,6 +432,16 @@ pm.box("Sports car body",(.79,.99,.01),(.45,.095,.22),"red",.11)
 pm.box("Sports car canopy",(.77,1.066,.01),(.24,.075,.17),"screen_dark",.11)
 for x in (.65,.91):
     pm.rod("Sports car axle", (x,.964,-.118),(x,.964,.133),.057,"ink",10)
+pm.box("Meeting notebook",(-.51,.946,.28),(.27,.047,.22),"lilac",.23)
+pm.box("Notebook page block",(-.51,.968,.28),(.25,.022,.20),"paper",.23)
+pm.box("Employee badge",(-.76,.941,-.14),(.125,.013,.20),"screen",.42)
+pm.rod("Employee badge lanyard",(-.76,.946,-.21),(-.51,.95,-.30),.014,"blue",6)
+programmer.box("Takeaway lunch bag",(-.82,1.025,-.30),(.22,.215,.16),"card")
+programmer.box("Folded takeaway bag top",(-.82,1.146,-.30),(.217,.043,.089),"ivory")
+programmer.rod("Headphone stand",(.86,.92,.27),(.86,1.14,.27),.034,"slate",8)
+for dx in (-.082,.082):
+    programmer.rod("Headphone ear cup",(.86+dx,1.05,.27),(.86+dx,1.11,.27),.048,"ink",8)
+programmer.rod("Padded headset band",(.78,1.137,.27),(.94,1.137,.27),.027,"ink",7)
 executive.box("Tablet kickstand",(.26,1.018,-.19),(.42,.17,.16),"slate")
 screen(executive,.26,1.205,-.07,.69,.47,"revenue")
 
@@ -384,8 +452,12 @@ for x in (-2.46,0,2.46):
     partition.box("Baffle post",(x,.85,0),(.084,1.7,.164),"slate")
     partition.box("Fabric trim",(x,1.0,.069),(.055,1.24,.03),"mint")
 for x in (-2.49,2.49):
-    partition.box("Privacy wing",(x,1.02,.72),(.11,1.18,1.48),"teal")
-    partition.box("Wing cap",(x,1.64,.72),(.14,.07,1.48),"navy")
+    for side in (-1,1):
+        partition.box("Privacy wing",(x,1.02,side*.72),(.11,1.18,1.48),"teal")
+        partition.box("Wing cap",(x,1.64,side*.72),(.14,.07,1.48),"navy")
+for x in (-1.75,-.72,.83,1.82):
+    for side in (-1,1):
+        partition.box("Pinned sprint note",(x,1.49,side*.067),(.18,.21,.016),"gold" if x<0 else "paper",.09)
 
 leaf = kit("shade_leaf")
 leaf.rod("Leaf clamp stem",(0,0,0),(0,1.52,0),.045,"green",8)
@@ -411,12 +483,18 @@ cot.box("Folded blanket",(0,.455,.65),(.80,.06,.55),"violet")
 for row,z in enumerate((-8,-2,4,10)):
     for col,x in enumerate((-14,0,14)):
         pod=f"{row}{col}"
-        instance("partition","Partition"+pod,(x,0,z),(5.16,1.7,.16),sections=[[[side*2.49,1.02,.72],[.11,1.18,1.48]] for side in (-1,1)])
+        instance("partition","Partition"+pod,(x,0,z),(5.16,1.7,.16),sections=[[[end*2.49,1.02,side*.72],[.11,1.18,1.48]]
+                      for end in (-1,1) for side in (-1,1)])
         for side in (-1,1):
             pos=x+side*1.25
             station="project_manager" if (row+col+side)%3==0 else "programmer"
             instance(station,("PM" if station=="project_manager" else "Programmer")+pod+("L" if side<0 else "R"),
                      (pos,0,z+.63),(2.39,.94,.95),impact="keys" if station=="programmer" else "paper",
+                     sections=[[[0,1.2,-.22],[2.02,.54,.16]],[[0,.52,.85],[.60,1.0,.68]]])
+            back_station="project_manager" if (row+col+side+1)%3==0 else "programmer"
+            instance(back_station,"BackDesk"+pod+("L" if side<0 else "R"),
+                     (pos,0,z-.63),(2.39,.94,.95),math.pi,
+                     impact="keys" if back_station=="programmer" else "paper",
                      sections=[[[0,1.2,-.22],[2.02,.54,.16]],[[0,.52,.85],[.60,1.0,.68]]])
         if (row+col)%2==0:
             instance("shade_leaf","Shade"+pod,(x-1.17,.74,z+.30),(0,0,0),
@@ -484,8 +562,67 @@ for i,(x,z) in enumerate(((-24.5,-12.3),(24.5,-12.3),(-25,7),(25,7),(-6.8,19.5),
                           (-11.0,-7.7),(3.0,4.1),(11.2,10.4))):
     instance("planter",f"Planter{i}",(x,0,z),(.72,1.22,.72),impact="leaf")
 
+cooler = kit("water_cooler")
+cooler.box("Water cooler cabinet",(0,.49,0),(.63,.98,.59),"ivory")
+cooler.box("Dispenser dark recess",(0,.80,.302),(.46,.40,.038),"navy")
+cooler.box("Drip tray",(0,.59,.353),(.47,.055,.17),"galvanized")
+for x,color in ((-.13,"blue"),(.13,"red")):
+    cooler.box("Hot or cold tap",(x,.89,.349),(.104,.071,.105),color)
+    cooler.rod("Tap spout",(x,.88,.401),(x,.82,.401),.028,"galvanized",7)
+cooler.rod("Blue refill bottle neck",(0,.96,0),(0,1.14,0),.095,"blue",10)
+cooler.rod("Refill bottle shoulder",(0,1.14,0),(0,1.29,0),.12,"screen",10,.236)
+cooler.rod("Refill bottle body",(0,1.28,0),(0,1.73,0),.236,"laptop_glass",10,.218)
+for y in (1.34,1.52,1.65):
+    cooler.rod("Molded bottle rib",(0,y,0),(0,y+.03,0),.238,"screen",10)
+cooler.rod("Stacked paper cups",(.22,1.02,.26),(.22,1.25,.26),.059,"paper",9,.073)
+for i,(x,z,angle) in enumerate(((-24.1,10.8,math.pi/2),(24.1,-4.3,-math.pi/2),(9.35,13.9,0))):
+    instance("water_cooler",f"WaterCooler{i}",(x,0,z),(.70,1.75,.77),angle,impact="water")
+
+copy = kit("copy_station")
+copy.box("Shared printer pedestal",(0,.46,0),(1.44,.92,.77),"slate")
+copy.box("Copier white body",(0,1.12,0),(1.41,.47,.76),"ivory")
+copy.box("Document feeder",(0,1.40,-.12),(1.24,.13,.55),"carpet_dark")
+copy.box("Output tray",(.26,1.01,.41),(.67,.072,.22),"ink")
+copy.box("Half-printed report",(.26,1.066,.44),(.36,.021,.23),"paper")
+copy.box("Copier control display",(-.48,1.382,.29),(.26,.11,.057),"screen")
+for y in (.16,.42,.66):
+    copy.box("Copy paper drawer",(0,y,.402),(1.28,.20,.067),"galvanized")
+    copy.box("Paper drawer pull",(0,y+.025,.445),(.28,.05,.035),"slate")
+copy.box("Paper carton",(-.98,.24,.05),(.43,.48,.51),"card")
+copy.box("Carton tape",(-.98,.486,.05),(.086,.018,.52),"paper")
+for i,(x,z) in enumerate(((-7.45,6.15),(7.65,-5.95))):
+    instance("copy_station",f"CopyStation{i}",(x,0,z),(1.51,1.48,.95),impact="paper",
+             sections=[[[-.98,.24,.05],[.43,.48,.51]]])
+
+huddle = kit("huddle_table")
+huddle.box("Standing huddle counter",(0,1.02,0),(2.28,.13,.88),"ivory")
+for x in (-.92,.92):
+    huddle.box("Standing counter leg",(x,.49,0),(.16,.98,.73),"dark_teal")
+huddle.box("Notebook from the stand-up meeting",(-.56,1.10,.12),(.34,.03,.25),"violet",.21)
+for i in range(4):
+    huddle.box("Sticky note cluster",(i*.23-.27,1.097,-.19),(.17,.018,.16),"gold" if i%2 else "pink",.07*i)
+huddle.rod("Takeaway coffee cup",(.77,1.08,.13),(.77,1.24,.13),.064,"card",8,.075)
+huddle.rod("Takeaway cup lid",(.77,1.24,.13),(.77,1.26,.13),.078,"ink",8)
+huddle.box("Low cable brace",(0,.28,-.28),(1.85,.14,.10),"slate")
+for i,(x,z) in enumerate(((-7.1,11.4),(7.35,-2.95))):
+    instance("huddle_table",f"HuddleTable{i}",(x,0,z),(2.30,1.27,.90),impact="paper")
+
+storage = kit("locker")
+storage.box("Employee locker bank",(0,.96,0),(1.87,1.92,.54),"slate")
+for i in range(4):
+    x=(i-1.5)*.45
+    storage.box("Locker door",(x,.99,.29),(.424,1.77,.058),"teal" if i%2==0 else "galvanized")
+    for y in (1.53,1.62,1.71):
+        storage.box("Locker ventilation slot",(x,y,.327),(.23,.026,.014),"ink")
+    storage.box("Nameplate without text",(x,1.28,.326),(.18,.063,.016),"paper")
+    storage.box("Locker handle",(x+.13,.99,.347),(.061,.23,.053),"navy")
+storage.box("Delivery parcel",(0,2.055,-.02),(.49,.25,.37),"card")
+storage.box("Parcel tape",(0,2.184,-.02),(.102,.018,.38),"paper")
+for i,(x,z,angle) in enumerate(((-19.5,-8.4,math.pi/2),(19.45,-2.9,-math.pi/2),(19.45,7.35,-math.pi/2))):
+    instance("locker",f"LockerBank{i}",(x,0,z),(1.87,2.19,.62),angle,impact="paper")
+
 layout.update({
-    "fixed": ["architecture","city","reception","rooms"],
+    "fixed": ["architecture","building_services","city","reception","rooms"],
     "start": [7,.05,14.7],
     "opening": [[7,.05,7.8],[-6,.05,7.4],[22,.05,7.2],[-21,.05,.8],
                 [7,.05,-5],[-6,.05,-9.7],[17.7,.05,11.1],[-5,.05,-2]],
@@ -495,7 +632,8 @@ layout.update({
     "respawns": [[7,.05,14.7],[-21,.05,9],[21,.05,11],[22,.05,-10],
                  [-22,.05,-10],[-6,.05,4],[6,.05,-6]],
     "route": [[-22,.05,-9],[22,.05,-9],[-22,.05,10],[22,.05,10],
-              [0,.05,18.4],[3.85,.05,-15.5],[-20,.05,15.7],[0,.05,-9.8]],
+              [0,.05,18.4],[3.85,.05,-15.5],[-20,.05,15.7],[0,.05,-10.55],
+              [6.6,.05,1.1],[-6.5,.05,1.1],[2.1,.05,6.6],[-2.1,.05,6.6]],
     "barrels": [[10,.05,3.1],[-18,.05,-3],[18,.05,-10.3]],
 })
 
