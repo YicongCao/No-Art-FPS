@@ -31,6 +31,7 @@ func _ready() -> void:
 	game.invulnerable = 0
 	game.damage_player()
 	assert(game.rules.deaths==1 and game.respawn_time==2.0 and not game.player.enabled)
+	assert(game.respawn_duration==2.0)
 	assert(not game.player.gun.visible)
 	var shots = game.rules.shots
 	game.shoot()
@@ -62,13 +63,25 @@ func _ready() -> void:
 	wall.global_position = first_spawn+Vector3.UP*1.3
 	await get_tree().physics_frame
 	await get_tree().physics_frame
+	game.rules.elapsed = 44.99
 	defeat()
-	for frame in range(120):game._physics_process(1.0/60.0)
-	assert(game.rules.deaths==2 and game.respawn_time==0)
+	assert(not game.destroy_active and game.respawn_time==2.0)
+	for frame in range(119):
+		game._physics_process(1.0/60.0)
+		assert(not game.player.enabled and game.respawn_duration==2.0)
+	game._physics_process(1.0/60.0)
+	assert(game.destroy_active and game.rules.deaths==2 and game.respawn_time==0)
 	assert(game.player.global_position.distance_to(first_spawn)>1.0,"An obstructed marker is skipped")
 	assert_clear_view()
 	wall.queue_free()
 	await capture("death-two")
+	defeat()
+	assert(game.respawn_time==1.25 and game.respawn_duration==1.25 and not game.player.enabled)
+	for frame in range(74):
+		game._physics_process(1.0/60.0)
+		assert(game.respawn_time>0 and not game.player.enabled,"No early frenzy respawn")
+	game._physics_process(1.0/60.0)
+	assert(game.respawn_time==0 and game.player.enabled and game.player.gun.visible)
 	# A death near the deadline ends at results; it must not respawn after time is up.
 	game.rules.elapsed = 59
 	defeat()
@@ -77,7 +90,7 @@ func _ready() -> void:
 	game._physics_process(game.rules.finale_duration)
 	assert(game.state=="RESULTS" and not game.player.enabled)
 	game._physics_process(6)
-	assert(game.state=="RESULTS" and game.rules.deaths==3)
+	assert(game.state=="RESULTS" and game.rules.deaths==4)
 	await capture("text-review-results")
 	game.start_run()
 	assert(game.rules.deaths==0 and game.respawn_time==0 and game.player.gun.visible)
@@ -93,7 +106,7 @@ func _ready() -> void:
 	game.menu_action("resume")
 	game.state = "TITLE"
 	await capture("text-review-title")
-	print("RESPAWN_CHECK_PASS: exact 120 ticks, clear facing, blocked marker fallback, pause, deadline and restart")
+	print("RESPAWN_CHECK_PASS: normal 120 ticks, frenzy 75 ticks, phase boundary, clear facing, blocked marker fallback, pause, deadline and restart")
 	game.state = "RESULTS"
 	game.clear_round()
 	await get_tree().create_timer(.3).timeout

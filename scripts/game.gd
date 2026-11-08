@@ -61,6 +61,7 @@ const MAX_HEALTH = 150.0
 const HEAL_DELAY = 5.0
 const HEAL_RATE = 12.0
 const RESPAWN_DELAY = 2.0
+const DESTROY_RESPAWN_DELAY = 1.25
 const RANGED_ATTACK_LIMIT = 3
 const SCENERY_TARGET_LAYER = 16
 const PROP_SHOT_LAYER = 32
@@ -76,6 +77,7 @@ var new_record = false
 var invulnerable = 0.0
 var since_damage = 0.0
 var respawn_time = 0.0
+var respawn_duration = RESPAWN_DELAY
 var best = 0
 var reduced_motion = false
 var comedy_mode = ""
@@ -534,6 +536,7 @@ func reset_run_state() -> void:
 	invulnerable = 1
 	since_damage = 0
 	respawn_time = 0
+	respawn_duration = RESPAWN_DELAY
 	spawn_cooldowns.clear()
 	spawn_cooldowns.resize(arena.spawn_points.size())
 	spawn_cooldowns.fill(0.0)
@@ -1539,7 +1542,8 @@ func damage_player(amount: float = 34.0, source: Variant = null) -> void:
 		grenade_throw_time = 0
 		rules.deaths += 1
 		rules.report_death()
-		respawn_time = RESPAWN_DELAY if rules.respawn_allowed else 0
+		respawn_duration = DESTROY_RESPAWN_DELAY if destroy_active else RESPAWN_DELAY
+		respawn_time = respawn_duration if rules.respawn_allowed else 0
 		reload_time = 0
 		fire_time = 0
 		player.enabled = false

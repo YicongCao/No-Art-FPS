@@ -458,7 +458,7 @@ func draw_respawn(center: Vector2) -> void:
 	const ICON_SIZE = 84.0
 	const RADIUS = 62.0
 	const START = -PI*.5
-	var remaining = clampf(game.respawn_time/game.RESPAWN_DELAY,0,1)
+	var remaining = clampf(game.respawn_time/game.respawn_duration,0,1)
 	var sweep = TAU*remaining
 	var segments = maxi(2,ceili(96*remaining))
 	if remaining>=1:
