@@ -1,0 +1,193 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="788" viewBox="0 0 1320 788" role="img" aria-labelledby="title desc">
+  <title id="title">No-Art-FPS 手雷副武器设计稿</title>
+  <desc id="desc">碎片雷、便便雷、蟑螂雷的外形与爆炸剪影，以及手机横屏的投雷按钮和三格库存。</desc>
+  <defs>
+    <linearGradient id="card" x2="0" y2="1">
+      <stop stop-color="#233341"/>
+      <stop offset="1" stop-color="#192631"/>
+    </linearGradient>
+    <linearGradient id="yard" x2="0" y2="1">
+      <stop stop-color="#7da9d4"/>
+      <stop offset=".62" stop-color="#bdd1dd"/>
+      <stop offset="1" stop-color="#c6af88"/>
+    </linearGradient>
+    <pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="3" r="1.35" fill="#94aec0" opacity=".2"/>
+    </pattern>
+    <g id="pin" stroke="#141c25" stroke-width="5" stroke-linejoin="round">
+      <path d="m100 39 27-17 13 7 4 15-9 10-17-1-6-7-11 7z" fill="#f2d084"/>
+      <path d="m125 32 8-2 5 9-5 7-10-2-2-6z" fill="#243440" stroke-width="3"/>
+    </g>
+    <g id="frag" stroke="#141c25" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M45 61 69 42l46 1 25 20 11 39-13 39-25 18-49-2-27-23-9-34z" fill="#587d66"/>
+      <path d="m45 61 27 9 45-2 23-5-25-20-46-1z" fill="#95b283"/>
+      <path d="m37 84 30 3 52-1 27-8m-117 22 37 9 54-1 30-6m-115 26 33 5 49-1 26-10M72 70l-6 39 2 24-4 24m53-89 3 40-3 24-4 27" fill="none"/>
+      <path d="m120 108 30-6-12 39-25 18 4-27z" fill="#3a594c" stroke="none"/>
+      <path d="m120 108 30-6m-33 30 26-10m-26 10-4 27" fill="none"/>
+      <path d="m58 49 3-22 14-10 37 3 12 10-3 21-23 13-29-4z" fill="#76538d"/>
+      <path d="m61 27 21 9 29 2 13-8-12-10-37-3z" fill="#a97fbb"/>
+      <path d="m82 36-2 25m31-23-2 19" fill="none" stroke-width="3.5"/>
+      <use href="#pin"/>
+      <path d="m47 69 17 6m-21 22 17 5m17 14 31-1" stroke="#aec38a" stroke-width="3.5" fill="none"/>
+    </g>
+    <g id="stink" stroke="#141c25" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+      <path d="m35 111 1-17 15-14 17-3-2-12 9-13 18-6 5-19 17-7-1 14 12 9 4 15-7 12 14 5 13 12 3 17-8 9 12 7 5 13-10 14-25 10-56 3-36-12-10-14 4-12z" fill="#995c3e"/>
+      <path d="m51 80 17-3 23 2 32-9 14 5 13 12-14 10-30 8-42-4-28-7z" fill="#bd8052"/>
+      <path d="m75 52 18-6 5-19 17-7-1 14 12 9 4 15-24 7-40 0z" fill="#d2995e"/>
+      <path d="m35 111 28 10 44 2 38-10 12 7 5 13-16 12-37 8-45-3-34-12-4-4 4-12z" fill="#76538d"/>
+      <path d="m50 92 20 4 28 1m-22-40 16-4 13-8m-60 81 24 7 27 1" stroke="#ecc094" stroke-width="4" fill="none"/>
+      <path d="m111 53 18-5 10 4-1 15-16 5-11-6z" fill="#76538d"/>
+      <use href="#pin" transform="translate(14 18)"/>
+    </g>
+    <g id="roach" stroke="#141c25" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M73 37 65 21 48 13M107 37l11-16 18-7" stroke="#131d24" fill="none" stroke-width="9"/>
+      <path d="M73 37 65 21 48 13M107 37l11-16 18-7" stroke="#dda05d" fill="none" stroke-width="4"/>
+      <path d="m63 59-13 0-17 17m21 7-17 4-15 17m33 6-14 12-7 18m89-81 13 0 17 17m-21 7 17 4 15 17m-33 6 14 12 7 18" fill="none"/>
+      <path d="M66 48 81 32l25 0 16 16 19 33-2 45-25 31H70l-25-31-2-45z" fill="#45685d"/>
+      <path d="m66 48 15-16h25l16 16-14 12H79z" fill="#263c39"/>
+      <path d="m63 60 16 0 13 13 16-13h14l17 23-2 41-23 25-22 6-22-6-23-25-2-41z" fill="#b77a4a"/>
+      <path d="M92 73v82M49 84l28 9 15 10 15-10 28-9m-86 24 28 9 15 10 15-10 28-9m-70 27 27 10 28-10" fill="none" stroke-width="4"/>
+      <path d="m52 78 22 5m-23 21 22 7m40-29 18-6m-18 31 18-6" stroke="#e0aa6f" stroke-width="3.5" fill="none"/>
+      <use href="#pin" transform="translate(3 17)"/>
+    </g>
+    <g id="roach-small">
+      <ellipse rx="11" ry="7" fill="#a96d49" stroke="#17232d" stroke-width="2"/>
+      <path d="M0-6v12m-5-4-7-7m7 11-7 7M5-4l7-7M5 4l7 7m-9-14-3-6m7 7 6-4" fill="none" stroke="#f2d084" stroke-width="1.5" stroke-linecap="round"/>
+    </g>
+    <g id="ring" fill="none" stroke-linecap="round" stroke-width="4">
+      <path d="M-25 0a25 25 0 0 1 22-25M3-25A25 25 0 0 1 25 0M22 12a25 25 0 0 1-44 0" stroke="currentColor"/>
+    </g>
+    <g id="thumb-frag" stroke="#fff5d8" stroke-width="1.8" stroke-linejoin="round">
+      <path d="m-9-4 5-4h8l5 4 1 9-4 6H-6l-4-6z" fill="#6d9a78"/>
+      <path d="M-5-8v-5h9v5m0-4 5-4 3 2-2 4-4 1m-15 8H9M-8 5H8M0-7V9" fill="none"/>
+    </g>
+    <g id="thumb-stink" stroke="#fff5d8" stroke-width="1.8" stroke-linejoin="round">
+      <path d="m-10 2 4-4 2-5 4-3 3-5 2 6 4 4v4l4 5-1 5-5 3H-7l-5-4z" fill="#aa704c"/>
+      <path d="m6-8 5-3 3 3-3 3m-17 3 6 2 8-2m-18 7 9 2 11-2" fill="none"/>
+    </g>
+    <g id="thumb-roach" stroke="#fff5d8" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round">
+      <path d="m-7-6 4-5h6l4 5 1 9-3 7-5 2-5-2-3-7z" fill="#aa704c"/>
+      <path d="M-4-10l-4-4m12 4 4-4m-15 8-5-1m4 7-5 1m6 4-4 3m18-14 5-1m-4 7 5 1m-6 4 4 3M0-6v16m-6-9h12" fill="none"/>
+    </g>
+    <clipPath id="touch-scene"><rect x="48" y="564" width="720" height="172" rx="12"/></clipPath>
+  </defs>
+
+  <rect width="1320" height="788" fill="#111c27"/>
+  <path d="M48 54h6v31h-6z" fill="#c196df"/>
+  <text x="69" y="82" fill="#fff5de" font-size="37" font-weight="700" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">手雷副武器</text>
+  <text x="1272" y="81" text-anchor="end" fill="#f2d084" font-size="24" font-weight="700" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">3 枚 / 局</text>
+  <g fill="url(#card)" stroke="#3f5463" stroke-width="1">
+    <rect x="48" y="111" width="388" height="421" rx="12"/>
+    <rect x="466" y="111" width="388" height="421" rx="12"/>
+    <rect x="884" y="111" width="388" height="421" rx="12"/>
+  </g>
+  <g fill="url(#dots)">
+    <rect x="66" y="170" width="352" height="208" rx="12"/>
+    <rect x="484" y="170" width="352" height="208" rx="12"/>
+    <rect x="902" y="170" width="352" height="208" rx="12"/>
+  </g>
+  <g fill="#0e1923" opacity=".74">
+    <ellipse cx="243" cy="350" rx="92" ry="17"/>
+    <ellipse cx="661" cy="350" rx="92" ry="17"/>
+    <ellipse cx="1079" cy="350" rx="92" ry="17"/>
+  </g>
+  <g font-family="PingFang SC, Noto Sans CJK SC, sans-serif" font-size="25" font-weight="700">
+    <text x="71" y="152" fill="#a7c999">碎片雷</text>
+    <text x="489" y="152" fill="#f0bc91">便便雷</text>
+    <text x="907" y="152" fill="#a8d0b0">蟑螂雷</text>
+  </g>
+  <g fill="#16222d" stroke="#4a5d68">
+    <circle cx="401" cy="143" r="18"/>
+    <circle cx="819" cy="143" r="18"/>
+    <circle cx="1237" cy="143" r="18"/>
+  </g>
+  <use href="#thumb-frag" transform="translate(401 143) scale(.84)"/>
+  <use href="#thumb-stink" transform="translate(819 143) scale(.84)"/>
+  <use href="#thumb-roach" transform="translate(1237 143) scale(.84)"/>
+  <use href="#frag" transform="translate(128 152) scale(1.26) rotate(-11 90 87)"/>
+  <use href="#stink" transform="translate(539 150) scale(1.26) rotate(-9 90 87)"/>
+  <use href="#roach" transform="translate(956 153) scale(1.26) rotate(-11 90 87)"/>
+  <path d="M66 378h352m66 0h352m66 0h352" stroke="#3f5463"/>
+
+  <g transform="translate(242 457)" stroke="#161f29" stroke-linejoin="round">
+    <ellipse rx="138" ry="37" fill="none" stroke="#f4bc72" stroke-width="3"/>
+    <path d="m-52 9-25-30 43 7-9-27 36 15 22-30 9 33 39-16-15 31 32 16-45 3-13 23-25-17-38 9z" fill="#e98b58" stroke-width="3"/>
+    <path d="m-30 4-12-17 27 4-2-22L5-12l22-17-3 22 24 8-31 6-8 14-13-9-22 3z" fill="#fff0bd" stroke-width="2.5"/>
+    <path d="m-107-21 16 1-6-14zM86-15l20-9-3 17zM49 25l22 4-16 11zM-72 19l-11 15-12-9z" fill="#f4ad65" stroke-width="2.5"/>
+  </g>
+  <g transform="translate(660 457)" stroke="#211d22" stroke-linejoin="round">
+    <ellipse rx="138" ry="37" fill="none" stroke="#f4bc72" stroke-width="3"/>
+    <path d="m-55 3 9-22 21-3 10-14 22 2 13-10 21 12-1 15 22 9 6 13-11 12-18-3-11 13-26-2-13-13-26 5z" fill="#b27655" stroke-width="3"/>
+    <path d="m-34 2 8-10 17-1 9-15 15 9 17-3-2 12 15 6-13 7-16-1L5 14l-9-9-19 6z" fill="#ffd6a2" stroke-width="2.5"/>
+    <path d="m-103-18 8-10 12 2 5 8-8 6-12 1zm180 1 7-13 13-3 10 8-3 10-15 6zm-5 39 8-5 13 2 2 10-8 5-12-3z" fill="#b87955" stroke-width="2.5"/>
+    <path d="m-99 15 6 6m-9-2 13 1m144-63 5 7m-8-3 10-1" fill="none" stroke="#ffdfb2" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(1078 457)" stroke="#141e26" stroke-linejoin="round">
+    <ellipse rx="138" ry="37" fill="none" stroke="#f4bc72" stroke-width="3"/>
+    <path d="m-56 2 18-8-4-20 20 11 12-26 16 21 28-16-4 25 23 1 10 10-25 11-6 18-23-10-12 9-14-18-26 6z" fill="#94bc91" stroke-width="3"/>
+    <path d="m-29-2 16 2 7-18L5-5l17-4-5 12 14 5-18 1-6 11-9-12-18 2z" fill="#ffe7b1" stroke-width="2.5"/>
+    <path d="m-62-22-11-12 17-1zm108 6 13-18 10 8zm-84 45-17 3 2-11z" fill="#dca26b" stroke-width="2.5"/>
+    <use href="#roach-small" transform="translate(-100 -10) rotate(-25)"/>
+    <use href="#roach-small" transform="translate(100 -19) rotate(24)"/>
+    <use href="#roach-small" transform="translate(82 26) rotate(35) scale(.8)"/>
+  </g>
+
+  <g clip-path="url(#touch-scene)">
+    <path d="M48 564h720v172H48z" fill="url(#yard)"/>
+    <path d="M48 653h720v83H48z" fill="#bba980"/>
+    <path d="m317 659 152 0 197 77H121z" fill="#525d68" stroke="#293945" stroke-width="2"/>
+    <path d="m384 659 20 0 14 11h-48zm-25 23h74l21 18H338zm-48 34h174l20 20H287z" fill="#c4bda4"/>
+    <g stroke="#293945" stroke-width="2.5" stroke-linejoin="round">
+      <path d="m48 608 130-18 80 15-1 86-209 20z" fill="#61628a"/>
+      <path d="m48 608 130-18v102L48 711z" fill="#82639b"/>
+      <path d="M65 609v90m21-94v90m22-94v90m22-94v90m22-94v90" opacity=".57" fill="none"/>
+      <path d="m262 621 105-19 52 11v50l-157 15z" fill="#adbdc0"/>
+      <path d="m262 621 105-19v63l-105 13z" fill="#ebe5d2"/>
+      <path d="m768 589-127-14-117 20v86l244 29z" fill="#4e7265"/>
+      <path d="m768 589-127-14v116l127 19z" fill="#749483"/>
+    </g>
+    <rect x="48" y="564" width="720" height="172" fill="#17242f" opacity=".24"/>
+    <path d="M401 641h6m8 0h6m-10-10v6m0 8v6" stroke="#fff4dc" stroke-width="2"/>
+    <circle cx="105" cy="690" r="29" fill="#243440" fill-opacity=".5" stroke="#fff5d3" stroke-opacity=".55" stroke-width="2"/>
+    <circle cx="105" cy="690" r="12" fill="#fff5d3" fill-opacity=".5"/>
+    <g fill="#182631" fill-opacity=".89" stroke="#fff5d3" stroke-opacity=".72" stroke-width="1.5">
+      <circle cx="724" cy="695" r="27"/>
+      <circle cx="724" cy="626" r="19"/>
+      <circle cx="654" cy="703" r="19"/>
+      <circle cx="654" cy="639" r="21" stroke="#eec978"/>
+    </g>
+    <g fill="none" stroke="#fff5d3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m715 700 16-10m-12 14 17-10m-24 2 15-9m-15 3 2-5m16-4 3 2m-1 19 5-2"/>
+      <path d="M715 625a9 9 0 1 1 3 8m-3-3v-6h6"/>
+      <path d="M648 702l6-6 6 6m-12 5 6-6 6 6"/>
+    </g>
+    <use href="#ring" color="#f2d084" transform="translate(654 639) scale(.72)"/>
+    <use href="#thumb-frag" transform="translate(654 639) scale(.72)"/>
+  </g>
+  <rect x="48" y="564" width="720" height="172" rx="12" fill="none" stroke="#52606a"/>
+  <rect x="798" y="564" width="474" height="172" rx="12" fill="url(#card)" stroke="#3f5463"/>
+  <g fill="#16222d" stroke="#4a5d68">
+    <circle cx="863" cy="639" r="33"/>
+    <circle cx="978" cy="639" r="33"/>
+    <circle cx="1093" cy="639" r="33"/>
+    <circle cx="1208" cy="639" r="33"/>
+  </g>
+  <g color="#485964">
+    <use href="#ring" transform="translate(863 639)"/>
+    <use href="#ring" transform="translate(978 639)"/>
+    <use href="#ring" transform="translate(1093 639)"/>
+    <use href="#ring" transform="translate(1208 639)"/>
+  </g>
+  <use href="#ring" color="#f2d084" transform="translate(863 639)"/>
+  <path d="M953 639a25 25 0 0 1 22-25m6 0a25 25 0 0 1 22 25m65 0a25 25 0 0 1 22-25" fill="none" stroke="#f2d084" stroke-width="4" stroke-linecap="round"/>
+  <use href="#thumb-frag" transform="translate(863 639)"/>
+  <use href="#thumb-frag" transform="translate(978 639)"/>
+  <use href="#thumb-frag" transform="translate(1093 639)"/>
+  <use href="#thumb-frag" transform="translate(1208 639)" opacity=".35"/>
+  <g text-anchor="middle" fill="#d9e0db" font-family="Rajdhani, Avenir Next, sans-serif" font-size="23" font-weight="700">
+    <text x="863" y="702">3</text>
+    <text x="978" y="702">2</text>
+    <text x="1093" y="702">1</text>
+    <text x="1208" y="702" fill="#a1aeb5">0</text>
+  </g>
+</svg>
