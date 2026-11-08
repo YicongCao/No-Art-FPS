@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" shape-rendering="crispEdges">
+  <path fill="#101925" d="M8 0h32l8 8v32l-8 8H8l-8-8V8z"/>
+  <path fill="#d79a42" d="M9 2h30l7 7v30l-7 7H9l-7-7V9z"/>
+  <path fill="#ffe29a" d="M9 2h30v2H9zM4 7h3v3H4zM41 38h3v3h-3zM11 44h26v2H11z"/>
+  <path fill="#27243d" d="M10 5h28l5 5v28l-5 5H10l-5-5V10z"/>
+  <path fill="#473157" d="M12 7h24l5 5v24l-5 5H12l-5-5V12z"/>
+  <path fill="#ecab61" d="M9 12h2v2H9zM37 12h2v2h-2zM7 22h3v2H7zM38 22h3v2h-3zM22 39h4v2h-4z"/>
+  <path fill="#221b32" d="M15 11h4l4 5v-5h3v13h-4l-4-5v5h-3zM29 12h7v2h2v8h-2v2h-7v-2h-2v-8h2zM11 26h26v12H11z"/>
+  <path fill="#fff2c4" d="M13 9h3v2h2v2h2v3h1V9h3v13h-3v-2h-2v-2h-2v-2h-1v6h-3z"/>
+  <path fill="#fff2c4" fill-rule="evenodd" d="M28 9h6v2h2v9h-2v2h-6v-2h-2v-9h2zM29 12h4v7h-4z"/>
+  <path fill="#ffd077" fill-rule="evenodd" d="M11 26h6v2h2v9h-3v-3h-4v3H9v-9h2zM12 29h4v3h-4zM21 26h8v2h2v4h-2v2h1v3h-3v-3h-3v3h-3zM24 28h4v3h-4zM32 26h8v3h-3v8h-3v-8h-2z"/>
+</svg>

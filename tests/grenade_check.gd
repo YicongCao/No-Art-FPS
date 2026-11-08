@@ -140,11 +140,13 @@ func check() -> void:
 	var barrel = game.arena.barrels[0]
 	var barrel_start: Vector3 = barrel.global_position
 	barrel.global_position = center+Vector3(-1,-.65,6)
+	game.achievements.counts["grenade"] = 12
 	await physics_frame
 	game.grenade_blast(center,"")
 	assert(near.dead and outer.health==outer.MAX_HEALTH-1 and covered.health==covered.MAX_HEALTH and above.health==above.MAX_HEALTH)
 	assert(distant.health==distant.MAX_HEALTH)
 	assert(game.rules.kills==1 and game.rules.headshots==0 and game.health==game.MAX_HEALTH-30)
+	assert(game.achievements.counts.grenade==13)
 	assert(barrel.fuse>0 and structure.hits==0)
 	barrel.global_position = barrel_start
 	shield.queue_free()
@@ -152,6 +154,7 @@ func check() -> void:
 	await physics_frame
 	game.grenade_blast(center,"roach")
 	assert(structure.hits==1)
+	assert(covered.dead and game.achievements.counts.grenade==14)
 	structure.ignite_hit(panel.position)
 	assert(structure.hits==2 and structure.burn_time>0)
 	game.arena.structures.erase(structure)
@@ -162,9 +165,11 @@ func check() -> void:
 	var booth = game.comedy_toilet
 	assert(is_instance_valid(booth))
 	var charge = booth.charge_bodies[0]
+	var chain_victim = foe(booth.global_position+Vector3(0,0,-9))
 	await physics_frame
 	game.grenade_blast(charge.global_position+Vector3.UP*.5,"comedy")
-	assert(booth.spent)
+	assert(booth.spent and chain_victim.dead)
+	assert(game.achievements.counts.grenade==14,"A toilet chain is not a direct grenade kill")
 	await capture("stink-blast")
 	print("GRENADE_PASS: three styles, release stock, fuse pause, travel and wall bounce, death/respawn, empty, finale, cover and floor, self damage, barrel and toilet chains, frenzy scenery")
 	await finish_check()

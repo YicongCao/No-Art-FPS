@@ -80,7 +80,7 @@ func check() -> void:
 	game.hud.rebuild_menu()
 	for _frame in range(5):await process_frame
 	results = game.hud.menu.get_node("ResultBadges")
-	assert(results.get_v_scroll_bar().visible and results.get_child(0).get_child_count()==12)
+	assert(results.get_v_scroll_bar().visible and results.get_child(0).get_child_count()==15)
 	assert(results.get_rect().end.y<game.hud.menu.get_node("retry").position.y)
 	game.achievements.run_unlocks = saved_unlocks
 	game.touch_mode = false
@@ -93,7 +93,7 @@ func check() -> void:
 	assert(game.hud.menu.has_node("Badge_first"))
 	for id in Progress.BADGES:game.achievements.advance(id,Progress.BADGES[id][2])
 	game.hud.rebuild_menu()
-	assert(game.hud.menu.get_children().filter(func(n):return str(n.name).begins_with("Badge_")).size()==12)
+	assert(game.hud.menu.get_children().filter(func(n):return str(n.name).begins_with("Badge_")).size()==15)
 	await capture("achievement-title")
 	var badge = game.hud.menu.get_node("Badge_first")
 	var motion = InputEventMouseMotion.new()
@@ -119,6 +119,9 @@ func check() -> void:
 	await process_frame
 	game.hud.rebuild_menu()
 	await capture("achievement-title-touch")
+	game.hud.menu.get_node("Badge_no_art").pressed.emit()
+	assert_badge_detail("no_art")
+	game.hud.menu.get_node("Badge_no_art").pressed.emit()
 	badge = game.hud.menu.get_node("Badge_headshot")
 	badge.pressed.emit()
 	assert_badge_detail("headshot")
@@ -134,7 +137,7 @@ func check() -> void:
 	if DisplayServer.get_name()=="headless":
 		var deadline = Time.get_ticks_msec()+450
 		while Time.get_ticks_msec()<deadline:await process_frame
-	print("ACHIEVEMENTS_PASS: 12 thresholds, saved progress, real headshot, toast, results, title, badge details and finale exclusion")
+	print("ACHIEVEMENTS_PASS: 15 badges, legacy progress, collection, real headshot, toast, results, title, badge details and finale exclusion")
 	game.queue_free()
 	await process_frame
 	quit()
@@ -150,7 +153,7 @@ func assert_badge_copy(id: String, column: Control) -> void:
 
 func check_catalog() -> void:
 	var progress = Progress.new()
-	assert(Progress.BADGES.size()==12)
+	assert(Progress.BADGES.size()==15)
 	var unlocks: Array[String] = []
 	progress.unlocked.connect(func(id):unlocks.append(id))
 	progress.merge({"achievements":{"headshot":10,"missing":45},"scores":{"score":17,"score_last_ferry_v1":31}})
@@ -177,16 +180,31 @@ func check_catalog() -> void:
 	progress.advance("barrel",1)
 	assert(progress.unlocked_badge("barrel"))
 	var legacy = Progress.new()
-	legacy.merge({"achievements":{"barrel":2}})
+	legacy.merge({"achievements":{"barrel":2,"water":10,"no_art":1}})
 	assert(legacy.counts.barrel==1 and legacy.unlocked_badge("barrel"))
+	assert(legacy.counts.poop==10 and not legacy.unlocked_badge("no_art"))
 	assert(legacy.run_unlocks.is_empty())
 	progress.advance("studio",1)
 	for i in range(8):progress.increment("wreck")
-	assert(unlocks.size()==12 and progress.counts.size()==12)
+	assert(unlocks.size()==12 and not progress.unlocked_badge("no_art"))
 	progress.advance("first",1)
 	assert(unlocks.size()==12,"Achievements are awarded only once")
+	progress.advance("no_art",1)
+	assert(not progress.unlocked_badge("no_art"))
+	for i in range(4):
+		progress.combat_kill("sandgate",false,1,false,0,"comedy")
+	assert(progress.counts.poop==14 and not progress.unlocked_badge("poop"))
+	progress.start_round()
+	progress.combat_kill("sandgate",false,1,false,0,"comedy")
+	assert(progress.run_unlocks==["poop"] and not progress.unlocked_badge("no_art"))
+	progress.increment("grenade",14)
+	assert(not progress.unlocked_badge("grenade") and not progress.unlocked_badge("no_art"))
+	progress.increment("grenade")
+	assert(progress.run_unlocks==["poop","grenade","no_art"] and unlocks.size()==15)
 	var loaded = Progress.new()
-	loaded.merge(JSON.parse_string(JSON.stringify(progress.snapshot())))
+	var snapshot = JSON.parse_string(JSON.stringify(progress.snapshot()))
+	snapshot.achievements.erase("no_art")
+	loaded.merge(snapshot)
 	assert(loaded.counts==progress.counts and loaded.scores==progress.scores)
 	assert(loaded.run_unlocks.is_empty(),"Stored unlocks do not repeat in the next match")
 

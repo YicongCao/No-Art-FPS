@@ -2,7 +2,7 @@
 
 [打开 HTML 审阅版](achievement-badges.html)
 
-共 12 枚，按标题页摆放顺序排列。中英文说明沿用游戏原文，文末补充实际计数口径。
+共 15 枚，按标题页摆放顺序排列。中英文说明沿用游戏原文，文末补充实际计数口径。
 
 1. <img src="../../assets/ui/achievements/first.svg" width="24" height="24" alt="第一滴血徽章"> **第一滴血 · FIRST BLOOD**
    - 完成首次战斗击杀
@@ -41,6 +41,16 @@
     - 用拖鞋发射器累计完成 10 次战斗击杀
     - 10 combat kills in slipper launcher mode
 
+13. <img src="../../assets/ui/achievements/poop.svg" width="24" height="24" alt="便便巡逻队徽章"> **便便巡逻队 · POOP PATROL**
+    - 在大便模式下累计击杀 15 名敌人
+    - 15 combat kills in Poop Mode
+14. <img src="../../assets/ui/achievements/grenade.svg" width="24" height="24" alt="拔针高手徽章"> **拔针高手 · PIN PULLER**
+    - 累计用手雷击杀 15 名敌人
+    - 15 kills with grenades across rounds
+15. <img src="../../assets/ui/achievements/no_art.svg" width="24" height="24" alt="NO ART徽章"> **NO ART**
+    - 解锁其他所有徽章
+    - Unlock every other badge
+
 ## 实际计数口径
 
 - **战斗击杀**包括回合内的爆炸击杀。倒计时归零后的全场爆炸只计入成绩。拆弹模式无这组徽章进度。
@@ -48,5 +58,8 @@
 - **涨潮时刻**用击杀发生时的玩家高度判定，门槛为关卡坐标 Y ≥ 2.55 米。
 - **节目停播**和**拆迁小队**都在狂暴模式期间计数。节目停播需要打掉演播厅中带背景板标记的物件。
 - **屹立不倒**在结算时判定。**水花四溅**和**拖鞋正义**按启用的模式累计，油桶或厕所爆炸造成的战斗击杀也算。
+- 便便巡逻队沿用水花四溅已保存的大便模式击杀进度。旧版本最多保存 10 次，之后的击杀从本版本开始累计。
+- 拔针高手只统计手雷直接造成的击杀。油桶、厕所或景物的连锁爆炸各自计数。
+- NO ART 在其他 14 枚徽章全部解锁后自动获得。
 
 [成就定义](../../scripts/achievements.gd) · [中文文案](../../data/ui_text.csv) · [游戏内计数](../../scripts/game.gd)

@@ -18,6 +18,7 @@ const BADGE_ANCHORS = [
 	[Vector2(.28,-.57),Vector2(.16,-.18),Vector2(.94,-.28),Vector2(1.31,-.58)],
 	[Vector2(.13,-.58),Vector2(.59,-.27),Vector2(1.37,-.56),Vector2(1.14,-.08)],
 ]
+const EXTRA_BADGE_ANCHORS = [Vector2(.15,-.08),Vector2(.53,-.30),Vector2(1.50,-.12)]
 const BADGE_TOAST_DURATION = 1.8
 const PAUSE_ICON = preload("res://assets/ui/settings/pause.svg")
 const AIM_ICON = preload("res://assets/ui/settings/aim.svg")
@@ -595,8 +596,8 @@ func title_badges(gutters: Vector4) -> void:
 	for i in range(ids.size()):
 		var id: String = ids[i]
 		if not game.achievements.unlocked_badge(id):continue
-		var row = floori(i*.25)
-		var anchor: Vector2 = BADGE_ANCHORS[row][i%4]
+		var row = floori(i*.25) if i<12 else i-12
+		var anchor: Vector2 = BADGE_ANCHORS[row][i%4] if i<12 else EXTRA_BADGE_ANCHORS[row]
 		var center = title_word_position(row,gutters)+anchor*text_size
 		var badge: Array = BadgeCatalog.BADGES[id]
 		var button = TextureButton.new()

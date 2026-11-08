@@ -1316,11 +1316,14 @@ func sync_grenade_stock() -> void:
 
 func grenade_blast(center: Vector3, style: String) -> void:
 	if state!="RUNNING" or not rules.active:return
+	var kills_before = rules.kills
 	for enemy in live_enemies():
 		var target = enemy.global_position+Vector3.UP
 		var distance = center.distance_to(target)
 		if distance<=GRENADE_OUTER_RADIUS and blast_clear(center,target,[]):
 			enemy.take_damage(Enemy.MAX_HEALTH if distance<=GRENADE_LETHAL_RADIUS else 1)
+	if not rules.mission and rules.kills>kills_before:
+		achievements.increment("grenade",rules.kills-kills_before)
 	var target = player.global_position+Vector3.UP
 	if center.distance_to(target)<=GRENADE_LETHAL_RADIUS and blast_clear(center,target,[]):
 		damage_player(30,center)
