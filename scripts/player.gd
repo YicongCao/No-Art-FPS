@@ -5,7 +5,8 @@ const SPRINT_SPEED = 10.5
 const ComedyFX = preload("res://scripts/comedy_fx.gd")
 var camera: Camera3D
 var gun: Node3D
-var comedy_stains: Node3D
+var weapon_mode = ""
+var weapon_models: Dictionary = {}
 var enabled = true
 var pitch = 0.0
 var recoil = 0.0
@@ -36,12 +37,11 @@ func _ready() -> void:
 	camera.fov = 63
 	camera.near = .035
 	add_child(camera)
-	gun = load("res://assets/models/rifle.glb").instantiate()
+	gun = Node3D.new()
 	camera.add_child(gun)
 	gun.position = gun_origin
 	gun.scale = Vector3.ONE*.70
-	for n in gun.find_children("*","MeshInstance3D",true,false):
-		n.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	set_weapon_style("")
 
 	# Full-screen depth/color edges cover all opaque scenery, actors and the viewmodel.
 	# No second mesh shell: hard-edged Blender models keep their seams closed.
@@ -59,22 +59,30 @@ func _ready() -> void:
 	camera.add_child(outline)
 	outline.position.z = -.1
 
-func show_comedy_stains(enabled_stains: bool) -> void:
-	if not comedy_stains and enabled_stains:
-		comedy_stains = Node3D.new()
-		comedy_stains.name = "ComedyStains"
-		gun.add_child(comedy_stains)
-		var receiver = ComedyFX.sprite(ComedyFX.SPLAT,.33)
-		receiver.position = Vector3(-.092,-.012,.07)
-		receiver.rotation.y = -PI*.5
-		receiver.scale.y = .64
-		comedy_stains.add_child(receiver)
-		var rail = ComedyFX.sprite(ComedyFX.SPLAT,.22)
-		rail.position = Vector3(.006,.190,-.01)
-		rail.rotation.x = -PI*.5
-		rail.scale.x = .69
-		comedy_stains.add_child(rail)
-	if comedy_stains:comedy_stains.visible = enabled_stains
+func set_weapon_style(mode: String) -> void:
+	if weapon_models.has(weapon_mode):weapon_models[weapon_mode].hide()
+	if not weapon_models.has(mode):
+		var asset = "res://assets/models/rifle.glb"
+		if mode=="comedy":asset = "res://assets/models/comedy/water_blaster.glb"
+		if mode=="roach":asset = "res://assets/models/comedy/slipper_launcher.glb"
+		var model = load(asset).instantiate()
+		gun.add_child(model)
+		for part in model.find_children("*","MeshInstance3D",true,false):
+			part.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		if not mode.is_empty():
+			var sticker = ComedyFX.sprite(ComedyFX.ROACH_ART[0] if mode=="roach" else ComedyFX.SPLAT,.18)
+			sticker.position = Vector3(-.146,.028,.09)
+			sticker.rotation.y = -PI*.5
+			model.add_child(sticker)
+		weapon_models[mode] = model
+	weapon_mode = mode
+	weapon_models[mode].show()
+
+func weapon_muzzle() -> Vector3:
+	match weapon_mode:
+		"comedy":return gun.to_global(Vector3(0,.072,-.665))
+		"roach":return gun.to_global(Vector3(0,.15,-.82))
+	return gun.to_global(Vector3(0,.015,-1.0))
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and enabled:

@@ -57,7 +57,7 @@ var since_damage = 0.0
 var respawn_time = 0.0
 var best = 0
 var reduced_motion = false
-var comedy_mode = false
+var comedy_mode = ""
 var bullets: Array[Dictionary] = []
 var ranged_aimers: Dictionary = {}
 var player_bullets: Array[Dictionary] = []
@@ -189,7 +189,7 @@ func _ready() -> void:
 	hud = Hud.new()
 	hud.game = self
 	layer.add_child(hud)
-	for key in ["shot","hit","kill","headshot","reload","hurt","tick","end","fuse","explosion","charge","cartridge_insert","magazine_latch","comedy_plop"]:
+	for key in ["shot","hit","kill","headshot","reload","hurt","tick","end","fuse","explosion","charge","cartridge_insert","magazine_latch","comedy_plop","roach_buzz","water_shot","slipper_shot"]:
 		sounds[key] = load("res://assets/audio/"+key+".wav")
 	for i in range(12):
 		var voice = AudioStreamPlayer.new()
@@ -401,6 +401,7 @@ func reset_run_state() -> void:
 	hud.go_time = 0
 	hud.health_shade = 0
 	player.reset_position()
+	player.set_weapon_style(comedy_mode)
 	player.gun.show()
 	player.enabled = false
 	hud.hit = 0
@@ -518,7 +519,7 @@ func prepare_loaded_run(ticket: int) -> void:
 	if ticket!=load_ticket:return
 	opening_prepared = true
 	# Warm the first shot's effect materials beneath the opaque loading cover.
-	var muzzle = player.gun.to_global(Vector3(0,.015,-1.0))
+	var muzzle = player.weapon_muzzle()
 	spark(muzzle,Color("ffe19a"),.1,.035)
 	trace(muzzle,muzzle-Vector3(0,0,2),Color("fff1b7"),.025,.045)
 	var web = OS.has_feature("web")
@@ -583,6 +584,7 @@ func cancel_loading() -> void:
 	state = "TITLE"
 	clear_round()
 	player.reset_position()
+	player.set_weapon_style("")
 	player.gun.show()
 	player.enabled = false
 	hud.sync_loading_cover()
@@ -647,7 +649,7 @@ func clear_round() -> void:
 
 func begin_running() -> void:
 	state = "RUNNING"
-	player.show_comedy_stains(comedy_mode)
+	if web_rifle:web_rifle.stream = sounds[shot_sound_key()]
 	music.stream = session.combat_music if session.combat_music else COMBAT_MUSIC
 	music.stream_paused = false
 	music.play()
@@ -661,6 +663,8 @@ func begin_running() -> void:
 		# Two existing yard slots start inside the green and purple containers.
 		arena.prepare_rooms()
 	opening_prepared = true
+	if not comedy_mode.is_empty():
+		for actor in enemies.get_children():actor.set_comedy_head(comedy_mode)
 	play_sound("tick",-10)
 
 func finish_run() -> void:
@@ -808,10 +812,10 @@ func menu_action(action: String) -> void:
 			select_session(FERRY_SESSION_PATH,action)
 		"night_studio":
 			select_session(STUDIO_SESSION_PATH,action)
-		"comedy":
+		"comedy", "roach":
 			if state!="TITLE":return
-			comedy_mode = not comedy_mode
-			hud.sync_comedy_button()
+			comedy_mode = "" if comedy_mode==action else action
+			hud.sync_comedy_buttons()
 		"defuse":
 			if dust_unlocked:
 				select_session("res://data/sessions/defuse.tres","defuse_mission")
@@ -824,7 +828,7 @@ func menu_action(action: String) -> void:
 			if state != "RESULTS":return
 			state = "TITLE"
 			clear_round()
-			player.show_comedy_stains(false)
+			player.set_weapon_style("")
 			player.reset_position()
 		"motion":
 			if state != "PAUSED":return
@@ -1009,7 +1013,7 @@ func shoot() -> void:
 	query.collide_with_areas = true
 	var result = get_world_3d().direct_space_state.intersect_ray(query)
 	var target = result.position if not result.is_empty() else endpoint
-	var muzzle = player.gun.to_global(Vector3(0,.015,-1.0))
+	var muzzle = player.weapon_muzzle()
 	# Ray from body to muzzle prevents camera/viewmodel geometry shooting through walls.
 	var clearance = PhysicsRayQueryParameters3D.create(origin,muzzle,1)
 	var blockage = get_world_3d().direct_space_state.intersect_ray(clearance)
@@ -1020,12 +1024,13 @@ func shoot() -> void:
 		target = blockage.position
 		result = {}
 	var shot_enemy = enemy_from_hit(result)
-	var variant = rules.shots-1 if comedy_mode else -1
+	var toy = not comedy_mode.is_empty()
+	var water = comedy_mode=="comedy"
 	if shot_enemy and shot_enemy.fast and origin.distance_to(shot_enemy.global_position)>Enemy.CLOSE_SHOT_RANGE:
 		shot_enemy.evade_shot(origin)
 		var projectile: Node3D
 		var flame: MeshInstance3D
-		if destroy_active or variant>=0:
+		if destroy_active or toy:
 			projectile = Node3D.new()
 			if destroy_active:
 				flame = FlameBolt.new()
@@ -1038,21 +1043,22 @@ func shoot() -> void:
 			projectile = ordinary
 		effects.add_child(projectile)
 		projectile.global_position = origin
-		var pellet: Sprite3D
-		if variant>=0:
-			pellet = ComedyFX.pellet(variant)
-			projectile.add_child(pellet)
-			pellet.global_position = muzzle
-		player_bullets.append({"node":projectile,"flame":flame,"pellet":pellet,"velocity":origin.direction_to(target)*65,"life":1.4,"origin":origin,"muzzle":muzzle,"burning":destroy_active})
+		var toy_round: Node3D
+		if toy:
+			toy_round = ComedyFX.projectile(comedy_mode,origin.direction_to(target))
+			projectile.add_child(toy_round)
+			toy_round.global_position = muzzle
+		player_bullets.append({"node":projectile,"flame":flame,"toy_round":toy_round,"velocity":origin.direction_to(target)*65,"life":1.4,"origin":origin,"muzzle":muzzle,"burning":destroy_active})
 	else:
 		if destroy_active:
 			var flame = FlameBolt.new()
 			effects.add_child(flame)
 			flame.fly(muzzle,target,player.camera)
-		elif variant<0:trace(muzzle,target,Color("fff1b7"),.025,.045)
-		if variant>=0:ComedyFX.fly(effects,variant,muzzle,target)
+		elif water:trace(muzzle,target,ComedyFX.WATER,.045,.075)
+		elif not toy:trace(muzzle,target,Color("fff1b7"),.025,.045)
+		if toy:ComedyFX.fly(effects,comedy_mode,muzzle,target)
 		resolve_shot(result,origin,target,destroy_active)
-	spark(muzzle,Color("ffe19a"),.1,.035)
+	spark(muzzle,ComedyFX.WATER if water and not destroy_active else Color("ffe19a"),.1,.035)
 	if ammo==0:reload_weapon()
 
 func enemy_from_hit(result: Dictionary) -> Node3D:
@@ -1112,7 +1118,7 @@ func update_player_bullets(delta: float) -> void:
 			player_bullets.remove_at(i)
 		else:
 			b.node.global_position = to
-			if b.flame or b.pellet:
+			if b.flame or b.toy_round:
 				var travelled = b.origin.distance_to(to)
 				# Draw the launch from the muzzle, then merge into the collision path.
 				var offset: Vector3 = b.muzzle-b.origin
@@ -1122,7 +1128,7 @@ func update_player_bullets(delta: float) -> void:
 					var tail = b.origin+b.velocity.normalized()*tail_distance
 					tail += offset*maxf(0,1-tail_distance/Enemy.CLOSE_SHOT_RANGE)
 					b.flame.set_segment(tail,tip,player.camera.global_position)
-				if b.pellet:b.pellet.global_position = tip
+				if b.toy_round:b.toy_round.global_position = tip
 
 func reload_weapon() -> void:
 	if objective_focus!=null:return
@@ -1147,10 +1153,10 @@ func on_kill(enemy: Node3D, headshot: bool, from_finale: bool = false) -> void:
 		hud.kill_pop = .5
 		hud.multi_time = .65 if kill_group_count>=2 else 0.0
 		var pitch = minf(1.25,1+(kill_group_count-1)*.08)
-		if comedy_mode and not from_finale:
-			var center: Vector3 = enemy.global_position+Vector3.UP*1.02
-			ComedyFX.kill(effects,center.move_toward(player.camera.global_position,.34),reduced_motion)
-			play_sound("comedy_plop",-7,pitch+(.15 if headshot else 0.0))
+		if not comedy_mode.is_empty() and not from_finale:
+			var center: Vector3 = enemy.global_position+Vector3.UP*(1.78 if comedy_mode=="roach" else 1.02)
+			ComedyFX.kill(effects,center.move_toward(player.camera.global_position,.34),comedy_mode,reduced_motion)
+			play_sound("roach_buzz" if comedy_mode=="roach" else "comedy_plop",-7,pitch+(.15 if headshot else 0.0))
 		else:play_sound("headshot" if headshot else "kill",-7,pitch)
 
 func reserve_ranged_aim(enemy: Node3D) -> bool:
@@ -1309,10 +1315,16 @@ func trace(from: Vector3, to: Vector3, color: Color, width: float, duration: flo
 	tween.tween_callback(node.queue_free)
 	return node
 
+func shot_sound_key() -> String:
+	match comedy_mode:
+		"comedy":return "water_shot"
+		"roach":return "slipper_shot"
+	return "shot"
+
 func play_sound(key: String, volume: float = -10, pitch: float = 1) -> void:
 	var voice = web_rifle if key=="shot" and web_rifle else audio_voices[audio_index%audio_voices.size()]
 	audio_index += 1
-	if voice!=web_rifle:voice.stream = sounds[key]
+	if voice!=web_rifle:voice.stream = sounds[shot_sound_key() if key=="shot" else key]
 	voice.volume_db = volume
 	voice.pitch_scale = pitch
 	voice.play()

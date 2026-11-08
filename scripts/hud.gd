@@ -7,6 +7,7 @@ const PARK_THUMBNAIL = preload("res://assets/ui/maps/amusement-park.webp")
 const FERRY_THUMBNAIL = preload("res://assets/ui/maps/last-ferry.webp")
 const STUDIO_THUMBNAIL = preload("res://assets/ui/maps/night-studio.webp")
 const COMEDY_ICON = preload("res://assets/ui/settings/comedy.svg")
+const ROACH_ICON = preload("res://assets/ui/settings/roach.svg")
 const PAUSE_ICON = preload("res://assets/ui/settings/pause.svg")
 const AIM_ICON = preload("res://assets/ui/settings/aim.svg")
 const MOTION_ICON = preload("res://assets/ui/settings/motion.svg")
@@ -45,7 +46,7 @@ var motion_button: Button
 var body_shot_button: Button
 var music_slider: HSlider
 var fire_button: Button
-var comedy_button: Button
+var comedy_buttons: Dictionary = {}
 var fire_progress: ProgressBar
 var title_frame: ImageTexture
 var title_previews: Dictionary = {}
@@ -63,6 +64,8 @@ const WHITE = Color("fff8e8")
 const INK = Color("243440")
 const GOLD = Color("f2d084")
 const MAGAZINE_ATLAS = preload("res://assets/ui/magazine-atlas.png")
+const WATER_ROUND = preload("res://assets/ui/water-round.svg")
+const SLIPPER_ROUND = preload("res://assets/ui/slipper-round.svg")
 const DEFUSE_ICON = preload("res://assets/ui/defuse-grenade.svg")
 const DUST_RADAR = preload("res://assets/ui/dust-radar.svg")
 const RETRY_ICON = preload("res://assets/ui/results/retry.png")
@@ -139,6 +142,10 @@ func draw_magazine() -> void:
 
 func draw_magazine_body(body: Rect2, count: int, shift: float, incoming: float, eject: bool = false) -> void:
 	var scale_factor = body.size.x/420.0
+	var toy_round: Texture2D
+	if eject:
+		if game.comedy_mode=="comedy":toy_round = WATER_ROUND
+		if game.comedy_mode=="roach":toy_round = SLIPPER_ROUND
 	# Both loading and gameplay render exactly the same shell and cartridge geometry.
 	draw_rect(Rect2(body.position+Vector2(30,16)*scale_factor,Vector2(376,60)*scale_factor),INK.darkened(.35))
 	draw_set_transform(body.get_center(),PI*.5)
@@ -146,10 +153,10 @@ func draw_magazine_body(body: Rect2, count: int, shift: float, incoming: float, 
 	draw_set_transform(Vector2.ZERO)
 	for i in range(count):
 		var center = round_rect(body,i).get_center()-Vector2(shift,0)*scale_factor
-		draw_round(CARTRIDGE_REGION,center,Vector2(45,12.15),-PI*.5,1,scale_factor)
+		draw_ammo_round(toy_round,center,scale_factor,1)
 	if incoming>0:
 		var center = round_rect(body,0).get_center()+Vector2(42*(1-incoming),0)*scale_factor
-		draw_round(CARTRIDGE_REGION,center,Vector2(45,12.15),-PI*.5,minf(1,incoming*4),scale_factor)
+		draw_ammo_round(toy_round,center,scale_factor,minf(1,incoming*4))
 	if not eject:return
 	for age in ejections:
 		var origin = round_rect(body,0).get_center()
@@ -160,9 +167,21 @@ func draw_magazine_body(body: Rect2, count: int, shift: float, incoming: float, 
 		if game.reduced_motion:
 			travel = Vector2(16*t,-10*t)
 			rotation_amount = t*.5
+		if toy_round:
+			draw_ammo_round(toy_round,origin+travel*scale_factor,scale_factor,alpha,rotation_amount)
+			continue
 		draw_round(CASING_REGION,origin+travel*scale_factor,Vector2(31.5,12.15),-PI*.5+rotation_amount,alpha,scale_factor)
 		if age<.12:
 			draw_round(TIP_REGION,origin+Vector2(0,-23-age*420)*scale_factor,Vector2(13.5,9.45),-PI*.5,1-age/.12,scale_factor)
+
+func draw_ammo_round(icon: Texture2D, center: Vector2, scale_factor: float, alpha: float, angle: float = 0) -> void:
+	if not icon:
+		draw_round(CARTRIDGE_REGION,center,Vector2(45,12.15),-PI*.5,alpha,scale_factor)
+		return
+	var extent = Vector2(15,34)*scale_factor
+	draw_set_transform(center,angle)
+	draw_texture_rect(icon,Rect2(-extent*.5,extent),false,Color(1,1,1,alpha))
+	draw_set_transform(Vector2.ZERO)
 
 func loading_magazine_rect() -> Rect2:
 	var extent = Vector2(860,860.0*92/420)
@@ -235,7 +254,8 @@ func _ready() -> void:
 		web_title_layout_callback = JavaScriptBridge.create_callback(update_web_title_layout)
 		var browser = JavaScriptBridge.get_interface("window")
 		browser.noArtTitleLayoutChanged = web_title_layout_callback
-		web_comedy_callback = JavaScriptBridge.create_callback(func(_args):game.menu_action("comedy"))
+		web_comedy_callback = JavaScriptBridge.create_callback(func(args):
+			if args.size()==1 and str(args[0]) in ["comedy","roach"]:game.menu_action(str(args[0])))
 		browser.noArtToggleComedy = web_comedy_callback
 		JavaScriptBridge.eval("window.noArtSyncTitleLayout?.()")
 	font = preload("res://assets/fonts/Rajdhani-Bold.ttf")
@@ -417,17 +437,18 @@ func map_button(node_name: String, map_name: String, action: String, thumbnail: 
 	menu.add_child(card)
 	return card
 
-func sync_comedy_button() -> void:
-	if is_instance_valid(comedy_button):comedy_button.set_pressed_no_signal(game.comedy_mode)
+func sync_comedy_buttons() -> void:
+	for action in comedy_buttons:
+		comedy_buttons[action].set_pressed_no_signal(game.comedy_mode==action)
 	if OS.has_feature("web"):
-		JavaScriptBridge.eval("window.noArtSetComedy?.(%s)"%str(game.comedy_mode))
+		JavaScriptBridge.eval("window.noArtSetComedy?.(%s)"%JSON.stringify(game.comedy_mode))
 
 func rebuild_menu() -> void:
 	for child in menu.get_children():
 		menu.remove_child(child)
 		child.queue_free()
 	fire_progress = null
-	comedy_button = null
+	comedy_buttons.clear()
 	menu_state = game.state
 	menu_size = size
 	var c = size*.5
@@ -490,19 +511,24 @@ func rebuild_menu() -> void:
 			tab_order.append(map_button(item[0],item[1],item[2],item[3],Rect2(position,Vector2(width,height)),
 				game.title_session_id==item[4]))
 		if not OS.has_feature("web"):
-			comedy_button = menu_button("",Rect2(size.x-gutters.y-52,gutters.w,52,52),"comedy",false,"大便模式")
-			comedy_button.accessibility_name = "大便模式"
-			comedy_button.toggle_mode = true
-			comedy_button.icon = COMEDY_ICON
-			comedy_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			comedy_button.add_theme_constant_override("icon_max_width",32)
-			var style = StyleBoxFlat.new()
-			style.bg_color = Color("62412f")
-			style.border_color = GOLD
-			style.set_border_width_all(2)
-			comedy_button.add_theme_stylebox_override("pressed",style)
-			sync_comedy_button()
-			tab_order.append(comedy_button)
+			var modes = [["comedy","大便模式",COMEDY_ICON,Color("62412f")],
+				["roach","蟑螂模式",ROACH_ICON,Color("533c65")]]
+			for i in range(modes.size()):
+				var mode: Array = modes[i]
+				var button = menu_button("",Rect2(size.x-gutters.y-112+60*i,gutters.w,52,52),mode[0],false,mode[1])
+				button.accessibility_name = mode[1]
+				button.toggle_mode = true
+				button.icon = mode[2]
+				button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+				button.add_theme_constant_override("icon_max_width",32)
+				var style = StyleBoxFlat.new()
+				style.bg_color = mode[3]
+				style.border_color = GOLD
+				style.set_border_width_all(2)
+				button.add_theme_stylebox_override("pressed",style)
+				comedy_buttons[mode[0]] = button
+				tab_order.append(button)
+			sync_comedy_buttons()
 		for i in range(tab_order.size()):
 			tab_order[i].focus_next = tab_order[i].get_path_to(tab_order[(i+1)%tab_order.size()])
 			tab_order[i].focus_previous = tab_order[i].get_path_to(tab_order[i-1])

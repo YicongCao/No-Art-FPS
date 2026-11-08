@@ -1,12 +1,22 @@
 extends RefCounted
 
-const PELLETS = [
+const POOP_ART = [
 	preload("res://assets/vfx/comedy/curl.png"),
 	preload("res://assets/vfx/comedy/coil.png"),
 	preload("res://assets/vfx/comedy/swirl.png"),
 ]
 const SPLAT = preload("res://assets/vfx/comedy/splat.png")
+const ROACH_ART = [
+	preload("res://assets/vfx/comedy/roach/dash.png"),
+	preload("res://assets/vfx/comedy/roach/fly.png"),
+	preload("res://assets/vfx/comedy/roach/skid.png"),
+]
+const ROACH_KNOCKOUT = preload("res://assets/vfx/comedy/roach/knockout.png")
+const SLIPPER = preload("res://assets/models/comedy/slipper.glb")
+const WATER = Color("76e4ff")
 const FLIGHT_SPEED = 76.0
+static var droplet_mesh: SphereMesh
+static var droplet_paint: StandardMaterial3D
 
 static func sprite(texture: Texture2D, width: float) -> Sprite3D:
 	var node = Sprite3D.new()
@@ -17,27 +27,51 @@ static func sprite(texture: Texture2D, width: float) -> Sprite3D:
 	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	return node
 
-static func pellet(variant: int, width: float = .4) -> Sprite3D:
-	var node = sprite(PELLETS[posmod(variant,PELLETS.size())],width)
-	node.name = "ComedyPellet"
-	node.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+static func projectile(mode: String, direction: Vector3) -> Node3D:
+	var node = Node3D.new()
+	var up = Vector3.RIGHT if absf(direction.y)>.98 else Vector3.UP
+	if not direction.is_zero_approx():node.basis = Basis.looking_at(direction,up)
+	if mode=="roach":
+		node.name = "SlipperBolt"
+		var shoe = SLIPPER.instantiate()
+		shoe.rotation = Vector3(-.88,.25,.30)
+		node.add_child(shoe)
+		for part in shoe.find_children("*","MeshInstance3D",true,false):
+			part.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	else:
+		node.name = "WaterBolt"
+		if not droplet_mesh:
+			droplet_mesh = SphereMesh.new()
+			droplet_mesh.radial_segments = 8
+			droplet_mesh.rings = 4
+			droplet_paint = StandardMaterial3D.new()
+			droplet_paint.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+			droplet_paint.albedo_color = WATER
+		var drop = MeshInstance3D.new()
+		drop.mesh = droplet_mesh
+		drop.material_override = droplet_paint
+		drop.scale = Vector3(.095,.095,.34)
+		drop.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		node.add_child(drop)
 	return node
 
-static func fly(parent: Node3D, variant: int, from: Vector3, to: Vector3) -> void:
+static func fly(parent: Node3D, mode: String, from: Vector3, to: Vector3) -> void:
 	var reach = minf(from.distance_to(to),FLIGHT_SPEED*.15)
 	if reach<.25:return
 	var direction = from.direction_to(to)
-	var node = pellet(variant)
+	var node = projectile(mode,direction)
 	parent.add_child(node)
 	var lead = minf(.55,reach)
 	node.global_position = from+direction*lead
 	var tween = node.create_tween()
 	tween.tween_property(node,"global_position",from+direction*reach,maxf(.05,(reach-lead)/FLIGHT_SPEED))
+	if mode=="roach":tween.parallel().tween_property(node.get_child(0),"rotation:z",1.1,.09)
 	tween.tween_callback(node.queue_free)
 
-static func kill(parent: Node3D, center: Vector3, reduced_motion: bool) -> void:
-	var burst = sprite(SPLAT,1.22)
-	burst.name = "ComedySplat"
+static func kill(parent: Node3D, center: Vector3, mode: String, reduced_motion: bool) -> void:
+	var roach = mode=="roach"
+	var burst = sprite(ROACH_KNOCKOUT if roach else SPLAT,1.22)
+	burst.name = "ComedyKnockout" if roach else "ComedySplat"
 	burst.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	parent.add_child(burst)
 	burst.global_position = center
@@ -45,12 +79,15 @@ static func kill(parent: Node3D, center: Vector3, reduced_motion: bool) -> void:
 	var pulse = burst.create_tween()
 	if not reduced_motion:
 		pulse.tween_property(burst,"scale",Vector3.ONE*1.13,.085).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		if roach:pulse.parallel().tween_property(burst,"global_position",center+Vector3.UP*.26,.085)
 	pulse.tween_interval(.11)
 	pulse.tween_property(burst,"scale",Vector3.ONE*.02,.30)
 	pulse.tween_callback(burst.queue_free)
 	if reduced_motion:return
-	for i in range(3):
-		var fleck = pellet(i,.19)
+	var art = ROACH_ART if roach else POOP_ART
+	for i in range(art.size()):
+		var fleck = sprite(art[i],.19)
+		fleck.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 		parent.add_child(fleck)
 		var radial = Vector3(cos(i*TAU/3),0,sin(i*TAU/3))
 		fleck.global_position = center+radial*.25

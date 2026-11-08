@@ -1,6 +1,7 @@
 extends CharacterBody3D
 
 const ShotLine = preload("res://scripts/shot_line.gd")
+const ComedyFX = preload("res://scripts/comedy_fx.gd")
 
 var game: Node
 var patrol_brain: Node
@@ -47,6 +48,7 @@ var armor_hit: ShaderMaterial
 var limbs: Array[Node3D] = []
 var limb_origins: Array[Vector3] = []
 var head_area: Area3D
+var comedy_head: Sprite3D
 
 func _ready() -> void:
 	collision_layer = 4
@@ -90,6 +92,7 @@ func _ready() -> void:
 		knife_arm.add_child(knife)
 		knife.position = Vector3(0,-.46,-.18)
 		knife.rotation.x = PI
+	if game.state in ["RUNNING","LOADING"]:set_comedy_head(game.comedy_mode)
 	for part in ["LeftLeg","RightLeg","LeftArm","RightArm"]:
 		var limb = visual.find_child(part,true,false)
 		if limb:
@@ -114,6 +117,15 @@ func _ready() -> void:
 	if game.arena.uses_patrol(home_zone):
 		var posts = game.arena.patrol_points(home_zone)
 		patrol_offset = 1 if position.distance_to(posts[0])<position.distance_to(posts[1]) else 0
+
+func set_comedy_head(mode: String) -> void:
+	if mode.is_empty() or comedy_head:return
+	for part in ["Head","Helmet","Visor"]:visual.find_child(part,true,false).hide()
+	var art = ComedyFX.ROACH_ART if mode=="roach" else ComedyFX.POOP_ART
+	comedy_head = ComedyFX.sprite(art[1 if fast else 0],.55)
+	comedy_head.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	comedy_head.position.y = 1.72
+	visual.add_child(comedy_head)
 
 func _physics_process(delta: float) -> void:
 	if game.state=="RUNNING" and body_hit_time>0:
