@@ -37,6 +37,8 @@
     body{height:100dvh;overscroll-behavior:none}body.mobile #help{display:none}
     #rotate{position:fixed;inset:0;z-index:20;background:#243440;display:none;align-items:center;justify-content:center;text-align:center;padding:28px;gap:18px;flex-direction:column}
     body.mobile.portrait #loading[hidden]~#rotate{display:flex}#rotate svg{width:100px;height:100px;stroke:#e9ba50;fill:none;stroke-width:3}
+    #rotate .rotate-gyro,#rotate:has(~#gyro-panel[data-step=setup]:not([hidden])) :is(.rotate-game,small){display:none}
+    #rotate:has(~#gyro-panel[data-step=setup]:not([hidden])) .rotate-gyro{display:block}
     #rotate-full{background:#754c87;color:#fff5d3;border:1px solid #fff5d355;border-radius:4px;padding:14px 24px;min-height:48px}
     #rotate p{font-size:22px;margin:0}#rotate small{max-width:280px;color:#c4bfb2;line-height:1.6}
     #touch-ui{--control-inset:0px;display:none;position:fixed;inset:0;z-index:3;touch-action:none;user-select:none;-webkit-user-select:none}
@@ -69,7 +71,7 @@
     #toolbar-tip button{flex:none;min-height:44px;min-width:44px;padding:6px 10px;border:1px solid #fff5d32e;border-radius:5px;background:#39434b;color:#fff5d3}
     body.mobile:is([data-game=TITLE],[data-game=RESULTS]):not(.portrait) #loading[hidden]~#title-tools #gyro-open{display:block}
     #gyro-open .ui-icon{fill:currentColor;stroke:none;shape-rendering:crispEdges}
-    #gyro-panel[hidden]{display:none}#gyro-panel{position:fixed;inset:0 0 auto;height:var(--visible-height,100dvh);z-index:22;background:#0f1721b8;display:grid;grid-template-rows:minmax(0,1fr);place-items:center;padding:max(12px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left))}
+    #gyro-panel[hidden],body.mobile.portrait #gyro-panel{display:none}#gyro-panel{position:fixed;inset:0 0 auto;height:var(--visible-height,100dvh);z-index:22;background:#0f1721b8;display:grid;grid-template-rows:minmax(0,1fr);place-items:center;padding:max(12px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left))}
     #gyro-panel section{background:#17242f;border:1px solid #f2d08478;padding:20px 24px;width:min(420px,100%);max-height:100%;overflow:auto;border-radius:12px;box-shadow:0 12px 40px #0006}
     #gyro-panel[data-step=setup] section{display:flex;flex-direction:column}
     #gyro-panel[data-step=setup] :is(header,.gyro-actions){flex:none}
@@ -149,7 +151,7 @@
   <div id="sky-edge" aria-hidden="true"></div><div id="title-safe-area" aria-hidden="true"></div>
   <div id="help" hidden><span class="desktop-controls" data-i18n>WASD 移动 · Shift 冲刺 · 鼠标瞄准 · 左键开火 · Esc 暂停</span><span class="mobile-warning" data-i18n>左侧移动 · 右侧瞄准</span></div>
 
-  <div id="rotate"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="28" y="13" width="44" height="74" rx="7" transform="rotate(30 50 50)"/><path d="M8 48a42 42 0 0 1 70-30m0-12v12H65M92 52a42 42 0 0 1-70 30m0 12V82h13"/></svg><p data-i18n>横过来，准备开火</p><small data-i18n>左手移动，右手瞄准</small><button id="rotate-full" data-i18n>横屏全屏</button></div>
+  <div id="rotate"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="28" y="13" width="44" height="74" rx="7" transform="rotate(30 50 50)"/><path d="M8 48a42 42 0 0 1 70-30m0-12v12H65M92 52a42 42 0 0 1-70 30m0 12V82h13"/></svg><p class="rotate-game" data-i18n>横过来，准备开火</p><p class="rotate-gyro" data-i18n>请横握设备校准</p><small data-i18n>左手移动，右手瞄准</small><button id="rotate-full" data-i18n>横屏全屏</button></div>
   <div id="title-tools">
     <button id="gyro-open" aria-haspopup="dialog"><svg class="ui-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M5 1h6v2H5zM3 3h2v2H3zm8 0h2v2h-2zM1 5h2v6H1zm12 0h2v6h-2zM3 11h2v2H3zm8 0h2v2h-2zM5 13h6v2H5zM5 6h2V4h2v2h2v4H9v2H7v-2H5zm2 1v2h2V7z" fill-rule="evenodd"/></svg> <span data-i18n>体感</span></button>
     <button id="immersive" aria-label="进入沉浸全屏" data-i18n-aria-label><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 4H4v5m11-5h5v5M4 15v5h5m11-5v5h-5"/></svg> <span data-i18n>全屏</span></button>
@@ -247,6 +249,7 @@
   <script>
     window.noArtMobile=matchMedia('(pointer:coarse)').matches||new URLSearchParams(location.search).has('touch');
     const t=text=>window.noArtText?.(text)??text;
+    const isLandscape=()=>innerWidth>=innerHeight;
     const toolbarTip=document.querySelector('#toolbar-tip');
     const toolbarTipKey='no-art-ignore-toolbar-tip';
     let toolbarTipIgnored=false;
@@ -274,14 +277,15 @@
     let gyroSetup=null;
     function syncGyro(alive=true){
       const running=gyroSetup?.practicing||(alive&&document.body.dataset.game==='RUNNING'&&!pauseRequested);
-      gyroSetup?.gyro.setContext({running,landscape:innerWidth>=innerHeight,visible:!document.hidden,focused});
+      gyroSetup?.gyro.setContext({running,landscape:isLandscape(),visible:!document.hidden,focused});
     }
     const gyroStartup=window.noArtMobile
       ? Promise.all([import('./gyro.js'),import('./gyro-setup.js')]).then(([,module])=>{
           gyroSetup=module.setupGyroPanel({
             makeGyro:changed=>window.NoArtGyro.create({changed}),
             sync:syncGyro,
-            isActive:()=>!document.hidden&&focused&&innerWidth>=innerHeight
+            isLandscape,
+            isActive:()=>!document.hidden&&focused&&isLandscape()
           });
           syncGyro();
         }).catch(()=>{
@@ -348,7 +352,7 @@
       try{window.localStorage.setItem(controlInsetKey,String(savedControlInset));}catch{}
     };
     function clearTouch(){gyroSetup?.gyro.reset();fingers.clear();Object.assign(touch,{x:0,y:0,dx:0,dy:0,fire:false,interact:false,jump:false,reload:false,pause:false});knob.style.transform='';document.querySelectorAll('.held').forEach(e=>e.classList.remove('held'));}
-    function syncScreenLayout(){const portrait=innerHeight>innerWidth;document.body.classList.toggle('portrait',portrait);touch.blocked=portrait||document.hidden;syncControlInset();if(portrait){clearTouch();pauseRequested=true;}syncGyro();syncToolbarTip();}
+    function syncScreenLayout(){const portrait=!isLandscape();document.body.classList.toggle('portrait',portrait);touch.blocked=portrait||document.hidden;syncControlInset();if(portrait){clearTouch();pauseRequested=true;}syncGyro();syncToolbarTip();}
     document.body.classList.toggle('mobile',window.noArtMobile);syncScreenLayout();window.addEventListener('resize',()=>{clearTouch();syncScreenLayout();});window.addEventListener('orientationchange',()=>{clearTouch();syncScreenLayout();});screen.orientation?.addEventListener?.('change',()=>{clearTouch();syncScreenLayout();});
     document.addEventListener('visibilitychange',()=>{clearTouch();syncScreenLayout();if(document.hidden)pauseRequested=true;});window.addEventListener('blur',()=>{focused=false;clearTouch();if(document.body.dataset.game==='RUNNING')pauseRequested=true;syncGyro();});window.addEventListener('focus',()=>{focused=true;syncGyro();});
     window.noArtMode=mode=>{document.body.dataset.mode=mode;clearTouch();};

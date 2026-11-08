@@ -9,6 +9,7 @@
     'WASD 移动 · Shift 冲刺 · 鼠标瞄准 · 左键开火 · Esc 暂停':'WASD move · Shift sprint · Mouse aim · Click to fire · Esc pause',
     '左侧移动 · 右侧瞄准':'Move on the left · Aim on the right',
     '横过来，准备开火':'Rotate to play',
+    '请横握设备校准':'Rotate your device to calibrate',
     '左手移动，右手瞄准':'Move with your left thumb. Aim with your right.',
     '横屏全屏':'Play fullscreen',
     '体感':'Gyro',

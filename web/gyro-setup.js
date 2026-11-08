@@ -30,7 +30,7 @@ function makeTarget(yaw,pitch) {
 
 const TARGETS = TARGET_ANGLES.map(([yaw,pitch])=>makeTarget(yaw,pitch));
 
-export function setupGyroPanel({makeGyro, sync, isActive}) {
+export function setupGyroPanel({makeGyro, sync, isActive, isLandscape}) {
   const get = id=>document.getElementById(id);
   const t = text=>window.noArtText?.(text)??text;
   const panel = get('gyro-panel');
@@ -185,7 +185,9 @@ export function setupGyroPanel({makeGyro, sync, isActive}) {
       // Paint the closed ring before replacing the calibration view.
       frame=requestAnimationFrame(()=>{
         frame=requestAnimationFrame(()=>{
-          if(!state.practicePassed)beginPractice();
+          frame=0;
+          if(!isLandscape())gyro.calibrate();
+          else if(!state.practicePassed)beginPractice();
           else show(entering?'ready':'settings');
         });
       });
@@ -215,8 +217,9 @@ export function setupGyroPanel({makeGyro, sync, isActive}) {
     if(step==='setup'){
       heading.textContent=t(state.calibrating?'保持稳定':'校准体感');
       drawCalibration();
-      if(state.calibrating&&!frame)frame=requestAnimationFrame(calibrationFrame);
-      else if(!state.calibrating&&frame)stopFrame();
+      const animating=state.calibrating&&isLandscape();
+      if(animating&&!frame)frame=requestAnimationFrame(calibrationFrame);
+      else if(!animating&&frame)stopFrame();
     }
     if(step==='choice')status.textContent=t(state.available?'用转动设备来微调准星。':state.status);
     else if(step==='setup'){
@@ -231,6 +234,7 @@ export function setupGyroPanel({makeGyro, sync, isActive}) {
   get('gyro-yes').onclick=()=>{gyro.choose(true);beginSetup();};
   for(const button of panel.querySelectorAll('[data-gyro-touch]'))button.onclick=chooseTouch;
   startButton.onclick=()=>{
+    if(!isLandscape())return;
     started=true;
     if(gyro.snapshot().enabled)gyro.calibrate();
     else gyro.enable();

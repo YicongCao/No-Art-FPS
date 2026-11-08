@@ -131,6 +131,17 @@ assert.equal(feedback().progress,.992);
 f.sample(0,0,0,8);
 assert.equal(f.gyro.snapshot().ready,true);
 assert.equal(feedback().progress,1);
+// Turning upright interrupts the hold, even if stable samples keep arriving.
+f.gyro.calibrate();
+for(let n=0;n<6;n++)f.sample(0,0,0,100);
+assert.equal(feedback().progress,.5);
+f.gyro.setContext({landscape:false});
+for(let n=0;n<12;n++)f.sample(0,0,0,100);
+assert.equal(f.gyro.snapshot().ready,false);
+assert.equal(feedback().progress,0);
+f.gyro.setContext({landscape:true});
+f.sample();
+assert.equal(feedback().progress,0);
 // Sparse but continuous motion data completes in one second, too.
 f.gyro.calibrate();
 for(let n=0;n<5;n++)f.sample(0,0,0,200);

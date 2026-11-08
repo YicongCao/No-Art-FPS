@@ -200,6 +200,11 @@ console.log('MOBILE_UI_PASS: SVG controls, silent automatic failure, 2.4s manual
 // Verify the real gyro module feeds the same packet as touch, and death clears it.
 window.emit('focus');window.noArtState('PAUSED');await get('#gyro-toggle').onclick();
 assert.equal(get('#gyro-title').textContent,'校准体感');
+context.innerWidth=390;context.innerHeight=844;window.emit('resize');
+await get('#gyro-start').onclick();
+assert.equal(get('#gyro-title').textContent,'校准体感');
+context.innerWidth=844;context.innerHeight=390;window.emit('resize');
+read();
 await get('#gyro-start').onclick();
 assert.equal(get('#gyro-title').textContent,'保持稳定');
 const motion=(alpha=0)=>{sensorTime+=16;window.emit('devicemotion',{rotationRate:{alpha,beta:0,gamma:0}});};
