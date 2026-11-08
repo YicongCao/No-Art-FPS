@@ -348,26 +348,26 @@
     [
       [
         -8.691440186808359,
-        2.28,
+        3.8049999999999997,
         -10.123191192413994
       ],
       [
-        1.827,
-        4.56,
-        0.29
+        1.84,
+        1.5099999999999998,
+        0.31
       ],
       -2.2776546738525996
     ],
     [
       [
         -7.423191192414004,
-        2.28,
+        3.8049999999999997,
         -11.39144018680835
       ],
       [
-        1.827,
-        4.56,
-        0.29
+        1.84,
+        1.5099999999999998,
+        0.31
       ],
       -2.434734306532089
     ],
@@ -2011,8 +2011,25 @@
   ],
   "props": [
     {
+      "asset": "storm_hatch",
+      "name": "StormHatch",
+      "at": [
+        -8.053946237714776,
+        0,
+        -10.753946237714779
+      ],
+      "size": [
+        3.57,
+        3.03,
+        0.31
+      ],
+      "angle": -2.356194490192345,
+      "effect": "ice",
+      "structural": true
+    },
+    {
       "asset": "snowcat",
-      "name": "snowcat_00",
+      "name": "snowcat_01",
       "at": [
         7.8,
         0,
@@ -2046,7 +2063,7 @@
     },
     {
       "asset": "console",
-      "name": "console_02",
+      "name": "console_03",
       "at": [
         -4.05,
         0,
@@ -2063,7 +2080,7 @@
     },
     {
       "asset": "star_table",
-      "name": "star_table_03",
+      "name": "star_table_04",
       "at": [
         3.8,
         0,
@@ -2079,8 +2096,25 @@
       "structural": false
     },
     {
+      "asset": "optical_rack",
+      "name": "optical_rack_05",
+      "at": [
+        -7.6,
+        0,
+        -8.1
+      ],
+      "size": [
+        1.47,
+        1.83,
+        0.72
+      ],
+      "angle": 0,
+      "effect": "instrument",
+      "structural": false
+    },
+    {
       "asset": "field_case",
-      "name": "field_case_04",
+      "name": "field_case_06",
       "at": [
         -14,
         0,
@@ -2097,7 +2131,7 @@
     },
     {
       "asset": "field_case",
-      "name": "field_case_05",
+      "name": "field_case_07",
       "at": [
         -17,
         0,
@@ -2114,7 +2148,7 @@
     },
     {
       "asset": "field_case",
-      "name": "field_case_06",
+      "name": "field_case_08",
       "at": [
         -7.4,
         0,
@@ -2131,7 +2165,7 @@
     },
     {
       "asset": "field_case",
-      "name": "field_case_07",
+      "name": "field_case_09",
       "at": [
         8.5,
         0,
@@ -2148,7 +2182,7 @@
     },
     {
       "asset": "field_case",
-      "name": "field_case_08",
+      "name": "field_case_10",
       "at": [
         8.9,
         2.38,
@@ -2165,7 +2199,7 @@
     },
     {
       "asset": "field_case",
-      "name": "field_case_09",
+      "name": "field_case_11",
       "at": [
         17.5,
         2.38,
@@ -2182,7 +2216,7 @@
     },
     {
       "asset": "field_case",
-      "name": "field_case_10",
+      "name": "field_case_12",
       "at": [
         15.1,
         0,
@@ -2199,7 +2233,7 @@
     },
     {
       "asset": "field_case",
-      "name": "field_case_11",
+      "name": "field_case_13",
       "at": [
         4.8,
         0,
@@ -2651,6 +2685,19 @@
       [
         0.2,
         3.48,
+        -2.3
+      ],
+      74
+    ],
+    "telescope-frenzy": [
+      [
+        5.5,
+        1.78,
+        5.2
+      ],
+      [
+        0.2,
+        2.24,
         -2.3
       ],
       74

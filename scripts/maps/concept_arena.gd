@@ -5,7 +5,10 @@ const CombatFX = preload("res://scripts/combat_fx.gd")
 const RAIN_SHADER = preload("res://assets/shaders/market_rain.gdshader")
 const PUDDLES_SHADER = preload("res://assets/shaders/market_puddles.gdshader")
 const RED_STRIP_SHADER = preload("res://assets/shaders/observatory_light_strip.gdshader")
+const PIPE_SPRAY_SHADER = preload("res://assets/shaders/market_pipe_spray.gdshader")
+const STAR_CHART_SHADER = preload("res://assets/shaders/observatory_star_chart.gdshader")
 const BELT_SPEED = 1.05
+const BELT_SURGE_SPEED = 1.9
 const IMPACTS = {
 	"ice": [[Vector3(.12,.092,.14),Color("bfe8ff")],[Vector3(.17,.11,.081),Color("fff1de")],[Vector3(.10,.062,.16),Color("83a7e8")]],
 	"produce": [[Vector3(.12,.12,.14),Color("e89e54")],[Vector3(.10,.09,.12),Color("8db566")]],
@@ -27,6 +30,9 @@ var belt_lamps: Array[MeshInstance3D] = []
 var belts: Array[StaticBody3D] = []
 var rain: MultiMeshInstance3D
 var puddles: ShaderMaterial
+var service_shortcut: Node3D
+var pipe_spray: MeshInstance3D
+var star_chart: MeshInstance3D
 var deck_light: MeshInstance3D
 var dome: Node3D
 var shutter_lights: Node3D
@@ -53,13 +59,13 @@ func _ready() -> void:
 		if map_id=="baggage_below" and at.y<2.0:
 			var lamp = MeshInstance3D.new()
 			var lens = BoxMesh.new()
-			lens.size = Vector3(.07,.14,.65)
+			lens.size = Vector3(.18,.085,.92)
 			lamp.mesh = lens
 			var paint = StandardMaterial3D.new()
 			paint.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 			paint.albedo_color = light.light_color
 			lamp.material_override = paint
-			lamp.position = at+Vector3.DOWN*.36
+			lamp.position = Vector3(signf(at.x)*2.84,.92,at.z)
 			add_child(lamp)
 			belt_lamps.append(lamp)
 	for body in get_node("Belts").get_children():
@@ -72,10 +78,24 @@ func _ready() -> void:
 		puddles.shader = PUDDLES_SHADER
 		var film = horizontal_effect(Vector2(34.8,36.0),Vector3(0,1.888,0),puddles)
 		film.rotation.x = atan(3.7/36.0)
+		service_shortcut = get_node("Props/ServiceShortcut")
+		pipe_spray = MeshInstance3D.new()
+		var spray_mesh = QuadMesh.new()
+		spray_mesh.size = Vector2(2.15,1.50)
+		pipe_spray.mesh = spray_mesh
+		var spray_paint = ShaderMaterial.new()
+		spray_paint.shader = PIPE_SPRAY_SHADER
+		pipe_spray.material_override = spray_paint
+		pipe_spray.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		pipe_spray.position = service_shortcut.position+Vector3(1.51,1.01,-1.98)
+		add_child(pipe_spray)
 	if is_instance_valid(dome):
 		var paint = ShaderMaterial.new()
 		paint.shader = RED_STRIP_SHADER
 		deck_light = horizontal_effect(Vector2(1.04,8.7),Vector3(16.05,2.434,-2.51),paint)
+		var chart_paint = ShaderMaterial.new()
+		chart_paint.shader = STAR_CHART_SHADER
+		star_chart = horizontal_effect(Vector2(13.3,13.3),dome.position+Vector3.UP*.039,chart_paint)
 	if not belts.is_empty():
 		add_belt_bags()
 	set_destroy_lighting(false)
@@ -130,18 +150,23 @@ func _process(_delta: float) -> void:
 	var active: bool = game.state=="RUNNING" and game.rules.active and not game.finale_active
 	if is_instance_valid(rain):
 		rain.visible = not game.reduced_motion
-	for i in range(belts.size()):
-		var velocity = BELT_SPEED*belt_directions[i] if active else 0.0
-		belts[i].constant_linear_velocity = Vector3(0,0,velocity)
 	var elapsed: float = game.rules.elapsed
+	if pipe_spray:
+		pipe_spray.visible = game.destroy_active and service_shortcut.collapsed
+		pipe_spray.material_override.set_shader_parameter("elapsed",elapsed)
+	var speed = BELT_SURGE_SPEED if game.destroy_active else BELT_SPEED
+	var frenzy_elapsed: float = maxf(0.0,elapsed-(game.rules.duration-game.rules.destroy_duration))
+	var belt_travel: float = elapsed*BELT_SPEED+frenzy_elapsed*(BELT_SURGE_SPEED-BELT_SPEED)
 	for i in range(belts.size()):
+		var direction = belt_directions[i]
+		belts[i].constant_linear_velocity = Vector3(0,0,speed*direction) if active else Vector3.ZERO
 		var track = belts[i].get_node("Surface") as MeshInstance3D
 		var paint = track.material_override as ShaderMaterial
-		var travel: float = elapsed*BELT_SPEED*belt_directions[i]
+		var travel = belt_travel*direction
 		paint.set_shader_parameter("travel",fmod(travel,1.0/3.5))
 		for j in range(2):
 			var bag = belt_bags[i*2+j]
-			bag.position = belts[i].position+Vector3((j-.5)*1.55,.10, fposmod(travel+3.1+j*8.5,16.2)-8.1)
+			bag.position = belts[i].position+Vector3((j-.5)*1.55,.10,fposmod(travel+3.1+j*8.5,16.2)-8.1)
 	if active and game.destroy_active:
 		pose_frenzy(sweep_elapsed())
 
@@ -152,11 +177,13 @@ func set_destroy_lighting(active: bool) -> void:
 		lamp.visible = active
 	if puddles:
 		puddles.set_shader_parameter("frenzy",active)
+		pipe_spray.visible = active and service_shortcut.collapsed
 	if not belts.is_empty():
 		environment_override.ambient_light_energy = .63 if active else .83
 		game.sun.light_energy = .25 if active else sun_energy
 	if is_instance_valid(dome):
 		deck_light.visible = active
+		star_chart.visible = active
 		if is_instance_valid(shutter_lights):
 			shutter_lights.visible = active
 		dome.rotation.y = 0
@@ -175,6 +202,7 @@ func pose_frenzy(elapsed: float) -> void:
 			shutter_lights.rotation.y = dome.rotation.y
 		deck_light.rotation.y = PI*.5+dome_sweep*.17
 		deck_light.position.z = -2.65+dome_sweep*.89
+		star_chart.rotation.y = elapsed*.23
 	for i in range(frenzy_lights.size()):
 		var phase = elapsed*.87+i*1.64
 		var target = frenzy_targets[i]+frenzy_motion[i]*sin(phase)
@@ -184,7 +212,9 @@ func pose_frenzy(elapsed: float) -> void:
 			light.position.x = frenzy_origins[i].x+dome_sweep*.78
 		light.look_at(to_global(target))
 		if map_id=="baggage_below" and i<belt_lamps.size():
-			var pulse = .5+.5*cos(elapsed*5.3-(i/2.0)*1.12)
+			var lane = i%2
+			var station = floori(i/2.0)
+			var pulse = .5+.5*cos(elapsed*5.3-station*1.12*belt_directions[lane])
 			light.light_energy = .25+4.3*pulse*pulse
 			var lamp_paint = belt_lamps[i].material_override as StandardMaterial3D
 			lamp_paint.albedo_color = Color("253143").lerp(light.light_color,.25+.75*pulse)
@@ -210,7 +240,8 @@ func scatter_prop(kind: String, point: Vector3, normal: Vector3, floor_y: float,
 		var extent: Vector3 = variant[0]*fx.rng.randf_range(.7,1.25)*(1.35 if burst else 1.0)
 		var drift = Vector3.ZERO
 		if burst and kind=="luggage":
-			drift = Vector3(0,0,-BELT_SPEED if point.x<0 else BELT_SPEED)
+			var belt_velocity = BELT_SURGE_SPEED if game.destroy_active else BELT_SPEED
+			drift = Vector3(0,0,-belt_velocity if point.x<0 else belt_velocity)
 		var velocity = normal*1.55+direction*fx.rng.randf_range(1.1,2.9)+Vector3.UP*1.4+drift
 		fx.chunk(point+normal*.042,extent,variant[1],velocity,floor_y+.03)
 	fx.show_pieces(false)

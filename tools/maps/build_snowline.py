@@ -104,7 +104,7 @@ for i in range(n):
     th=(i+.5)*math.tau/n
     x,y,z=pos(th,11.43,2.28)
     angle=-th+math.pi/2
-    gap=i in (0,39,9,10,19,20)
+    gap=i in (0,39,9,10,19,20,24,25)
     if not gap:
         a.solid(building,"Segmented drum wall",(x,y,z),(1.827,4.56,.29),"orange" if i%3 else "orange_light",angle)
         building.box("Drum wall seam",(x,2.31,z),(1.79,.048,.38),"orange_dark",angle)
@@ -113,7 +113,7 @@ for i in range(n):
             building.box("Dark ribbon window",(xo,3.27,zo),(1.58,.76,.096),"cobalt",angle)
             building.box("Cool ribbon glazing",(xo,3.30,zo),(1.38,.60,.122),"glass",angle)
     else:
-        bottom=3.05 if i in (9,10,19,20) else 4.26
+        bottom=3.05 if i in (9,10,19,20,24,25) else 4.26
         a.solid(building,"Doorway head over route",(x,(bottom+4.56)/2,z),(1.84,4.56-bottom,.31),"orange",angle)
     t0,t1=i*math.tau/n,(i+1)*math.tau/n
     circle_slab(building,"Drum trim ring",t0,t1,11.22,11.73,4.6,4.6,"blue",False,.22)
@@ -129,6 +129,22 @@ building.box("Insulated airlock task light",(0,2.99,9.57),(1.35,.093,.16),"light
 building.box("Entry boot grate",(0,.034,10.09),(2.63,.063,1.24),"ink")
 for i in range(11):
     building.box("Boot grate ribs",((i-5)*.22,.071,10.09),(.042,.029,1.15),"metal")
+
+hatch=a.kit("storm_hatch")
+hatch.box("Insulated snow shutter",(0,1.50,0),(3.54,3.0,.27),"blue")
+for i in range(9):
+    hatch.box("Horizontal shutter rib",(0,.19+i*.32,.16),(3.44,.073,.09),"cobalt")
+for x in (-1.46,1.46):
+    hatch.box("Yellow latch plate",(x,1.45,.18),(.25,.68,.08),"yellow")
+    hatch.rod("Shutter grab handle",(x,1.27,.23),(x,1.61,.23),.067,"ink",8)
+hatch_angle=-3*math.pi/4
+hx,_,hz=pos(hatch_angle,11.39,0)
+a.prop("storm_hatch",(hx,0,hz),(3.57,3.03,.31),hatch_angle,name="StormHatch",effect="ice",structural=True)
+for dx in (-1.87,1.87):
+    building.box("Storm hatch frame",(hx+dx*math.cos(hatch_angle),1.55,hz-dx*math.sin(hatch_angle)),
+                 (.20,3.1,.39),"cobalt",hatch_angle)
+building.box("Northwest hatch emergency lamp",(hx+.24,3.17,hz+.24),(1.15,.12,.15),"red_light",hatch_angle)
+building.box("Snow shelf above hatch",(hx-.22,3.20,hz-.22),(3.89,.21,.63),"snow",hatch_angle)
 
 # Walk from the northern room floor up the half-level curved ramp to the east deck.
 ramp_start,ramp_end=-2.11,-.22
@@ -325,6 +341,15 @@ for j in range(15):
 bench.box("Field lens case",(.68,1.04,.06),(.64,.27,.61),"olive")
 bench.rod("Spare eyepiece",(.85,.96,-.36),(.85,1.15,-.36),.095,"navy",10)
 a.prop("star_table",(3.8,0,4.3),(2.47,1.18,1.25),effect="instrument")
+rack=a.kit("optical_rack")
+for x in (-.68,.68):
+    rack.box("Optical storage upright",(x,.91,0),(.105,1.82,.69),"navy")
+for y in (.35,.89,1.43):
+    rack.box("Optical storage shelf",(0,y,0),(1.39,.075,.68),"steel")
+    for x in (-.38,.34):
+        rack.box("Foam-lined lens case",(x,y+.18,0),(.51,.28,.49),"olive")
+        rack.box("Lens case brass latch",(x,y+.22,.257),(.095,.095,.06),"yellow")
+a.prop("optical_rack",(-7.6,0,-8.1),(1.47,1.83,.72),effect="instrument")
 kit=a.kit("field_case")
 kit.box("Rugged alpine case",(0,.29,0),(1.16,.57,.92),"olive")
 kit.box("High visibility crate lid",(0,.55,0),(1.19,.105,.97),"olive_light")
@@ -355,6 +380,7 @@ a.layout.update(
  cameras={
   "snowcat-court":[[-.75,1.76,20.1],[.45,4.1,1.0],78],
   "telescope-ring":[[5.5,1.78,5.2],[.2,3.48,-2.3],74],
+  "telescope-frenzy":[[5.5,1.78,5.2],[.2,2.24,-2.3],74],
   "weather-deck-frenzy":[[20.65,4.02,-1.63],[9.4,4.37,-2.9],75],
  })
 a.write()

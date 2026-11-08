@@ -55,12 +55,14 @@ func capture() -> void:
 			if key.ends_with("frenzy"):
 				game.rules.elapsed = 47.0
 				game.set_destroy_active(true)
-				var prop = game.arena.get_node("Props/"+{"rain_market":"ServiceShortcut","baggage_below":"BurstCase","snowline":"field_case_09"}[id])
-				prop.hit_point = prop.world_bounds().get_center()
-				prop.hits = 2
-				prop.collapse(false)
-				game.arena.scatter_prop(prop.impact_kind,prop.hit_point,Vector3.UP,prop.world_bounds().position.y,true)
-				await create_timer(.1).timeout
+				var targets = {"service-frenzy":"ServiceShortcut","sorting-frenzy":"BurstCase","telescope-frenzy":"StormHatch"}
+				if targets.has(key):
+					var prop = game.arena.get_node("Props/"+targets[key])
+					prop.hit_point = prop.world_bounds().get_center()
+					prop.hits = 2
+					prop.collapse(false)
+					game.arena.scatter_prop(prop.impact_kind,prop.hit_point,Vector3.UP,prop.world_bounds().position.y,true)
+					await create_timer(.1).timeout
 			await screenshot(id,key)
 		game.state = "TITLE"
 		game.hud.show()

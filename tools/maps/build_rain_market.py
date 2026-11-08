@@ -53,10 +53,10 @@ for i in range(40):
     street.box("Ceramic stair tread",(-15,y-.08,z),(5.55,.16,.895),"tile")
     street.box("Stair nosing",(-15,y+.004,z+.42),(5.55,.034,.045),"grout")
 for x in (-17.65,-12.28):
-    for z in (-17,-13,-8,-3,3,8,13):
-        rail(decor,x,z,z+3.1,height)
+    for z,length in [(-17,3.1),(-13,3.1),(-8,3.1),(-2,3.1),(4.0,3.1),(9.5,2.6),(14.9,2.1)]:
+        rail(decor,x,z,z+length,height)
         a.layout["slabs"].append([[(x-.065,height(z)+1.09,z),(x+.065,height(z)+1.09,z),
-                                   (x+.065,height(z+3.1)+1.09,z+3.1),(x-.065,height(z+3.1)+1.09,z+3.1)],1.13])
+                                   (x+.065,height(z+length)+1.09,z+length),(x-.065,height(z+length)+1.09,z+length)],1.13])
     # Rail runs leave an opening at each market crossing.
     if x == -17.65:
         for z in (-13.9,-8.9,-3.9,2.1,7.1,12.1):
@@ -202,12 +202,24 @@ for j in range(9):
 for z in (-1.67,1.67):
     screen.box("Screen end post",(0,.99,z),(.15,1.98,.10),"green")
 a.prop("stall_screen",(10.1,height(8.2),8.2),(.20,2.05,3.4),name="ServiceShortcut",effect="ice",structural=True)
-for z in (5.71,10.69):
-    y=height(z)
-    a.solid(decor,"Adjacent market divider",(10.1,y+.63,z),(.22,1.26,1.50),"green")
-    for j in range(5):
-        decor.box("Painted divider stripe",(10.225,y+.97,z+(j-2)*.28),(.045,.31,.17),("red","white","blue")[j%3])
-    decor.box("Divider metal edging",(10.1,y+1.25,z),(.27,.075,1.50),"bamboo")
+for z0,z1 in [(2.35,6.50),(9.90,14.72)]:
+    quad=[(10.0,height(z1)+1.6,z1),(10.2,height(z1)+1.6,z1),
+          (10.2,height(z0)+1.6,z0),(10.0,height(z0)+1.6,z0)]
+    a.slab(decor,"Continuous service-lane divider",quad,1.65,"green")
+    decor.beam("Divider metal edging",(10.1,height(z0)+1.62,z0),(10.1,height(z1)+1.62,z1),.28,.09,"bamboo")
+    for i in range(round((z1-z0)/.29)):
+        z=z0+.14+i*.29
+        decor.box("Painted divider stripe",(10.224,height(z)+1.31,z),(.048,.35,.17),("red","white","blue")[i%3])
+
+# Drain hardware and a water feed identify the wet-side shortcut.
+z=6.22
+y=height(z)
+decor.rod("Wash supply riser",(10.35,y+.09,z),(10.35,y+1.35,z),.071,"metal",8)
+decor.rod("Wash pipe elbow",(10.35,y+1.35,z),(10.54,y+1.35,z),.074,"metal",8)
+decor.rod("Red isolation valve",(10.35,y+1.05,z),(10.60,y+1.05,z),.18,"red",8,.14)
+for z in (2.55,13.45):
+    for x in (-11.9,-11.48,-11.06):
+        street.box("Crossing anti-slip tile",(x,height(z)+.025,z),(.34,.043,1.31),"yellow")
 
 crates=a.kit("crates")
 crates.box("Foam box",(0,.24,0),(.91,.48,.71),"white")
@@ -238,6 +250,20 @@ for x,z in [(15.2,11.7),(15.8,-15)]:
         streetprops.rod("Handcart handle side",(x,y+.18,z+dz),(x+.19,y+1.1,z+dz),.035,"blue")
     streetprops.rod("Handcart top handle",(x+.19,y+1.1,z-.24),(x+.19,y+1.1,z+.24),.036,"blue")
     streetprops.box("Folded toe plate",(x+.25,y+.22,z),(.39,.09,.58),"metal")
+
+wash=a.kit("fish_wash")
+wash.box("Fish wash porcelain basin",(0,.94,0),(1.52,.23,.77),"white")
+wash.box("Basin recessed drain",(0,1.06,0),(1.19,.025,.51),"steel")
+for x in (-.65,.65):
+    wash.box("Fish wash tiled plinth",(x,.47,0),(.21,.93,.71),"teal")
+wash.rod("Tap neck",(-.34,1.05,-.24),(-.34,1.35,-.24),.046,"metal",8)
+wash.rod("Tap spout",(-.34,1.35,-.24),(-.34,1.31,.08),.045,"metal",8)
+for i in range(12):
+    angle=i*math.tau/12
+    next_angle=(i+1)*math.tau/12
+    wash.rod("Coiled hose",(.34+math.cos(angle)*.23,1.27+math.sin(angle)*.23,-.28),
+             (.34+math.cos(next_angle)*.23,1.27+math.sin(next_angle)*.23,-.28),.034,"yellow",6)
+a.prop("fish_wash",(-9.75,height(12.25),12.25),(1.55,1.54,.83),effect="ice")
 
 kiosk=a.kit("tea_hatch")
 kiosk.box("Cha chaan teng wall",(0,1.53,0),(3.25,3.06,.15),"warm")
@@ -274,7 +300,7 @@ a.layout.update(
     spawns=[ground(x,z) for x,z in [(-15,19),(-15,8),(-15,-4),(-15,-14),(15,18),(15,7),(15,-5),(15,-15),
                                                   (0,-20),(-3,17),(1,1),(-2,-10),(3,11),(9,-9)]],
     respawns=[ground(x,z) for x,z in [(0,19),(-15,12),(14,17),(2,7),(-15,-6),(14,-12),(0,-18)]],
-    route=[ground(x,z) for x,z in [(-15,2),(-15,-17),(0,-19),(15,-13),(15,6),(15,19),(0,2),(0,-9)]],
+    route=[ground(x,z) for x,z in [(-15,2),(-15,-17),(0,-19),(15,-13),(15,6),(15,19),(0,2),(0,-9),(-10,2.55),(-15,2.55),(-10,13.45),(-15,13.45)]],
     barrels=[ground(x,z) for x,z in [(-3.9,8.0),(9.5,-9.6),(-8.1,-10.1)]],
     comedy=[8.7,height(20.4),20.4,0.0],
     cameras={

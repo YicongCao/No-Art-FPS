@@ -63,16 +63,27 @@ for y in (.28,2.2,5.05):
     hall.box("Front glazing transom",(0,y,22.91),(44,.18,.23),"blue")
 a.layout["glass"]=[[(x,2.7,17),(11.7,4.7),math.pi/2] for x in (-22,22)]
 a.layout["glass"].append([(0,2.7,22.9),(43.8,4.7),0])
-for x in (-13.05,13.05):
-    a.solid(hall,"Secure area lower wall",(x,.86,11),(17.9,1.72,.46),"white")
-    a.solid(hall,"Secure area upper wall",(x,4.73,11),(17.9,1.25,.46),"white")
-    a.layout["boxes"].append([(x,2.89,11),(17.9,2.34,.15),0])
-    a.layout["glass"].append([(x,2.89,11),(17.9,2.34),0])
+for left,right in [(-22,-17.15),(-13.65,-4.10),(4.10,22)]:
+    x=(left+right)*.5
+    width=right-left
+    a.solid(hall,"Secure area lower wall",(x,.86,11),(width,1.72,.46),"white")
+    a.layout["boxes"].append([(x,2.89,11),(width,2.34,.15),0])
+    a.layout["glass"].append([(x,2.89,11),(width,2.34),0])
     for y in (1.70,4.06):
-        hall.box("Divider glazing frame",(x,y,11),(17.9,.11,.53),"blue")
-    for dx in (-6,-3,0,3,6):
-        hall.box("Window mullion",(x+dx,2.9,11.33),(.095,2.29,.08),"blue")
-    hall.box("Sorting-side impact rail",(x,1.1,10.72),(16.7,.12,.15),"yellow")
+        hall.box("Divider glazing frame",(x,y,11),(width,.11,.53),"blue")
+    for i in range(1,math.ceil(width/2.7)):
+        rail_x=left+i*2.7
+        hall.box("Window mullion",(rail_x,2.9,11.33),(.095,2.29,.08),"blue")
+    hall.box("Sorting-side impact rail",(x,1.1,10.72),(width-.18,.12,.15),"yellow")
+for x in (-13.05,13.05):
+    a.solid(hall,"Secure area upper wall",(x,4.73,11),(17.9,1.25,.46),"white")
+for x in (-17.15,-13.65):
+    hall.box("West service opening jamb",(x,1.83,11),(.19,3.65,.57),"teal")
+hall.box("West service opening lintel",(-15.4,3.70,11),(3.61,.21,.55),"teal")
+hall.box("West service opening lamp",(-15.4,3.55,11),(1.41,.075,.39),"light")
+for z in (9.75,10.72,11.53,12.34):
+    for x in (-16.95,-13.86):
+        floor.box("West service route stripe",(x,.02,z),(.10,.026,.60),"yellow")
 a.solid(hall,"Orange employee doorway header",(0,4.52,11),(8.35,1.68,.49),"blue")
 for x in (-4.13,4.13):
     hall.box("Orange doorway trim",(x,1.91,11.04),(.24,3.85,.53),"orange")
@@ -234,7 +245,9 @@ for i in range(32):
     p0,p1=segment[0],segment[1]
     machines.beam("Stainless carousel lip",p0,p1,.14,.19,"metal")
 machines.box("Carousel center island",(0,.48,17.6),(11.65,.94,2.16),"white")
-a.layout["boxes"].append([(0,.42,17.6),(13.45,.84,4.07),0])
+a.layout["slabs"].append([[(cx+8*math.cos(i*math.tau/16),.67,cz+2.28*math.sin(i*math.tau/16))
+                            for i in range(16)],.70])
+a.layout["boxes"].append([(0,.46,17.6),(11.65,.92,2.16),0])
 for x in (-3.4,3.4):
     machines.box("Reclaim carousel planter",(x,.92,17.6),(1.19,.42,.90),"sand")
     for i in range(3):
@@ -248,6 +261,19 @@ for x in (-12.9,12.9):
             machines.rod("Trolley tube",(x+dx,.27,z),(x+dx,1.04,z+.29),.035,"metal",7)
             machines.rod("Small trolley wheel",(x+dx-.08,.14,z+.19),(x+dx+.08,.14,z+.19),.11,"black",8)
         machines.rod("Trolley handle",(x-.32,1.04,z+.29),(x+.32,1.04,z+.29),.06,"teal",8)
+for x in (-10.3,10.3):
+    a.solid(machines,"Terminal bench base",(x,.34,21.7),(3.48,.68,.74),"blue")
+    for i in range(4):
+        dx=(i-1.5)*.84
+        machines.box("Terminal bench seat",(x+dx,.72,21.7),(.75,.11,.67),"teal")
+        machines.box("Terminal bench back",(x+dx,1.00,22.0),(.75,.46,.15),"teal",.04)
+scale=a.kit("cargo_scale")
+scale.box("Low cargo scale platform",(0,.17,0),(1.83,.34,1.42),"steel")
+scale.box("Rubber weighing pad",(0,.35,0),(1.69,.045,1.30),"rubber")
+scale.rod("Scale display mount",(-.65,.34,-.50),(-.65,1.18,-.50),.059,"metal",8)
+scale.box("Scale display housing",(-.65,1.18,-.47),(.37,.23,.15),"navy")
+scale.box("Scale display window",(-.65,1.19,-.38),(.28,.13,.035),"cyan")
+a.prop("cargo_scale",(-19.6,0,8.7),(1.83,1.30,1.42),effect="metal")
 machines.box("Split-flap flight board",(13.1,3.68,11.34),(6.75,1.38,.14),"black")
 for i in range(21):
     for row in range(4):
@@ -304,7 +330,7 @@ a.layout.update(
  spawns=points([(-11,19),(9.7,18),(0,21),(0,13),(-9,7),(8.1,8),(-10,0),(7.4,-1),(-10,-10),
                 (8.0,-11),(-8.4,-18),(8.4,-18),(19,-14)])+[(0,3.18,-15),(-16,3.18,-8)],
  respawns=points([(3.3,14),(-10,15),(8,8),(-9,-4),(7.3,-12),(-8,-19)])+[(4,3.18,-15)],
- route=points([(0,13),(0,2),(-16,3.5),(16,3.5),(-10,-17),(10,-18),(-11,16),(10,16)])+[(0,3.18,-15),(-16,3.18,-8),(16,3.18,-9)],
+ route=points([(0,13),(-15.4,13),(-15.4,9),(0,2),(-16,3.5),(16,3.5),(-10,-17),(10,-18),(-11,16),(10,16)])+[(0,3.18,-15),(-16,3.18,-8),(16,3.18,-9)],
  barrels=points([(-9.4,2),(8.5,-6),(17.5,9)]), comedy=(8.8,0,14.6,math.pi),
  cameras={
   "arrivals":[[9.8,1.73,21.2],[.1,1.8,10],66],
