@@ -560,7 +560,8 @@ func map_record(card: Button, best_kills: int) -> void:
 	score.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(score)
 	record.reset_size()
-	record.position = Vector2(card.size.x-record.size.x-8,8)
+	record.scale = Vector2.ONE*.5
+	record.position = Vector2(card.size.x-record.size.x*record.scale.x-8,8)
 
 func sync_comedy_buttons() -> void:
 	for action in comedy_buttons:

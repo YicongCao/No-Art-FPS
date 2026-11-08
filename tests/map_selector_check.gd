@@ -172,7 +172,8 @@ func assert_card_records(expected: Array) -> void:
 		var panel = card.get_node("Record")
 		assert(panel.find_child("Score",true,false).text==str(expected[i]))
 		assert(panel.mouse_filter==Control.MOUSE_FILTER_IGNORE)
-		assert(panel.position.x>0 and panel.get_rect().end.x<card.size.x)
+		assert(panel.scale==Vector2.ONE*.5)
+		assert(is_equal_approx(panel.position.x+panel.size.x*panel.scale.x,card.size.x-8))
 
 func click(center: Vector2) -> void:
 	for pressed in [true,false]:
