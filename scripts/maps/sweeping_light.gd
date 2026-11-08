@@ -38,3 +38,10 @@ static func add_shaft(light: SpotLight3D, length: float, aperture: float,
 	mesh.rotation.x = PI*.5
 	mesh.position.z = -length*.5
 	light.add_child(mesh)
+
+static func set_tint(light: SpotLight3D, tint: Color) -> void:
+	light.light_color = tint
+	var shaft = light.get_node_or_null("Shaft") as MeshInstance3D
+	if shaft:
+		var paint = shaft.material_override as ShaderMaterial
+		paint.set_shader_parameter("tint",tint)

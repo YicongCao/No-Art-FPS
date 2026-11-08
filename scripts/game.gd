@@ -34,6 +34,7 @@ var arena: Node3D
 var sun: DirectionalLight3D
 var world_environment: WorldEnvironment
 var daylight_environment: Environment
+var destroy_yard_environment: Environment
 var player: CharacterBody3D
 var hud: Control
 var enemies: Node3D
@@ -180,6 +181,8 @@ func _ready() -> void:
 	settings.ambient_light_energy = .52
 	settings.tonemap_mode = Environment.TONE_MAPPER_LINEAR
 	daylight_environment = settings
+	destroy_yard_environment = settings.duplicate()
+	destroy_yard_environment.background_color = Color("e88c49")
 	add_child(world_environment)
 	sun = DirectionalLight3D.new()
 	sun.shadow_enabled = true
@@ -279,6 +282,16 @@ func apply_map_lighting() -> void:
 	sun.light_color = arena.sun_color
 	sun.light_energy = arena.sun_energy
 	sun.shadow_bias = arena.sun_shadow_bias
+
+func set_destroy_active(active: bool) -> void:
+	if destroy_active==active:return
+	destroy_active = active
+	arena.set_destroy_lighting(active)
+	if arena.map_id=="yard":
+		world_environment.environment = destroy_yard_environment if active else daylight_environment
+		if OS.has_feature("web"):
+			var sky = "#"+destroy_yard_environment.background_color.to_html(false) if active else ""
+			JavaScriptBridge.eval("window.noArtSetDestroySky?.("+JSON.stringify(sky)+")")
 
 func score_record_key() -> String:
 	if session.session_id==DefaultSession.session_id:return "score"
@@ -492,7 +505,7 @@ func reset_run_state() -> void:
 	rules.active = false
 	achievements.start_round()
 	hud.reset_badge_toasts()
-	destroy_active = false
+	set_destroy_active(false)
 	finale_active = false
 	hud.destroy_time = 0
 	kill_group_count = 0
@@ -741,6 +754,7 @@ func _process(delta: float) -> void:
 			player.enabled = false
 
 func clear_round() -> void:
+	set_destroy_active(false)
 	clear_grenades()
 	arena.cancel_interaction()
 	objective_focus = null
@@ -1016,7 +1030,7 @@ func _physics_process(delta: float) -> void:
 		else:finish_run()
 		return
 	if rules.destroy_duration>0 and not destroy_active and rules.remaining()<=rules.destroy_duration+.000001:
-		destroy_active = true
+		set_destroy_active(true)
 		hud.go_time = 0
 		hud.destroy_time = hud.DESTROY_NOTICE_DURATION
 		music.stream = session.destroy_music if session.destroy_music else DESTROY_MUSIC

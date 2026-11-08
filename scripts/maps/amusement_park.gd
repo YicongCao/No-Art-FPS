@@ -2,6 +2,10 @@ extends "res://scripts/arena.gd"
 
 const SweepingLight = preload("res://scripts/maps/sweeping_light.gd")
 const MIRROR_TILES = preload("res://assets/shaders/mirror_ball.gdshader")
+const CAROUSEL_TURN_RATE = -TAU/13.33
+const DISCO_TURN_RATE = TAU/5.2+CAROUSEL_TURN_RATE
+const DISCO_COLORS = [Color("ff8bc8"),Color("9ee9ff")]
+const NEON_COLORS = [Color("ff39b8"),Color("6bff70")]
 
 @export var carousel_path: NodePath
 @export var horse_paths: Array[NodePath] = []
@@ -11,6 +15,7 @@ var carousel: Node3D
 var horses: Array[Node3D] = []
 var cars: Array[PathFollow3D] = []
 var disco_ball: Node3D
+var disco_spots: Array[SpotLight3D] = []
 
 func _ready() -> void:
 	super._ready()
@@ -18,15 +23,15 @@ func _ready() -> void:
 	for path in horse_paths:horses.append(get_node(path))
 	for path in car_paths:cars.append(get_node(path))
 	add_disco_ball()
-	pose_rides(0)
+	pose_rides(0,0)
 
 func _process(_delta: float) -> void:
 	if game and game.state=="RUNNING" and game.rules.active and not game.finale_active:
-		pose_rides(game.rules.elapsed)
+		pose_rides(game.rules.elapsed,sweep_elapsed())
 
 func restore_structures() -> void:
 	super.restore_structures()
-	pose_rides(0)
+	pose_rides(0,0)
 
 func add_disco_ball() -> void:
 	disco_ball = Node3D.new()
@@ -46,15 +51,20 @@ func add_disco_ball() -> void:
 	disco_ball.add_child(globe)
 	for i in range(2):
 		var sign_x = 1.0 if i==0 else -1.0
-		var tint = Color("ff8bc8") if i==0 else Color("9ee9ff")
 		var spot = SweepingLight.add_spot(disco_ball,"Reflection%d"%i,
-			Vector3(sign_x*.54,-.16,0),tint,4.0,6.6,14.0,false)
+			Vector3(sign_x*.54,-.16,0),DISCO_COLORS[i],4.0,6.6,14.0,false)
 		spot.look_at(disco_ball.to_global(Vector3(sign_x*4.0,-2.8,.7)))
 		SweepingLight.add_shaft(spot,4.8,.055,10.0,.27)
+		disco_spots.append(spot)
 
-func pose_rides(elapsed: float) -> void:
-	carousel.rotation.y = -elapsed*TAU/13.33
-	disco_ball.rotation.y = .45+elapsed*TAU/5.2
+func set_destroy_lighting(active: bool) -> void:
+	var colors = NEON_COLORS if active else DISCO_COLORS
+	for i in range(disco_spots.size()):
+		SweepingLight.set_tint(disco_spots[i],colors[i])
+
+func pose_rides(elapsed: float, light_elapsed: float) -> void:
+	carousel.rotation.y = elapsed*CAROUSEL_TURN_RATE
+	disco_ball.rotation.y = .45+light_elapsed*DISCO_TURN_RATE-carousel.rotation.y
 	for i in range(horses.size()):
 		horses[i].position.y = sin(elapsed*TAU/1.8+i*TAU/horses.size())*.17
 	var length = cars[0].get_parent().curve.get_baked_length()

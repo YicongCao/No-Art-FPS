@@ -4,17 +4,22 @@ extends "res://scripts/arena.gd"
 
 const SweepingLight = preload("res://scripts/maps/sweeping_light.gd")
 const SWEEP_SPOTS = [1,2,4]
+const NORMAL_COLORS = [Color("ffe5b3"),Color("ffe4ae"),Color("e5dbff"),Color("ffe5b3"),Color("ffe4ae")]
+const NEON_COLORS = [Color("cbff46"),Color("ff399b"),Color("34edff"),Color("ffb142"),Color("9a5aff")]
+var stage_spots: Array[SpotLight3D] = []
 var sweeping_spots: Array[SpotLight3D] = []
 var spotlight_centers: Array[Vector3] = []
 
 func _ready() -> void:
 	super._ready()
 	if game==null:return
-	for index in SWEEP_SPOTS:
+	for index in range(NEON_COLORS.size()):
 		var spot: SpotLight3D = get_node("PracticalLighting/StageSpot%d"%index)
+		stage_spots.append(spot)
+		if index not in SWEEP_SPOTS:continue
 		sweeping_spots.append(spot)
 		spotlight_centers.append(spot.position-spot.basis.z*(spot.spot_range-1.8))
-		spot.light_color = Color("e5dbff") if index==2 else Color("ffe4ae")
+		spot.light_color = NORMAL_COLORS[index]
 		spot.light_energy = 2.3 if index==2 else 2.6
 		spot.spot_angle = 20.0
 		spot.shadow_enabled = index==2 and not OS.has_feature("web")
@@ -23,11 +28,16 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	if game and game.state=="RUNNING" and game.rules.active and not game.finale_active:
-		pose_spots(game.rules.elapsed)
+		pose_spots(sweep_elapsed())
 
 func restore_structures() -> void:
 	super.restore_structures()
 	pose_spots(0)
+
+func set_destroy_lighting(active: bool) -> void:
+	var colors = NEON_COLORS if active else NORMAL_COLORS
+	for i in range(stage_spots.size()):
+		SweepingLight.set_tint(stage_spots[i],colors[i])
 
 func pose_spots(elapsed: float) -> void:
 	for i in range(sweeping_spots.size()):

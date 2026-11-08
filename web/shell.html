@@ -437,13 +437,14 @@
     let ready=false,failed=false,downloaded=0;
     const reducedMotion=matchMedia('(prefers-reduced-motion:reduce)');
     const themeColor=document.querySelector('meta[name="theme-color"]');
-    let menuSky='#29395a',liveSky='#5b7fc8';
+    let menuSky='#29395a',liveSky='#5b7fc8',destroySky='';
     window.noArtUpdateSky=()=>{
-      const tint=['RUNNING','CAPTURING','PAUSED','RESULTS'].includes(document.body.dataset.game)?liveSky:menuSky;
+      const tint=['RUNNING','CAPTURING','PAUSED','RESULTS'].includes(document.body.dataset.game)?(destroySky||liveSky):menuSky;
       document.documentElement.style.setProperty('--sky-tint',tint);
       themeColor.content=tint;
     };
     window.noArtSetSky=(menu,live)=>{menuSky=menu;liveSky=live;window.noArtUpdateSky();};
+    window.noArtSetDestroySky=tint=>{destroySky=tint;window.noArtUpdateSky();};
     const safeArea=document.querySelector('#title-safe-area');
     function layoutLoader(){
       document.documentElement.style.setProperty('--visible-height',`${window.visualViewport?.height||innerHeight}px`);

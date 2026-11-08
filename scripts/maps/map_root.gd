@@ -57,6 +57,16 @@ func accepts_fast(zone: String) -> bool:
 func reset_objectives() -> void:
 	pass
 
+func set_destroy_lighting(_active: bool) -> void:
+	pass
+
+func sweep_elapsed() -> float:
+	var elapsed: float = game.rules.elapsed
+	if not game.destroy_active:return elapsed
+	# Keep the pose continuous while the sweep clock advances twice as fast.
+	var phase_start: float = game.rules.duration-game.rules.destroy_duration
+	return elapsed+maxf(0.0,elapsed-phase_start)
+
 func cancel_interaction() -> void:
 	if game and game.objective_focus:game.objective_focus.cancel()
 
