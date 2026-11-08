@@ -10,10 +10,11 @@ const COMEDY_ICON = preload("res://assets/ui/settings/comedy.svg")
 const ROACH_ICON = preload("res://assets/ui/settings/roach.svg")
 const BadgeCatalog = preload("res://scripts/achievements.gd")
 const TITLE_WORDS = ["NO","ART","FPS"]
+# Rajdhani Bold stroke joins in em units, relative to each word's baseline.
 const BADGE_ANCHORS = [
-	[Vector2(.04,-.74),Vector2(.63,-.76),Vector2(1.10,-.56),Vector2(1.16,-.14)],
-	[Vector2(.05,-.69),Vector2(.54,-.74),Vector2(1.08,-.58),Vector2(1.16,-.14)],
-	[Vector2(.02,-.69),Vector2(.64,-.74),Vector2(1.07,-.55),Vector2(1.17,-.13)],
+	[Vector2(.15,-.57),Vector2(.46,-.08),Vector2(1.01,-.56),Vector2(1.01,-.08)],
+	[Vector2(.28,-.57),Vector2(.16,-.18),Vector2(.94,-.28),Vector2(1.31,-.58)],
+	[Vector2(.13,-.58),Vector2(.59,-.27),Vector2(1.37,-.56),Vector2(1.14,-.08)],
 ]
 const BADGE_TOAST_DURATION = 1.8
 const PAUSE_ICON = preload("res://assets/ui/settings/pause.svg")
@@ -57,6 +58,10 @@ var fire_button: Button
 var comedy_buttons: Dictionary = {}
 var badge_toasts: Array[String] = []
 var badge_toast_time = 0.0
+var title_badge_buttons: Array[TextureButton] = []
+var hovered_badge: TextureButton
+var selected_badge: TextureButton
+var badge_detail: PanelContainer
 var fire_progress: ProgressBar
 var title_frame: ImageTexture
 var title_previews: Dictionary = {}
@@ -473,7 +478,7 @@ func sync_comedy_buttons() -> void:
 	if OS.has_feature("web"):
 		JavaScriptBridge.eval("window.noArtSetComedy?.(%s)"%JSON.stringify(game.comedy_mode))
 
-func badge_display(id: String, center: Vector2, extent: float, tilt: float = 0) -> void:
+func badge_display(id: String, center: Vector2, extent: float) -> void:
 	var badge: Array = BadgeCatalog.BADGES[id]
 	var icon = TextureRect.new()
 	icon.name = "Badge_"+id
@@ -483,8 +488,6 @@ func badge_display(id: String, center: Vector2, extent: float, tilt: float = 0) 
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.size = Vector2.ONE*extent
 	icon.position = center-icon.size*.5
-	icon.pivot_offset = icon.size*.5
-	icon.rotation = tilt
 	icon.tooltip_text = "%s\n%s"%[tr(badge[0]),tr(badge[1])]
 	icon.accessibility_name = icon.tooltip_text
 	menu.add_child(icon)
@@ -492,15 +495,93 @@ func badge_display(id: String, center: Vector2, extent: float, tilt: float = 0) 
 func title_badges(gutters: Vector4) -> void:
 	var ids = BadgeCatalog.BADGES.keys()
 	var text_size = 106 if game.touch_mode else 160
-	var extent = 34.0 if game.touch_mode else 46.0
+	var extent = roundf(text_size*.24)
 	for i in range(ids.size()):
-		if not game.achievements.unlocked_badge(ids[i]):continue
+		var id: String = ids[i]
+		if not game.achievements.unlocked_badge(id):continue
 		var row = floori(i*.25)
 		var anchor: Vector2 = BADGE_ANCHORS[row][i%4]
-		var width = font.get_string_size(TITLE_WORDS[row],HORIZONTAL_ALIGNMENT_LEFT,-1,text_size).x
-		var center = title_word_position(row,gutters)+anchor*Vector2(width,text_size)
-		center.x = maxf(center.x,gutters.x+extent*.46)
-		badge_display(ids[i],center,extent,deg_to_rad([-9.0,7.0,10.0,-6.0][i%4]))
+		var center = title_word_position(row,gutters)+anchor*text_size
+		var badge: Array = BadgeCatalog.BADGES[id]
+		var button = TextureButton.new()
+		button.name = "Badge_"+id
+		button.texture_normal = badge[3]
+		button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		button.ignore_texture_size = true
+		button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
+		button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		button.size = Vector2.ONE*extent
+		button.position = center-button.size*.5
+		button.accessibility_name = tr(badge[0])
+		button.accessibility_description = tr(badge[1])
+		menu.add_child(button)
+		title_badge_buttons.append(button)
+		button.gui_input.connect(func(event: InputEvent):
+			if not event is InputEventMouseMotion or event.device==InputEvent.DEVICE_ID_EMULATION or hovered_badge==button:return
+			hovered_badge = button
+			update_badge_detail())
+		button.mouse_exited.connect(func():
+			if hovered_badge!=button:return
+			hovered_badge = null
+			update_badge_detail())
+		button.pressed.connect(func():
+			selected_badge = null if selected_badge==button else button
+			update_badge_detail())
+
+func _input(event: InputEvent) -> void:
+	if menu_state!="TITLE" or not is_instance_valid(selected_badge):return
+	var pointer_down = (event is InputEventScreenTouch and event.pressed) or (
+		event is InputEventMouseButton and event.pressed and event.button_index==MOUSE_BUTTON_LEFT)
+	if not pointer_down:return
+	for button in title_badge_buttons:
+		if button.get_global_rect().has_point(event.position):return
+	selected_badge = null
+	update_badge_detail()
+
+func update_badge_detail() -> void:
+	if is_instance_valid(badge_detail):
+		menu.remove_child(badge_detail)
+		badge_detail.queue_free()
+		badge_detail = null
+	var active = hovered_badge if is_instance_valid(hovered_badge) else selected_badge
+	if not is_instance_valid(active):return
+	var gutters = title_gutters()
+	var detail = PanelContainer.new()
+	detail.name = "BadgeDetail"
+	detail.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color("17242f")
+	style.border_color = Color(GOLD,.65)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(6)
+	for side in [SIDE_LEFT,SIDE_RIGHT,SIDE_TOP,SIDE_BOTTOM]:
+		style.set_content_margin(side,12)
+	detail.add_theme_stylebox_override("panel",style)
+	var column = VBoxContainer.new()
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.custom_minimum_size.x = minf(272,size.x-gutters.x-gutters.y-24)
+	detail.add_child(column)
+	for i in range(2):
+		var text = Label.new()
+		text.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		text.size.x = column.custom_minimum_size.x
+		text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		text.text = active.accessibility_name if i==0 else active.accessibility_description
+		text.add_theme_font_size_override("font_size",24 if i==0 else 20)
+		text.add_theme_color_override("font_color",GOLD if i==0 else WHITE)
+		column.add_child(text)
+	menu.add_child(detail)
+	badge_detail = detail
+	var text_size = 106 if game.touch_mode else 160
+	var right = gutters.x
+	for word in TITLE_WORDS:
+		right = maxf(right,gutters.x+font.get_string_size(word,HORIZONTAL_ALIGNMENT_LEFT,-1,text_size).x)
+	var place = func():
+		detail.position = Vector2(minf(right+16,size.x-gutters.y-detail.size.x),
+			clampf(active.position.y,gutters.w,maxf(gutters.w,size.y-gutters.z-detail.size.y)))
+	detail.resized.connect(place)
+	detail.reset_size()
+	place.call()
 
 func results_badges(center: Vector2) -> void:
 	var ids: Array[String] = game.achievements.run_unlocks
@@ -508,6 +589,10 @@ func results_badges(center: Vector2) -> void:
 	for i in range(ids.size()):badge_display(ids[i],Vector2(left+i*36.0,center.y+84),34)
 
 func rebuild_menu() -> void:
+	title_badge_buttons.clear()
+	hovered_badge = null
+	selected_badge = null
+	badge_detail = null
 	for child in menu.get_children():
 		menu.remove_child(child)
 		child.queue_free()
@@ -593,13 +678,14 @@ func rebuild_menu() -> void:
 				comedy_buttons[mode[0]] = button
 				tab_order.append(button)
 			sync_comedy_buttons()
+		title_badges(gutters)
+		tab_order.append_array(title_badge_buttons)
 		for i in range(tab_order.size()):
 			tab_order[i].focus_next = tab_order[i].get_path_to(tab_order[(i+1)%tab_order.size()])
 			tab_order[i].focus_previous = tab_order[i].get_path_to(tab_order[i-1])
 		if game.dust_unlocked:
 			menu_button(tr("SCORE ATTACK"),Rect2(c.x-130,c.y-75,260,62),"arena",game.title_session_id=="score_attack")
 			menu_button(tr("DEFUSE C4"),Rect2(c.x-130,c.y+5,260,62),"defuse",game.title_session_id=="defuse_mission")
-		title_badges(gutters)
 
 	elif menu_state == "RESULTS":
 		if game.rules.mission:

@@ -61,19 +61,41 @@ func check() -> void:
 	game.hud.rebuild_menu()
 	assert(game.hud.menu.get_children().filter(func(n):return str(n.name).begins_with("Badge_")).size()==12)
 	await capture("achievement-title")
+	var badge = game.hud.menu.get_node("Badge_first")
+	badge.gui_input.emit(InputEventMouseMotion.new())
+	assert_badge_detail("first")
+	await capture("achievement-hover")
+	badge.mouse_exited.emit()
+	assert(game.hud.badge_detail==null)
 	game.touch_mode = true
 	game.get_window().content_scale_size = Vector2i(960,540)
 	await process_frame
 	game.hud.rebuild_menu()
 	await capture("achievement-title-touch")
+	badge = game.hud.menu.get_node("Badge_headshot")
+	badge.pressed.emit()
+	assert_badge_detail("headshot")
+	await capture("achievement-tap")
+	assert(game.hud.badge_detail.size.y<160)
+	var outside = InputEventScreenTouch.new()
+	outside.position = game.hud.size*.5
+	outside.pressed = true
+	game.hud._input(outside)
+	assert(game.hud.badge_detail==null)
 	game.touch_mode = false
-	print("ACHIEVEMENTS_PASS: 12 thresholds, saved progress, real headshot, toast, results, title and finale exclusion")
-	game.queue_free()
-	await process_frame
 	if DisplayServer.get_name()=="headless":
 		var deadline = Time.get_ticks_msec()+450
 		while Time.get_ticks_msec()<deadline:await process_frame
+	print("ACHIEVEMENTS_PASS: 12 thresholds, saved progress, real headshot, toast, results, title, badge details and finale exclusion")
+	game.queue_free()
+	await process_frame
 	quit()
+
+func assert_badge_detail(id: String) -> void:
+	var detail = game.hud.badge_detail
+	assert(is_instance_valid(detail) and detail.mouse_filter==Control.MOUSE_FILTER_IGNORE)
+	var labels = detail.get_child(0).get_children()
+	for i in range(2):assert(labels[i].text==game.hud.tr(Progress.BADGES[id][i]))
 
 func check_catalog() -> void:
 	var progress = Progress.new()
