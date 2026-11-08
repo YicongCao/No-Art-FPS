@@ -281,6 +281,9 @@ func _ready() -> void:
 		browser.noArtToggleComedy = web_comedy_callback
 		JavaScriptBridge.eval("window.noArtSyncTitleLayout?.()")
 	font = preload("res://assets/fonts/Rajdhani-Bold.ttf")
+	font.fallbacks = [preload("res://assets/fonts/NotoSansSC-UI.otf")]
+	theme = Theme.new()
+	theme.default_font = font
 	vignette = ColorRect.new()
 	vignette.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -355,9 +358,9 @@ func _process(delta: float) -> void:
 		fire_progress.value = game.map_switch_progress
 	if game and game.state == "PAUSED":
 		sensitivity_slider.set_value_no_signal(game.player.sensitivity)
-		motion_button.text = "LOW" if game.reduced_motion else "FULL"
+		motion_button.text = tr("LOW" if game.reduced_motion else "FULL")
 		music_slider.set_value_no_signal(game.music_volume)
-		if game.touch_mode:body_shot_button.text = "ON" if game.touch_body_one_shot else "OFF"
+		if game.touch_mode:body_shot_button.text = tr("ON" if game.touch_body_one_shot else "OFF")
 	queue_redraw()
 
 func label(text: String, pos: Vector2, font_size: int, color: Color = WHITE, center: bool = false) -> void:
@@ -482,7 +485,7 @@ func badge_display(id: String, center: Vector2, extent: float, tilt: float = 0) 
 	icon.position = center-icon.size*.5
 	icon.pivot_offset = icon.size*.5
 	icon.rotation = tilt
-	icon.tooltip_text = "%s\n%s"%[badge[0],badge[1]]
+	icon.tooltip_text = "%s\n%s"%[tr(badge[0]),tr(badge[1])]
 	icon.accessibility_name = icon.tooltip_text
 	menu.add_child(icon)
 
@@ -517,7 +520,7 @@ func rebuild_menu() -> void:
 		var gutters = title_gutters()
 		var bottom = size.y-gutters.z
 		var fire_height = 100 if game.touch_mode else 112
-		fire_button = menu_button("FIRE",Rect2(gutters.x,bottom-fire_height,260 if game.touch_mode else 300,fire_height),"play",false,"Enter")
+		fire_button = menu_button("FIRE",Rect2(gutters.x,bottom-fire_height,260 if game.touch_mode else 300,fire_height),"play",false,tr("Enter"))
 		fire_button.name = "fire"
 		fire_button.disabled = game.switching_session
 		fire_button.add_theme_font_size_override("font_size",68)
@@ -537,7 +540,7 @@ func rebuild_menu() -> void:
 		if game.switching_session:
 			fire_button.add_theme_stylebox_override("disabled",StyleBoxEmpty.new())
 			fire_progress = ProgressBar.new()
-			fire_progress.accessibility_name = "地图加载进度"
+			fire_progress.accessibility_name = tr("Map loading progress")
 			fire_progress.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			fire_progress.show_percentage = false
 			fire_progress.show_behind_parent = true
@@ -560,10 +563,10 @@ func rebuild_menu() -> void:
 		var gap = 10.0 if game.touch_mode else 12.0
 		var corner = Vector2(size.x-gutters.y-2*width-gap,bottom-2*height-gap)
 		var maps = [
-			["MapYard","货场","arena",YARD_THUMBNAIL,"score_attack"],
-			["MapPark","夕阳游乐园","amusement_park",PARK_THUMBNAIL,"amusement_park"],
-			["MapFerry","末班渡轮","last_ferry",FERRY_THUMBNAIL,"last_ferry"],
-			["MapStudio","深夜摄影棚","night_studio",STUDIO_THUMBNAIL,"night_studio"],
+			["MapYard",tr("Container Yard"),"arena",YARD_THUMBNAIL,"score_attack"],
+			["MapPark",tr("Sunset Park"),"amusement_park",PARK_THUMBNAIL,"amusement_park"],
+			["MapFerry",tr("Last Ferry"),"last_ferry",FERRY_THUMBNAIL,"last_ferry"],
+			["MapStudio",tr("Night Studio"),"night_studio",STUDIO_THUMBNAIL,"night_studio"],
 		]
 		var tab_order = [fire_button]
 		for i in range(maps.size()):
@@ -572,8 +575,8 @@ func rebuild_menu() -> void:
 			tab_order.append(map_button(item[0],item[1],item[2],item[3],Rect2(position,Vector2(width,height)),
 				game.title_session_id==item[4]))
 		if not OS.has_feature("web"):
-			var modes = [["comedy","大便模式",COMEDY_ICON,Color("62412f")],
-				["roach","蟑螂模式",ROACH_ICON,Color("533c65")]]
+			var modes = [["comedy",tr("Poop Mode"),COMEDY_ICON,Color("62412f")],
+				["roach",tr("Cockroach Mode"),ROACH_ICON,Color("533c65")]]
 			for i in range(modes.size()):
 				var mode: Array = modes[i]
 				var button = menu_button("",Rect2(size.x-gutters.y-112+60*i,gutters.w,52,52),mode[0],false,mode[1])
@@ -594,35 +597,35 @@ func rebuild_menu() -> void:
 			tab_order[i].focus_next = tab_order[i].get_path_to(tab_order[(i+1)%tab_order.size()])
 			tab_order[i].focus_previous = tab_order[i].get_path_to(tab_order[i-1])
 		if game.dust_unlocked:
-			menu_button("SCORE ATTACK",Rect2(c.x-130,c.y-75,260,62),"arena",game.title_session_id=="score_attack")
-			menu_button("DEFUSE C4",Rect2(c.x-130,c.y+5,260,62),"defuse",game.title_session_id=="defuse_mission")
+			menu_button(tr("SCORE ATTACK"),Rect2(c.x-130,c.y-75,260,62),"arena",game.title_session_id=="score_attack")
+			menu_button(tr("DEFUSE C4"),Rect2(c.x-130,c.y+5,260,62),"defuse",game.title_session_id=="defuse_mission")
 		title_badges(gutters)
 
 	elif menu_state == "RESULTS":
 		if game.rules.mission:
-			menu_button("RETRY",Rect2(c.x-174,c.y+106,160,70),"retry",true,"重试 · Enter")
-			menu_button("TITLE",Rect2(c.x+14,c.y+106,160,70),"menu",false,"返回标题 · Esc")
+			menu_button(tr("RETRY"),Rect2(c.x-174,c.y+106,160,70),"retry",true,tr("Retry · Enter"))
+			menu_button(tr("TITLE"),Rect2(c.x+14,c.y+106,160,70),"menu",false,tr("Title · Esc"))
 		else:
-			results_button(RETRY_ICON,Rect2(c.x-174,c.y+106,160,88),"retry",true,"重试 · Enter")
-			results_button(HOME_ICON,Rect2(c.x+14,c.y+106,160,88),"menu",false,"返回标题 · Esc")
+			results_button(RETRY_ICON,Rect2(c.x-174,c.y+106,160,88),"retry",true,tr("Retry · Enter"))
+			results_button(HOME_ICON,Rect2(c.x+14,c.y+106,160,88),"menu",false,tr("Title · Esc"))
 			results_badges(c)
 	elif menu_state == "PAUSED":
 		touch_inset_available = game.touch_mode and OS.has_feature("web") and bool(JavaScriptBridge.eval("window.noArtHasControlInset?.()"))
 		var card = pause_card()
-		sensitivity_slider = pause_slider("Sensitivity",pause_row(card,0),Vector3(.0006,.006,.0002),game.player.sensitivity,func(value):
+		sensitivity_slider = pause_slider("Touch sensitivity" if game.touch_mode else "Sensitivity",pause_row(card,0),Vector3(.0006,.006,.0002),game.player.sensitivity,func(value):
 			game.player.sensitivity = value
 			game.save_record())
 		var motion_row = pause_row(card,1)
 		motion_button = pause_button("",Rect2(motion_row.end.x-136,motion_row.position.y+3,124,48),"motion",false,"M")
-		motion_button.accessibility_description = "Camera motion"
+		motion_button.accessibility_description = tr("Camera motion")
 		music_slider = pause_slider("Music",pause_row(card,2),Vector3(0,1,.05),game.music_volume,func(value):
 			game.set_music_volume(value)
 			game.save_record())
 		if game.touch_mode:
 			var body_row = pause_row(card,3)
 			var body_toggle = Rect2(body_row.end.x-136,body_row.position.y+3,124,48)
-			body_shot_button = pause_button("ON" if game.touch_body_one_shot else "OFF",body_toggle,"touch_body_shots",false,"")
-			body_shot_button.accessibility_name = "One-hit body shots"
+			body_shot_button = pause_button(tr("ON" if game.touch_body_one_shot else "OFF"),body_toggle,"touch_body_shots",false,"")
+			body_shot_button.accessibility_name = tr("One-hit body shots")
 			body_shot_button.toggle_mode = true
 			body_shot_button.set_pressed_no_signal(game.touch_body_one_shot)
 			var enabled_style = body_shot_button.get_theme_stylebox("pressed").duplicate()
@@ -636,10 +639,12 @@ func rebuild_menu() -> void:
 				pause_slider("Control inset",pause_row(card,4),Vector3(0,96,4),inset,func(value):
 					JavaScriptBridge.eval("window.noArtSetControlInset(%d)"%roundi(value)))
 				gyro_row += 1
-			pause_button("GYRO AIM",pause_row(card,gyro_row),"gyro",false,"",GYRO_ICON)
+			pause_button(tr("GYRO AIM"),pause_row(card,gyro_row),"gyro",false,"",GYRO_ICON)
+		var language = pause_button(tr("Language · English"),Rect2(card.end.x-238,card.position.y+17,214,44),"language",false,"")
+		language.add_theme_font_size_override("font_size",21)
 		var footer = card.position+Vector2(24,card.size.y-76)
-		pause_button("RESUME",Rect2(footer,Vector2(230,52)),"resume",true,"Esc",RESUME_ICON)
-		pause_button("RESTART",Rect2(footer+Vector2(242,0),Vector2(230,52)),"retry",false,"Enter",RESTART_ICON)
+		pause_button(tr("RESUME"),Rect2(footer,Vector2(230,52)),"resume",true,"Esc",RESUME_ICON)
+		pause_button(tr("RESTART"),Rect2(footer+Vector2(242,0),Vector2(230,52)),"retry",false,tr("Enter"),RESTART_ICON)
 
 func pause_card() -> Rect2:
 	var extent = Vector2(520,492 if game.touch_mode else 364)
@@ -671,7 +676,7 @@ func pause_button(text: String, rect: Rect2, action: String, primary: bool, shor
 func pause_slider(title: String, row: Rect2, limits: Vector3, value: float, on_change: Callable) -> HSlider:
 	var slider = HSlider.new()
 	slider.name = title
-	slider.accessibility_name = title
+	slider.accessibility_name = tr(title)
 	slider.position = Vector2(row.end.x-186,row.position.y+3)
 	slider.size = Vector2(170,48)
 	slider.min_value = limits.x
@@ -706,7 +711,7 @@ func draw_pause() -> void:
 	var top = card.position
 	draw_line(top+Vector2(24,1),top+Vector2(100,1),GOLD,3)
 	draw_texture_rect(PAUSE_ICON,Rect2(top+Vector2(24,24),Vector2(30,30)),false)
-	label("PAUSED",top+Vector2(64,52),34)
+	label(tr("PAUSED"),top+Vector2(64,52),34)
 	var names = ["Touch sensitivity" if game.touch_mode else "Sensitivity","Camera motion","Music"]
 	var icons = [AIM_ICON,MOTION_ICON,MUSIC_ICON]
 	if game.touch_mode:
@@ -722,10 +727,11 @@ func draw_pause() -> void:
 		var row = pause_row(card,index)
 		draw_style_box(row_style,row)
 		draw_texture_rect(icons[index],Rect2(row.position+Vector2(14,14),Vector2(26,26)),false)
-		label(names[index],row.position+Vector2(52,36),24)
+		label(tr(names[index]),row.position+Vector2(52,36),24)
 
 func results_button(texture: Texture2D, rect: Rect2, action: String, primary: bool, tooltip: String) -> Button:
 	var button = menu_button("",rect,action,primary,tooltip)
+	button.accessibility_name = tooltip.get_slice(" · ",0)
 	for state_name in ["normal","hover","pressed","focus"]:
 		var style = button.get_theme_stylebox(state_name).duplicate()
 		style.set_corner_radius_all(8)
@@ -763,11 +769,11 @@ func draw_results() -> void:
 	draw_line(c+Vector2(-46,-219),c+Vector2(46,-219),GOLD,3)
 	if game.rules.mission:
 		var success = game.rules.outcome=="SUCCESS"
-		label("DEFUSED" if success else "FAILED",c+Vector2(0,-125),56,GOLD if success else WHITE,true)
+		label(tr("DEFUSED" if success else "FAILED"),c+Vector2(0,-125),56,GOLD if success else WHITE,true)
 		label("%d / 3 C4"%game.rules.completed.size(),c+Vector2(0,-53),34,WHITE,true)
-		var detail = "%.1f s"%game.rules.elapsed if success else ("TIME EXPIRED" if game.rules.outcome=="TIMEOUT" else "KILLED")
+		var detail = tr("%.1f s")%game.rules.elapsed if success else tr("TIME EXPIRED" if game.rules.outcome=="TIMEOUT" else "KILLED")
 		label(detail,c+Vector2(0,8),26,WHITE,true)
-		if success and game.best_mission>0:label("BEST %.1f s"%game.best_mission,c+Vector2(0,54),20,GOLD,true)
+		if success and game.best_mission>0:label(tr("BEST %.1f s")%game.best_mission,c+Vector2(0,54),20,GOLD,true)
 		return
 	var score = str(game.rules.kills)
 	var score_size = 104 if score.length()<=3 else 80
@@ -791,7 +797,7 @@ func draw_destroy_notice(center: Vector2) -> void:
 	var opacity = smoothstep(0,.22,destroy_time)
 	var settle = smoothstep(0,.12,DESTROY_NOTICE_DURATION-destroy_time)
 	var scale_factor = 1.0 if game.reduced_motion else lerpf(1.08,1,settle)
-	var words = ["DESTROY","ALL"]
+	var words = tr("DESTROY ALL").split(" ")
 	var widths = [font.get_string_size(words[0],HORIZONTAL_ALIGNMENT_LEFT,-1,text_size).x,
 		font.get_string_size(words[1],HORIZONTAL_ALIGNMENT_LEFT,-1,text_size).x]
 	var gap = text_size*.2
@@ -807,13 +813,14 @@ func draw_badge_toast() -> void:
 	if badge_toasts.is_empty():return
 	var badge: Array = BadgeCatalog.BADGES[badge_toasts[0]]
 	var alpha = smoothstep(0,.24,badge_toast_time)*(1-smoothstep(1.62,BADGE_TOAST_DURATION,badge_toast_time))
-	var width = font.get_string_size(badge[0],HORIZONTAL_ALIGNMENT_LEFT,-1,24).x+66
+	var title = tr(badge[0])
+	var width = font.get_string_size(title,HORIZONTAL_ALIGNMENT_LEFT,-1,24).x+66
 	var pos = Vector2(size.x-38-width,91)
 	if not game.reduced_motion:pos.x += 12*(1-alpha)
 	draw_rect(Rect2(pos,Vector2(width,46)),Color(INK,.92*alpha))
 	draw_rect(Rect2(pos,Vector2(3,46)),Color(GOLD,alpha))
 	draw_texture_rect(badge[3],Rect2(pos+Vector2(9,7),Vector2(32,32)),false,Color(WHITE,alpha))
-	label(badge[0],pos+Vector2(49,31),24,Color(WHITE,alpha))
+	label(title,pos+Vector2(49,31),24,Color(WHITE,alpha))
 
 func _draw() -> void:
 	if game == null:return
@@ -862,7 +869,7 @@ func _draw() -> void:
 	else:draw_magazine()
 	if state=="RUNNING" and game.respawn_time<=0 and go_time>0:
 		var opacity = smoothstep(0,.65,go_time)
-		label("GO",c+Vector2(0,22),70,Color(WHITE,opacity),true)
+		label(tr("GO"),c+Vector2(0,22),70,Color(WHITE,opacity),true)
 	if state=="RUNNING" and destroy_time>0:draw_destroy_notice(c)
 	if state=="RUNNING":draw_badge_toast()
 	draw_damage_impact()
@@ -877,7 +884,7 @@ func _draw() -> void:
 				draw_arc(center,36,-PI*.5,TAU-PI*.5,96,Color(WHITE,.25),4,true)
 				if progress>0:draw_arc(center,36,-PI*.5,-PI*.5+progress*TAU,96,GOLD,5,true)
 				draw_style_box(mission_time_style(),Rect2(center+Vector2(-35,46),Vector2(70,24)))
-				label("HOLD" if game.touch_mode else "HOLD E",center+Vector2(0,64),18,WHITE,true)
+				label(tr("HOLD" if game.touch_mode else "HOLD E"),center+Vector2(0,64),18,WHITE,true)
 				break
 
 func damage_edge_direction() -> Vector2:
@@ -940,7 +947,7 @@ func draw_top_summary() -> void:
 			var alpha = smoothstep(0,.35,multi_time)
 			var offset = (1-multi_time/.65)*16
 			label("+"+str(kill_group),score_center+Vector2(0,64-offset),30,Color(GOLD,alpha),true)
-		label("KILLS",Vector2(122,61),14,WHITE,true)
+		label(tr("KILLS"),Vector2(122,61),14,WHITE,true)
 	draw_set_transform(Vector2.ZERO)
 
 func draw_finale_edges() -> void:
@@ -980,6 +987,7 @@ func radar_position(world: Vector3) -> Vector2:
 func draw_mission_radar() -> void:
 	var rect = radar_rect()
 	draw_texture_rect(DUST_RADAR,rect,false)
+	label(tr("MID"),rect.position+Vector2(60.0/119,65.0/96)*rect.size,roundi(rect.size.x*5.0/119))
 	draw_rect(rect,Color(WHITE,.35),false,1)
 	for i in range(game.arena.objectives.size()):
 		var objective = game.arena.objectives[i]

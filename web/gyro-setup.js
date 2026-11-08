@@ -32,6 +32,7 @@ const TARGETS = TARGET_ANGLES.map(([yaw,pitch])=>makeTarget(yaw,pitch));
 
 export function setupGyroPanel({makeGyro, sync, isActive}) {
   const get = id=>document.getElementById(id);
+  const t = text=>window.noArtText?.(text)??text;
   const panel = get('gyro-panel');
   const canvas = get('canvas');
   const heading = get('gyro-title');
@@ -63,8 +64,6 @@ export function setupGyroPanel({makeGyro, sync, isActive}) {
   let displayedRates;
   const gyro = makeGyro(update);
   const {limit,holdMs}=gyro.calibrationFeedback();
-  get('gyro-limit').textContent=`通过线 ≤ ${limit}°/秒`;
-  get('gyro-hold-label').textContent=`稳住 ${holdMs/1000} 秒`;
   calibrationMeter.setAttribute('aria-valuemax',String(limit*2));
 
   function stopFrame() {
@@ -82,7 +81,12 @@ export function setupGyroPanel({makeGyro, sync, isActive}) {
     panel.dataset.step=step;
     closeButton.hidden=step!=='settings';
     const titles={choice:'启用体感瞄准？',setup:'校准体感',practice:'体感练习',ready:'体感已就绪',settings:'体感瞄准'};
-    heading.textContent=titles[step];
+    heading.textContent=t(titles[step]);
+    if(step==='setup'){
+      displayedRates=undefined;
+      get('gyro-limit').textContent=`${t('通过线')} ≤ ${limit}${t('°/秒')}`;
+      get('gyro-hold-label').textContent=t('稳住 {seconds} 秒').replace('{seconds}',holdMs/1000);
+    }
     heading.focus({preventScroll:true});
     sync();
     update(gyro.snapshot());
@@ -116,7 +120,7 @@ export function setupGyroPanel({makeGyro, sync, isActive}) {
     displayedRates=rates;
     const speed=rates?Math.max(...rates.map(Math.abs)):0;
     const level=Math.min(1,speed/(limit*2));
-    const text=rates?`${(Math.ceil(speed*10)/10).toFixed(1)}°/秒`:'等待传感器';
+    const text=rates?`${(Math.ceil(speed*10)/10).toFixed(1)}${t('°/秒')}`:t('等待传感器');
     calibrationView.dataset.signal=rates?(speed<=limit?'steady':'shaky'):'waiting';
     calibrationRate.textContent=text;
     calibrationMeter.style.setProperty('--level',String(level));
@@ -196,10 +200,10 @@ export function setupGyroPanel({makeGyro, sync, isActive}) {
     }
     get('gyro-yes').disabled=!state.available;
     startButton.disabled=!state.available||state.pending||state.calibrating;
-    if(state.pending)startButton.textContent='等待授权';
-    else if(state.calibrating)startButton.textContent='校准中';
-    else startButton.textContent=state.canRequest&&!state.enabled?'请求权限并校准':'开始校准';
-    toggle.textContent=state.enabled?'关闭':'启用';
+    if(state.pending)startButton.textContent=t('等待授权');
+    else if(state.calibrating)startButton.textContent=t('校准中');
+    else startButton.textContent=t(state.canRequest&&!state.enabled?'请求权限并校准':'开始校准');
+    toggle.textContent=t(state.enabled?'关闭':'启用');
     toggle.disabled=!state.available;
     toggle.setAttribute('aria-checked',String(state.enabled));
     slider.value=String(state.sensitivity);
@@ -209,17 +213,17 @@ export function setupGyroPanel({makeGyro, sync, isActive}) {
     practiceButton.disabled=!state.ready;
     practiceBack.hidden=!state.practicePassed;
     get('gyro-practice-touch').hidden=state.practicePassed;
-    get('gyro-continue').textContent=entering?'进入游戏':'返回设置';
+    get('gyro-continue').textContent=t(entering?'进入游戏':'返回设置');
     if(step==='setup'){
       drawCalibration();
       if(state.calibrating&&!frame)frame=requestAnimationFrame(calibrationFrame);
       else if(!state.calibrating&&frame)stopFrame();
     }
-    if(step==='choice')status.textContent=state.available?'用转动设备来微调准星。':state.status;
-    else if(step==='setup')status.textContent=!state.available||started?state.status:'横握设备，调整到舒服的姿势，再保持静止。';
-    else if(step==='practice')status.textContent=`转动设备，把准星停在亮靶上。 ${index}/${TARGETS.length}`;
-    else if(step==='ready')status.textContent=state.practicePassed?'校准完成，瞄准练习已通过。':'校准完成。';
-    else status.textContent=state.status;
+    if(step==='choice')status.textContent=t(state.available?'用转动设备来微调准星。':state.status);
+    else if(step==='setup')status.textContent=t(!state.available||started?state.status:'横握设备，调整到舒服的姿势，再保持静止。');
+    else if(step==='practice')status.textContent=`${t('转动设备，把准星停在亮靶上。')} ${index}/${TARGETS.length}`;
+    else if(step==='ready')status.textContent=t(state.practicePassed?'校准完成，瞄准练习已通过。':'校准完成。');
+    else status.textContent=t(state.status);
   }
 
   get('gyro-yes').onclick=()=>{gyro.choose(true);beginSetup();};

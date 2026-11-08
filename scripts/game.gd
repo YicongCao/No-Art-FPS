@@ -140,6 +140,9 @@ func _ready() -> void:
 	if touch_mode:get_window().content_scale_size = Vector2i(960,540)
 	process_physics_priority = -100
 	qa_mode = "--qa" in OS.get_cmdline_user_args()
+	# Single-line UI strings don't need the exporter's ICU line-breaking data.
+	TranslationServer.add_translation(preload("res://data/ui_text.zh.translation"))
+	TranslationServer.set_locale(initial_language())
 	rng.seed = 61105
 	if "--mission" in OS.get_cmdline_user_args():
 		session = load("res://data/sessions/defuse.tres")
@@ -274,6 +277,48 @@ func load_session_record(cfg: ConfigFile) -> void:
 	var key = score_record_key()
 	best = maxi(int(cfg.get_value(key,"best",0)),achievements.scores.get(key,0))
 	best_mission = float(cfg.get_value(mission_record_key(),"fastest",0.0))
+
+static func system_language(locale: String) -> String:
+	var parts = locale.replace("-", "_").to_lower().get_slice(".",0).get_slice("@",0).split("_",false)
+	for i in range(1,parts.size()):
+		if parts[i].length()==2:return "zh" if parts[i] in ["cn","hk","mo"] else "en"
+	return "zh" if parts.is_empty() or parts[0] in ["zh","c","posix","und"] else "en"
+
+func desktop_locale() -> String:
+	var output: Array = []
+	if OS.has_feature("macos"):
+		if OS.execute("/usr/bin/defaults",["read","-g","AppleLocale"],output)==0:
+			return str(output[0]).strip_edges()
+	elif OS.has_feature("windows"):
+		if OS.execute("reg.exe",["query","HKCU\\Control Panel\\International","/v","LocaleName"],output)==0:
+			var locale = str(output[0]).get_slice("REG_SZ",1).strip_edges()
+			if not locale.is_empty():return locale
+	elif OS.has_feature("linux"):
+		for variable in ["LC_ALL","LC_TIME","LANG"]:
+			var locale = OS.get_environment(variable)
+			if not locale.is_empty():return locale
+	return OS.get_locale()
+
+func initial_language() -> String:
+	if OS.has_feature("web"):
+		return "en" if JavaScriptBridge.eval("window.noArtLanguage?.()")=="en" else "zh"
+	var cfg = ConfigFile.new()
+	if not qa_mode and cfg.load("user://record.cfg")==OK:
+		var saved = cfg.get_value("settings","language","")
+		if saved in ["zh","en"]:return saved
+	return system_language(desktop_locale())
+
+func switch_language() -> void:
+	var language = "en" if TranslationServer.get_locale()=="zh" else "zh"
+	TranslationServer.set_locale(language)
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("window.noArtSetLanguage?.(%s)"%JSON.stringify(language))
+	elif not qa_mode:
+		var cfg = ConfigFile.new()
+		cfg.load("user://record.cfg")
+		cfg.set_value("settings","language",language)
+		cfg.save("user://record.cfg")
+	hud.menu_state = ""
 
 func load_record() -> void:
 	if qa_mode:return
@@ -906,6 +951,8 @@ func menu_action(action: String) -> void:
 			save_record()
 		"gyro":
 			if touch_mode and state=="PAUSED":JavaScriptBridge.eval("window.noArtOpenGyro()")
+		"language":
+			if state=="PAUSED":switch_language()
 
 func _physics_process(delta: float) -> void:
 	if touch_mode:

@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#29395a">
-  <meta name="description" content="No-Art-FPS — 60 秒击杀冲刺。pixelcao 的明亮低多边形 FPS 小品。">
+  <meta name="description" content="No-Art-FPS — 60 秒击杀冲刺。pixelcao 的明亮低多边形 FPS 小品。" data-i18n-content>
   <title>No-Art-FPS · pixelcao</title>
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="preload" href="title-background.webp" as="image">
@@ -139,50 +139,50 @@
       </g>
     </svg>
     <div class="loader-status">
-      <progress id="progress" max="1" value="0" aria-label="游戏加载进度"></progress>
-      <span id="phase" role="status">正在连接</span><span id="amount" aria-hidden="true"></span>
-      <button id="retry" hidden>重新加载</button>
+      <progress id="progress" max="1" value="0" aria-label="游戏加载进度" data-i18n-aria-label></progress>
+      <span id="phase" role="status" data-i18n>正在连接</span><span id="amount" aria-hidden="true"></span>
+      <button id="retry" hidden data-i18n>重新加载</button>
     </div>
     <noscript class="loader-noscript">请启用 JavaScript 后再试玩。</noscript>
   </div>
-  <canvas id="canvas" tabindex="0" aria-label="No-Art-FPS 游戏画面"></canvas>
+  <canvas id="canvas" tabindex="0" aria-label="No-Art-FPS 游戏画面" data-i18n-aria-label></canvas>
   <div id="sky-edge" aria-hidden="true"></div><div id="title-safe-area" aria-hidden="true"></div>
-  <div id="help" hidden><span class="desktop-controls">WASD 移动 · Shift 冲刺 · 鼠标瞄准 · 左键开火 · Esc 暂停</span><span class="mobile-warning">左侧移动 · 右侧瞄准</span></div>
+  <div id="help" hidden><span class="desktop-controls" data-i18n>WASD 移动 · Shift 冲刺 · 鼠标瞄准 · 左键开火 · Esc 暂停</span><span class="mobile-warning" data-i18n>左侧移动 · 右侧瞄准</span></div>
 
-  <div id="rotate"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="28" y="13" width="44" height="74" rx="7" transform="rotate(30 50 50)"/><path d="M8 48a42 42 0 0 1 70-30m0-12v12H65M92 52a42 42 0 0 1-70 30m0 12V82h13"/></svg><p>横过来，准备开火</p><small>左手移动，右手瞄准</small><button id="rotate-full">横屏全屏</button></div>
+  <div id="rotate"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="28" y="13" width="44" height="74" rx="7" transform="rotate(30 50 50)"/><path d="M8 48a42 42 0 0 1 70-30m0-12v12H65M92 52a42 42 0 0 1-70 30m0 12V82h13"/></svg><p data-i18n>横过来，准备开火</p><small data-i18n>左手移动，右手瞄准</small><button id="rotate-full" data-i18n>横屏全屏</button></div>
   <div id="title-tools">
-    <button id="gyro-open" aria-haspopup="dialog"><svg class="ui-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M5 1h6v2H5zM3 3h2v2H3zm8 0h2v2h-2zM1 5h2v6H1zm12 0h2v6h-2zM3 11h2v2H3zm8 0h2v2h-2zM5 13h6v2H5zM5 6h2V4h2v2h2v4H9v2H7v-2H5zm2 1v2h2V7z" fill-rule="evenodd"/></svg> 体感</button>
-    <button id="immersive" aria-label="进入沉浸全屏"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 4H4v5m11-5h5v5M4 15v5h5m11-5v5h-5"/></svg> 全屏</button>
-    <button id="comedy-mode" class="comedy-toggle" type="button" aria-label="大便模式" aria-pressed="false"><img src="comedy.svg" alt="" width="28" height="28"></button>
-    <button id="roach-mode" class="comedy-toggle" type="button" aria-label="蟑螂模式" aria-pressed="false"><img src="roach.svg" alt="" width="28" height="28"></button>
+    <button id="gyro-open" aria-haspopup="dialog"><svg class="ui-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M5 1h6v2H5zM3 3h2v2H3zm8 0h2v2h-2zM1 5h2v6H1zm12 0h2v6h-2zM3 11h2v2H3zm8 0h2v2h-2zM5 13h6v2H5zM5 6h2V4h2v2h2v4H9v2H7v-2H5zm2 1v2h2V7z" fill-rule="evenodd"/></svg> <span data-i18n>体感</span></button>
+    <button id="immersive" aria-label="进入沉浸全屏" data-i18n-aria-label><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 4H4v5m11-5h5v5M4 15v5h5m11-5v5h-5"/></svg> <span data-i18n>全屏</span></button>
+    <button id="comedy-mode" class="comedy-toggle" type="button" aria-label="大便模式" data-i18n-aria-label aria-pressed="false"><img src="comedy.svg" alt="" width="28" height="28"></button>
+    <button id="roach-mode" class="comedy-toggle" type="button" aria-label="蟑螂模式" data-i18n-aria-label aria-pressed="false"><img src="roach.svg" alt="" width="28" height="28"></button>
   </div>
   <div id="immersive-note" role="status" hidden></div>
-  <div id="touch-ui" aria-label="触控操作">
+  <div id="touch-ui" aria-label="触控操作" data-i18n-aria-label>
     <div id="stick"><span></span></div>
-    <button class="touch-button" id="fire" aria-label="按住开火"><svg class="touch-action-icon" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+    <button class="touch-button" id="fire" aria-label="按住开火" data-i18n-aria-label><svg class="touch-action-icon" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
       <path d="M14.5 2h3v7h-3zM14.5 23h3v7h-3zM2 14.5h7v3H2zM23 14.5h7v3h-7zM5 13a11.4 11.4 0 0 1 8-8v2.7A9 9 0 0 0 7.7 13zm14-8a11.4 11.4 0 0 1 4.2 2l-2 1.7A9 9 0 0 0 19 7.7zm8 8h-2.7l-.8-1.9 1.6-2A11.4 11.4 0 0 1 27 13zM5 19h2.7a9 9 0 0 0 5.3 5.3V27a11.4 11.4 0 0 1-8-8zm22 0a11.4 11.4 0 0 1-8 8v-2.7a9 9 0 0 0 5.3-5.3z"/>
       <path class="accent" d="m27.5 4-6.2 11 3 2.7-5.5.7.9 5.2-3.8-3.4-4.5 4.3 1.6-5.7-6.1.8 5-3.9-2.2-4 4.6 1.6 1.6-5.4 1.4 5z"/>
     </svg></button>
-    <button class="touch-button" id="jump" aria-label="跳跃"><svg class="touch-action-icon" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+    <button class="touch-button" id="jump" aria-label="跳跃" data-i18n-aria-label><svg class="touch-action-icon" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
       <path d="M5 17c2.1 0 3.8-.3 5.3-1.1l-.8-1.6c-.5-.9-.1-2.1.7-2.6l2.7-1.5 2.3 2.6-1.4 2.1 1.5 1 1.5-2 1.4.8-1.2 2.1 1.5.8 1.2-2c3.2 1.2 7.3-2.6 9.6 2.3l-7 2.9-7.3 1L6 25l-1-8zm1.6 9.4 8.7-3.2 7.2-1 7.2-2.8c.3 2.2-1.9 3.8-5.1 4.8L16 26l-6.5 2.4c-1.5.5-2.3-.5-2.9-2zM2.6 27.5l4.1-2.7 1 1.5-4.1 2.7zm2 2.3 4.2-2.7 1 1.5-4.2 2.7z"/>
       <path class="accent" d="m26.2 2-2.3 7.8-1.5-2.2-5.3 3.5-1.7-2.6 5.3-3.4-1.5-2.2z"/>
     </svg></button>
-    <button class="touch-button" id="reload" aria-label="换弹"><svg class="touch-action-icon" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+    <button class="touch-button" id="reload" aria-label="换弹" data-i18n-aria-label><svg class="touch-action-icon" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
       <path class="accent" d="M25.1 7.4 28 5l1.2 8.5-8.4-2.1 2.3-2A10.2 10.2 0 1 0 26 15l3-.5A13.2 13.2 0 1 1 25.1 7.4Z"/>
       <path fill-rule="evenodd" d="M12.8 8.7 22 11.9l-4 11.5-3.1.4-5.8-2 3.7-13.1zm1 3.3-.6 1.8 5.7 2 .6-1.8zm-1.2 3.7-.6 1.8 5.7 2 .6-1.8z"/>
     </svg></button>
-    <button class="touch-button" id="interact" aria-label="按住拆除 C4">拆除</button>
-    <button class="touch-button" id="pause" aria-label="暂停"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5v14M16 5v14"/></svg></button>
+    <button class="touch-button" id="interact" aria-label="按住拆除 C4" data-i18n-aria-label data-i18n>拆除</button>
+    <button class="touch-button" id="pause" aria-label="暂停" data-i18n-aria-label><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5v14M16 5v14"/></svg></button>
   </div>
   <div id="gyro-panel" hidden>
     <section role="dialog" aria-modal="true" aria-labelledby="gyro-title" tabindex="-1">
       <header>
-        <div class="gyro-label"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><ellipse cx="12" cy="12" rx="8" ry="3.6" transform="rotate(36 12 12)"/><ellipse cx="12" cy="12" rx="3.6" ry="8" transform="rotate(36 12 12)"/></svg><h2 id="gyro-title" tabindex="-1">体感瞄准</h2></div>
-        <button id="gyro-close" aria-label="关闭体感设置"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+        <div class="gyro-label"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><ellipse cx="12" cy="12" rx="8" ry="3.6" transform="rotate(36 12 12)"/><ellipse cx="12" cy="12" rx="3.6" ry="8" transform="rotate(36 12 12)"/></svg><h2 id="gyro-title" tabindex="-1" data-i18n>体感瞄准</h2></div>
+        <button id="gyro-close" aria-label="关闭体感设置" data-i18n-aria-label><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
       </header>
-      <p id="gyro-status" role="status">正在检查浏览器支持</p>
+      <p id="gyro-status" role="status" data-i18n>正在检查浏览器支持</p>
       <div class="gyro-actions" data-gyro-step="choice" hidden>
-        <button id="gyro-yes" class="gyro-primary">启用体感</button><button data-gyro-touch>使用触控</button>
+        <button id="gyro-yes" class="gyro-primary" data-i18n>启用体感</button><button data-gyro-touch data-i18n>使用触控</button>
       </div>
       <div id="gyro-calibration" class="gyro-calibration" data-gyro-step="setup" hidden>
         <svg id="gyro-gimbal" viewBox="0 0 140 128" aria-hidden="true" focusable="false">
@@ -197,18 +197,18 @@
           </g>
         </svg>
         <div>
-          <div class="gyro-row"><span>抖动</span><span id="gyro-rate">等待传感器</span></div>
-          <div id="gyro-meter" class="gyro-meter" role="meter" aria-label="三轴最大抖动" aria-valuemin="0" aria-valuemax="6" aria-valuenow="0" aria-valuetext="等待传感器"><span class="gyro-meter-fill"></span><span class="gyro-meter-limit"></span></div>
+          <div class="gyro-row"><span data-i18n>抖动</span><span id="gyro-rate" data-i18n>等待传感器</span></div>
+          <div id="gyro-meter" class="gyro-meter" role="meter" aria-label="三轴最大抖动" data-i18n-aria-label aria-valuemin="0" aria-valuemax="6" aria-valuenow="0" aria-valuetext="等待传感器" data-i18n-aria-valuetext><span class="gyro-meter-fill"></span><span class="gyro-meter-limit"></span></div>
           <span id="gyro-limit"></span>
-          <label id="gyro-hold-label" for="gyro-hold-meter">稳住</label>
+          <label id="gyro-hold-label" for="gyro-hold-meter" data-i18n>稳住</label>
           <progress id="gyro-hold-meter" max="1" value="0"></progress>
         </div>
       </div>
       <div class="gyro-actions" data-gyro-step="setup" hidden>
-        <button id="gyro-start" class="gyro-primary">开始校准</button><button data-gyro-touch>使用触控</button>
+        <button id="gyro-start" class="gyro-primary" data-i18n>开始校准</button><button data-gyro-touch data-i18n>使用触控</button>
       </div>
       <div data-gyro-step="practice" hidden>
-        <svg id="gyro-room" viewBox="0 0 560 220" role="img" aria-label="用体感瞄准亮靶的练习间">
+        <svg id="gyro-room" viewBox="0 0 560 220" role="img" aria-label="用体感瞄准亮靶的练习间" data-i18n-aria-label>
           <g stroke="#17202a" stroke-width="3" stroke-linejoin="round">
             <polygon data-gyro-wall="back" fill="#5f7fac"/><polygon data-gyro-wall="left" fill="#754c87"/>
             <polygon data-gyro-wall="right" fill="#4b7c73"/><polygon data-gyro-wall="floor" fill="#c69856"/>
@@ -222,31 +222,33 @@
         </svg>
       </div>
       <div class="gyro-setting-card" data-gyro-step="settings" hidden>
-        <div class="gyro-row"><label class="gyro-label" for="gyro-toggle"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2 12h4l2.5-5 4 10 3-7 2 2h4.5"/></svg>运动传感器</label><button id="gyro-toggle" role="switch" aria-checked="false" aria-describedby="gyro-status">启用</button></div>
-        <label class="gyro-row" for="gyro-sensitivity"><span class="gyro-label"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="6"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg>灵敏度</span><output id="gyro-value" for="gyro-sensitivity">1.00x</output></label>
+        <div class="gyro-row"><label class="gyro-label" for="gyro-toggle"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2 12h4l2.5-5 4 10 3-7 2 2h4.5"/></svg> <span data-i18n>运动传感器</span></label><button id="gyro-toggle" role="switch" aria-checked="false" aria-describedby="gyro-status" data-i18n>启用</button></div>
+        <label class="gyro-row" for="gyro-sensitivity"><span class="gyro-label"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="6"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg> <span data-i18n>灵敏度</span></span><output id="gyro-value" for="gyro-sensitivity">1.00x</output></label>
         <input id="gyro-sensitivity" type="range" min="0.25" max="3" step="0.25" value="1">
       </div>
       <fieldset data-gyro-step="settings practice" hidden>
-        <legend><span class="gyro-label"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4v9m0 0 7 5m-7-5-7 5m5-12 2-2 2 2m2 12h3v-3M5 15v3h3"/></svg>翻转设备轴</span></legend>
+        <legend><span class="gyro-label"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4v9m0 0 7 5m-7-5-7 5m5-12 2-2 2 2m2 12h3v-3M5 15v3h3"/></svg> <span data-i18n>翻转设备轴</span></span></legend>
         <div class="gyro-axis-list">
-          <label><input type="checkbox" data-gyro-axis="x">X 轴</label>
-          <label><input type="checkbox" data-gyro-axis="y">Y 轴</label>
-          <label><input type="checkbox" data-gyro-axis="z">Z 轴</label>
+          <label><input type="checkbox" data-gyro-axis="x"><span data-i18n>X 轴</span></label>
+          <label><input type="checkbox" data-gyro-axis="y"><span data-i18n>Y 轴</span></label>
+          <label><input type="checkbox" data-gyro-axis="z"><span data-i18n>Z 轴</span></label>
         </div>
       </fieldset>
       <div class="gyro-actions" data-gyro-step="practice" hidden>
-        <button id="gyro-recenter">准星回正</button><button id="gyro-practice-back" class="gyro-secondary" hidden>返回</button><button id="gyro-practice-touch" data-gyro-touch>使用触控</button>
+        <button id="gyro-recenter" data-i18n>准星回正</button><button id="gyro-practice-back" class="gyro-secondary" hidden data-i18n>返回</button><button id="gyro-practice-touch" data-gyro-touch data-i18n>使用触控</button>
       </div>
       <div class="gyro-actions" data-gyro-step="settings" hidden>
-        <button id="gyro-calibrate">重新校准</button><button id="gyro-practice-again" class="gyro-secondary">练习瞄准</button>
+        <button id="gyro-calibrate" data-i18n>重新校准</button><button id="gyro-practice-again" class="gyro-secondary" data-i18n>练习瞄准</button>
       </div>
       <div class="gyro-actions" data-gyro-step="ready" hidden>
-        <button id="gyro-continue" class="gyro-primary">进入游戏</button><button id="gyro-practice-optional" class="gyro-secondary">练习瞄准</button>
+        <button id="gyro-continue" class="gyro-primary" data-i18n>进入游戏</button><button id="gyro-practice-optional" class="gyro-secondary" data-i18n>练习瞄准</button>
       </div>
     </section>
   </div>
+  <script src="locale.js"></script>
   <script>
     window.noArtMobile=matchMedia('(pointer:coarse)').matches||new URLSearchParams(location.search).has('touch');
+    const t=text=>window.noArtText?.(text)??text;
     const touch={x:0,y:0,dx:0,dy:0,fire:false,interact:false,jump:false,reload:false,pause:false,blocked:false};
     let pauseRequested=false,focused=true;
     let gyroSetup=null;
@@ -263,7 +265,7 @@
           });
           syncGyro();
         }).catch(()=>{
-          document.querySelector('#gyro-status').textContent='体感组件加载失败。请刷新页面后重试。';
+          document.querySelector('#gyro-status').textContent=t('体感组件加载失败。请刷新页面后重试。');
         })
       : Promise.resolve();
     window.noArtOpenGyro=()=>{
@@ -364,7 +366,7 @@
         // Automatic requests stay silent. Never let a late rejection cover play.
         if(!explain||attempt!==immersiveAttempt||['RUNNING','LOADING'].includes(document.body.dataset.game))return;
         const safari=/Version\/[\d.]+.*Safari\//.test(window.navigator?.userAgent??'');
-        immersiveNote.textContent=safari?'可在 Safari 页面菜单选择「隐藏工具栏」。':'此浏览器暂不支持全屏';
+        immersiveNote.textContent=t(safari?'可在 Safari 页面菜单选择「隐藏工具栏」。':'此浏览器暂不支持全屏');
         immersiveNote.hidden=false;
         immersiveTimer=setTimeout(hideImmersiveNote,2400);
       }
@@ -452,7 +454,7 @@
       ready=true;
       await Promise.all([gyroStartup,document.fonts.load('700 160px Rajdhani').catch(()=>{})]);
       if(failed)return;
-      phase.textContent='准备就绪';updateDownload(1);
+      phase.textContent=t('准备就绪');updateDownload(1);
       loading.setAttribute('aria-busy','false');
       await new Promise(resolve=>setTimeout(resolve,reducedMotion.matches?0:120));
       if(failed)return;
@@ -468,25 +470,25 @@
     };
     document.addEventListener('pointerlockchange',()=>{help.hidden=Boolean(document.pointerLockElement)||!ready;});
     document.querySelector('#canvas').addEventListener('contextmenu',event=>event.preventDefault());
-    window.addEventListener('unhandledrejection',event=>{if(!ready)fail('加载遇到问题，请重试');});
+    window.addEventListener('unhandledrejection',event=>{if(!ready)fail(t('加载遇到问题，请重试'));});
     function launch(){
       const missing=Engine.getMissingFeatures({threads:false});
-      if(missing.length){fail('此浏览器不支持运行游戏，请使用新版 Chrome 或 Firefox');return;}
+      if(missing.length){fail(t('此浏览器不支持运行游戏，请使用新版 Chrome 或 Firefox'));return;}
       const config=$GODOT_CONFIG;
       config.canvas=document.querySelector('#canvas');
-      phase.textContent='正在下载资源';
+      phase.textContent=t('正在下载资源');
       config.onProgress=(current,total)=>{
         if(failed||ready)return;
-        if(current>0&&total>0){updateDownload(current/total);if(downloaded===1)phase.textContent='正在准备场景';}
+        if(current>0&&total>0){updateDownload(current/total);if(downloaded===1)phase.textContent=t('正在准备场景');}
         else if(current>0&&downloaded===0){amount.textContent=`${(current/1048576).toFixed(1)} MB`;}
       };
-      config.onPrintError=(...args)=>{console.error(...args);if(!ready&&args.some(value=>String(value).includes('SCRIPT ERROR')))fail('场景初始化失败，请重试');};
-      config.onExit=()=>fail('游戏已退出');
+      config.onPrintError=(...args)=>{console.error(...args);if(!ready&&args.some(value=>String(value).includes('SCRIPT ERROR')))fail(t('场景初始化失败，请重试'));};
+      config.onExit=()=>fail(t('游戏已退出'));
       const engine=new Engine(config);
-      engine.startGame().then(()=>{if(!ready&&!failed){phase.textContent='正在准备场景';updateDownload(1);}}).catch(error=>{console.error(error);fail('游戏加载失败，请检查网络后重试');});
+      engine.startGame().then(()=>{if(!ready&&!failed){phase.textContent=t('正在准备场景');updateDownload(1);}}).catch(error=>{console.error(error);fail(t('游戏加载失败，请检查网络后重试'));});
     }
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      const script=document.createElement('script');script.src='$GODOT_URL';script.onload=launch;script.onerror=()=>fail('游戏加载失败，请检查网络后重试');document.body.appendChild(script);
+      const script=document.createElement('script');script.src='$GODOT_URL';script.onload=launch;script.onerror=()=>fail(t('游戏加载失败，请检查网络后重试'));document.body.appendChild(script);
     }));
   </script>
 </body>

@@ -167,7 +167,7 @@ func generate() -> void:
 		var points_text = ""
 		for v in polygon:points_text += "%s,%s "%[v.x,v.y]
 		svg += '<polygon points="'+points_text+'" fill="#c4b190" stroke="#c4b190" stroke-width="0.08"/>'
-	svg += '<g fill="#fff8e8" font-family="sans-serif" font-size="5" font-weight="bold"><text x="4" y="-3">A</text><text x="-65" y="53">B</text><text x="-30" y="39">MID</text></g></svg>'
+	svg += '<g fill="#fff8e8" font-family="sans-serif" font-size="5" font-weight="bold"><text x="4" y="-3">A</text><text x="-65" y="53">B</text></g></svg>'
 	FileAccess.open("res://assets/ui/dust-radar.svg",FileAccess.WRITE).store_string(svg)
 	for node in map.find_children("*","",true,false):node.scene_file_path = "";node.owner = map
 	map.process_mode = Node.PROCESS_MODE_INHERIT

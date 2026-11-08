@@ -1,0 +1,66 @@
+keys,zh
+Map loading progress,地图加载进度
+Container Yard,集装箱货场
+Sunset Park,夕阳游乐园
+Last Ferry,末班渡轮
+Night Studio,深夜摄影棚
+Poop Mode,大便模式
+Cockroach Mode,蟑螂模式
+SCORE ATTACK,击杀挑战
+DEFUSE C4,拆除 C4
+RETRY,重试
+TITLE,返回标题
+Enter,回车
+Retry · Enter,重试 · 回车
+Title · Esc,返回标题 · Esc
+Sensitivity,灵敏度
+Touch sensitivity,触控灵敏度
+Camera motion,镜头晃动
+Music,音乐音量
+One-hit body shots,身体命中一击必杀
+Control inset,触控按键内距
+GYRO AIM,体感瞄准
+RESUME,继续游戏
+RESTART,重新开始
+LOW,减少
+FULL,完整
+ON,开启
+OFF,关闭
+PAUSED,暂停
+Language · English,语言 · 中文
+DEFUSED,拆除成功
+FAILED,任务失败
+TIME EXPIRED,时间到
+KILLED,已阵亡
+%.1f s,%.1f 秒
+BEST %.1f s,最佳 %.1f 秒
+DESTROY ALL,摧毁 一切
+GO,开始
+HOLD,长按
+HOLD E,按住 E
+KILLS,击杀
+MID,中路
+FIRST BLOOD,第一滴血
+First combat kill,完成首次战斗击杀
+PINPOINT,爆头专家
+12 headshots across rounds,累计完成 12 次爆头击杀
+TRIPLE TAP,三连击
+3 kills within 1.25 seconds,在 1.25 秒内完成 3 次击杀
+BARREL DEAL,一桶双响
+2 kills from a single oil barrel,用同一个油桶击杀 2 名敌人
+YARD SHIFT,货场值班
+12 combat kills in one yard round,在一局货场中完成 12 次战斗击杀
+LAST RIDE,末班游乐
+5 kills in one park DESTROY ALL phase,在游乐园的一次摧毁阶段完成 5 次击杀
+HIGH TIDE,涨潮时刻
+3 kills from high ground on the ferry in one round,在一局渡轮地图中从高处完成 3 次击杀
+OFF AIR,节目停播
+Destroy a Night Studio backdrop,摧毁深夜摄影棚的一块背景板
+WRECKING CREW,拆迁小队
+Destroy 8 props or structures across rounds,累计摧毁 8 件道具或建筑
+STILL STANDING,屹立不倒
+Finish 60 seconds with no deaths and 8 combat kills,撑过 60 秒且零死亡并完成 8 次战斗击杀
+SPLASH ZONE,水花四溅
+10 combat kills in water blaster mode,用滋水枪累计完成 10 次战斗击杀
+SOLE JUSTICE,拖鞋正义
+10 combat kills in slipper launcher mode,用拖鞋发射器累计完成 10 次战斗击杀
