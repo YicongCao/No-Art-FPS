@@ -97,6 +97,26 @@ def slipper_shot(t):
     return min(1.0, t*720) * .56*slap*math.exp(-t*54)
 
 
+def roach_grenade():
+    rng = random.Random(403)
+    smoothed = 0.0
+
+    def sample(t):
+        nonlocal smoothed
+        noise = rng.uniform(-1, 1)
+        smoothed += .22 * (noise - smoothed)
+        pressure = .45 * math.sin(math.tau * (134 * t - 220 * t * t)) * math.exp(-t * 27)
+        cracks = 0.0
+        for delay, weight in ((0.0, .80), (.049, .62)):
+            age = t - delay
+            if age >= 0:
+                snap = (noise - smoothed) + .36 * math.sin(math.tau * 1250 * age)
+                cracks += weight * snap * math.exp(-age * 108) * min(1.0, age * 2400)
+        return math.tanh(pressure + cracks)
+
+    return sample
+
+
 write('shot',.16,rifle_shot())
 write('hit',.07,lambda t:(math.sin(2*math.pi*850*t)*.5+random.uniform(-1,1)*.2)*math.exp(-t*55))
 write('kill',.20,lambda t:math.sin(2*math.pi*(850*t+1800*t*t))*.4*math.exp(-t*18))
@@ -114,4 +134,5 @@ write('comedy_plop',.18,comedy_plop())
 write('roach_buzz',.16,roach_buzz)
 write('water_shot',.13,water_shot)
 write('slipper_shot',.11,slipper_shot)
-print('Seventeen original WAV effects generated')
+write('roach_grenade',.24,roach_grenade())
+print('Eighteen original WAV effects generated')

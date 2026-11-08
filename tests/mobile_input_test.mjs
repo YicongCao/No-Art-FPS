@@ -10,6 +10,7 @@ class Element {
   addEventListener(type,fn,options){(this.handlers[type]??=[]).push(fn);this.listenerOptions[type]=options;}
   setPointerCapture(){}
   setAttribute(name,value){this[name]=value;}
+  getAttribute(name){return this[name]??null;}
   querySelectorAll(){return [];}
   focus(){}
   closest(){return this.id?this:null;}
@@ -17,7 +18,7 @@ class Element {
 }
 const elements=new Map();
 const get=s=>{if(!elements.has(s))elements.set(s,new Element());return elements.get(s);};
-for(const id of ['fire','interact','jump','reload','pause'])get('#'+id).id=id;
+for(const id of ['fire','interact','jump','reload','grenade','pause'])get('#'+id).id=id;
 const document=new Element();
 document.body=new Element();document.documentElement=new Element();document.hidden=false;
 document.querySelector=get;document.getElementById=id=>get('#'+id);
@@ -97,6 +98,18 @@ for(const id of [8,9]){
 }
 pointer('lostpointercapture',1,130,260);assert.equal(read().x,0);
 for(const action of ['jump','reload','pause']){pointer('pointerdown',5,700,200,get('#'+action));assert.equal(read()[action],true);assert.equal(read()[action],false);pointer('pointerup',5,700,200);}
+window.noArtSetGrenades(3,'roach');
+assert.equal(get('#grenade').dataset.stock,'3');
+assert.equal(get('#grenade-icon').src,'roach-bomb.svg');
+pointer('pointerdown',15,700,200,get('#grenade'));
+assert.equal(read().grenade,true);
+assert.equal(read().grenade,false);
+pointer('pointerup',15,700,200);
+window.noArtSetGrenades(0,'comedy');
+assert.equal(get('#grenade')['aria-disabled'],'true');
+assert.equal(get('#grenade-icon').src,'stink-bomb.svg');
+pointer('pointerdown',16,700,200,get('#grenade'));
+assert.equal(read().grenade,false);
 pointer('pointerdown',6,100,300);pointer('pointermove',6,300,500);p=read();assert.ok(Math.hypot(p.x,p.y)<=1.000001);
 context.innerWidth=390;context.innerHeight=844;window.emit('resize');p=read();assert.equal(p.blocked,true);assert.equal(p.x,0);assert.equal(document.body.classes.has('portrait'),true);
 context.innerWidth=844;context.innerHeight=390;window.emit('resize');assert.equal(read().blocked,false);

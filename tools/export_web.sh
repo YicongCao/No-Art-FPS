@@ -8,6 +8,7 @@ touch builds/.gdignore
 "$GODOT_BIN" --headless --path . --export-release Web builds/web/index.html
 cp web/icon.svg web/locale.js web/gyro.js web/gyro-setup.js web/title-background.webp builds/web/
 cp assets/ui/settings/comedy.svg assets/ui/settings/roach.svg builds/web/
+cp assets/ui/frag-grenade.svg assets/ui/stink-bomb.svg assets/ui/roach-bomb.svg builds/web/
 cp web/Rajdhani-Bold.woff2 builds/web/
 cp assets/fonts/OFL.txt builds/web/FONT-LICENSE.txt
 cp assets/fonts/NotoSansCJK-OFL.txt builds/web/Noto-CJK-LICENSE.txt

@@ -3,9 +3,12 @@ extends CharacterBody3D
 const WALK_SPEED = 7.0
 const SPRINT_SPEED = 10.5
 const ComedyFX = preload("res://scripts/comedy_fx.gd")
+const Grenade = preload("res://scripts/grenade.gd")
 var camera: Camera3D
 var body_shape: CollisionShape3D
 var gun: Node3D
+var throw_hand: Node3D
+var held_grenade: Node3D
 var weapon_mode = ""
 var weapon_models: Dictionary = {}
 var enabled = true
@@ -85,6 +88,31 @@ func weapon_muzzle() -> Vector3:
 		"roach":return gun.to_global(Vector3(0,.15,-.82))
 	return gun.to_global(Vector3(0,.015,-1.0))
 
+func prepare_grenade(mode: String) -> void:
+	if is_instance_valid(throw_hand):throw_hand.queue_free()
+	throw_hand = Grenade.GLOVE.instantiate()
+	throw_hand.name = "ThrowHand"
+	camera.add_child(throw_hand)
+	held_grenade = Grenade.MODELS[mode].instantiate()
+	throw_hand.add_child(held_grenade)
+	for part in throw_hand.find_children("*","MeshInstance3D",true,false):
+		part.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	animate_grenade_throw()
+
+func animate_grenade_throw() -> void:
+	if not is_instance_valid(throw_hand):return
+	throw_hand.visible = game.state=="RUNNING" and enabled and game.grenade_throw_time>0
+	if not throw_hand.visible:return
+	var elapsed: float = game.GRENADE_WINDUP-game.grenade_throw_time
+	var swing = smoothstep(0,game.GRENADE_RELEASE,elapsed)
+	var follow = smoothstep(game.GRENADE_RELEASE,game.GRENADE_WINDUP,elapsed)
+	held_grenade.visible = elapsed<game.GRENADE_RELEASE
+	var reach = .55 if game.reduced_motion else 1.0
+	throw_hand.position = Vector3(-.32,-.47,-.39)+Vector3(.06,.25,-.07)*swing*reach
+	throw_hand.position += Vector3(-.11,-.34,-.11)*follow
+	throw_hand.rotation.x = (-.5+.68*swing)*reach
+	gun.position.y -= .19*(swing-follow)*reach
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and enabled:
 		rotate_y(-event.relative.x*sensitivity)
@@ -137,6 +165,7 @@ func _process(delta: float) -> void:
 		var reload_phase = sin((1-game.reload_time/game.RELOAD_DURATION)*PI)
 		gun.position.y -= reload_phase*.18
 		gun.rotation.z -= reload_phase*.25
+	if game:animate_grenade_throw()
 
 func reset_position() -> void:
 	teleport_to(game.arena.player_start())

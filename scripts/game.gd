@@ -19,6 +19,13 @@ const LoadingTransition = preload("res://scripts/loading_transition.gd")
 const CombatFX = preload("res://scripts/combat_fx.gd")
 const ComedyFX = preload("res://scripts/comedy_fx.gd")
 const ComedyToilet = preload("res://scripts/comedy_toilet.gd")
+const Grenade = preload("res://scripts/grenade.gd")
+const GRENADE_COUNT = 3
+const GRENADE_WINDUP = .25
+const GRENADE_RELEASE = .12
+const GRENADE_INTERVAL = .75
+const GRENADE_OUTER_RADIUS = 5.0
+const GRENADE_LETHAL_RADIUS = 2.8
 const TOILET_BLAST_RADIUS = 10.0
 const AchievementProgress = preload("res://scripts/achievements.gd")
 var achievements = AchievementProgress.new()
@@ -105,6 +112,10 @@ var web_capture_wait = 0.0
 var touch_mode = false
 var touch_body_one_shot = false
 var touch_fire = false
+var grenades: Array[CharacterBody3D] = []
+var grenade_stock = 0
+var grenade_throw_time = 0.0
+var grenade_cooldown = 0.0
 var web_ui_state = ""
 var web_render_tier = 0
 var switching_session = false
@@ -201,7 +212,7 @@ func _ready() -> void:
 	layer.add_child(hud)
 	achievements.unlocked.connect(hud.queue_badge_toast)
 	achievements.changed.connect(queue_progress_save)
-	for key in ["shot","hit","kill","headshot","reload","hurt","tick","end","fuse","explosion","charge","cartridge_insert","magazine_latch","comedy_plop","roach_buzz","water_shot","slipper_shot"]:
+	for key in ["shot","hit","kill","headshot","reload","hurt","tick","end","fuse","explosion","charge","cartridge_insert","magazine_latch","comedy_plop","roach_buzz","water_shot","slipper_shot","roach_grenade"]:
 		sounds[key] = load("res://assets/audio/"+key+".wav")
 	for i in range(12):
 		var voice = AudioStreamPlayer.new()
@@ -323,6 +334,7 @@ func switch_language() -> void:
 	TranslationServer.set_locale(language)
 	if OS.has_feature("web"):
 		JavaScriptBridge.eval("window.noArtSetLanguage?.(%s)"%JSON.stringify(language))
+		sync_grenade_stock()
 	elif not qa_mode:
 		var cfg = ConfigFile.new()
 		cfg.load("user://record.cfg")
@@ -468,6 +480,10 @@ func start_run() -> void:
 	if not qa_mode:Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func reset_run_state() -> void:
+	grenade_stock = 0 if rules.mission else GRENADE_COUNT
+	grenade_throw_time = 0
+	grenade_cooldown = 0
+	sync_grenade_stock()
 	arena.cancel_interaction()
 	objective_focus = null
 	touch_interact = false
@@ -544,6 +560,7 @@ func prepare_loaded_run(ticket: int) -> void:
 	await loading_frame()
 	if ticket!=load_ticket:return
 	opening_prepared = false
+	clear_grenades()
 	bullets.clear()
 	ranged_aimers.clear()
 	player_bullets.clear()
@@ -724,6 +741,7 @@ func _process(delta: float) -> void:
 			player.enabled = false
 
 func clear_round() -> void:
+	clear_grenades()
 	arena.cancel_interaction()
 	objective_focus = null
 	arena.reset_objectives()
@@ -775,6 +793,7 @@ func begin_running() -> void:
 	rules.start()
 	player.enabled = true
 	hud.go_time = hud.GO_DURATION
+	if not rules.mission:hud.show_grenade_stock()
 	# Reuse the opening actors prepared under the loading cover. Isolated QA
 	# fixtures can still initialize them here. Reinforcements use hidden gates.
 	if not opening_prepared:
@@ -787,6 +806,7 @@ func begin_running() -> void:
 	play_sound("tick",-10)
 
 func finish_run() -> void:
+	clear_grenades()
 	if rules.mission and rules.outcome=="TIMEOUT" and state!="RESULTS":
 		for objective in arena.objectives:
 			if not objective.defused:finale_explosion(objective.global_position,1.2,Color("243440"))
@@ -835,6 +855,7 @@ func restore_frozen_world() -> void:
 func start_finale() -> void:
 	if finale_active or state!="RUNNING" or rules.active or rules.remaining()>0 or rules.finale_duration<=0:return
 	finale_active = true
+	clear_grenades()
 	finale_elapsed = 0
 	music.stop()
 	player.enabled = false
@@ -966,6 +987,7 @@ func menu_action(action: String) -> void:
 			if state=="PAUSED":switch_language()
 
 func _physics_process(delta: float) -> void:
+	var grenade_pressed = not touch_mode and Input.is_action_just_pressed("grenade")
 	if touch_mode:
 		var packet = JSON.parse_string(str(JavaScriptBridge.eval("window.noArtReadTouch(%s)" % ("true" if respawn_time<=0 else "false"))))
 		if packet is Dictionary:
@@ -981,6 +1003,7 @@ func _physics_process(delta: float) -> void:
 					player.pitch = clampf(player.pitch-float(packet.dy)*touch_sensitivity+float(packet.get("gyroPitch",0.0)),-1.35,1.35)
 					player.touch_jump = bool(packet.jump)
 					if bool(packet.reload):reload_weapon()
+					grenade_pressed = bool(packet.get("grenade",false))
 	if music:music.stream_paused = state in ["PAUSED","CAPTURING"]
 	if state != "RUNNING":return
 	if OS.has_feature("web") and not touch_mode and Input.mouse_mode!=Input.MOUSE_MODE_CAPTURED:return
@@ -999,6 +1022,8 @@ func _physics_process(delta: float) -> void:
 		hud.destroy_time = hud.DESTROY_NOTICE_DURATION
 		music.stream = session.destroy_music if session.destroy_music else DESTROY_MUSIC
 		music.play()
+	update_grenades(delta)
+	if grenade_pressed:request_grenade()
 	invulnerable = maxf(0,invulnerable-delta)
 	since_damage += delta
 	if health<MAX_HEALTH and since_damage>=HEAL_DELAY and respawn_time<=0:
@@ -1109,7 +1134,7 @@ func update_spawns(delta: float) -> void:
 
 func shoot() -> void:
 	if objective_focus!=null:return
-	if state!="RUNNING" or not rules.active or fire_time>0 or reload_time>0 or respawn_time>0:return
+	if state!="RUNNING" or not rules.active or fire_time>0 or reload_time>0 or respawn_time>0 or grenade_throw_time>0:return
 	if ammo<=0:
 		reload_weapon()
 		return
@@ -1218,6 +1243,128 @@ func resolve_shot(result: Dictionary, origin: Vector3, target: Vector3, burning:
 			if is_head:spark(target,Color("f2d084"),.07,.12)
 			else:spark(target,Color("ed9957"),.12,.16)
 		elif not burning or not building:spark(target,Color("e5e0d2"),.045,.1)
+
+func request_grenade() -> void:
+	if state!="RUNNING" or not rules.active or rules.mission or respawn_time>0 or not player.enabled:return
+	if grenade_stock<=0 or grenade_cooldown>0:return
+	grenade_throw_time = GRENADE_WINDUP
+	grenade_cooldown = GRENADE_INTERVAL
+	player.prepare_grenade(comedy_mode)
+	hud.show_grenade_stock()
+	play_sound("cartridge_insert",-12,1.27)
+
+func update_grenades(delta: float) -> void:
+	for i in range(grenades.size()-1,-1,-1):
+		var grenade = grenades[i]
+		grenade.step(delta)
+		if grenade.detonated:grenades.remove_at(i)
+	grenade_cooldown = maxf(0,grenade_cooldown-delta)
+	if grenade_throw_time<=0:return
+	var previous = grenade_throw_time
+	grenade_throw_time = maxf(0,grenade_throw_time-delta)
+	var release_at = GRENADE_WINDUP-GRENADE_RELEASE
+	if previous>release_at and grenade_throw_time<=release_at:launch_grenade()
+
+func launch_grenade() -> void:
+	var camera = player.camera
+	var direction = camera.project_ray_normal(get_viewport().get_visible_rect().get_center()+player.crosshair_offset)
+	var start = camera.to_global(Vector3(-.26,-.22,-.46))
+	var query = PhysicsRayQueryParameters3D.create(camera.global_position,start,1)
+	var obstruction = get_world_3d().direct_space_state.intersect_ray(query)
+	if not obstruction.is_empty():start = obstruction.position+obstruction.normal*(Grenade.RADIUS+.01)
+	var grenade = Grenade.new()
+	grenade.name = "ThrownGrenade"
+	grenade.game = self
+	grenade.style = comedy_mode
+	grenade.position = effects.to_local(start)
+	grenade.velocity = direction*16.0+Vector3.UP*3.6
+	effects.add_child(grenade)
+	grenades.append(grenade)
+	grenade_stock -= 1
+	sync_grenade_stock()
+	hud.show_grenade_stock()
+
+func clear_grenades() -> void:
+	grenade_throw_time = 0
+	for grenade in grenades:
+		grenade.get_parent().remove_child(grenade)
+		grenade.queue_free()
+	grenades.clear()
+
+func sync_grenade_stock() -> void:
+	if OS.has_feature("web") and touch_mode:
+		JavaScriptBridge.eval("window.noArtSetGrenades?.(%d,%s)"%[grenade_stock,JSON.stringify(comedy_mode)])
+
+func grenade_blast(center: Vector3, style: String) -> void:
+	if state!="RUNNING" or not rules.active:return
+	for enemy in live_enemies():
+		var target = enemy.global_position+Vector3.UP
+		var distance = center.distance_to(target)
+		if distance<=GRENADE_OUTER_RADIUS and blast_clear(center,target,[]):
+			enemy.take_damage(Enemy.MAX_HEALTH if distance<=GRENADE_LETHAL_RADIUS else 1)
+	var target = player.global_position+Vector3.UP
+	if center.distance_to(target)<=GRENADE_LETHAL_RADIUS and blast_clear(center,target,[]):
+		damage_player(30,center)
+	for barrel in arena.barrels:
+		target = barrel.global_position+Vector3.UP*.65
+		if not barrel.spent and center.distance_to(target)<=GRENADE_OUTER_RADIUS and blast_clear(center,target,[barrel.get_rid()]):
+			barrel.ignite(.25)
+	if is_instance_valid(comedy_toilet) and not comedy_toilet.spent:
+		for charge in comedy_toilet.charge_bodies:
+			target = charge.global_position
+			if center.distance_to(target)<=GRENADE_OUTER_RADIUS and blast_clear(center,target,[charge.get_rid()]):
+				comedy_toilet.shot_hit(true,destroy_active)
+				break
+	if destroy_active:grenade_hit_scenery(center)
+	grenade_blast_fx(center,style)
+
+func grenade_hit_scenery(center: Vector3) -> void:
+	var space = get_world_3d().direct_space_state
+	for structure in arena.structures:
+		if structure.collapsed:continue
+		var bounds: AABB = structure.world_bounds()
+		var target = center.clamp(bounds.position,bounds.end)
+		if target.distance_to(center)>GRENADE_OUTER_RADIUS:continue
+		var direction = center.direction_to(target if not center.is_equal_approx(target) else bounds.get_center())
+		if direction.is_zero_approx():continue
+		var reach = GRENADE_OUTER_RADIUS if center.is_equal_approx(target) else minf(GRENADE_OUTER_RADIUS,target.distance_to(center)+.25)
+		var query = PhysicsRayQueryParameters3D.create(center,center+direction*reach,1|SCENERY_TARGET_LAYER)
+		var hit = space.intersect_ray(query)
+		if not hit.is_empty() and hit.collider.get_meta("structure",null)==structure:
+			structure.ignite_hit(hit.position)
+
+func grenade_blast_fx(center: Vector3, style: String) -> void:
+	var query = PhysicsRayQueryParameters3D.create(center,center-Vector3.UP*8,1)
+	var ground = get_world_3d().direct_space_state.intersect_ray(query)
+	var floor_y = ground.position.y+.07 if not ground.is_empty() else center.y
+	var accent = Color("ed9259")
+	match style:
+		"comedy":
+			accent = Color("c18b64")
+			play_world_sound("comedy_plop",center,-7,.79)
+		"roach":
+			accent = Color("89af81")
+			play_world_sound("roach_grenade",center,-7)
+		_:play_world_sound("explosion",center,-8)
+	var burst = CombatFX.new()
+	burst.game = self
+	burst.duration = .64
+	effects.add_child(burst)
+	burst.bloom(center,.83,Color("fff0bf"))
+	burst.bloom(center+Vector3.UP*.25,.55,accent)
+	var art = ComedyFX.ROACH_ART if style=="roach" else ComedyFX.POOP_ART
+	for i in range(4 if reduced_motion else 8):
+		var angle = i*2.39996
+		var radial = Vector3(cos(angle),0,sin(angle))
+		burst.chunk(center+radial*.25,Vector3(.18,.09,.28),accent,radial*5+Vector3.UP*(2+i%3),floor_y)
+		if not style.is_empty() and i<4 and not reduced_motion:
+			var fleck = ComedyFX.sprite(art[i%art.size()],.29)
+			fleck.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+			effects.add_child(fleck)
+			fleck.global_position = center+radial*.3
+			ComedyFX.blast_arc(fleck,Vector3(center.x,floor_y,center.z)+radial*(2.3+i*.36),.9,Vector3.ZERO,.58+i*.045)
+	burst.show_pieces(false)
+	blast_ring(Vector3(center.x,floor_y+.5,center.z),GRENADE_OUTER_RADIUS,Color("f7d08a"))
 
 func update_player_bullets(delta: float) -> void:
 	for i in range(player_bullets.size()-1,-1,-1):
@@ -1329,6 +1476,7 @@ func damage_player(amount: float = 34.0, source: Variant = null) -> void:
 	play_sound("hurt",-8)
 	if objective_focus:objective_focus.cancel()
 	if health<=0:
+		grenade_throw_time = 0
 		rules.deaths += 1
 		rules.report_death()
 		respawn_time = RESPAWN_DELAY if rules.respawn_allowed else 0
@@ -1455,10 +1603,11 @@ func set_music_volume(value: float) -> void:
 	music_volume = clampf(value,0,1)
 	if music:music.volume_db = linear_to_db(maxf(.0001,music_volume))-8.0
 
-func play_world_sound(key: String, pos: Vector3, volume: float) -> void:
+func play_world_sound(key: String, pos: Vector3, volume: float, pitch: float = 1.0) -> void:
 	var voice = AudioStreamPlayer3D.new()
 	voice.stream = sounds[key]
 	voice.volume_db = volume
+	voice.pitch_scale = pitch
 	voice.unit_size = 6
 	voice.max_distance = 32
 	effects.add_child(voice)

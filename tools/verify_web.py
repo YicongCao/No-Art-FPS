@@ -8,6 +8,7 @@ from pathlib import Path
 root = Path(__file__).resolve().parents[1]
 bundle = root / 'builds' / 'web'
 required = ['index.html', 'index.js', 'index.wasm', 'index.pck', 'icon.svg', 'comedy.svg', 'roach.svg', 'locale.js', 'gyro.js', 'gyro-setup.js', 'title-background.webp', 'Rajdhani-Bold.woff2', 'FONT-LICENSE.txt', 'Noto-CJK-LICENSE.txt', 'GODOT-LICENSE.txt', 'GODOT-COPYRIGHT.txt', 'DUST-LICENSE.txt']
+required += ['frag-grenade.svg', 'stink-bomb.svg', 'roach-bomb.svg']
 for name in required:
     assert (bundle / name).is_file(), f'Missing export: {name}'
 html = (bundle / 'index.html').read_text()

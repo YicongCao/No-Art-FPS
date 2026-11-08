@@ -29,6 +29,11 @@ const RESTART_ICON = preload("res://assets/ui/settings/restart.svg")
 const PAUSE_HOME_ICON = preload("res://assets/ui/settings/home.svg")
 const SLIDER_GRIP = preload("res://assets/ui/settings/grip.svg")
 const MEDAL_ICON = preload("res://assets/ui/maps/best-medal.svg")
+const GRENADE_ICONS = {
+	"": preload("res://assets/ui/frag-grenade.svg"),
+	"comedy": preload("res://assets/ui/stink-bomb.svg"),
+	"roach": preload("res://assets/ui/roach-bomb.svg"),
+}
 var game: Node
 var touch_inset_available = false
 var font: Font
@@ -47,6 +52,7 @@ const DESTROY_NOTICE_DURATION = 1.2
 var health_shade = 0.0
 var feed_shift = 0.0
 var ejections: Array[float] = []
+var grenade_stock_time = 0.0
 var loading_cover: ColorRect
 var vignette: ColorRect
 var menu: Control
@@ -141,6 +147,23 @@ func ammo_fired() -> void:
 func reset_magazine() -> void:
 	feed_shift = 0
 	ejections.clear()
+
+func show_grenade_stock() -> void:
+	grenade_stock_time = 1.5
+
+func draw_grenade_stock() -> void:
+	if grenade_stock_time<=0 or game.touch_mode or game.rules.mission:return
+	var mag = magazine_rect()
+	var center = Vector2(mag.position.x-31,mag.get_center().y)
+	var alpha = clampf(grenade_stock_time/.32,0,1)
+	draw_circle(center,24,Color(INK,.85*alpha),true,-1,true)
+	for i in range(3):
+		var angle = -PI*.5+i*TAU/3
+		var color = GOLD if i<game.grenade_stock else Color("596975")
+		draw_arc(center,21,angle+.09,angle+TAU/3-.09,18,Color(color,alpha),2.6,true)
+	var icon = GRENADE_ICONS[game.comedy_mode]
+	draw_texture_rect(icon,Rect2(center-Vector2.ONE*13,Vector2.ONE*26),false,
+		Color(WHITE,alpha*(1.0 if game.grenade_stock>0 else .42)))
 
 func draw_round(region: Rect2, center: Vector2, extent: Vector2, angle: float = -PI*.5, alpha: float = 1.0, scale_factor: float = MAGAZINE_SCALE) -> void:
 	draw_set_transform(center,angle)
@@ -339,6 +362,7 @@ func capture_results_frame() -> void:
 func _process(delta: float) -> void:
 	sync_loading_cover()
 	if game and game.state == "PAUSED":delta = 0
+	if game and game.state=="RUNNING":grenade_stock_time = maxf(0,grenade_stock_time-delta)
 	if game and game.state=="RUNNING":go_time = maxf(0,go_time-delta)
 	if game and game.state=="RUNNING":destroy_time = maxf(0,destroy_time-delta)
 	if game and game.state=="RUNNING" and not badge_toasts.is_empty():
@@ -1037,7 +1061,9 @@ func _draw() -> void:
 			for a in [Vector2.LEFT,Vector2.RIGHT,Vector2.UP,Vector2.DOWN]:draw_line(aim_center+a*gap,aim_center+a*(gap+4),WHITE,1)
 	if game.respawn_time>0:
 		draw_respawn(c)
-	else:draw_magazine()
+	else:
+		draw_magazine()
+		draw_grenade_stock()
 	if state=="RUNNING" and game.respawn_time<=0 and go_time>0:
 		var opacity = smoothstep(0,.65,go_time)
 		label(tr("GO"),c+Vector2(0,22),70,Color(WHITE,opacity),true)
