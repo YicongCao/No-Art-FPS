@@ -4,6 +4,8 @@ const FOCAL_LENGTH = 310;
 const TARGET_ANGLES = [[-.16,.02],[.14,.11],[-.025,-.11]];
 const HOLD_MS = 280;
 const GIMBAL_ANGLES = [-38,32,86];
+const CALIBRATION_YELLOW = [242,208,132];
+const CALIBRATION_GREEN = [120,220,145];
 
 // Room coordinates are in the same axes as Godot's first-person camera.
 const WALLS = {
@@ -118,6 +120,8 @@ export function setupGyroPanel({makeGyro, sync, isActive, isLandscape}) {
     displayedProgress=fill;
     calibrationView.dataset.signal=rates?(rates.some(rate=>Math.abs(rate)>limit)?'shaky':'steady'):'waiting';
     calibrationRing.setAttribute('stroke-dashoffset',String(1-fill));
+    const color=CALIBRATION_YELLOW.map((start,i)=>Math.round(start+(CALIBRATION_GREEN[i]-start)*fill));
+    calibrationRing.setAttribute('stroke',`rgb(${color.join(', ')})`);
     calibrationView.setAttribute('aria-valuenow',String(Math.floor(fill*100)));
     gimbalRings.forEach((ring,i)=>{
       const turn=rates?Math.max(-2.5,Math.min(2.5,rates[i]/limit))*22:0;
