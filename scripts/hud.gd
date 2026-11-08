@@ -154,10 +154,12 @@ func reset_magazine() -> void:
 	ejections.clear()
 
 func grenade_stock_rect(index: int) -> Rect2:
-	var round = round_rect(magazine_rect(false),0)
+	var magazine = magazine_rect(false)
+	var round = round_rect(magazine,0)
 	var extent = round.size.y
-	var left = maxf(28.0,title_gutters().x) if game.touch_mode else 28.0
-	return Rect2(Vector2(left+index*(extent+8),round.position.y),Vector2.ONE*extent)
+	var left = magazine.position.x if game.touch_mode else 28.0
+	var top = magazine.position.y-extent-8 if game.touch_mode else round.position.y
+	return Rect2(Vector2(left+index*(extent+8),top),Vector2.ONE*extent)
 
 func draw_grenade_stock() -> void:
 	if game.rules.mission:return
@@ -1140,7 +1142,8 @@ func draw_rear_aim_warning() -> void:
 	if direction==Vector2.ZERO:return
 	var center = edge_position(direction)
 	if game.touch_mode and center.y>=size.y-1:
-		center.y = magazine_rect(false).position.y-8
+		var ammo_top = magazine_rect(false).position.y if game.rules.mission else grenade_stock_rect(0).position.y
+		center.y = ammo_top-8
 	var elapsed: float = enemy.aim_duration-enemy.windup
 	var opacity = lerpf(.96,.54,smoothstep(.07,.23,elapsed))
 	var extent = minf(1,size.y/810.0)*.92

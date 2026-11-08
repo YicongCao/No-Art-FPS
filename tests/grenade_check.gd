@@ -15,6 +15,7 @@ func check() -> void:
 	game.qa_mode = true
 	game.set_physics_process(false)
 	game.player.set_physics_process(false)
+	game.player.set_process_unhandled_input(false)
 	start_round("")
 	if game.rules.mission:
 		game.request_grenade()
@@ -117,8 +118,9 @@ func check() -> void:
 	assert(game.grenade_stock==3)
 
 	var center = Vector3(36,51,12)
-	var near = foe(center+Vector3(0,-1,-2))
-	var outer = foe(center+Vector3(0,-1,4))
+	var near = foe(center+Vector3(0,-1,-4))
+	var outer = foe(center+Vector3(0,-1,7))
+	var distant = foe(center+Vector3(0,-1,-8))
 	var covered = foe(center+Vector3(2,-1,0))
 	var above = foe(center+Vector3(0,1.5,0))
 	var shield = box(center+Vector3(1,0,0),Vector3(.2,2,1.5))
@@ -127,20 +129,21 @@ func check() -> void:
 	structure.game = game
 	structure.arena = game.arena
 	structure.scenery = true
-	structure.bounds = AABB(center+Vector3(-2.3,-.5,-.5),Vector3(.6,1,1))
+	structure.bounds = AABB(center+Vector3(-6.3,-.5,-.5),Vector3(.6,1,1))
 	game.add_child(structure)
 	game.arena.structures.append(structure)
-	var panel = box(center+Vector3(-2,0,0),Vector3(.6,1,1))
+	var panel = box(center+Vector3(-6,0,0),Vector3(.6,1,1))
 	panel.collision_layer = game.SCENERY_TARGET_LAYER
 	structure.register(panel)
-	game.player.position = center+Vector3(0,-1,1.3)
+	game.player.position = center+Vector3(0,-1,4)
 	game.invulnerable = 0
 	var barrel = game.arena.barrels[0]
 	var barrel_start: Vector3 = barrel.global_position
-	barrel.global_position = center+Vector3(-1,-.65,2)
+	barrel.global_position = center+Vector3(-1,-.65,6)
 	await physics_frame
 	game.grenade_blast(center,"")
 	assert(near.dead and outer.health==outer.MAX_HEALTH-1 and covered.health==covered.MAX_HEALTH and above.health==above.MAX_HEALTH)
+	assert(distant.health==distant.MAX_HEALTH)
 	assert(game.rules.kills==1 and game.rules.headshots==0 and game.health==game.MAX_HEALTH-30)
 	assert(barrel.fuse>0 and structure.hits==0)
 	barrel.global_position = barrel_start
