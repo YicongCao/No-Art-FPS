@@ -86,6 +86,17 @@ def roach_buzz(t):
     return min(1.0, t * 260) * (.48 * buzz * math.exp(-t * 24) + .5 * pop)
 
 
+def water_shot(t):
+    jet = math.sin(math.tau * (980*t - 2100*t*t) + .7*math.sin(math.tau*76*t))
+    pump = math.sin(math.tau * (220*t - 490*t*t))
+    return min(1.0, t*530) * (.36*jet*math.exp(-t*31) + .47*pump*math.exp(-t*50))
+
+
+def slipper_shot(t):
+    slap = math.sin(math.tau*268*t) + .42*math.sin(math.tau*870*t)
+    return min(1.0, t*720) * .56*slap*math.exp(-t*54)
+
+
 write('shot',.16,rifle_shot())
 write('hit',.07,lambda t:(math.sin(2*math.pi*850*t)*.5+random.uniform(-1,1)*.2)*math.exp(-t*55))
 write('kill',.20,lambda t:math.sin(2*math.pi*(850*t+1800*t*t))*.4*math.exp(-t*18))
@@ -101,4 +112,6 @@ write('cartridge_insert',.032,lambda t:(random.uniform(-1,1)*.42+math.sin(2*math
 write('magazine_latch',.125,magazine_latch())
 write('comedy_plop',.18,comedy_plop())
 write('roach_buzz',.16,roach_buzz)
-print('Fifteen original WAV effects generated')
+write('water_shot',.13,water_shot)
+write('slipper_shot',.11,slipper_shot)
+print('Seventeen original WAV effects generated')
