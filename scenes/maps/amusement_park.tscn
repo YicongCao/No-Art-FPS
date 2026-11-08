@@ -4310,7 +4310,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 21)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -27, 0, 15)
 
 [node name="Respawn2" type="Marker3D" parent="Markers" unique_id=784874099]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -29, 0, -12)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -29, 0, -10.5)
 
 [node name="Respawn3" type="Marker3D" parent="Markers" unique_id=1339979732]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9, 0, -16)
@@ -4319,7 +4319,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9, 0, -16)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 29, 0, -14)
 
 [node name="Respawn5" type="Marker3D" parent="Markers" unique_id=1811263468]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28, 0, 15)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28, 0, 16.5)
 
 [node name="Tour0" type="Marker3D" parent="Markers" unique_id=541179104]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 20)

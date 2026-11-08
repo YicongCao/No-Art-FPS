@@ -4,6 +4,7 @@ const WALK_SPEED = 7.0
 const SPRINT_SPEED = 10.5
 const ComedyFX = preload("res://scripts/comedy_fx.gd")
 var camera: Camera3D
+var body_shape: CollisionShape3D
 var gun: Node3D
 var weapon_mode = ""
 var weapon_models: Dictionary = {}
@@ -25,13 +26,13 @@ func _ready() -> void:
 	collision_layer = 2
 	collision_mask = 1
 	floor_snap_length = .35
-	var shape = CollisionShape3D.new()
+	body_shape = CollisionShape3D.new()
 	var cap = CapsuleShape3D.new()
 	cap.radius = .3
 	cap.height = 1.8
-	shape.shape = cap
-	shape.position.y = .9
-	add_child(shape)
+	body_shape.shape = cap
+	body_shape.position.y = .9
+	add_child(body_shape)
 	camera = Camera3D.new()
 	camera.position.y = 1.65
 	camera.fov = 63
@@ -138,10 +139,14 @@ func _process(delta: float) -> void:
 		gun.rotation.z -= reload_phase*.25
 
 func reset_position() -> void:
-	global_transform = game.arena.player_start()
+	teleport_to(game.arena.player_start())
+
+func teleport_to(pose: Transform3D) -> void:
+	global_transform = pose
 	velocity = Vector3.ZERO
 	sprinting = false
 	sprint_blend = 0
 	crosshair_offset = Vector2.ZERO
-	rotation.y = global_rotation.y
 	pitch = 0
+	recoil = 0
+	camera.rotation.x = 0

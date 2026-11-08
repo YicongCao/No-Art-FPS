@@ -10,6 +10,18 @@ func _ready() -> void:
 	game.clear_round()
 	game.set_physics_process(false)
 	game.spawn_time = 999
+	var first_spawn: Vector3 = game.arena.get_node(game.arena.respawn_paths[0]).global_position
+	var original_forward: Vector3 = -game.arena.player_start().basis.z
+	var wall = StaticBody3D.new()
+	var blocker = CollisionShape3D.new()
+	var box = BoxShape3D.new()
+	box.size = Vector3(3,2.6,.35)
+	blocker.shape = box
+	wall.add_child(blocker)
+	game.arena.add_child(wall)
+	wall.global_transform = Transform3D(Basis.looking_at(original_forward),first_spawn+original_forward*1.2+Vector3.UP*1.3)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
 	assert(game.rules.deaths==0)
 	assert(game.health==150)
 	for frame in range(4):
@@ -44,10 +56,18 @@ func _ready() -> void:
 	assert(game.respawn_time==0 and game.player.enabled and game.player.gun.visible)
 	assert(game.health==game.MAX_HEALTH and game.ammo==20 and game.rules.deaths==1)
 	assert(is_equal_approx(game.rules.elapsed-clock,2.0),"Round clock keeps running during death")
+	assert(game.player.global_position.distance_to(first_spawn)<.15)
+	assert_clear_view()
 	await capture("death-one")
+	wall.global_position = first_spawn+Vector3.UP*1.3
+	await get_tree().physics_frame
+	await get_tree().physics_frame
 	defeat()
 	for frame in range(120):game._physics_process(1.0/60.0)
 	assert(game.rules.deaths==2 and game.respawn_time==0)
+	assert(game.player.global_position.distance_to(first_spawn)>1.0,"An obstructed marker is skipped")
+	assert_clear_view()
+	wall.queue_free()
 	await capture("death-two")
 	# A death near the deadline ends at results; it must not respawn after time is up.
 	game.rules.elapsed = 59
@@ -73,7 +93,7 @@ func _ready() -> void:
 	game.menu_action("resume")
 	game.state = "TITLE"
 	await capture("text-review-title")
-	print("RESPAWN_CHECK_PASS: exact 120 ticks, pause/input lock, one count per death, deadline, restart")
+	print("RESPAWN_CHECK_PASS: exact 120 ticks, clear facing, blocked marker fallback, pause, deadline and restart")
 	game.state = "RESULTS"
 	game.clear_round()
 	await get_tree().create_timer(.3).timeout
@@ -82,6 +102,12 @@ func _ready() -> void:
 func defeat() -> void:
 	game.invulnerable = 0
 	game.damage_player(game.MAX_HEALTH)
+
+func assert_clear_view() -> void:
+	var camera = game.player.camera
+	var ray = PhysicsRayQueryParameters3D.create(camera.global_position,
+		camera.global_position-camera.global_basis.z*2.99,game.player.collision_mask)
+	assert(game.get_world_3d().direct_space_state.intersect_ray(ray).is_empty(),"Respawn camera has a clear forward lane")
 
 func capture(filename: String) -> void:
 	if DisplayServer.get_name()=="headless":return

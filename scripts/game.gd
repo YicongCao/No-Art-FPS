@@ -996,17 +996,7 @@ func _physics_process(delta: float) -> void:
 		respawn_time = maxf(0,respawn_time-delta)
 		if respawn_time<.000001:respawn_time = 0
 		if respawn_time<=0:
-			player.reset_position()
-			# Choose the most separated navigable respawn location.
-			var safest = arena.player_start().origin
-			var best_distance = -1.0
-			for candidate in arena.respawn_candidates():
-				var min_distance = 100.0
-				for enemy in live_enemies():min_distance = minf(min_distance,candidate.distance_to(enemy.position))
-				if min_distance>best_distance:
-					best_distance = min_distance
-					safest = candidate
-			player.position = safest
+			player.teleport_to(arena.respawn_pose(player,live_enemies()))
 			player.enabled = true
 			player.gun.show()
 			health = MAX_HEALTH

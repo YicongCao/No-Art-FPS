@@ -1,5 +1,8 @@
 extends "res://scripts/maps/map_root.gd"
 
+const RESPAWN_SIGHT_RANGE = 12.0
+const RESPAWN_CLEAR_LANE = 3.0
+
 @export var navigation_path: NodePath
 @export var structure_paths: Array[NodePath] = []
 @export var barrel_paths: Array[NodePath] = []
@@ -83,6 +86,70 @@ func bake_navigation() -> void:
 	nav = get_node(navigation_path)
 	original_navigation_mesh = nav.navigation_mesh.duplicate()
 	nav.navigation_mesh = nav.navigation_mesh.duplicate()
+
+func respawn_pose(player: CharacterBody3D, enemies: Array) -> Transform3D:
+	var start = player_start()
+	var candidates = respawn_candidates()
+	if not enemies.is_empty():
+		var separation = {}
+		for point in candidates:
+			var nearest = INF
+			for enemy in enemies:nearest = minf(nearest,point.distance_squared_to(enemy.global_position))
+			separation[point] = nearest
+		candidates.sort_custom(func(a,b):return separation[a]>separation[b])
+	if not candidates.has(start.origin):candidates.append(start.origin)
+	var space = get_world_3d().direct_space_state
+	var ray = PhysicsRayQueryParameters3D.new()
+	ray.collision_mask = player.collision_mask
+	var body = PhysicsShapeQueryParameters3D.new()
+	body.shape = player.body_shape.shape
+	body.collision_mask = player.collision_mask
+	for marker in candidates:
+		ray.from = marker+Vector3.UP*.35
+		ray.to = marker-Vector3.UP*.65
+		var floor_hit = space.intersect_ray(ray)
+		if floor_hit.is_empty() or floor_hit.normal.y<.65:continue
+		var point: Vector3 = floor_hit.position+Vector3.UP*.05
+		body.transform = Transform3D(Basis.IDENTITY,point+player.body_shape.position)
+		if not space.intersect_shape(body,1).is_empty():continue
+		var forward = respawn_direction(space,ray,point,player.camera.position.y,-start.basis.z)
+		if forward!=Vector3.ZERO:return Transform3D(Basis.looking_at(forward),point)
+	return start
+
+func respawn_direction(space: PhysicsDirectSpaceState3D, ray: PhysicsRayQueryParameters3D,
+		point: Vector3, eye_height: float, preferred: Vector3) -> Vector3:
+	var level_forward = Vector3(preferred.x,0,preferred.z).normalized()
+	var eye = point+Vector3.UP*eye_height
+	var best = Vector3.ZERO
+	var best_score = 0.0
+	for i in range(16):
+		var forward = level_forward.rotated(Vector3.UP,i*TAU/16)
+		var sight = sight_distance(space,ray,eye,forward)
+		if sight<RESPAWN_CLEAR_LANE:continue
+		var feet = point+Vector3.UP*.4
+		ray.from = feet
+		ray.to = feet+forward*RESPAWN_CLEAR_LANE
+		if not space.intersect_ray(ray).is_empty():continue
+		# Check the floor ahead so an open sky or waterline cannot win over a lane.
+		var ahead = point+forward*RESPAWN_CLEAR_LANE
+		ray.from = ahead+Vector3.UP*.6
+		ray.to = ahead-Vector3.UP*.75
+		var floor_hit = space.intersect_ray(ray)
+		if floor_hit.is_empty() or floor_hit.normal.y<.65:continue
+		var score = sight
+		for side in [-1,1]:
+			score += sight_distance(space,ray,eye,forward.rotated(Vector3.UP,side*.32))*.5
+		if score>best_score:
+			best_score = score
+			best = forward
+	return best
+
+func sight_distance(space: PhysicsDirectSpaceState3D, ray: PhysicsRayQueryParameters3D,
+		origin: Vector3, forward: Vector3) -> float:
+	ray.from = origin
+	ray.to = origin+forward*RESPAWN_SIGHT_RANGE
+	var hit = space.intersect_ray(ray)
+	return RESPAWN_SIGHT_RANGE if hit.is_empty() else origin.distance_to(hit.position)
 
 func enemy_zone(point: Vector3) -> String:
 	for path in region_paths:

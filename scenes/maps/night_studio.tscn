@@ -2276,7 +2276,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.1, 0.05, 8.9)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.6, 0.05, 13.8)
 
 [node name="Respawn2" type="Marker3D" parent="Markers" unique_id=53814568]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.7, 0.05, -3.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.7, 0.05, -2.0)
 
 [node name="Respawn3" type="Marker3D" parent="Markers" unique_id=99864687]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.8, 0.05, 6.6)
