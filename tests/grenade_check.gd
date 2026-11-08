@@ -28,7 +28,10 @@ func check() -> void:
 	for style in ["","comedy","roach"]:
 		start_round(style)
 		assert(game.grenade_stock==3)
-		assert(is_equal_approx(game.hud.grenade_stock_rect(0).get_center().y,game.hud.magazine_rect().get_center().y))
+		var icon_rect: Rect2 = game.hud.grenade_stock_rect(0)
+		var cartridge: Rect2 = game.hud.cartridge_rect(0)
+		assert(is_equal_approx(icon_rect.position.y,cartridge.position.y))
+		assert(is_equal_approx(icon_rect.size.y,cartridge.size.y))
 		if style.is_empty():await capture("hud-ready")
 		game.request_grenade()
 		var ammo: int = game.ammo

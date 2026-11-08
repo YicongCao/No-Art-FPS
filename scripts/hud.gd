@@ -34,6 +34,8 @@ const GRENADE_ICONS = {
 	"comedy": preload("res://assets/ui/stink-bomb.svg"),
 	"roach": preload("res://assets/ui/roach-bomb.svg"),
 }
+# Visible vertical fraction of each SVG with its safety pin in place.
+const GRENADE_ART_HEIGHT = {"":.84,"comedy":.90,"roach":.87}
 const GRENADE_PIN = preload("res://assets/ui/grenade-pin.svg")
 const GRENADE_EJECT_DURATION = .13
 var game: Node
@@ -151,15 +153,16 @@ func reset_magazine() -> void:
 	ejections.clear()
 
 func grenade_stock_rect(index: int) -> Rect2:
-	var extent = 36.0 if game.touch_mode else 42.0
+	var round = round_rect(magazine_rect(false),0)
+	var extent = round.size.y
 	var left = maxf(28.0,title_gutters().x) if game.touch_mode else 28.0
-	var center_y = magazine_rect(false).get_center().y
-	return Rect2(Vector2(left+index*(extent+8),center_y-extent*.5),Vector2.ONE*extent)
+	return Rect2(Vector2(left+index*(extent+8),round.position.y),Vector2.ONE*extent)
 
 func draw_grenade_stock() -> void:
 	if game.rules.mission:return
 	var stock: int = game.grenade_stock
 	var icon = GRENADE_ICONS[game.comedy_mode]
+	var art_height: float = GRENADE_ART_HEIGHT[game.comedy_mode]
 	var release_at: float = game.GRENADE_WINDUP-game.GRENADE_RELEASE
 	var pulling: bool = game.grenade_throw_time>release_at
 	var windup = 1.0-(game.grenade_throw_time-release_at)/game.GRENADE_RELEASE if pulling else 0.0
@@ -169,14 +172,13 @@ func draw_grenade_stock() -> void:
 		var center = slot.get_center()
 		var pulling_this = pulling and i==stock-1
 		var pull = smoothstep(.04,.76,windup) if pulling_this else 0.0
-		var extent = slot.size.x
-		draw_circle(center,extent*.55,Color("182530dd"),true,-1,true)
+		var extent = slot.size.x/art_height
 		var body_center = center+Vector2(-4,2)*pull*motion
 		draw_set_transform(body_center,-.18*pull*motion)
-		draw_texture_rect(icon,Rect2(Vector2.ONE*(-extent*.38),Vector2.ONE*(extent*.76)),false)
+		draw_texture_rect(icon,Rect2(Vector2.ONE*(-extent*.5),Vector2.ONE*extent),false)
 		draw_set_transform(Vector2.ZERO)
-		var pin_size = Vector2(.43,.287)*extent
-		var pin = body_center+Vector2(.12,-.29)*extent+Vector2(23,-20)*pull*motion
+		var pin_size = Vector2(.40,.267)*extent
+		var pin = body_center+Vector2(.18,-.31)*extent+Vector2(23,-20)*pull*motion
 		var pin_alpha = 1.0-smoothstep(.58,1.0,windup) if pulling_this else 1.0
 		draw_set_transform(pin,.42*pull*motion)
 		draw_texture_rect(GRENADE_PIN,Rect2(-pin_size*.5,pin_size),false,Color(Color.WHITE,pin_alpha))
@@ -185,7 +187,7 @@ func draw_grenade_stock() -> void:
 		var slot = grenade_stock_rect(stock)
 		var t = 1.0-grenade_eject_time/GRENADE_EJECT_DURATION
 		var center = slot.get_center()+Vector2(9+57*t,-7-26*t+9*t*t)*motion
-		var extent = slot.size.x*(.74-.2*t)
+		var extent = slot.size.x/art_height*(1.0-.27*t)
 		var alpha = .9*(1.0-smoothstep(.25,1.0,t))
 		if not game.reduced_motion:
 			draw_line(center+Vector2(-23,9),center+Vector2(-11,5),Color(GOLD,alpha),2,true)
