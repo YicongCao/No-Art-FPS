@@ -9,6 +9,7 @@ const DefaultSession = preload("res://data/sessions/score_attack.tres")
 const PARK_SESSION_PATH = "res://data/sessions/amusement_park.tres"
 const FERRY_SESSION_PATH = "res://data/sessions/last_ferry.tres"
 const STUDIO_SESSION_PATH = "res://data/sessions/night_studio.tres"
+const SANDGATE_SESSION_PATH = "res://data/sessions/sandgate.tres"
 var session = DefaultSession
 var opening: Array[Dictionary] = []
 const Player = preload("res://scripts/player.gd")
@@ -167,6 +168,9 @@ func _ready() -> void:
 		rules = session.make_rules()
 	elif "--studio" in OS.get_cmdline_user_args():
 		session = load(STUDIO_SESSION_PATH)
+		rules = session.make_rules()
+	elif "--sandgate" in OS.get_cmdline_user_args():
+		session = load(SANDGATE_SESSION_PATH)
 		rules = session.make_rules()
 	title_session_id = session.session_id
 	var settlement = Settlement.new()

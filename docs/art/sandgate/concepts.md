@@ -9,6 +9,19 @@
 | [中路双门](mid-doors.png) | 双门的射击缝、右侧小道的高差和左侧通往 B 的侧门。 |
 | [B 隧道口](b-tunnel.png) | 从阴影进入亮庭院，正面能看到 B 窗、堆箱和油桶。 |
 
+## Godot 对照
+
+| 机位 | 概念 | 实机 |
+| --- | --- | --- |
+| 俯视总览 | [概念图](overview.png) | [实机](in-engine/overview.png) |
+| A 大道 | [概念图](a-long.png) | [实机](in-engine/a-long.png) |
+| 中路双门 | [概念图](mid-doors.png) | [实机](in-engine/mid-doors.png) |
+| B 隧道口 | [概念图](b-tunnel.png) | [实机](in-engine/b-tunnel.png) |
+
+实机保留长门、低坑、A 台、中门与小道高差、B 窗和穹顶塔。门扇留出角色通行宽度，低坑和小道配连续坡面碰撞，市集侧墙在狂暴时可以拆开。以实机为准看门洞净宽、战斗空间和光照。
+
+可编辑构件在 [sandgate.blend](../../../art_source/sandgate.blend)，地图在 [sandgate.tscn](../../../scenes/maps/sandgate.tscn)。复现时先运行 [Blender 构建脚本](../../../tools/build_sandgate.py)，导入 Godot 后运行 [场景烘焙脚本](../../../tools/maps/save_sandgate.gd)。[四个对照机位](../../../tools/maps/capture_sandgate.gd)由 Godot 实际渲染。
+
 ## 生成提示词
 
 参考图依次为[雪藏版 B 院实机](../../../artifacts/dust-revised-b.png)、[雪藏版长廊实机](../../../artifacts/dust-revised-long.png)和[路线与色板示意](../../design/dust2-adaptation.png)。每张图使用以下共用提示加对应的机位提示。
