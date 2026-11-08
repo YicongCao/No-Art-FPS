@@ -25,6 +25,7 @@ const app=launch('en-US');
 assert.equal(app.heading.textContent,'Sensitivity');
 assert.equal(app.button.label,'Close gyro settings');
 assert.equal(app.window.noArtText('校准进度'),'Calibration progress');
+assert.equal(app.window.noArtText('保持稳定'),'Hold Steady');
 for(const mark of ['NO ART FPS','FIRE'])assert.equal(app.window.noArtText(mark),mark);
 app.window.noArtSetLanguage('zh');
 assert.equal(app.document.documentElement.lang,'zh-CN');

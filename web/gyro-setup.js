@@ -213,6 +213,7 @@ export function setupGyroPanel({makeGyro, sync, isActive}) {
     get('gyro-practice-touch').hidden=state.practicePassed;
     get('gyro-continue').textContent=t(entering?'进入游戏':'返回设置');
     if(step==='setup'){
+      heading.textContent=t(state.calibrating?'保持稳定':'校准体感');
       drawCalibration();
       if(state.calibrating&&!frame)frame=requestAnimationFrame(calibrationFrame);
       else if(!state.calibrating&&frame)stopFrame();

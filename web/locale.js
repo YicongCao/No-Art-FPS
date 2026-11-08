@@ -59,6 +59,7 @@
     '游戏加载失败，请检查网络后重试':'The game failed to load. Check your connection and try again.',
     '启用体感瞄准？':'Enable gyro aim?',
     '校准体感':'Calibrate Gyro Aim',
+    '保持稳定':'Hold Steady',
     '体感练习':'Aim Practice',
     '体感已就绪':'Gyro Aim Ready',
     '等待授权':'Waiting for permission',
