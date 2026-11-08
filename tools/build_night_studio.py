@@ -144,7 +144,7 @@ def rails(item, x1, x2, z, y=2.7):
     layout["boxes"].append([((x1+x2)/2,y+.57,z),(x2-x1,1.18,.10)])
 
 
-def instance(asset, label, at, size, rotation=0, paper=False, structural=False):
+def instance(asset, label, at, size, rotation=0, paper=False, structural=False, shoot_only=False):
     obj = bpy.data.objects.new(label, None)
     obj.instance_type = "COLLECTION"
     obj.instance_collection = kits[asset].collection
@@ -152,7 +152,7 @@ def instance(asset, label, at, size, rotation=0, paper=False, structural=False):
     obj.rotation_euler.z = rotation
     scene.collection.objects.link(obj)
     layout["props"].append(dict(asset=asset,name=label,at=at,size=size,angle=rotation,
-                                paper=paper,structural=structural))
+                                paper=paper,structural=structural,shoot_only=shoot_only))
 
 
 # Warm stage floor, perimeter, back corridor and ceiling. All dimensions are in Godot axes.
@@ -224,13 +224,15 @@ for i in range(17):
         stage.rod("Faceted marquee arch",previous,at,.28,"gold",6)
     stage.rod("Marquee bulb",at,(at[0],at[1],at[2]+.29),.091,"lamp",8)
     previous = at
-for x in (-5.55,5.75):
-    stage.rod("Planter",(x,.29,-5.78),(x,.77,-5.78),.28,"amber",8,.38)
-    stage.rod("Plant trunk",(x,.77,-5.78),(x,2.27,-5.78),.082,"card",7)
-    for i in range(6):
-        a = i*math.tau/6
-        tip = (x+math.cos(a)*.76,1.94,-5.78+math.sin(a)*.76)
-        stage.rod("Stylized plant frond",(x,2.28,-5.78),tip,.16,"leaf",5,.035)
+planter = kit("stage_planter")
+planter.rod("Planter",(0,0,0),(0,.48,0),.28,"amber",8,.38)
+planter.rod("Plant trunk",(0,.48,0),(0,1.98,0),.082,"card",7)
+for i in range(6):
+    a = i*math.tau/6
+    tip = (math.cos(a)*.76,1.65,math.sin(a)*.76)
+    planter.rod("Stylized plant frond",(0,1.99,0),tip,.16,"leaf",5,.035)
+for label,x in (("Left",-5.55),("Right",5.75)):
+    instance("stage_planter",f"StagePlanter{label}",(x,.29,-5.78),(1.52,2.10,1.40),shoot_only=True)
 
 for x in (-8.75,8.75):
     z0,z1,top = -10.1,-3.0,2.62
@@ -312,6 +314,15 @@ for x in (-1.12,1.12):
 instance("sofa","GuestSofa",(-3.5,.29,-5.7),(2.45,1.08,1.03))
 instance("sofa","GuestLoveseat",(-1.4,.29,-5.4),(2.45,1.08,1.03),-.17)
 
+floor_monitor = kit("floor_monitor")
+floor_monitor.box("Monitor speaker cabinet",(0,.23,0),(.85,.46,.58),"navy")
+floor_monitor.box("Speaker grille",(0,.36,-.08),(.74,.24,.45),"slate")
+for x in (-.22,0,.22):
+    floor_monitor.box("Grille vent",(x,.49,-.08),(.045,.024,.36),"ink")
+floor_monitor.box("Power LED",(.35,.22,.30),(.06,.08,.025),"tally")
+for label,x in (("Left",-4.7),("Right",5.9)):
+    instance("floor_monitor",f"StageMonitor{label}",(x,.29,-3.53),(.85,.52,.64),x*.045,shoot_only=True)
+
 news = kit("news", True)
 solid(news,"News plinth",(-16,.055,-8.8),(9.6,.11,7.0),"ivory")
 backdrop = kit("news_backdrop")
@@ -328,12 +339,16 @@ for y in (1.7,2.35,3.0):
     half = math.sqrt(1.42**2-(y-2.35)**2)
     backdrop.rod("Globe latitude",(-1.3-half,y,.15),(-1.3+half,y,.15),.026,"cyan",5)
 instance("news_backdrop","NewsBackdrop",(-16,.11,-11.85),(8.25,4.27,.24),structural=True)
-for x in (-20,-18.1,-16.2,-14.3):
-    news.box("Control room monitor casing",(x,1.85,-15.97),(1.66,.95,.22),"ink")
-    news.box("Control room monitor",(x,1.85,-15.83),(1.43,.73,.08),"screen")
-    news.box("Switcher console",(x,.89,-15.35),(1.78,.14,.65),"navy")
-    for i in range(5):
-        news.box("Switcher key",(x-.58+i*.26,.98,-15.25),(.13,.06,.14),("cyan","tally","lamp")[i%3])
+monitor = kit("control_monitor")
+monitor.box("Monitor casing",(0,.475,0),(1.66,.95,.22),"ink")
+monitor.box("Monitor glass",(0,.475,.14),(1.43,.73,.08),"screen")
+switcher = kit("control_switcher")
+switcher.box("Switcher console",(0,.07,0),(1.78,.14,.65),"navy")
+for i in range(5):
+    switcher.box("Switcher key",(-.58+i*.26,.16,.10),(.13,.06,.14),("cyan","tally","lamp")[i%3])
+for i,x in enumerate((-20,-18.1,-16.2,-14.3)):
+    instance("control_monitor",f"ControlMonitor{i}",(x,1.375,-15.94),(1.66,.95,.29),shoot_only=True)
+    instance("control_switcher",f"ControlSwitcher{i}",(x,.82,-15.35),(1.78,.20,.65),shoot_only=True)
 for x in (-21.5,-19,-16.5,-14):
     news.box("Control room window upright",(x,1.83,-14.24),(.09,2.11,.12),"slate")
 for y in (.81,2.87):
@@ -405,14 +420,19 @@ for x in (-20.9,-18.4,-15.9,-13.4):
 for y in (.66,2.81):
     details.box("Glass divider crossbar",(-17.15,y,14.78),(7.6,.09,.10),"green")
 solid(details,"Divider knee wall",(-17.15,.32,14.78),(7.6,.64,.16),"mint")
-details.box("Bulletin board",(-20.9,1.6,2.3),(1.5,.95,.12),"card")
+bulletin = kit("bulletin_board")
+bulletin.box("Cork and frame",(0,.475,0),(1.50,.95,.12),"card")
 for i in range(5):
-    details.box("Pinned assignment",(-21.37+i*.24,1.61+(i%2)*.12,2.38),(.18,.22,.02),"paper")
-details.box("Patch bay cabinet",(-12.3,1.04,12.75),(.92,2.08,.62),"navy")
+    bulletin.box("Pinned assignment",(-.47+i*.24,.485+(i%2)*.12,.08),(.18,.22,.02),"paper")
+instance("bulletin_board","AssignmentBoard",(-20.9,1.125,2.33),(1.50,.95,.19),paper=True,shoot_only=True)
+
+patch_bay = kit("patch_bay")
+patch_bay.box("Patch bay cabinet",(0,1.04,0),(.92,2.08,.62),"navy")
 for i in range(8):
-    details.box("Patch bay strip",(-12.3,.38+i*.17,13.07),(.76,.075,.04),"slate")
+    patch_bay.box("Patch bay strip",(0,.38+i*.17,.32),(.76,.075,.04),"slate")
     for j in range(4):
-        details.box("Patch bay LED",(-12.55+j*.16,.38+i*.17,13.10),(.06,.047,.019),("tally","cyan","lamp")[j%3])
+        patch_bay.box("Patch bay LED",(-.25+j*.16,.38+i*.17,.35),(.06,.047,.019),("tally","cyan","lamp")[j%3])
+instance("patch_bay","PatchBay",(-12.3,0,12.77),(.92,2.08,.67),shoot_only=True)
 
 archive = kit("archive_rack")
 for x in (-1.29,1.29):

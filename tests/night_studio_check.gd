@@ -66,13 +66,32 @@ func check() -> void:
 	var to = Vector3(0,1.35,-10.05)
 	var shortcut = PhysicsRayQueryParameters3D.create(from,to,1)
 	assert(game.get_world_3d().direct_space_state.intersect_ray(shortcut).is_empty(),"A destroyed backdrop opens the backstage passage")
+	var monitors = {
+		arena.get_node("Props/StageMonitorLeft"): Vector3(-4.7,.05,-.3),
+		arena.get_node("Props/ControlMonitor2"): Vector3(-13.3,.05,-14.85)
+	}
+	for monitor in monitors:
+		game.player.position = monitors[monitor]
+		await physics_frame
+		shoot_at(monitor.world_bounds().get_center())
+		assert(monitor.hits==1 and not monitor.collapsed)
+		shoot_at(monitor.world_bounds().get_center())
+		for _tick in range(20):await physics_frame
+		assert(monitor.collapsed and not monitor.get_node("Model").visible)
+		assert(monitor.collision_states.keys()[0].collision_layer==0)
 	for _tick in range(900):game.rules.tick(1.0/60.0)
 	game._physics_process(0)
 	assert(game.finale_active)
 	game.start_run()
 	assert(not rack.collapsed and not flat.collapsed and rack.hits==0 and flat.hits==0)
+	for monitor in monitors:
+		assert(not monitor.collapsed and monitor.get_node("Model").visible)
+		assert(monitor.collision_states.keys()[0].collision_layer==game.SCENERY_TARGET_LAYER)
 	assert(not game.destroy_active and game.effects.get_child_count()==0)
-	print("NIGHT_STUDIO_PASS: eight enemies, round deadline, ordinary paper impact, fire burst, shortcut, independent record, full reset")
+	print("NIGHT_STUDIO_PASS: eight enemies, round deadline, ordinary paper impact, fire burst, shortcut, destructible monitors, independent record, full reset")
+	if DisplayServer.get_name()=="headless":
+		var audio_deadline = Time.get_ticks_msec()+450
+		while Time.get_ticks_msec()<audio_deadline:await process_frame
 	game.queue_free()
 	await process_frame
 	quit()

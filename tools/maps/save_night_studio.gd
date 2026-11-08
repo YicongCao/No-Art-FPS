@@ -59,6 +59,7 @@ func place_props(items: Array) -> void:
 		var visual = model(part,item.asset,"Model")
 		var size = vec(item.size)
 		var body = box(part,Vector3.UP*size.y*.5,size)
+		if item.shoot_only:body.collision_layer = 16
 		part.bounds = AABB(Vector3(-size.x*.5,0,-size.z*.5),size)
 		part.saved_parts.append(part.get_path_to(visual))
 		part.saved_parts.append(part.get_path_to(body))
@@ -66,45 +67,18 @@ func place_props(items: Array) -> void:
 
 func light_beams(spots: Array) -> void:
 	var rig = add(studio,Node3D.new(),"PracticalLighting")
-	var shader = Shader.new()
-	shader.code = """
-shader_type spatial;
-render_mode unshaded, blend_add, cull_back, depth_draw_never;
-void fragment() {
-	ALBEDO = vec3(1.0, 0.77, 0.46);
-	float along = sin(clamp(UV.y, 0.0, 1.0) * 3.14159);
-	ALPHA = along * pow(1.0 - abs(dot(normalize(NORMAL), normalize(VIEW))), 0.65) * 0.115;
-}
-"""
-	var paint = ShaderMaterial.new()
-	paint.shader = shader
 	for i in range(spots.size()):
 		var origin = vec(spots[i][0])
 		var target = vec(spots[i][1])
 		var spot = SpotLight3D.new()
 		spot.position = origin
 		spot.light_color = Color("ffe5b3")
-		spot.light_energy = 1.02
+		spot.light_energy = .65
 		spot.spot_range = origin.distance_to(target)+1.8
 		spot.spot_angle = 32.0
 		add(rig,spot,"StageSpot%d"%i)
 		spot.look_at_from_position(origin,target)
-		if i==1 or i==2 or i==4:
-			var beam = MeshInstance3D.new()
-			var cone = CylinderMesh.new()
-			cone.height = origin.distance_to(target)
-			cone.top_radius = .21
-			cone.bottom_radius = 2.15
-			cone.radial_segments = 12
-			cone.rings = 0
-			cone.cap_top = false
-			cone.cap_bottom = false
-			beam.mesh = cone
-			beam.material_override = paint
-			beam.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-			beam.position = (origin+target)*.5
-			beam.quaternion = Quaternion(Vector3.UP,target.direction_to(origin))
-			add(rig,beam,"SpotShaft%d"%i)
+
 
 func window(parent: Node3D, center: Vector3, extent: Vector2, label: String) -> void:
 	var pane = MeshInstance3D.new()
@@ -141,7 +115,6 @@ func build() -> void:
 	studio.sun_color = Color("ffe8c7")
 	studio.sun_rotation_degrees = Vector3(-64,18,0)
 	studio.fall_limit = -3.0
-	root.add_child(studio)
 	var env = Environment.new()
 	env.background_mode = Environment.BG_COLOR
 	env.background_color = Color("182541")
@@ -195,6 +168,7 @@ func build() -> void:
 	add(studio,nav,"Navigation")
 	studio.navigation_path = studio.get_path_to(nav)
 	studio.add_to_group("studio_navigation",true)
+	root.add_child(studio)
 	nav.bake_navigation_mesh(false)
 	assert(mesh.get_polygon_count()>0,"Studio navigation bake is empty")
 	for _tick in range(30):
@@ -204,6 +178,8 @@ func build() -> void:
 	if not studio.validate_navigation():
 		quit(1)
 		return
+	for node in studio.find_children("*","",true,false):
+		if node.has_meta("structure"):node.remove_meta("structure")
 	var scene = PackedScene.new()
 	assert(scene.pack(studio)==OK)
 	assert(ResourceSaver.save(scene,"res://scenes/maps/night_studio.tscn")==OK)
