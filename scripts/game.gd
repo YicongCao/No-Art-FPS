@@ -803,6 +803,8 @@ func menu_action(action: String) -> void:
 			select_session(PARK_SESSION_PATH,action)
 		"last_ferry":
 			select_session(FERRY_SESSION_PATH,action)
+		"night_studio":
+			select_session(STUDIO_SESSION_PATH,action)
 		"defuse":
 			if dust_unlocked:
 				select_session("res://data/sessions/defuse.tres","defuse_mission")
@@ -1369,7 +1371,7 @@ func settle_rules() -> void:
 
 func title_preview_key() -> String:
 	var path: String = session.resource_path
-	if path in [DefaultSession.resource_path,PARK_SESSION_PATH,FERRY_SESSION_PATH]:return path
+	if path in [DefaultSession.resource_path,PARK_SESSION_PATH,FERRY_SESSION_PATH,STUDIO_SESSION_PATH]:return path
 	return ""
 
 func select_session(selection: Variant, highlighted_id: String = "") -> void:

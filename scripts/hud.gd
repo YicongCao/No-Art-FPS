@@ -5,6 +5,7 @@ const DAMAGE_IMPACT = preload("res://assets/ui/damage-impact.svg")
 const YARD_THUMBNAIL = preload("res://assets/ui/maps/yard.webp")
 const PARK_THUMBNAIL = preload("res://assets/ui/maps/amusement-park.webp")
 const FERRY_THUMBNAIL = preload("res://assets/ui/maps/last-ferry.webp")
+const STUDIO_THUMBNAIL = preload("res://assets/ui/maps/night-studio.webp")
 const PAUSE_ICON = preload("res://assets/ui/settings/pause.svg")
 const AIM_ICON = preload("res://assets/ui/settings/aim.svg")
 const MOTION_ICON = preload("res://assets/ui/settings/motion.svg")
@@ -464,14 +465,19 @@ func rebuild_menu() -> void:
 		var width = 176.0 if game.touch_mode else 216.0
 		var height = width*9/16
 		var gap = 10.0 if game.touch_mode else 12.0
-		var right = size.x-gutters.y
-		var yard_card = map_button("MapYard","货场","arena",YARD_THUMBNAIL,
-			Rect2(right-width,bottom-3*height-2*gap,width,height),game.title_session_id=="score_attack")
-		var park_card = map_button("MapPark","夕阳游乐园","amusement_park",PARK_THUMBNAIL,
-			Rect2(right-width,bottom-2*height-gap,width,height),game.title_session_id=="amusement_park")
-		var ferry_card = map_button("MapFerry","末班渡轮","last_ferry",FERRY_THUMBNAIL,
-			Rect2(right-width,bottom-height,width,height),game.title_session_id=="last_ferry")
-		var tab_order = [fire_button,yard_card,park_card,ferry_card]
+		var corner = Vector2(size.x-gutters.y-2*width-gap,bottom-2*height-gap)
+		var maps = [
+			["MapYard","货场","arena",YARD_THUMBNAIL,"score_attack"],
+			["MapPark","夕阳游乐园","amusement_park",PARK_THUMBNAIL,"amusement_park"],
+			["MapFerry","末班渡轮","last_ferry",FERRY_THUMBNAIL,"last_ferry"],
+			["MapStudio","深夜摄影棚","night_studio",STUDIO_THUMBNAIL,"night_studio"],
+		]
+		var tab_order = [fire_button]
+		for i in range(maps.size()):
+			var item: Array = maps[i]
+			var position = corner+Vector2((i%2)*(width+gap),floori(i*.5)*(height+gap))
+			tab_order.append(map_button(item[0],item[1],item[2],item[3],Rect2(position,Vector2(width,height)),
+				game.title_session_id==item[4]))
 		for i in range(tab_order.size()):
 			tab_order[i].focus_next = tab_order[i].get_path_to(tab_order[(i+1)%tab_order.size()])
 			tab_order[i].focus_previous = tab_order[i].get_path_to(tab_order[i-1])
