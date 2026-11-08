@@ -196,4 +196,5 @@ func stationary(pos: Vector3) -> Node3D:
 func capture(filename: String) -> void:
 	if DisplayServer.get_name()=="headless":return
 	await RenderingServer.frame_post_draw
+	DirAccess.make_dir_recursive_absolute("res://artifacts/local")
 	get_viewport().get_texture().get_image().save_png("res://artifacts/local/"+filename+".png")
