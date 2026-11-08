@@ -5,6 +5,8 @@ const ParkSession = preload("res://data/sessions/amusement_park.tres")
 const FerrySession = preload("res://data/sessions/last_ferry.tres")
 const StudioSession = preload("res://data/sessions/night_studio.tres")
 const SandgateSession = preload("res://data/sessions/sandgate.tres")
+const OfficeSession = preload("res://data/sessions/bb_office.tres")
+const CARDS = ["MapYard","MapPark","MapFerry","MapStudio","MapSandgate","MapOffice"]
 var game: Node3D
 
 func _initialize() -> void:
@@ -21,27 +23,17 @@ func check() -> void:
 	game.hud.rebuild_menu()
 	assert(game.title_frame_ready and game.nav_ready and game.session==YardSession)
 	assert(game.hud.fire_button.text=="FIRE")
-	assert(game.hud.menu.get_children().filter(func(node):return node is Button).size()==8)
+	assert(game.hud.menu.get_children().filter(func(node):return node is Button).size()==9)
 	assert(not game.hud.menu.get_node("comedy").button_pressed)
 	assert(not game.hud.menu.get_node("roach").button_pressed)
 	var selected = game.hud.menu.get_node("MapYard/Selected")
 	assert(selected.get_theme_stylebox("panel").border_width_left==4)
-	var fire: Rect2 = game.hud.fire_button.get_rect()
-	var yard_rect: Rect2 = game.hud.menu.get_node("MapYard").get_rect()
-	var park_rect: Rect2 = game.hud.menu.get_node("MapPark").get_rect()
-	var ferry_rect: Rect2 = game.hud.menu.get_node("MapFerry").get_rect()
-	var studio_rect: Rect2 = game.hud.menu.get_node("MapStudio").get_rect()
-	var last_card: Rect2 = game.hud.menu.get_node("MapSandgate").get_rect()
-	assert(park_rect.position.x==studio_rect.position.x and ferry_rect.position.x==last_card.position.x)
-	assert(yard_rect.position.y==park_rect.position.y and park_rect.position.y==ferry_rect.position.y)
-	assert(studio_rect.position.y==last_card.position.y and ferry_rect.end.y<last_card.position.y)
-	assert(yard_rect.end.x<park_rect.position.x and park_rect.end.x<ferry_rect.position.x)
-	assert(is_equal_approx(fire.end.y,last_card.end.y),"FIRE and the last map share a baseline")
-	assert_card_records([0,0,0,0,0])
+	assert_grid()
+	assert_card_records([0,0,0,0,0,0])
 	game.achievements.merge({"scores":{"score":13,"score_amusement_park_v1":7,
-		"score_last_ferry_v1":5,"score_night_studio_v1":9,"score_night_studio_v2":123,"score_sandgate_v1":6}})
+		"score_last_ferry_v1":5,"score_night_studio_v1":9,"score_night_studio_v2":123,"score_sandgate_v1":6,"score_bb_office_v1":8}})
 	game.hud.rebuild_menu()
-	assert_card_records([13,7,5,123,6])
+	assert_card_records([13,7,5,123,6,8])
 	if DisplayServer.get_name()!="headless":await capture("map-medals-title")
 	var old_frame = game.hud.title_frame
 	var park_card = game.hud.menu.get_node("MapPark")
@@ -111,6 +103,15 @@ func check() -> void:
 	assert(not game.rules.mission and game.score_record_key()=="score_sandgate_v1" and game.best==6)
 	assert(game.hud.menu.get_node("MapSandgate").has_focus() and not game.hud.fire_button.disabled)
 	if DisplayServer.get_name()!="headless":await capture("sandgate-title-selector")
+	var office_card = game.hud.menu.get_node("MapOffice")
+	office_card.grab_focus()
+	game._unhandled_input(enter)
+	assert(game.hud.menu.has_node("MapOffice/Selected") and game.hud.fire_button.disabled)
+	await wait_for_switch()
+	assert(game.session==OfficeSession and game.nav_ready and game.best==8)
+	assert(game.score_record_key()=="score_bb_office_v1" and game.hud.menu.get_node("MapOffice").has_focus())
+	if DisplayServer.get_name()!="headless":await capture("bb-office-title-selector")
+
 	await game.select_session(YardSession)
 	assert(game.nav_ready and game.world_environment.environment==game.daylight_environment)
 	assert(game.title_session_id=="score_attack" and game.hud.menu.get_node("MapYard/Selected"))
@@ -147,7 +148,7 @@ func check() -> void:
 	assert(game.state=="TITLE" and game.session==ParkSession)
 	game.hud.rebuild_menu()
 	assert(game.hud.menu.get_node("MapPark/Selected"))
-	assert_card_records([13,17,5,123,6])
+	assert_card_records([13,17,5,123,6,8])
 	game.start_run()
 	game.begin_running()
 	game.rules.kills = 99
@@ -183,19 +184,54 @@ func check() -> void:
 	assert(not game.rules.active and not game.player.enabled)
 	assert(game.enemies.get_child_count()==0 and game.effects.get_child_count()==0)
 	game.hud.rebuild_menu()
-	assert_card_records([13,17,5,123,6])
-	print("MAP_SELECTOR_PASS: staged selection, focus, rollback, individual records and return home from results or pause")
+	assert_card_records([13,17,5,123,6,8])
+	assert_grid()
+	var office_touch = game.hud.menu.get_node("MapOffice")
+	click(office_touch.get_global_rect().get_center())
+	assert(game.hud.menu.has_node("MapOffice/Selected") and game.hud.fire_button.disabled)
+	await wait_for_switch()
+	assert(game.session==OfficeSession and game.nav_ready and not game.hud.fire_button.disabled)
+	if DisplayServer.get_name()!="headless":await capture("bb-office-title-touch")
+	click(game.hud.fire_button.get_global_rect().get_center())
+	# Native QA can exercise the touch layout, but has no browser touch bridge.
+	game.touch_mode = false
+	game.set_physics_process(true)
+	for _frame in range(900):
+		if game.state=="RUNNING":break
+		await process_frame
+	assert(game.state=="RUNNING" and game.session==OfficeSession)
+	print("MAP_SELECTOR_PASS: six cards, staged selection, focus, rollback, individual records, return home and touch layout launch")
+	game.pause_run()
+	game.menu_action("menu")
+	game.set_physics_process(false)
+	game.music.stop()
 	await process_frame
 	await process_frame
 	if DisplayServer.get_name()=="headless":
 		var audio_deadline = Time.get_ticks_msec()+450
 		while Time.get_ticks_msec()<audio_deadline:await process_frame
+	game.queue_free()
+	await process_frame
 	quit()
 
+func assert_grid() -> void:
+	var fire: Rect2 = game.hud.fire_button.get_rect()
+	var grid: Array[Rect2] = []
+	for card in CARDS:
+		var rect: Rect2 = game.hud.menu.get_node(card).get_rect()
+		assert(game.hud.get_rect().encloses(rect) and rect.position.x>fire.end.x)
+		grid.append(rect)
+	for row in range(3):
+		var left = grid[row*2]
+		var right = grid[row*2+1]
+		assert(left.position.y==right.position.y and left.end.x<right.position.x)
+		assert(left.position.x==grid[0].position.x and right.position.x==grid[1].position.x)
+		if row>0:assert(left.position.y>grid[row*2-2].end.y)
+	assert(is_equal_approx(fire.end.y,grid[-1].end.y),"FIRE and the last map share a baseline")
+
 func assert_card_records(expected: Array) -> void:
-	var names = ["MapYard","MapPark","MapFerry","MapStudio","MapSandgate"]
-	for i in range(names.size()):
-		var card = game.hud.menu.get_node(names[i])
+	for i in range(CARDS.size()):
+		var card = game.hud.menu.get_node(CARDS[i])
 		var panel = card.get_node("Record")
 		assert(panel.find_child("Score",true,false).text==str(expected[i]))
 		assert(panel.mouse_filter==Control.MOUSE_FILTER_IGNORE)

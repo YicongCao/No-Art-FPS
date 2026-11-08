@@ -8,6 +8,7 @@ const PARK_THUMBNAIL = preload("res://assets/ui/maps/amusement-park.webp")
 const FERRY_THUMBNAIL = preload("res://assets/ui/maps/last-ferry.webp")
 const STUDIO_THUMBNAIL = preload("res://assets/ui/maps/night-studio.webp")
 const SANDGATE_THUMBNAIL = preload("res://assets/ui/maps/sandgate.webp")
+const OFFICE_THUMBNAIL = preload("res://assets/ui/maps/bb-office.webp")
 const COMEDY_ICON = preload("res://assets/ui/settings/comedy.svg")
 const ROACH_ICON = preload("res://assets/ui/settings/roach.svg")
 const BadgeCatalog = preload("res://scripts/achievements.gd")
@@ -767,22 +768,24 @@ func rebuild_menu() -> void:
 		fire_button.pivot_offset = fire_button.size*.5
 		fire_button.button_down.connect(func():fire_button.scale = Vector2.ONE*.96)
 		fire_button.button_up.connect(func():fire_button.scale = Vector2.ONE)
-		var width = 176.0 if game.touch_mode else 216.0
-		var height = width*9/16
 		var gap = 10.0 if game.touch_mode else 12.0
-		var corner = Vector2(size.x-gutters.y-3*width-2*gap,bottom-2*height-gap)
+		var grid_room = bottom-gutters.w-64.0
+		var width = minf(176.0 if game.touch_mode else 216.0,(grid_room-2*gap)*16/27)
+		var height = width*9/16
+		var corner = Vector2(size.x-gutters.y-2*width-gap,bottom-3*height-2*gap)
 		var maps = [
 			["MapYard",tr("Container Yard"),"arena",YARD_THUMBNAIL,"score_attack"],
 			["MapPark",tr("Sunset Park"),"amusement_park",PARK_THUMBNAIL,"amusement_park"],
 			["MapFerry",tr("Last Ferry"),"last_ferry",FERRY_THUMBNAIL,"last_ferry"],
 			["MapStudio",tr("Night Studio"),"night_studio",STUDIO_THUMBNAIL,"night_studio"],
 			["MapSandgate",tr("Sandgate"),"sandgate",SANDGATE_THUMBNAIL,"sandgate"],
+			["MapOffice",tr("BB Office"),"bb_office",OFFICE_THUMBNAIL,"bb_office"],
 		]
 		var tab_order = [fire_button]
 		for i in range(maps.size()):
 			var item: Array = maps[i]
-			var column = i if i<3 else i-2
-			var row = 0 if i<3 else 1
+			var column = i%2
+			var row = floori(i*.5)
 			var position = corner+Vector2(column*(width+gap),row*(height+gap))
 			tab_order.append(map_button(item[0],item[1],item[2],item[3],Rect2(position,Vector2(width,height)),
 				game.title_session_id==item[4],game.map_best_score(item[4])))
