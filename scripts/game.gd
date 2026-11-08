@@ -212,7 +212,7 @@ func _ready() -> void:
 	layer.add_child(hud)
 	achievements.unlocked.connect(hud.queue_badge_toast)
 	achievements.changed.connect(queue_progress_save)
-	for key in ["shot","hit","kill","headshot","reload","hurt","tick","end","fuse","explosion","charge","cartridge_insert","magazine_latch","comedy_plop","roach_buzz","water_shot","slipper_shot","roach_grenade"]:
+	for key in ["shot","hit","kill","headshot","reload","hurt","tick","end","fuse","explosion","charge","cartridge_insert","magazine_latch","comedy_plop","roach_buzz","water_shot","slipper_shot","roach_grenade","enemy_raise"]:
 		sounds[key] = load("res://assets/audio/"+key+".wav")
 	for i in range(12):
 		var voice = AudioStreamPlayer.new()
@@ -1092,12 +1092,9 @@ func update_spawns(delta: float) -> void:
 		pending_spawn.delay -= delta
 		if pending_spawn.delay<=0:
 			var p: Vector3 = pending_spawn.pos
-			# The player can turn during the warning: recheck visibility before materializing.
-			var query = PhysicsRayQueryParameters3D.create(player.camera.global_position,p+Vector3(0,1,0),1)
-			var blocked = not get_world_3d().direct_space_state.intersect_ray(query).is_empty()
-			var screen = player.camera.unproject_position(p+Vector3(0,1,0))
-			var visible_now = not player.camera.is_position_behind(p) and get_viewport().get_visible_rect().has_point(screen)
-			if p.distance_to(player.position)>8 and spawn_is_clear(p) and (blocked or not visible_now) and live_enemies().size()<population_target() and zone_population(arena.enemy_zone(p))<zone_capacity(arena.enemy_zone(p)):
+			var zone = arena.enemy_zone(p)
+			# The player can move or destroy cover during the warning.
+			if p.distance_to(player.position)>8 and spawn_is_clear(p) and spawn_has_cover(p) and arena.zone_intact(zone) and live_enemies().size()<population_target() and zone_population(zone)<zone_capacity(zone):
 				var rushers = live_enemies().filter(func(e):return e.fast).size()
 				spawn_enemy(p,rules.elapsed>8 and rushers<(2 if rules.elapsed<40 else 3) and rng.randf()<.35)
 			pending_spawn.clear()
@@ -1113,13 +1110,10 @@ func update_spawns(delta: float) -> void:
 		var zone = arena.enemy_zone(p)
 		if not arena.zone_intact(zone):continue
 		if zone_population(zone)>=zone_capacity(zone):continue
+		if not spawn_has_cover(p):continue
 		var path = NavigationServer3D.map_get_path(arena.nav.get_navigation_map(),p,player.position,true)
-		if path.size()<2:continue
-		var query = PhysicsRayQueryParameters3D.create(player.camera.global_position,p+Vector3(0,1,0),1)
-		var occluded = not get_world_3d().direct_space_state.intersect_ray(query).is_empty()
-		var screen_point = player.camera.unproject_position(p+Vector3(0,1,0))
-		var visible_target = not player.camera.is_position_behind(p) and get_viewport().get_visible_rect().has_point(screen_point)
-		if occluded or not visible_target:choices.append(i)
+		if path.size()<2 or path[-1].distance_to(player.position)>1.5:continue
+		choices.append(i)
 	if choices.is_empty():return
 	# Fill missing patrol posts first; reserve their slots even while they are visible.
 	var patrol_choices = choices.filter(func(i):return arena.enemy_zone(arena.spawn_points[i])!="yard")
@@ -1130,6 +1124,10 @@ func update_spawns(delta: float) -> void:
 	spawn_cooldowns[index] = 1.6
 	pending_spawn = {"pos":pos,"delay":.4}
 	spark(pos+Vector3(0,.1,0),Color("f2d084"),.25,.4)
+
+func spawn_has_cover(point: Vector3) -> bool:
+	var eye: Vector3 = player.camera.global_position
+	return not blast_clear(eye,point+Vector3.UP*1.12,[]) and not blast_clear(eye,point+Vector3.UP*1.7,[])
 
 func shoot() -> void:
 	if objective_focus!=null:return
@@ -1429,8 +1427,29 @@ func on_kill(enemy: Node3D, headshot: bool, from_finale: bool = false) -> void:
 
 func reserve_ranged_aim(enemy: Node3D) -> bool:
 	if ranged_aimers.size()+bullets.size()>=RANGED_ATTACK_LIMIT:return false
+	if is_behind_player(enemy.ranged_origin()) and (rear_bullet_active() or rear_aiming_enemy()!=null):return false
 	ranged_aimers[enemy] = true
 	return true
+
+func is_behind_player(origin: Vector3) -> bool:
+	var offset: Vector3 = origin-player.global_position
+	offset.y = 0
+	return player.global_basis.z.dot(offset)>0
+
+func rear_bullet_active() -> bool:
+	for bullet in bullets:
+		if is_behind_player(bullet.origin):return true
+	return false
+
+func rear_aiming_enemy() -> Node3D:
+	if rear_bullet_active():return null
+	var next: Node3D
+	for enemy in ranged_aimers:
+		if not is_behind_player(enemy.ranged_origin()):continue
+		if next==null or (enemy.rear_warned and not next.rear_warned) or (
+				enemy.rear_warned==next.rear_warned and enemy.windup<next.windup):
+			next = enemy
+	return next
 
 func enemy_shoot(origin: Vector3, target: Vector3) -> void:
 	if state!="RUNNING" or not rules.active or respawn_time>0:return

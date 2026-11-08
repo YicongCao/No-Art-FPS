@@ -1023,7 +1023,7 @@ sun_shadow_bias = 0.36
 environment_override = SubResource("Environment_77hd4")
 start_path = NodePath("Markers/PlayerStart")
 opening_paths = Array[NodePath]([NodePath("Markers/Opening0"), NodePath("Markers/Opening1"), NodePath("Markers/Opening2"), NodePath("Markers/Opening3"), NodePath("Markers/Opening4"), NodePath("Markers/Opening5"), NodePath("Markers/Opening6"), NodePath("Markers/Opening7")])
-reinforcement_paths = Array[NodePath]([NodePath("Markers/Reinforcement0"), NodePath("Markers/Reinforcement1"), NodePath("Markers/Reinforcement2"), NodePath("Markers/Reinforcement3"), NodePath("Markers/Reinforcement4"), NodePath("Markers/Reinforcement5"), NodePath("Markers/Reinforcement6"), NodePath("Markers/Reinforcement7"), NodePath("Markers/Reinforcement8"), NodePath("Markers/Reinforcement9"), NodePath("Markers/Reinforcement10"), NodePath("Markers/Reinforcement11")])
+reinforcement_paths = Array[NodePath]([NodePath("Markers/Reinforcement0"), NodePath("Markers/Reinforcement1"), NodePath("Markers/Reinforcement2"), NodePath("Markers/Reinforcement3"), NodePath("Markers/Reinforcement4"), NodePath("Markers/Reinforcement5"), NodePath("Markers/Reinforcement6"), NodePath("Markers/Reinforcement7"), NodePath("Markers/Reinforcement8"), NodePath("Markers/Reinforcement9"), NodePath("Markers/Reinforcement10"), NodePath("Markers/Reinforcement11"), NodePath("Markers/Reinforcement12"), NodePath("Markers/Reinforcement13"), NodePath("Markers/Reinforcement14"), NodePath("Markers/Reinforcement15")])
 respawn_paths = Array[NodePath]([NodePath("Markers/Respawn0"), NodePath("Markers/Respawn1"), NodePath("Markers/Respawn2"), NodePath("Markers/Respawn3"), NodePath("Markers/Respawn4"), NodePath("Markers/Respawn5")])
 
 [node name="Grounds" type="Node3D" parent="." unique_id=65015011 instance=ExtResource("3_s2o0t")]
@@ -4271,16 +4271,16 @@ metadata/fast = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, 17)
 
 [node name="Reinforcement1" type="Marker3D" parent="Markers" unique_id=1008879312]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -27, 0, -11)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, -12)
 
 [node name="Reinforcement2" type="Marker3D" parent="Markers" unique_id=1090410130]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0.43, -5.8)
 
 [node name="Reinforcement3" type="Marker3D" parent="Markers" unique_id=627942689]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, 12)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, 14)
 
 [node name="Reinforcement4" type="Marker3D" parent="Markers" unique_id=613252705]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, -15)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, -16)
 
 [node name="Reinforcement5" type="Marker3D" parent="Markers" unique_id=888744285]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 13)
@@ -4302,6 +4302,18 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 29, 0, -17)
 
 [node name="Reinforcement11" type="Marker3D" parent="Markers" unique_id=153353817]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, 2.2, -2.8)
+
+[node name="Reinforcement12" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, 8)
+
+[node name="Reinforcement13" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -6)
+
+[node name="Reinforcement14" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 14)
+
+[node name="Reinforcement15" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0, -16)
 
 [node name="Respawn0" type="Marker3D" parent="Markers" unique_id=1166486314]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 21)

@@ -45,6 +45,7 @@ func _ready() -> void:
 	assert(game.reserve_ranged_aim(waiting),"Interrupted aims release their slot")
 	print("ENEMY_AIM_PASS: duration, darkening, interruption, shot release")
 	game.clear_round()
+	await check_rear_aim()
 	game.health = game.MAX_HEALTH
 	game.invulnerable = 0
 	# A 16 m shot must arrive in about 0.2 s with a two-metre tracer.
@@ -115,6 +116,50 @@ func _ready() -> void:
 	print("AWARENESS_CHECK_PASS: aim timing, yellow tracer, hit flash, swept cover collision, near miss, restart cleanup")
 	get_tree().quit()
 
+func check_rear_aim() -> void:
+	var player = game.player
+	var rear = stationary(Vector3(18,0,14))
+	rear.look_at(Vector3(18,rear.position.y,5))
+	rear.attack = 0
+	var waiting = stationary(Vector3(20,0,14))
+	waiting.look_at(Vector3(18,waiting.position.y,5))
+	await get_tree().physics_frame
+	rear.advance_ranged_attack(0,true)
+	assert(rear.rear_warned and rear.windup==1.1 and game.rear_aiming_enemy()==rear)
+	assert(game.hud.source_edge_direction(rear.ranged_origin()).y>.99)
+	assert(game.effects.get_children().any(func(node):return node is AudioStreamPlayer3D and node.stream==game.sounds.enemy_raise))
+	assert(not game.reserve_ranged_aim(waiting))
+	await capture("rear-aim-warning")
+	rear.advance_ranged_attack(1.0,true)
+	assert(game.bullets.is_empty() and rear.windup>0)
+	rear.advance_ranged_attack(rear.windup,true)
+	assert(game.rear_bullet_active() and not game.reserve_ranged_aim(waiting))
+	game.invulnerable = 1
+	game.update_bullets(.3)
+	assert(not game.rear_bullet_active() and game.reserve_ranged_aim(waiting))
+	game.clear_round()
+
+	# Both can wind up in front. Turning away grants the earlier shot the rear slot.
+	var earlier = stationary(Vector3(18,0,-5))
+	var later = stationary(Vector3(19,0,-7))
+	for enemy in [earlier,later]:
+		enemy.look_at(Vector3(18,enemy.position.y,5))
+		enemy.attack = 0
+	await get_tree().physics_frame
+	earlier.advance_ranged_attack(0,true)
+	later.advance_ranged_attack(0,true)
+	assert(earlier.windup>0 and later.windup>0)
+	earlier.windup = .1
+	later.windup = .4
+	player.rotation.y = PI
+	later.advance_ranged_attack(.05,true)
+	assert(later.windup==0 and game.rear_aiming_enemy()==earlier)
+	earlier.advance_ranged_attack(.05,true)
+	assert(earlier.rear_warned and earlier.windup==1.1 and game.bullets.is_empty())
+	player.rotation.y = 0
+	game.clear_round()
+	print("ENEMY_REAR_AIM_PASS: direction, audio, 1.1 s warning, rear bullet slot, turn arbitration")
+
 func check_detection_range() -> void:
 	game.player.position = Vector3(-15,.05,18)
 	var guard = game.spawn_enemy(Vector3(18,0,5),false)
@@ -151,4 +196,4 @@ func stationary(pos: Vector3) -> Node3D:
 func capture(filename: String) -> void:
 	if DisplayServer.get_name()=="headless":return
 	await RenderingServer.frame_post_draw
-	get_viewport().get_texture().get_image().save_png("res://artifacts/"+filename+".png")
+	get_viewport().get_texture().get_image().save_png("res://artifacts/local/"+filename+".png")

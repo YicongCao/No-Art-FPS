@@ -8511,7 +8511,7 @@ NodePath("@MultiMeshInstance3D@951"): [Transform3D(8, 0, 0, 0, 0.03, 0, 0, 0, 48
 }
 start_path = NodePath("Markers/PlayerStart")
 opening_paths = Array[NodePath]([NodePath("Markers/Opening0"), NodePath("Markers/Opening1"), NodePath("Markers/Opening2"), NodePath("Markers/Opening3"), NodePath("Markers/Opening4"), NodePath("Markers/Opening5")])
-reinforcement_paths = Array[NodePath]([NodePath("Markers/Reinforcement0"), NodePath("Markers/Reinforcement1"), NodePath("Markers/Reinforcement2"), NodePath("Markers/Reinforcement3"), NodePath("Markers/Reinforcement4"), NodePath("Markers/Reinforcement5"), NodePath("Markers/Reinforcement6"), NodePath("Markers/Reinforcement7"), NodePath("Markers/Reinforcement8"), NodePath("Markers/Reinforcement9"), NodePath("Markers/Reinforcement10"), NodePath("Markers/Reinforcement11")])
+reinforcement_paths = Array[NodePath]([NodePath("Markers/Reinforcement0"), NodePath("Markers/Reinforcement1"), NodePath("Markers/Reinforcement2"), NodePath("Markers/Reinforcement3"), NodePath("Markers/Reinforcement4"), NodePath("Markers/Reinforcement5"), NodePath("Markers/Reinforcement6"), NodePath("Markers/Reinforcement7"), NodePath("Markers/Reinforcement8"), NodePath("Markers/Reinforcement9"), NodePath("Markers/Reinforcement10"), NodePath("Markers/Reinforcement11"), NodePath("Markers/Reinforcement12"), NodePath("Markers/Reinforcement13"), NodePath("Markers/Reinforcement14"), NodePath("Markers/Reinforcement15")])
 respawn_paths = Array[NodePath]([NodePath("Markers/Respawn0"), NodePath("Markers/Respawn1"), NodePath("Markers/Respawn2")])
 region_paths = Array[NodePath]([NodePath("Markers/deck"), NodePath("Markers/warehouse")])
 
@@ -17587,7 +17587,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 21)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, 0, 17)
 
 [node name="Reinforcement7" type="Marker3D" parent="Markers" unique_id=707408316]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, 3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 29, 0, -3)
 
 [node name="Reinforcement8" type="Marker3D" parent="Markers" unique_id=1425760957]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, -10)
@@ -17596,10 +17596,22 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, -10)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0, -18)
 
 [node name="Reinforcement10" type="Marker3D" parent="Markers" unique_id=2041811749]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 3.1, -11)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 3.1, -22)
 
 [node name="Reinforcement11" type="Marker3D" parent="Markers" unique_id=1734173246]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 3.1, -11)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 3.1, -13)
+
+[node name="Reinforcement12" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0, 4)
+
+[node name="Reinforcement13" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, -8)
+
+[node name="Reinforcement14" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, -4)
+
+[node name="Reinforcement15" type="Marker3D" parent="Markers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 0)
 
 [node name="Respawn0" type="Marker3D" parent="Markers" unique_id=1670175444]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 10.5)

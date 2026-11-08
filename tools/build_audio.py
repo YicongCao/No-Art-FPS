@@ -117,6 +117,22 @@ def roach_grenade():
     return sample
 
 
+def enemy_raise():
+    rng = random.Random(116)
+
+    def sample(t):
+        noise = rng.uniform(-1, 1)
+        sound = 0.0
+        for delay, pitch, weight in ((0, 1640, .40), (.066, 2430, .73)):
+            age = t - delay
+            if age >= 0:
+                metal = math.sin(math.tau * pitch * age) + .38 * math.sin(math.tau * pitch * 1.83 * age)
+                sound += weight * (metal + .42 * noise) * math.exp(-age * 140) * min(1.0, age * 2400)
+        return math.tanh(sound)
+
+    return sample
+
+
 write('shot',.16,rifle_shot())
 write('hit',.07,lambda t:(math.sin(2*math.pi*850*t)*.5+random.uniform(-1,1)*.2)*math.exp(-t*55))
 write('kill',.20,lambda t:math.sin(2*math.pi*(850*t+1800*t*t))*.4*math.exp(-t*18))
@@ -135,4 +151,5 @@ write('roach_buzz',.16,roach_buzz)
 write('water_shot',.13,water_shot)
 write('slipper_shot',.11,slipper_shot)
 write('roach_grenade',.24,roach_grenade())
-print('Eighteen original WAV effects generated')
+write('enemy_raise',.17,enemy_raise())
+print('Nineteen original WAV effects generated')

@@ -58,6 +58,26 @@ func _ready() -> void:
 	game.pending_spawn = {"pos":visible_point,"delay":0.0}
 	game.update_spawns(.1)
 	assert(game.live_enemies().size()==count and game.pending_spawn.is_empty())
+	game.player.rotation.y = PI
+	game.pending_spawn = {"pos":visible_point,"delay":0.0}
+	game.update_spawns(.1)
+	assert(game.live_enemies().size()==count and game.pending_spawn.is_empty(),"An exposed point stays empty even behind the camera")
+	var wall = StaticBody3D.new()
+	var shape = CollisionShape3D.new()
+	var box = BoxShape3D.new()
+	box.size = Vector3(4,3,.3)
+	shape.shape = box
+	wall.position = Vector3(18,1.5,15)
+	wall.add_child(shape)
+	game.add_child(wall)
+	await get_tree().physics_frame
+	assert(game.spawn_has_cover(visible_point))
+	game.pending_spawn = {"pos":visible_point,"delay":.2}
+	wall.queue_free()
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	game.update_spawns(.3)
+	assert(game.live_enemies().size()==count and game.pending_spawn.is_empty(),"Lost cover cancels the queued spawn")
 	print("POPULATION_SAFE_SPAWN_PASS")
 	game.state = "RESULTS"
 	game.clear_round()

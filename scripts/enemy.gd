@@ -12,6 +12,7 @@ const BODY_SHOT_DAMAGE = 2
 const BODY_HIT_DURATION = .16
 const NOTICE_DISTANCE = 18.0
 const DISENGAGE_DISTANCE = 22.0
+const REAR_AIM_DURATION = 1.1
 var health = MAX_HEALTH
 var dead = false
 var fast = false
@@ -38,6 +39,7 @@ var think = 0.0
 var attack = 1.8
 var windup = 0.0
 var aim_duration = 0.0
+var rear_warned = false
 var aim_offset = Vector3.ZERO
 var aim_line: ShotLine
 var death_time = 0.0
@@ -210,14 +212,15 @@ func _physics_process(delta: float) -> void:
 
 func advance_ranged_attack(delta: float, can_aim: bool) -> void:
 	if not patrol_brain or can_aim:attack -= delta
-	if not can_aim or game.respawn_time>0:
+	if not can_aim or not game.rules.active or game.respawn_time>0:
 		cancel_ranged_aim()
 		return
 	if windup<=0 and attack>0:return
 	var starting = windup<=0
 	if starting:
 		aim_offset = Vector3(randf_range(-.25,.25),1.1,randf_range(-.25,.25))
-	var origin = visual.to_global(Vector3(.22,1.12,-.58))
+	var origin = ranged_origin()
+	var rear: bool = game.is_behind_player(origin)
 	var target: Vector3 = game.player.global_position+aim_offset
 	var sight = PhysicsRayQueryParameters3D.create(origin,target,1)
 	if not get_world_3d().direct_space_state.intersect_ray(sight).is_empty():
@@ -234,7 +237,16 @@ func advance_ranged_attack(delta: float, can_aim: bool) -> void:
 			aim_line = ShotLine.new()
 			aim_line.name = "AimLine"
 			add_child(aim_line)
-	else:
+	elif rear and game.rear_aiming_enemy()!=self:
+		cancel_ranged_aim()
+		attack = randf_range(.12,.24)
+		return
+	if rear and not rear_warned:
+		rear_warned = true
+		aim_duration = REAR_AIM_DURATION
+		windup = aim_duration
+		game.play_world_sound("enemy_raise",origin,-8)
+	elif not starting:
 		windup = maxf(0,windup-delta)
 		if windup==0:
 			cancel_ranged_aim()
@@ -245,9 +257,13 @@ func advance_ranged_attack(delta: float, can_aim: bool) -> void:
 	aim_line.material_override.albedo_color = Color("d6dce390").lerp(Color("5e6873ed"),progress)
 	aim_line.set_segment(origin,target,lerpf(.018,.031,progress))
 
+func ranged_origin() -> Vector3:
+	return visual.to_global(Vector3(.22,1.12,-.58))
+
 func cancel_ranged_aim() -> void:
 	game.ranged_aimers.erase(self)
 	windup = 0
+	rear_warned = false
 	if aim_line:aim_line.hide()
 
 func _exit_tree() -> void:

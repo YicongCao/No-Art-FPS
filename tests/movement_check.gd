@@ -35,6 +35,7 @@ func _ready() -> void:
 		for row in range(6):
 			var point = Vector3(side*6,0,13.5+row*1.3+(0.3 if side==1 else 0.0))
 			var enemy = game.spawn_enemy(point,false)
+			enemy.tracking_player = true
 			enemy.think = 999
 			enemy.attack = 999
 			enemy.agent.target_position = Vector3(-point.x,0,point.z)
@@ -56,7 +57,8 @@ func _ready() -> void:
 	game.clear_round()
 	game.player.reset_position()
 	game.player.enabled = false
-	var occupied = Vector3(-2,0,21)
+	var occupied = Vector3(11,0,-20)
+	assert(game.spawn_has_cover(occupied))
 	var blocker = game.spawn_enemy(occupied,false)
 	blocker.set_physics_process(false)
 	assert(not game.spawn_is_clear(occupied))

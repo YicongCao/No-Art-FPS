@@ -22,7 +22,7 @@ var containers: Array[Node3D] = []
 var nav: NavigationRegion3D
 var materials: Dictionary = {}
 var boxes: Dictionary = {}
-var spawn_points: Array[Vector3] = [Vector3(-23,0,-15),Vector3(11,0,-20),Vector3(-23,0,9),Vector3(11,0,10),Vector3(-10,0,21),Vector3(8,0,21),Vector3(26,0,17),Vector3(30,0,3),Vector3(30,0,-10),Vector3(19,0,-18),Vector3(-4,3.1,-11),Vector3(4,3.1,-11)]
+var spawn_points: Array[Vector3] = [Vector3(-23,0,-15),Vector3(11,0,-20),Vector3(-23,0,9),Vector3(11,0,10),Vector3(-10,0,21),Vector3(8,0,21),Vector3(26,0,17),Vector3(29,0,-3),Vector3(30,0,-10),Vector3(19,0,-18),Vector3(-8,3.1,-22),Vector3(7,3.1,-13),Vector3(-16,0,4),Vector3(-8,0,-8),Vector3(10,0,-4),Vector3(8,0,0)]
 var traffic_lights: Array[Node3D] = []
 var traffic_phase = -1
 var palms: Array[Node3D] = []

@@ -2,6 +2,7 @@ extends Control
 
 const SKULL_ICON = preload("res://assets/ui/skull.svg")
 const DAMAGE_IMPACT = preload("res://assets/ui/damage-impact.svg")
+const AIM_WARNING = preload("res://assets/ui/aim-warning.svg")
 const YARD_THUMBNAIL = preload("res://assets/ui/maps/yard.webp")
 const PARK_THUMBNAIL = preload("res://assets/ui/maps/amusement-park.webp")
 const FERRY_THUMBNAIL = preload("res://assets/ui/maps/last-ferry.webp")
@@ -1099,6 +1100,7 @@ func _draw() -> void:
 		label(tr("GO"),c+Vector2(0,22),70,Color(WHITE,opacity),true)
 	if state=="RUNNING" and destroy_time>0:draw_destroy_notice(c)
 	if state=="RUNNING":draw_badge_toast()
+	draw_rear_aim_warning()
 	draw_damage_impact()
 	if game.rules.mission:
 		draw_mission_radar()
@@ -1116,18 +1118,40 @@ func _draw() -> void:
 
 func damage_edge_direction() -> Vector2:
 	if damage<=0 or damage_source==null or game.finale_active:return Vector2.ZERO
+	return source_edge_direction(damage_source)
+
+func source_edge_direction(source: Vector3) -> Vector2:
 	var camera = game.player.camera
-	if camera.is_position_in_frustum(damage_source):return Vector2.ZERO
-	var local: Vector3 = camera.to_local(damage_source)
+	if camera.is_position_in_frustum(source):return Vector2.ZERO
+	var local: Vector3 = camera.to_local(source)
 	if local.z>=0:return Vector2(local.x,maxf(.05,local.z)).normalized()
 	return Vector2(local.x,-local.y).normalized()
+
+func edge_position(direction: Vector2) -> Vector2:
+	var half = size*.5
+	var distance = minf(half.x/maxf(.001,absf(direction.x)),half.y/maxf(.001,absf(direction.y)))
+	return half+direction*distance
+
+func draw_rear_aim_warning() -> void:
+	if game.state!="RUNNING" or not game.rules.active or game.respawn_time>0:return
+	var enemy = game.rear_aiming_enemy()
+	if not is_instance_valid(enemy) or not enemy.rear_warned:return
+	var direction = source_edge_direction(enemy.ranged_origin())
+	if direction==Vector2.ZERO:return
+	var center = edge_position(direction)
+	if game.touch_mode and center.y>=size.y-1:
+		center.y = magazine_rect(false).position.y-8
+	var elapsed: float = enemy.aim_duration-enemy.windup
+	var opacity = lerpf(.96,.54,smoothstep(.07,.23,elapsed))
+	var extent = minf(1,size.y/810.0)*.92
+	draw_set_transform(center,(-direction).angle(),Vector2.ONE*extent)
+	draw_texture_rect(AIM_WARNING,Rect2(-5,-60,90,120),false,Color(Color.WHITE,opacity))
+	draw_set_transform(Vector2.ZERO)
 
 func draw_damage_impact() -> void:
 	var direction = damage_edge_direction()
 	if direction==Vector2.ZERO:return
-	var half = size*.5
-	var distance = minf(half.x/maxf(.001,absf(direction.x)),half.y/maxf(.001,absf(direction.y)))
-	var center = half+direction*distance
+	var center = edge_position(direction)
 	var extent = minf(1,size.y/810.0)
 	var pulse = 1.0 if game.reduced_motion else lerpf(1,1.1,smoothstep(.56,.8,damage))
 	draw_set_transform(center,(-direction).angle(),Vector2.ONE*extent*pulse)
