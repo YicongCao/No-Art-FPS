@@ -155,7 +155,7 @@ pointer('pointerdown',9,780,300,svgChild);assert.equal(get('#fire').classes.has(
 pointer('pointerup',9,780,300,svgChild);assert.equal(get('#fire').classes.has('held'),false);
 assert.ok(!/\p{Extended_Pictographic}/u.test(shell),'No emoji graphics in the Web shell');
 assert.ok(!/[\u26f6\u2197\u25ce\u2191\u21bb\u2161]/u.test(shell),'Use SVG instead of icon glyphs');
-for(const id of ['immersive','fire','jump','reload','pause'])assert.match(shell,new RegExp('id="'+id+'"[^>]*><svg'));
+for(const id of ['immersive','gyro-open','fire','jump','reload','pause'])assert.match(shell,new RegExp('id="'+id+'"[^>]*><svg'));
 assert.ok(!shell.includes('添加到主屏幕'));
 console.log('MOBILE_UI_PASS: SVG controls, silent automatic failure, 2.4s manual hint, state cleanup, late rejection, successful retry');
 

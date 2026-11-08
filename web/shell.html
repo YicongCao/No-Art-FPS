@@ -64,6 +64,7 @@
     #immersive-note[hidden],body[data-game=RUNNING] #immersive-note,body[data-game=LOADING] #immersive-note{display:none}
     #immersive-note{position:fixed;z-index:21;left:10%;right:10%;bottom:12px;text-align:center;background:#243440e8;padding:12px;font-size:13px;color:#fff5d3}
     body.mobile:is([data-game=TITLE],[data-game=RESULTS]):not(.portrait) #loading[hidden]~#title-tools #gyro-open{display:block}
+    #gyro-open .ui-icon{fill:currentColor;stroke:none;shape-rendering:crispEdges}
     #gyro-panel[hidden]{display:none}#gyro-panel{position:fixed;inset:0;z-index:22;background:#0f1721b8;display:grid;place-items:center;padding:max(12px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left))}
     #gyro-panel section{background:#17242f;border:1px solid #f2d08478;padding:20px 24px;width:min(420px,100%);max-height:100%;overflow:auto;border-radius:12px;box-shadow:0 12px 40px #0006}
     #gyro-panel[data-step=settings] section{width:min(520px,100%)}
@@ -82,6 +83,7 @@
     .gyro-setting-card{background:#1f2e3c;border-radius:8px;padding:8px 12px}.gyro-setting-card>.gyro-row:first-child{margin-bottom:7px}
     #gyro-status{font-size:14px;margin:0 0 12px;color:#c9c4b8;line-height:1.45}
     #gyro-panel .gyro-primary{background:#754c87;color:white}
+    #gyro-panel .gyro-secondary{background:#39434b}
     .gyro-actions,.gyro-axis-list{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
     .gyro-actions[data-gyro-step=settings],.gyro-axis-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
     #gyro-panel fieldset{margin:10px 0;padding:0;border:0;font-size:14px}#gyro-panel legend{padding:0 0 5px}
@@ -91,6 +93,19 @@
     .gyro-axis-list input{width:16px;height:16px;margin:0}
     #gyro-panel[data-step=practice] section{width:min(550px,100%)}
     #gyro-room{display:block;width:100%;height:min(38vh,220px);background:#1c2b3e;border:2px solid #17202a}
+    .gyro-calibration{display:grid;grid-template-columns:clamp(78px,24vw,132px) minmax(0,1fr);align-items:center;gap:12px;margin:0 0 12px;padding:8px 12px;background:#1f2e3c;border-radius:8px;font-size:14px;--gyro-signal:#8796a4}
+    .gyro-calibration[data-signal=steady]{--gyro-signal:#f2d084}
+    .gyro-calibration[data-signal=shaky]{--gyro-signal:#ff9676}
+    #gyro-gimbal{display:block;width:100%;height:auto;color:var(--gyro-signal)}
+    #gyro-rate{color:var(--gyro-signal);font-variant-numeric:tabular-nums}
+    .gyro-meter{position:relative;height:8px;margin:6px 0 3px;background:#101b25;border-radius:3px}
+    .gyro-meter-fill{display:block;width:100%;height:100%;border-radius:inherit;transform-origin:left;transform:scaleX(var(--level,0));background:var(--gyro-signal)}
+    .gyro-meter-limit{position:absolute;inset:-2px auto -2px 50%;border-left:2px solid #fff5d3}
+    #gyro-limit{display:block;margin:0 0 9px;color:#c9c4b8;font-size:12px}
+    #gyro-hold-meter{appearance:none;width:100%;height:8px;display:block;margin-top:6px;border:0;border-radius:3px;background:#101b25}
+    #gyro-hold-meter::-webkit-progress-bar{background:#101b25;border-radius:3px}
+    #gyro-hold-meter::-webkit-progress-value{background:#f2d084;border-radius:3px}
+    #gyro-hold-meter::-moz-progress-bar{background:#f2d084;border-radius:3px}
     @media(max-height:400px){
       #gyro-panel section{padding:10px 20px}
       #gyro-panel header{margin-bottom:6px;padding-bottom:5px}
@@ -136,7 +151,7 @@
 
   <div id="rotate"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="28" y="13" width="44" height="74" rx="7" transform="rotate(30 50 50)"/><path d="M8 48a42 42 0 0 1 70-30m0-12v12H65M92 52a42 42 0 0 1-70 30m0 12V82h13"/></svg><p>横过来，准备开火</p><small>左手移动，右手瞄准</small><button id="rotate-full">横屏全屏</button></div>
   <div id="title-tools">
-    <button id="gyro-open" aria-haspopup="dialog">体感瞄准</button>
+    <button id="gyro-open" aria-haspopup="dialog"><svg class="ui-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M5 1h6v2H5zM3 3h2v2H3zm8 0h2v2h-2zM1 5h2v6H1zm12 0h2v6h-2zM3 11h2v2H3zm8 0h2v2h-2zM5 13h6v2H5zM5 6h2V4h2v2h2v4H9v2H7v-2H5zm2 1v2h2V7z" fill-rule="evenodd"/></svg> 体感</button>
     <button id="immersive" aria-label="进入沉浸全屏"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 4H4v5m11-5h5v5M4 15v5h5m11-5v5h-5"/></svg> 全屏</button>
     <button id="comedy-mode" class="comedy-toggle" type="button" aria-label="大便模式" aria-pressed="false"><img src="comedy.svg" alt="" width="28" height="28"></button>
     <button id="roach-mode" class="comedy-toggle" type="button" aria-label="蟑螂模式" aria-pressed="false"><img src="roach.svg" alt="" width="28" height="28"></button>
@@ -169,6 +184,26 @@
       <div class="gyro-actions" data-gyro-step="choice" hidden>
         <button id="gyro-yes" class="gyro-primary">启用体感</button><button data-gyro-touch>使用触控</button>
       </div>
+      <div id="gyro-calibration" class="gyro-calibration" data-gyro-step="setup" hidden>
+        <svg id="gyro-gimbal" viewBox="0 0 140 128" aria-hidden="true" focusable="false">
+          <circle cx="70" cy="64" r="54" fill="#152333" stroke="#3b4a60"/>
+          <path d="M70 4v8m0 104v8M10 64h8m104 0h8" stroke="#778598" stroke-width="2"/>
+          <g transform="translate(70 64)" fill="none">
+            <g data-gyro-ring transform="rotate(-38)"><ellipse rx="51" ry="28" stroke="#526b94" stroke-width="7"/><path d="M-46-13a51 28 0 0 1 71-11" stroke="#b2cae1" stroke-width="2"/></g>
+            <g data-gyro-ring transform="rotate(32)"><ellipse rx="45" ry="19" stroke="#917bb9" stroke-width="5"/><circle cx="44" r="4" fill="#d0b5ef"/></g>
+            <g data-gyro-ring transform="rotate(86)"><ellipse rx="38" ry="14" stroke="currentColor" stroke-width="4"/><circle cx="-38" r="4" fill="currentColor"/></g>
+            <path d="m0-12 11 6v12L0 12l-11-6V-6Z" fill="#233346" stroke="currentColor" stroke-width="2"/>
+            <path d="m0-6 5 3v6L0 6l-5-3v-6Z" fill="currentColor"/>
+          </g>
+        </svg>
+        <div>
+          <div class="gyro-row"><span>抖动</span><span id="gyro-rate">等待传感器</span></div>
+          <div id="gyro-meter" class="gyro-meter" role="meter" aria-label="三轴最大抖动" aria-valuemin="0" aria-valuemax="6" aria-valuenow="0" aria-valuetext="等待传感器"><span class="gyro-meter-fill"></span><span class="gyro-meter-limit"></span></div>
+          <span id="gyro-limit"></span>
+          <label id="gyro-hold-label" for="gyro-hold-meter">稳住</label>
+          <progress id="gyro-hold-meter" max="1" value="0"></progress>
+        </div>
+      </div>
       <div class="gyro-actions" data-gyro-step="setup" hidden>
         <button id="gyro-start" class="gyro-primary">开始校准</button><button data-gyro-touch>使用触控</button>
       </div>
@@ -200,12 +235,14 @@
         </div>
       </fieldset>
       <div class="gyro-actions" data-gyro-step="practice" hidden>
-        <button id="gyro-recenter">准星回正</button><button data-gyro-touch>使用触控</button>
+        <button id="gyro-recenter">准星回正</button><button id="gyro-practice-back" class="gyro-secondary" hidden>返回</button><button id="gyro-practice-touch" data-gyro-touch>使用触控</button>
       </div>
       <div class="gyro-actions" data-gyro-step="settings" hidden>
-        <button id="gyro-calibrate">重新校准</button><button id="gyro-practice-again">练习瞄准</button>
+        <button id="gyro-calibrate">重新校准</button><button id="gyro-practice-again" class="gyro-secondary">练习瞄准</button>
       </div>
-      <button id="gyro-continue" class="gyro-primary" data-gyro-step="ready" hidden>进入游戏</button>
+      <div class="gyro-actions" data-gyro-step="ready" hidden>
+        <button id="gyro-continue" class="gyro-primary">进入游戏</button><button id="gyro-practice-optional" class="gyro-secondary">练习瞄准</button>
+      </div>
     </section>
   </div>
   <script>

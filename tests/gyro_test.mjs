@@ -107,6 +107,27 @@ for(let n=0;n<25;n++)f.sample();
 assert.equal(f.gyro.snapshot().ready,true,'Opening a round does not restart in-progress calibration');
 f.gyro.calibrate();for(const timer of [...f.timers.keys()])timer();assert.match(f.gyro.snapshot().status,/未检测到/);
 f=fixture();await f.gyro.enable();for(let n=0;n<400;n++)f.sample(10,0,0);assert.equal(f.gyro.snapshot().ready,false);assert.match(f.gyro.snapshot().status,/重新校准/);f.gyro.calibrate();for(let n=0;n<50;n++)f.sample();assert.equal(f.gyro.snapshot().ready,true);
+// The visual guide reports the same threshold and uninterrupted hold as calibration.
+f=fixture();await f.gyro.enable();
+const feedback=()=>f.gyro.calibrationFeedback();
+assert.equal(feedback().rates,null);
+assert.equal(feedback().limit,3);
+assert.equal(feedback().holdMs,650);
+for(let n=0;n<16;n++)f.sample(0,0,3);
+assert.equal(feedback().progress,240/650);
+f.sample(0,0,-3.1);
+assert.equal(feedback().rates[2],-3.1);
+assert.equal(feedback().progress,0);
+for(let n=0;n<35;n++)f.sample();
+assert.ok(feedback().progress>.8);
+f.advance(300);
+assert.equal(feedback().rates,null);
+assert.equal(feedback().progress,0);
+f.sample();
+assert.equal(f.gyro.snapshot().ready,false);
+assert.equal(feedback().progress,0);
+for(let n=0;n<42;n++)f.sample();
+assert.equal(f.gyro.snapshot().ready,true);
 // Rate integration should be stable across sensor event frequencies.
 async function integrate(dt){const test=fixture();await test.start();test.sample(30,0,0,dt);let total=0;for(let n=0;n<1000/dt;n++){test.sample(30,0,0,dt);total+=test.gyro.read().gyroYaw;}return total;}
 const fast=await integrate(10),slow=await integrate(20);assert.ok(Math.abs(fast-slow)<.01);

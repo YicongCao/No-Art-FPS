@@ -3,6 +3,7 @@ const CENTER_Y = 110;
 const FOCAL_LENGTH = 310;
 const TARGET_ANGLES = [[-.16,.02],[.14,.11],[-.025,-.11]];
 const HOLD_MS = 280;
+const GIMBAL_ANGLES = [-38,32,86];
 
 // Room coordinates are in the same axes as Godot's first-person camera.
 const WALLS = {
@@ -41,6 +42,12 @@ export function setupGyroPanel({makeGyro, sync, isActive}) {
   const slider = get('gyro-sensitivity');
   const calibrate = get('gyro-calibrate');
   const practiceButton = get('gyro-practice-again');
+  const practiceBack = get('gyro-practice-back');
+  const calibrationView = get('gyro-calibration');
+  const calibrationRate = get('gyro-rate');
+  const calibrationMeter = get('gyro-meter');
+  const calibrationHold = get('gyro-hold-meter');
+  const gimbalRings = [...calibrationView.querySelectorAll('[data-gyro-ring]')];
   const reticleTarget = get('gyro-target');
   const holdRing = get('gyro-hold');
   const axes = [...panel.querySelectorAll('[data-gyro-axis]')];
@@ -53,10 +60,20 @@ export function setupGyroPanel({makeGyro, sync, isActive}) {
   let previousTime = 0;
   let yaw = 0, pitch = 0, held = 0, index = 0;
   let returnFocus = null;
+  let displayedRates;
   const gyro = makeGyro(update);
+  const {limit,holdMs}=gyro.calibrationFeedback();
+  get('gyro-limit').textContent=`通过线 ≤ ${limit}°/秒`;
+  get('gyro-hold-label').textContent=`稳住 ${holdMs/1000} 秒`;
+  calibrationMeter.setAttribute('aria-valuemax',String(limit*2));
+
+  function stopFrame() {
+    cancelAnimationFrame(frame);
+    frame=0;
+  }
 
   function show(next) {
-    cancelAnimationFrame(frame);
+    stopFrame();
     if(panel.hidden)returnFocus=document.activeElement;
     step=next;
     panel.hidden=false;
@@ -73,7 +90,7 @@ export function setupGyroPanel({makeGyro, sync, isActive}) {
 
   function close(restore=true) {
     if(panel.hidden)return;
-    cancelAnimationFrame(frame);
+    stopFrame();
     step='';
     panel.hidden=true;
     canvas.inert=false;
@@ -91,6 +108,30 @@ export function setupGyroPanel({makeGyro, sync, isActive}) {
   function beginSetup() {
     started=false;
     show('setup');
+  }
+
+  function drawCalibration() {
+    const {rates,progress}=gyro.calibrationFeedback();
+    if(rates===displayedRates)return;
+    displayedRates=rates;
+    const speed=rates?Math.max(...rates.map(Math.abs)):0;
+    const level=Math.min(1,speed/(limit*2));
+    const text=rates?`${(Math.ceil(speed*10)/10).toFixed(1)}°/秒`:'等待传感器';
+    calibrationView.dataset.signal=rates?(speed<=limit?'steady':'shaky'):'waiting';
+    calibrationRate.textContent=text;
+    calibrationMeter.style.setProperty('--level',String(level));
+    calibrationMeter.setAttribute('aria-valuenow',String(level*limit*2));
+    calibrationMeter.setAttribute('aria-valuetext',text);
+    calibrationHold.value=progress;
+    gimbalRings.forEach((ring,i)=>{
+      const turn=rates?Math.max(-2.5,Math.min(2.5,rates[i]/limit))*22:0;
+      ring.setAttribute('transform',`rotate(${GIMBAL_ANGLES[i]+turn})`);
+    });
+  }
+
+  function calibrationFrame() {
+    drawCalibration();
+    frame=requestAnimationFrame(calibrationFrame);
   }
 
   function recenter() {
@@ -155,7 +196,9 @@ export function setupGyroPanel({makeGyro, sync, isActive}) {
     }
     get('gyro-yes').disabled=!state.available;
     startButton.disabled=!state.available||state.pending||state.calibrating;
-    startButton.textContent=state.canRequest&&!state.enabled?'请求权限并校准':'开始校准';
+    if(state.pending)startButton.textContent='等待授权';
+    else if(state.calibrating)startButton.textContent='校准中';
+    else startButton.textContent=state.canRequest&&!state.enabled?'请求权限并校准':'开始校准';
     toggle.textContent=state.enabled?'关闭':'启用';
     toggle.disabled=!state.available;
     toggle.setAttribute('aria-checked',String(state.enabled));
@@ -164,7 +207,14 @@ export function setupGyroPanel({makeGyro, sync, isActive}) {
     for(const axis of axes)axis.checked=state.flipped[axis.dataset.gyroAxis];
     calibrate.disabled=!state.enabled;
     practiceButton.disabled=!state.ready;
+    practiceBack.hidden=!state.practicePassed;
+    get('gyro-practice-touch').hidden=state.practicePassed;
     get('gyro-continue').textContent=entering?'进入游戏':'返回设置';
+    if(step==='setup'){
+      drawCalibration();
+      if(state.calibrating&&!frame)frame=requestAnimationFrame(calibrationFrame);
+      else if(!state.calibrating&&frame)stopFrame();
+    }
     if(step==='choice')status.textContent=state.available?'用转动设备来微调准星。':state.status;
     else if(step==='setup')status.textContent=!state.available||started?state.status:'横握设备，调整到舒服的姿势，再保持静止。';
     else if(step==='practice')status.textContent=`转动设备，把准星停在亮靶上。 ${index}/${TARGETS.length}`;
@@ -187,6 +237,8 @@ export function setupGyroPanel({makeGyro, sync, isActive}) {
   for(const axis of axes)axis.onchange=()=>gyro.setAxisFlip(axis.dataset.gyroAxis,axis.checked);
   calibrate.onclick=beginSetup;
   practiceButton.onclick=beginPractice;
+  get('gyro-practice-optional').onclick=beginPractice;
+  practiceBack.onclick=()=>show(entering?'ready':'settings');
   get('gyro-recenter').onclick=recenter;
   get('gyro-continue').onclick=()=>entering?close():show('settings');
   closeButton.onclick=()=>close();
@@ -194,6 +246,7 @@ export function setupGyroPanel({makeGyro, sync, isActive}) {
   panel.onkeydown=event=>{
     event.stopPropagation();
     if(event.key==='Escape'&&step==='settings'){event.preventDefault();close();}
+    if(event.key==='Escape'&&step==='practice'&&!practiceBack.hidden){event.preventDefault();practiceBack.onclick();}
     if(event.key==='Tab'){
       const items=[...panel.querySelectorAll('button:not(:disabled),input:not(:disabled)')].filter(item=>item.offsetWidth);
       if(!items.length)return;

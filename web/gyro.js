@@ -3,6 +3,8 @@
   'use strict';
   const clamp=(v,a,b)=>Math.min(b,Math.max(a,v)), RAD=Math.PI/180;
   const SETTINGS_KEY='no-art-gyro-settings';
+  const CALIBRATION_LIMIT=3, CALIBRATION_HOLD_MS=650, CALIBRATION_SAMPLES=15;
+  const MOTION_STALE_MS=250;
   function create({host=root,now=()=>performance.now(),changed=()=>{}}={}){
     let enabled=false,ready=false,pending=false,generation=0,listening=false;
     let context={running:false,landscape:true,visible:true,focused:true};
@@ -93,10 +95,18 @@
     }
     function calibrate(){
       if(!enabled)return;
-      ready=false;lastSample=null;reset();calibration={start:now(),first:null,count:0,sum:[0,0,0]};
-      const instruction=active()?'请保持设备静止，等待校准完成。':'请回到当前页面，横握设备完成校准。';
+      ready=false;lastSample=null;reset();calibration={start:now(),first:null,count:0,sum:[0,0,0],rates:null};
+      const instruction=active()?'让抖动保持在刻度线以内。':'请回到当前页面，横握设备完成校准。';
       notify((permissionGranted?'权限已允许。':'')+instruction);
       watchForMotion();
+    }
+    function calibrationFeedback(){
+      const receiving=calibration&&lastSample!==null&&now()-lastSample<=MOTION_STALE_MS;
+      const rates=receiving?calibration.rates:null;
+      const progress=rates&&calibration.first!==null
+        ? Math.min(1,(lastSample-calibration.first)/CALIBRATION_HOLD_MS,calibration.count/CALIBRATION_SAMPLES)
+        : 0;
+      return {rates,limit:CALIBRATION_LIMIT,holdMs:CALIBRATION_HOLD_MS,progress};
     }
     async function enable(){
       if(enabled||pending)return;
@@ -140,13 +150,17 @@
       const r=event.rotationRate;
       if(!r||![r.alpha,r.beta,r.gamma].every(Number.isFinite)){reset();return;}
       // DeviceMotionEvent's angular rates are X/Y/Z in alpha/beta/gamma order.
-      const t=now(),raw=[r.alpha,r.beta,r.gamma];lastSample=t;
+      const t=now(),raw=[r.alpha,r.beta,r.gamma];
+      const gap=lastSample!==null&&t-lastSample>MOTION_STALE_MS;
+      lastSample=t;
       if(calibration){
-        if(raw.some(v=>Math.abs(v)>3)){calibration.first=null;calibration.count=0;calibration.sum=[0,0,0];}
-        else{
+        const shaky=raw.some(v=>Math.abs(v)>CALIBRATION_LIMIT);
+        calibration.rates=raw;
+        if(shaky||gap){calibration.first=null;calibration.count=0;calibration.sum=[0,0,0];}
+        if(!shaky){
           if(calibration.first===null)calibration.first=t;
           raw.forEach((v,i)=>calibration.sum[i]+=v);calibration.count++;
-          if(t-calibration.first>=650&&calibration.count>=15){
+          if(t-calibration.first>=CALIBRATION_HOLD_MS&&calibration.count>=CALIBRATION_SAMPLES){
             bias=calibration.sum.map(v=>v/calibration.count);calibration=null;ready=true;reset();notify('校准完成，可以用体感瞄准。');return;
           }
         }
@@ -178,10 +192,10 @@
     }
     function read(){
       updateScreenAngle();
-      if(!enabled||!ready||!active()||!context.running||lastSample===null||now()-lastSample>250)reset();
+      if(!enabled||!ready||!active()||!context.running||lastSample===null||now()-lastSample>MOTION_STALE_MS)reset();
       const result={gyroYaw:yaw,gyroPitch:pitch};yaw=pitch=0;return result;
     }
-    return {enable,disable:()=>stop(),calibrate,choose,setContext,setSensitivity,setAxisFlip,finishPractice,read,snapshot,reset};
+    return {enable,disable:()=>stop(),calibrate,calibrationFeedback,choose,setContext,setSensitivity,setAxisFlip,finishPractice,read,snapshot,reset};
   }
   root.NoArtGyro={create};
 })(typeof window!=='undefined'?window:globalThis);
