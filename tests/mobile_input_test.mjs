@@ -237,3 +237,52 @@ pointer('pointercancel',90,690,230);assert.equal(read().interact,false);
 pointer('pointerdown',91,690,230,get('#interact'));
 window.emit('blur');assert.equal(read().interact,false);
 console.log('DEFUSE_TOUCH_PASS: held interaction, cancel and background release');
+
+// Run the entry flow with real sensor logic and a controllable paint queue.
+const gyroFrames=new Map();
+let nextFrame=0;
+context.requestAnimationFrame=fn=>{gyroFrames.set(++nextFrame,fn);return nextFrame;};
+context.cancelAnimationFrame=id=>gyroFrames.delete(id);
+function paintGyroFrame(){
+  const pending=[...gyroFrames.values()];
+  gyroFrames.clear();
+  for(const fn of pending)fn(sensorTime);
+}
+async function calibrateEntry(practicePassed){
+  stored.set('no-art-gyro-settings',JSON.stringify({preference:true,practicePassed}));
+  let requests=0;
+  window.DeviceMotionEvent.requestPermission=async()=>{requests++;return 'granted';};
+  const setup=context.setupGyroPanel({
+    makeGyro:changed=>window.NoArtGyro.create({changed,now:()=>sensorTime}),
+    sync:()=>{},isLandscape:()=>true,isActive:()=>true
+  });
+  setup.openEntry();
+  assert.equal(get('#gyro-panel').dataset.step,'setup');
+  await get('#gyro-start').onclick();
+  await new Promise(setImmediate);
+  assert.equal(requests,1);
+  assert.equal(get('#gyro-title').textContent,'保持稳定');
+  for(let i=0;i<64;i++)motion();
+  assert.equal(setup.gyro.snapshot().ready,true);
+  paintGyroFrame();
+  paintGyroFrame();
+  return setup;
+}
+const returning=await calibrateEntry(true);
+assert.equal(get('#gyro-panel').hidden,true);
+assert.equal(get('#canvas').inert,false);
+assert.equal(returning.gyro.snapshot().ready,true);
+returning.openSettings();
+assert.equal(get('#gyro-practice-again').disabled,false);
+get('#gyro-practice-again').onclick();
+assert.equal(returning.practicing,true);
+get('#gyro-practice-back').onclick();
+assert.equal(get('#gyro-panel').dataset.step,'settings');
+returning.close();
+returning.gyro.disable();
+const firstPractice=await calibrateEntry(false);
+assert.equal(get('#gyro-panel').hidden,false);
+assert.equal(firstPractice.practicing,true);
+firstPractice.close();
+firstPractice.gyro.disable();
+console.log('GYRO_ENTRY_PASS: returning players skip confirmation, first practice and settings shortcut remain available');

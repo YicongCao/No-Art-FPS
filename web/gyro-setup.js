@@ -188,7 +188,8 @@ export function setupGyroPanel({makeGyro, sync, isActive, isLandscape}) {
           frame=0;
           if(!isLandscape())gyro.calibrate();
           else if(!state.practicePassed)beginPractice();
-          else show(entering?'ready':'settings');
+          else if(entering)close();
+          else show('settings');
         });
       });
       return;
