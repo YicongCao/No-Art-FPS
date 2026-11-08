@@ -9,7 +9,22 @@
 [ext_resource type="PackedScene" path="res://assets/models/studio/newsroom.glb" id="7_ki8vq"]
 [ext_resource type="PackedScene" path="res://assets/models/studio/backstage.glb" id="8_3kn2r"]
 [ext_resource type="Script" path="res://scripts/destructible.gd" id="9_k4y0w"]
+[ext_resource type="PackedScene" path="res://assets/models/studio/wall_navy_1100_840_38.glb" id="209_structures"]
+[ext_resource type="PackedScene" path="res://assets/models/studio/wall_navy_38_840_850.glb" id="210_structures"]
+[ext_resource type="PackedScene" path="res://assets/models/studio/wall_southwall1.glb" id="211_structures"]
+[ext_resource type="PackedScene" path="res://assets/models/studio/wall_southwall2.glb" id="212_structures"]
+[ext_resource type="PackedScene" path="res://assets/models/studio/wall_violet_34_420_440.glb" id="213_structures"]
+[ext_resource type="PackedScene" path="res://assets/models/studio/wall_violet_34_420_220.glb" id="214_structures"]
+[ext_resource type="PackedScene" path="res://assets/models/studio/wall_violet_34_420_260.glb" id="215_structures"]
+[ext_resource type="PackedScene" path="res://assets/models/studio/wall_violet_34_420_520.glb" id="216_structures"]
+[ext_resource type="PackedScene" path="res://assets/models/studio/wall_slate_34_420_440.glb" id="217_structures"]
+[ext_resource type="PackedScene" path="res://assets/models/studio/wall_slate_34_420_220.glb" id="218_structures"]
+[ext_resource type="PackedScene" path="res://assets/models/studio/wall_slate_34_420_260.glb" id="219_structures"]
+[ext_resource type="PackedScene" path="res://assets/models/studio/wall_slate_34_420_520.glb" id="220_structures"]
+[ext_resource type="PackedScene" path="res://assets/models/studio/wall_green_815_400_33.glb" id="221_structures"]
+[ext_resource type="PackedScene" path="res://assets/models/studio/wall_dark_teal_815_400_33.glb" id="222_structures"]
 [ext_resource type="PackedScene" path="res://assets/models/studio/stage_planter.glb" id="39_studio"]
+[ext_resource type="PackedScene" path="res://assets/models/studio/technical_access.glb" id="224_structures"]
 [ext_resource type="PackedScene" path="res://assets/models/studio/seat_row.glb" id="10_rkqcw"]
 [ext_resource type="PackedScene" path="res://assets/models/studio/stage_flat.glb" id="11_n5a5p"]
 [ext_resource type="PackedScene" path="res://assets/models/studio/sofa.glb" id="12_gt0fk"]
@@ -17,6 +32,7 @@
 [ext_resource type="PackedScene" path="res://assets/models/studio/news_backdrop.glb" id="13_n8pcu"]
 [ext_resource type="PackedScene" path="res://assets/models/studio/control_monitor.glb" id="45_studio"]
 [ext_resource type="PackedScene" path="res://assets/models/studio/control_switcher.glb" id="46_studio"]
+[ext_resource type="PackedScene" path="res://assets/models/studio/control_partition.glb" id="232_structures"]
 [ext_resource type="PackedScene" path="res://assets/models/studio/broadcast_desk.glb" id="14_4jwmb"]
 [ext_resource type="PackedScene" path="res://assets/models/studio/camera.glb" id="15_gav1s"]
 [ext_resource type="PackedScene" path="res://assets/models/studio/office_island.glb" id="16_5dyrc"]
@@ -38,50 +54,20 @@ ambient_light_energy = 0.88
 [sub_resource type="BoxShape3D" id="BoxShape3D_ht2f8"]
 size = Vector3(44, 0.5, 34)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_6b0kb"]
-size = Vector3(44, 8.4, 0.38)
+[sub_resource type="BoxShape3D" id="BoxShape3D_structures_2"]
+size = Vector3(44.8, 8.4, 0.14)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_ilip3"]
-size = Vector3(44, 8.4, 0.38)
+[sub_resource type="BoxShape3D" id="BoxShape3D_structures_3"]
+size = Vector3(0.14, 8.4, 34.8)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_xokhm"]
-size = Vector3(0.38, 8.4, 34)
+[sub_resource type="BoxShape3D" id="BoxShape3D_structures_4"]
+size = Vector3(44.8, 8.4, 0.14)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_srakp"]
-size = Vector3(0.38, 8.4, 34)
+[sub_resource type="BoxShape3D" id="BoxShape3D_structures_5"]
+size = Vector3(0.14, 8.4, 34.8)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_25uk4"]
 size = Vector3(44, 0.35, 34)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_d1cde"]
-size = Vector3(0.34, 4.2, 4.4)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_q75do"]
-size = Vector3(0.34, 4.2, 2.2)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_5nmso"]
-size = Vector3(0.34, 4.2, 2.6)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_tggdr"]
-size = Vector3(0.34, 4.2, 5.2)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_h2nfk"]
-size = Vector3(0.34, 4.2, 4.4)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_qj41a"]
-size = Vector3(0.34, 4.2, 2.2)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_mbnxr"]
-size = Vector3(0.34, 4.2, 2.6)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_ad1sx"]
-size = Vector3(0.34, 4.2, 5.2)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_uskao"]
-size = Vector3(8.15, 4, 0.33)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_et4sx"]
-size = Vector3(8.15, 4, 0.33)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_eu5e4"]
 size = Vector3(14.4, 0.28, 6.8)
@@ -119,62 +105,110 @@ size = Vector3(8.5, 0.48, 1.5)
 [sub_resource type="BoxShape3D" id="BoxShape3D_8f61m"]
 size = Vector3(9.6, 0.11, 7)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_4ad7s"]
-size = Vector3(7.7, 0.84, 0.2)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_gavy0"]
-size = Vector3(7.6, 0.64, 0.16)
-
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_1ei3k"]
 points = PackedVector3Array(-6.7, 0.28, -1.72, 6.7, 0.28, -1.72, 6.7, 0, -0.65, -6.7, 0, -0.65, -6.7, 0.049999997, -1.72, 6.7, 0.049999997, -1.72, 6.7, -0.23, -0.65, -6.7, -0.23, -0.65)
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_2x2xl"]
-points = PackedVector3Array(-9.8, 2.62, -10.1, -7.7, 2.62, -10.1, -7.7, 0, -3, -9.8, 0, -3, -9.8, 2.3899999, -10.1, -7.7, 2.3899999, -10.1, -7.7, -0.23, -3, -9.8, -0.23, -3)
+[sub_resource type="BoxShape3D" id="BoxShape3D_structures_20"]
+size = Vector3(11, 8.4, 0.38)
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_iol4f"]
-points = PackedVector3Array(7.7, 2.62, -10.1, 9.8, 2.62, -10.1, 9.8, 0, -3, 7.7, 0, -3, 7.7, 2.3899999, -10.1, 9.8, 2.3899999, -10.1, 9.8, -0.23, -3, 7.7, -0.23, -3)
+[sub_resource type="BoxShape3D" id="BoxShape3D_structures_21"]
+size = Vector3(0.38, 8.4, 8.5)
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_b0oun"]
-points = PackedVector3Array(-9.8, 2.62, -10.1, -9.8, 0, -3, -9.8, 1.13, -3, -9.8, 3.75, -10.1, -9.7, 2.62, -10.1, -9.7, 0, -3, -9.7, 1.13, -3, -9.7, 3.75, -10.1)
+[sub_resource type="BoxShape3D" id="BoxShape3D_structures_22"]
+size = Vector3(11, 8.4, 0.38)
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_ntm58"]
-points = PackedVector3Array(-7.7, 2.62, -10.1, -7.7, 0, -3, -7.7, 1.13, -3, -7.7, 3.75, -10.1, -7.6, 2.62, -10.1, -7.6, 0, -3, -7.6, 1.13, -3, -7.6, 3.75, -10.1)
+[sub_resource type="BoxShape3D" id="BoxShape3D_structures_23"]
+size = Vector3(0.38, 8.4, 8.5)
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_neeqx"]
-points = PackedVector3Array(7.7, 2.62, -10.1, 7.7, 0, -3, 7.7, 1.13, -3, 7.7, 3.75, -10.1, 7.7999997, 2.62, -10.1, 7.7999997, 0, -3, 7.7999997, 1.13, -3, 7.7999997, 3.75, -10.1)
+[sub_resource type="BoxShape3D" id="BoxShape3D_structures_24"]
+size = Vector3(11, 8.4, 0.38)
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_gjx3v"]
-points = PackedVector3Array(9.8, 2.62, -10.1, 9.8, 0, -3, 9.8, 1.13, -3, 9.8, 3.75, -10.1, 9.900001, 2.62, -10.1, 9.900001, 0, -3, 9.900001, 1.13, -3, 9.900001, 3.75, -10.1)
+[sub_resource type="BoxShape3D" id="BoxShape3D_structures_25"]
+size = Vector3(0.38, 8.4, 8.5)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ytyyi"]
-transparency = 1
-cull_mode = 2
-shading_mode = 0
-albedo_color = Color(0.4, 0.7, 0.87, 0.12)
+[sub_resource type="BoxShape3D" id="BoxShape3D_structures_26"]
+size = Vector3(11, 8.4, 0.38)
 
-[sub_resource type="QuadMesh" id="QuadMesh_pm7r0"]
-size = Vector2(7.53, 1.96)
+[sub_resource type="BoxShape3D" id="BoxShape3D_structures_27"]
+size = Vector3(0.38, 8.4, 8.5)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_qxbrq"]
-size = Vector3(7.53, 1.96, 0.08)
+[sub_resource type="BoxShape3D" id="BoxShape3D_structures_28"]
+size = Vector3(11, 8.4, 0.38)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_df00n"]
-transparency = 1
-cull_mode = 2
-shading_mode = 0
-albedo_color = Color(0.4, 0.7, 0.87, 0.12)
+[sub_resource type="BoxShape3D" id="BoxShape3D_structures_29"]
+size = Vector3(0.38, 8.4, 8.5)
 
-[sub_resource type="QuadMesh" id="QuadMesh_qivyb"]
-size = Vector2(7.48, 2.06)
+[sub_resource type="BoxShape3D" id="BoxShape3D_structures_30"]
+size = Vector3(11, 8.4, 0.38)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_x5v43"]
-size = Vector3(7.48, 2.06, 0.08)
+[sub_resource type="BoxShape3D" id="BoxShape3D_structures_31"]
+size = Vector3(0.38, 8.4, 8.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_structures_32"]
+size = Vector3(11, 8.4, 0.38)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_structures_33"]
+size = Vector3(0.38, 8.4, 8.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_structures_34"]
+size = Vector3(11, 8.4, 0.38)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_structures_35"]
+size = Vector3(0.38, 8.4, 8.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_d1cde"]
+size = Vector3(0.34, 4.2, 4.4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_q75do"]
+size = Vector3(0.34, 4.2, 2.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_5nmso"]
+size = Vector3(0.34, 4.2, 2.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_tggdr"]
+size = Vector3(0.34, 4.2, 5.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_h2nfk"]
+size = Vector3(0.34, 4.2, 4.4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qj41a"]
+size = Vector3(0.34, 4.2, 2.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_mbnxr"]
+size = Vector3(0.34, 4.2, 2.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ad1sx"]
+size = Vector3(0.34, 4.2, 5.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_uskao"]
+size = Vector3(8.15, 4, 0.33)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_et4sx"]
+size = Vector3(8.15, 4, 0.33)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_studio_44"]
 size = Vector3(1.52, 2.1, 1.4)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_studio_45"]
 size = Vector3(1.52, 2.1, 1.4)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_structures_48"]
+points = PackedVector3Array(-1.05, 2.62, -3.55, 1.05, 2.62, -3.55, 1.05, 0, 3.55, -1.05, 0, 3.55, -1.05, 2.3899999, -3.55, 1.05, 2.3899999, -3.55, 1.05, -0.23, 3.55, -1.05, -0.23, 3.55)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_structures_49"]
+points = PackedVector3Array(-1.05, 2.62, -3.55, -1.05, 0, 3.55, -1.05, 1.13, 3.55, -1.05, 3.75, -3.55, -0.9499999, 2.62, -3.55, -0.9499999, 0, 3.55, -0.9499999, 1.13, 3.55, -0.9499999, 3.75, -3.55)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_structures_50"]
+points = PackedVector3Array(1.05, 2.62, -3.55, 1.05, 0, 3.55, 1.05, 1.13, 3.55, 1.05, 3.75, -3.55, 1.15, 2.62, -3.55, 1.15, 0, 3.55, 1.15, 1.13, 3.55, 1.15, 3.75, -3.55)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_structures_51"]
+points = PackedVector3Array(-1.05, 2.62, -3.55, 1.05, 2.62, -3.55, 1.05, 0, 3.55, -1.05, 0, 3.55, -1.05, 2.3899999, -3.55, 1.05, 2.3899999, -3.55, 1.05, -0.23, 3.55, -1.05, -0.23, 3.55)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_structures_52"]
+points = PackedVector3Array(-1.05, 2.62, -3.55, -1.05, 0, 3.55, -1.05, 1.13, 3.55, -1.05, 3.75, -3.55, -0.9499999, 2.62, -3.55, -0.9499999, 0, 3.55, -0.9499999, 1.13, 3.55, -0.9499999, 3.75, -3.55)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_structures_53"]
+points = PackedVector3Array(1.05, 2.62, -3.55, 1.05, 0, 3.55, 1.05, 1.13, 3.55, 1.05, 3.75, -3.55, 1.15, 2.62, -3.55, 1.15, 0, 3.55, 1.15, 1.13, 3.55, 1.15, 3.75, -3.55)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_jeqia"]
 size = Vector3(7.86, 0.96, 0.67)
@@ -233,6 +267,21 @@ size = Vector3(1.66, 0.95, 0.29)
 [sub_resource type="BoxShape3D" id="BoxShape3D_studio_64"]
 size = Vector3(1.78, 0.2, 0.65)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_4ad7s"]
+size = Vector3(7.7, 0.84, 0.2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ytyyi"]
+transparency = 1
+cull_mode = 2
+shading_mode = 0
+albedo_color = Color(0.4, 0.7, 0.87, 0.12)
+
+[sub_resource type="QuadMesh" id="QuadMesh_pm7r0"]
+size = Vector2(7.53, 1.96)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qxbrq"]
+size = Vector3(7.53, 1.96, 0.08)
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_c63hu"]
 size = Vector3(4.45, 1.05, 0.99)
 
@@ -277,6 +326,21 @@ size = Vector3(0.56, 1.08, 0.58)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_p2j8a"]
 size = Vector3(0.56, 1.08, 0.58)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_gavy0"]
+size = Vector3(7.6, 0.64, 0.16)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_df00n"]
+transparency = 1
+cull_mode = 2
+shading_mode = 0
+albedo_color = Color(0.4, 0.7, 0.87, 0.12)
+
+[sub_resource type="QuadMesh" id="QuadMesh_qivyb"]
+size = Vector2(7.48, 2.06)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_x5v43"]
+size = Vector3(7.48, 2.06, 0.08)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_studio_80"]
 size = Vector3(1.5, 0.95, 0.19)
@@ -344,7 +408,7 @@ filter_baking_aabb = AABB(-22.5, -0.6, -17.5, 45, 6.4, 35)
 script = ExtResource("1_4s63w")
 route_paths = Array[NodePath]([NodePath("Markers/Tour0"), NodePath("Markers/Tour1"), NodePath("Markers/Tour2"), NodePath("Markers/Tour3"), NodePath("Markers/Tour4"), NodePath("Markers/Tour5"), NodePath("Markers/Tour6"), NodePath("Markers/Tour7"), NodePath("Markers/Tour8")])
 navigation_path = NodePath("Navigation")
-structure_paths = Array[NodePath]([NodePath("Props/StagePlanterLeft"), NodePath("Props/StagePlanterRight"), NodePath("Props/Seats0"), NodePath("Props/Seats1"), NodePath("Props/Seats2"), NodePath("Props/VarietyFlat0"), NodePath("Props/VarietyFlat5"), NodePath("Props/VarietyFlat9"), NodePath("Props/GuestSofa"), NodePath("Props/GuestLoveseat"), NodePath("Props/StageMonitorLeft"), NodePath("Props/StageMonitorRight"), NodePath("Props/NewsBackdrop"), NodePath("Props/ControlMonitor0"), NodePath("Props/ControlSwitcher0"), NodePath("Props/ControlMonitor1"), NodePath("Props/ControlSwitcher1"), NodePath("Props/ControlMonitor2"), NodePath("Props/ControlSwitcher2"), NodePath("Props/ControlMonitor3"), NodePath("Props/ControlSwitcher3"), NodePath("Props/NewsDesk"), NodePath("Props/HostDesk"), NodePath("Props/Camera0"), NodePath("Props/Camera1"), NodePath("Props/Camera2"), NodePath("Props/Camera3"), NodePath("Props/NewsroomIsland0"), NodePath("Props/NewsroomChair0_0"), NodePath("Props/NewsroomChair0_1"), NodePath("Props/NewsroomIsland1"), NodePath("Props/NewsroomChair1_0"), NodePath("Props/NewsroomChair1_1"), NodePath("Props/NewsroomIsland2"), NodePath("Props/NewsroomChair2_0"), NodePath("Props/NewsroomChair2_1"), NodePath("Props/AssignmentBoard"), NodePath("Props/PatchBay"), NodePath("Props/ArchiveRack0"), NodePath("Props/ArchiveRack1"), NodePath("Props/ArchiveRack2"), NodePath("Props/ArchiveRack3"), NodePath("Props/ArchiveRack4"), NodePath("Props/ArchiveRack5"), NodePath("Props/ArchiveRack6"), NodePath("Props/RoadCase0"), NodePath("Props/RoadCase1"), NodePath("Props/RoadCase2"), NodePath("Props/RoadCase3"), NodePath("Props/RoadCase4"), NodePath("Props/RoadCase5"), NodePath("Props/RoadCase6"), NodePath("Props/WeatherCyc")])
+structure_paths = Array[NodePath]([NodePath("Props/NorthWall0"), NodePath("Props/WestWall0"), NodePath("Props/NorthWall1"), NodePath("Props/WestWall1"), NodePath("Props/NorthWall2"), NodePath("Props/WestWall2"), NodePath("Props/NorthWall3"), NodePath("Props/WestWall3"), NodePath("Props/SouthWall0"), NodePath("Props/EastWall0"), NodePath("Props/SouthWall1"), NodePath("Props/EastWall1"), NodePath("Props/SouthWall2"), NodePath("Props/EastWall2"), NodePath("Props/SouthWall3"), NodePath("Props/EastWall3"), NodePath("Props/Acoustic0_5"), NodePath("Props/Acoustic0_77"), NodePath("Props/Acoustic0_130"), NodePath("Props/Acoustic0_225"), NodePath("Props/Acoustic22_5"), NodePath("Props/Acoustic22_77"), NodePath("Props/Acoustic22_130"), NodePath("Props/Acoustic22_225"), NodePath("Props/NewsroomWall"), NodePath("Props/ArchiveWall"), NodePath("Props/StagePlanterLeft"), NodePath("Props/StagePlanterRight"), NodePath("Props/WestAccessRamp"), NodePath("Props/EastAccessRamp"), NodePath("Props/Seats0"), NodePath("Props/Seats1"), NodePath("Props/Seats2"), NodePath("Props/VarietyFlat0"), NodePath("Props/VarietyFlat5"), NodePath("Props/VarietyFlat9"), NodePath("Props/GuestSofa"), NodePath("Props/GuestLoveseat"), NodePath("Props/StageMonitorLeft"), NodePath("Props/StageMonitorRight"), NodePath("Props/NewsBackdrop"), NodePath("Props/ControlMonitor0"), NodePath("Props/ControlSwitcher0"), NodePath("Props/ControlMonitor1"), NodePath("Props/ControlSwitcher1"), NodePath("Props/ControlMonitor2"), NodePath("Props/ControlSwitcher2"), NodePath("Props/ControlMonitor3"), NodePath("Props/ControlSwitcher3"), NodePath("Props/ControlPartition"), NodePath("Props/NewsDesk"), NodePath("Props/HostDesk"), NodePath("Props/Camera0"), NodePath("Props/Camera1"), NodePath("Props/Camera2"), NodePath("Props/Camera3"), NodePath("Props/NewsroomIsland0"), NodePath("Props/NewsroomChair0_0"), NodePath("Props/NewsroomChair0_1"), NodePath("Props/NewsroomIsland1"), NodePath("Props/NewsroomChair1_0"), NodePath("Props/NewsroomChair1_1"), NodePath("Props/NewsroomIsland2"), NodePath("Props/NewsroomChair2_0"), NodePath("Props/NewsroomChair2_1"), NodePath("Props/NewsroomPartition"), NodePath("Props/AssignmentBoard"), NodePath("Props/PatchBay"), NodePath("Props/ArchiveRack0"), NodePath("Props/ArchiveRack1"), NodePath("Props/ArchiveRack2"), NodePath("Props/ArchiveRack3"), NodePath("Props/ArchiveRack4"), NodePath("Props/ArchiveRack5"), NodePath("Props/ArchiveRack6"), NodePath("Props/RoadCase0"), NodePath("Props/RoadCase1"), NodePath("Props/RoadCase2"), NodePath("Props/RoadCase3"), NodePath("Props/RoadCase4"), NodePath("Props/RoadCase5"), NodePath("Props/RoadCase6"), NodePath("Props/WeatherCyc")])
 barrel_paths = Array[NodePath]([NodePath("Barrel0"), NodePath("Barrel1"), NodePath("Barrel2")])
 map_id = "night_studio"
 sun_rotation_degrees = Vector3(-64, 18, 0)
@@ -381,32 +445,32 @@ collision_mask = 0
 shape = SubResource("BoxShape3D_ht2f8")
 
 [node name="Body8" type="StaticBody3D" parent="Architecture" unique_id=1210937209]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.2, -17)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.2, -17.32)
 collision_mask = 0
 
 [node name="Collision" type="CollisionShape3D" parent="Architecture/Body8" unique_id=583403562]
-shape = SubResource("BoxShape3D_6b0kb")
+shape = SubResource("BoxShape3D_structures_2")
 
 [node name="Body9" type="StaticBody3D" parent="Architecture" unique_id=1592743421]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.2, 17)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22.32, 4.2, 0)
 collision_mask = 0
 
 [node name="Collision" type="CollisionShape3D" parent="Architecture/Body9" unique_id=598315971]
-shape = SubResource("BoxShape3D_ilip3")
+shape = SubResource("BoxShape3D_structures_3")
 
 [node name="Body10" type="StaticBody3D" parent="Architecture" unique_id=1985373887]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 4.2, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.2, 17.32)
 collision_mask = 0
 
 [node name="Collision" type="CollisionShape3D" parent="Architecture/Body10" unique_id=628832414]
-shape = SubResource("BoxShape3D_xokhm")
+shape = SubResource("BoxShape3D_structures_4")
 
 [node name="Body11" type="StaticBody3D" parent="Architecture" unique_id=1291275218]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 4.2, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22.32, 4.2, 0)
 collision_mask = 0
 
 [node name="Collision" type="CollisionShape3D" parent="Architecture/Body11" unique_id=940422246]
-shape = SubResource("BoxShape3D_srakp")
+shape = SubResource("BoxShape3D_structures_5")
 
 [node name="Body12" type="StaticBody3D" parent="Architecture" unique_id=264712241]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8.44, 0)
@@ -416,242 +480,564 @@ collision_mask = 0
 shape = SubResource("BoxShape3D_25uk4")
 
 [node name="Body13" type="StaticBody3D" parent="Architecture" unique_id=776650701]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 2.1, -10.4)
-collision_mask = 0
-
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body13" unique_id=1192657229]
-shape = SubResource("BoxShape3D_d1cde")
-
-[node name="Body14" type="StaticBody3D" parent="Architecture" unique_id=1014071584]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 2.1, -3.3)
-collision_mask = 0
-
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body14" unique_id=843096438]
-shape = SubResource("BoxShape3D_q75do")
-
-[node name="Body15" type="StaticBody3D" parent="Architecture" unique_id=1435695727]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 2.1, 2)
-collision_mask = 0
-
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body15" unique_id=565552787]
-shape = SubResource("BoxShape3D_5nmso")
-
-[node name="Body16" type="StaticBody3D" parent="Architecture" unique_id=1306013715]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 2.1, 11.5)
-collision_mask = 0
-
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body16" unique_id=657057460]
-shape = SubResource("BoxShape3D_tggdr")
-
-[node name="Body17" type="StaticBody3D" parent="Architecture" unique_id=1579522069]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 2.1, -10.4)
-collision_mask = 0
-
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body17" unique_id=1369722528]
-shape = SubResource("BoxShape3D_h2nfk")
-
-[node name="Body18" type="StaticBody3D" parent="Architecture" unique_id=355563398]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 2.1, -3.3)
-collision_mask = 0
-
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body18" unique_id=1297530284]
-shape = SubResource("BoxShape3D_qj41a")
-
-[node name="Body19" type="StaticBody3D" parent="Architecture" unique_id=1494844123]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 2.1, 2)
-collision_mask = 0
-
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body19" unique_id=809258548]
-shape = SubResource("BoxShape3D_mbnxr")
-
-[node name="Body20" type="StaticBody3D" parent="Architecture" unique_id=657400825]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 2.1, 11.5)
-collision_mask = 0
-
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body20" unique_id=1922083844]
-shape = SubResource("BoxShape3D_ad1sx")
-
-[node name="Body21" type="StaticBody3D" parent="Architecture" unique_id=1294677433]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.8, 2, 1)
-collision_mask = 0
-
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body21" unique_id=267220849]
-shape = SubResource("BoxShape3D_uskao")
-
-[node name="Body22" type="StaticBody3D" parent="Architecture" unique_id=875474075]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.8, 2, 1)
-collision_mask = 0
-
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body22" unique_id=1828716455]
-shape = SubResource("BoxShape3D_et4sx")
-
-[node name="Body23" type="StaticBody3D" parent="Architecture" unique_id=1306886165]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.14, -5.1)
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body23" unique_id=856556334]
+[node name="Collision" type="CollisionShape3D" parent="Architecture/Body13" unique_id=1192657229]
 shape = SubResource("BoxShape3D_eu5e4")
 
-[node name="Body24" type="StaticBody3D" parent="Architecture" unique_id=32019761]
+[node name="Body14" type="StaticBody3D" parent="Architecture" unique_id=1014071584]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.49, -11.25)
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body24" unique_id=1890503353]
+[node name="Collision" type="CollisionShape3D" parent="Architecture/Body14" unique_id=843096438]
 shape = SubResource("BoxShape3D_4srre")
 
-[node name="Body25" type="StaticBody3D" parent="Architecture" unique_id=1144564182]
+[node name="Body15" type="StaticBody3D" parent="Architecture" unique_id=1435695727]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.19, -12.33)
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body25" unique_id=1062634168]
+[node name="Collision" type="CollisionShape3D" parent="Architecture/Body15" unique_id=565552787]
 shape = SubResource("BoxShape3D_5bouk")
 
-[node name="Body26" type="StaticBody3D" parent="Architecture" unique_id=149649482]
+[node name="Body16" type="StaticBody3D" parent="Architecture" unique_id=1306013715]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.19, -10.13)
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body26" unique_id=1835144334]
+[node name="Collision" type="CollisionShape3D" parent="Architecture/Body16" unique_id=657057460]
 shape = SubResource("BoxShape3D_2b2j4")
 
-[node name="Body27" type="StaticBody3D" parent="Architecture" unique_id=176876852]
+[node name="Body17" type="StaticBody3D" parent="Architecture" unique_id=1579522069]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.5, 1.18, -12.23)
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body27" unique_id=126619949]
+[node name="Collision" type="CollisionShape3D" parent="Architecture/Body17" unique_id=1369722528]
 shape = SubResource("BoxShape3D_8yv7c")
 
-[node name="Body28" type="StaticBody3D" parent="Architecture" unique_id=1222885295]
+[node name="Body18" type="StaticBody3D" parent="Architecture" unique_id=355563398]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.2, 1.18, -12.23)
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body28" unique_id=79232453]
+[node name="Collision" type="CollisionShape3D" parent="Architecture/Body18" unique_id=1297530284]
 shape = SubResource("BoxShape3D_7n2y6")
 
-[node name="Body29" type="StaticBody3D" parent="Architecture" unique_id=1393533235]
+[node name="Body19" type="StaticBody3D" parent="Architecture" unique_id=1494844123]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.2, 1.18, -12.23)
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body29" unique_id=1484664972]
+[node name="Collision" type="CollisionShape3D" parent="Architecture/Body19" unique_id=809258548]
 shape = SubResource("BoxShape3D_uwafs")
 
-[node name="Body30" type="StaticBody3D" parent="Architecture" unique_id=1071715473]
+[node name="Body20" type="StaticBody3D" parent="Architecture" unique_id=657400825]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.5, 1.18, -12.23)
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body30" unique_id=1851650732]
+[node name="Collision" type="CollisionShape3D" parent="Architecture/Body20" unique_id=1922083844]
 shape = SubResource("BoxShape3D_64yss")
 
-[node name="Body31" type="StaticBody3D" parent="Architecture" unique_id=34966988]
+[node name="Body21" type="StaticBody3D" parent="Architecture" unique_id=1294677433]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.45, 0.07, 4.5)
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body31" unique_id=1979898976]
+[node name="Collision" type="CollisionShape3D" parent="Architecture/Body21" unique_id=267220849]
 shape = SubResource("BoxShape3D_21xru")
 
-[node name="Body32" type="StaticBody3D" parent="Architecture" unique_id=852162261]
+[node name="Body22" type="StaticBody3D" parent="Architecture" unique_id=875474075]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.45, 0.155, 6.02)
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body32" unique_id=375337671]
+[node name="Collision" type="CollisionShape3D" parent="Architecture/Body22" unique_id=1828716455]
 shape = SubResource("BoxShape3D_kgkgs")
 
-[node name="Body33" type="StaticBody3D" parent="Architecture" unique_id=455826768]
+[node name="Body23" type="StaticBody3D" parent="Architecture" unique_id=1306886165]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.45, 0.24, 7.54)
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body33" unique_id=300790961]
+[node name="Collision" type="CollisionShape3D" parent="Architecture/Body23" unique_id=856556334]
 shape = SubResource("BoxShape3D_3qvmu")
 
-[node name="Body34" type="StaticBody3D" parent="Architecture" unique_id=1736284781]
+[node name="Body24" type="StaticBody3D" parent="Architecture" unique_id=32019761]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0.055, -8.8)
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body34" unique_id=3502071]
+[node name="Collision" type="CollisionShape3D" parent="Architecture/Body24" unique_id=1890503353]
 shape = SubResource("BoxShape3D_8f61m")
 
-[node name="Body35" type="StaticBody3D" parent="Architecture" unique_id=221735152]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.8, 0.42, -14.24)
+[node name="Body25" type="StaticBody3D" parent="Architecture" unique_id=1144564182]
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body35" unique_id=1771796691]
-shape = SubResource("BoxShape3D_4ad7s")
-
-[node name="Body36" type="StaticBody3D" parent="Architecture" unique_id=1704568214]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.15, 0.32, 14.78)
-collision_mask = 0
-
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body36" unique_id=577417830]
-shape = SubResource("BoxShape3D_gavy0")
-
-[node name="Body37" type="StaticBody3D" parent="Architecture" unique_id=940991199]
-collision_mask = 0
-
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body37" unique_id=199993706]
+[node name="Collision" type="CollisionShape3D" parent="Architecture/Body25" unique_id=1062634168]
 shape = SubResource("ConvexPolygonShape3D_1ei3k")
 
-[node name="Body38" type="StaticBody3D" parent="Architecture" unique_id=1226484876]
-collision_mask = 0
-
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body38" unique_id=237559670]
-shape = SubResource("ConvexPolygonShape3D_2x2xl")
-
-[node name="Body39" type="StaticBody3D" parent="Architecture" unique_id=1353732459]
-collision_mask = 0
-
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body39" unique_id=128453795]
-shape = SubResource("ConvexPolygonShape3D_iol4f")
-
-[node name="Body40" type="StaticBody3D" parent="Architecture" unique_id=597025301]
-collision_mask = 0
-
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body40" unique_id=1414405528]
-shape = SubResource("ConvexPolygonShape3D_b0oun")
-
-[node name="Body41" type="StaticBody3D" parent="Architecture" unique_id=1964683075]
-collision_mask = 0
-
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body41" unique_id=1274763659]
-shape = SubResource("ConvexPolygonShape3D_ntm58")
-
-[node name="Body42" type="StaticBody3D" parent="Architecture" unique_id=1681945853]
-collision_mask = 0
-
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body42" unique_id=60673510]
-shape = SubResource("ConvexPolygonShape3D_neeqx")
-
-[node name="Body43" type="StaticBody3D" parent="Architecture" unique_id=340467427]
-collision_mask = 0
-
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body43" unique_id=1530632546]
-shape = SubResource("ConvexPolygonShape3D_gjx3v")
-
-[node name="ControlRoomGlass" type="MeshInstance3D" parent="Architecture" unique_id=1305276326]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.75, 1.83, -14.24)
-material_override = SubResource("StandardMaterial3D_ytyyi")
-cast_shadow = 0
-mesh = SubResource("QuadMesh_pm7r0")
-
-[node name="Body45" type="StaticBody3D" parent="Architecture" unique_id=947233626]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.75, 1.83, -14.24)
-collision_mask = 0
-
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body45" unique_id=851311808]
-shape = SubResource("BoxShape3D_qxbrq")
-
-[node name="NewsroomGlass" type="MeshInstance3D" parent="Architecture" unique_id=125866683]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.15, 1.73, 14.78)
-material_override = SubResource("StandardMaterial3D_df00n")
-cast_shadow = 0
-mesh = SubResource("QuadMesh_qivyb")
-
-[node name="Body47" type="StaticBody3D" parent="Architecture" unique_id=1540973124]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.15, 1.73, 14.78)
-collision_mask = 0
-
-[node name="Collision" type="CollisionShape3D" parent="Architecture/Body47" unique_id=1813721188]
-shape = SubResource("BoxShape3D_x5v43")
-
 [node name="Props" type="Node3D" parent="." unique_id=434109598]
+
+[node name="NorthWall0" type="Node3D" parent="Props" unique_id=825218461]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.5, 0, -17)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-5.5, 0, -0.19, 11, 8.4, 0.38)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/NorthWall0" unique_id=1999215441 instance=ExtResource("209_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/NorthWall0" unique_id=357972699]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.2, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/NorthWall0/Body1" unique_id=1501167479]
+shape = SubResource("BoxShape3D_structures_20")
+
+[node name="WestWall0" type="Node3D" parent="Props" unique_id=1572283124]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0, -12.75)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-0.19, 0, -4.25, 0.38, 8.4, 8.5)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/WestWall0" unique_id=1636665543 instance=ExtResource("210_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/WestWall0" unique_id=2092781637]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.2, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/WestWall0/Body1" unique_id=1530190636]
+shape = SubResource("BoxShape3D_structures_21")
+
+[node name="NorthWall1" type="Node3D" parent="Props" unique_id=1211814854]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5, 0, -17)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-5.5, 0, -0.19, 11, 8.4, 0.38)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/NorthWall1" unique_id=1449410780 instance=ExtResource("209_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/NorthWall1" unique_id=214377379]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.2, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/NorthWall1/Body1" unique_id=550492574]
+shape = SubResource("BoxShape3D_structures_22")
+
+[node name="WestWall1" type="Node3D" parent="Props" unique_id=75094947]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0, -4.25)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-0.19, 0, -4.25, 0.38, 8.4, 8.5)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/WestWall1" unique_id=939186018 instance=ExtResource("210_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/WestWall1" unique_id=150462753]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.2, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/WestWall1/Body1" unique_id=92589138]
+shape = SubResource("BoxShape3D_structures_23")
+
+[node name="NorthWall2" type="Node3D" parent="Props" unique_id=1325575940]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5, 0, -17)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-5.5, 0, -0.19, 11, 8.4, 0.38)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/NorthWall2" unique_id=162061485 instance=ExtResource("209_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/NorthWall2" unique_id=1572909952]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.2, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/NorthWall2/Body1" unique_id=760667621]
+shape = SubResource("BoxShape3D_structures_24")
+
+[node name="WestWall2" type="Node3D" parent="Props" unique_id=1868313959]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0, 4.25)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-0.19, 0, -4.25, 0.38, 8.4, 8.5)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/WestWall2" unique_id=13376452 instance=ExtResource("210_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/WestWall2" unique_id=1121850573]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.2, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/WestWall2/Body1" unique_id=1731694846]
+shape = SubResource("BoxShape3D_structures_25")
+
+[node name="NorthWall3" type="Node3D" parent="Props" unique_id=659137801]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.5, 0, -17)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-5.5, 0, -0.19, 11, 8.4, 0.38)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/NorthWall3" unique_id=2139281630 instance=ExtResource("209_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/NorthWall3" unique_id=85501010]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.2, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/NorthWall3/Body1" unique_id=669609697]
+shape = SubResource("BoxShape3D_structures_26")
+
+[node name="WestWall3" type="Node3D" parent="Props" unique_id=1321614139]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0, 12.75)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-0.19, 0, -4.25, 0.38, 8.4, 8.5)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/WestWall3" unique_id=1915409409 instance=ExtResource("210_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/WestWall3" unique_id=607926072]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.2, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/WestWall3/Body1" unique_id=643103088]
+shape = SubResource("BoxShape3D_structures_27")
+
+[node name="SouthWall0" type="Node3D" parent="Props" unique_id=755037443]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.5, 0, 17)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-5.5, 0, -0.19, 11, 8.4, 0.38)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/SouthWall0" unique_id=202705244 instance=ExtResource("209_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/SouthWall0" unique_id=715988705]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.2, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/SouthWall0/Body1" unique_id=560069862]
+shape = SubResource("BoxShape3D_structures_28")
+
+[node name="EastWall0" type="Node3D" parent="Props" unique_id=2023695445]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0, -12.75)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-0.19, 0, -4.25, 0.38, 8.4, 8.5)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/EastWall0" unique_id=2048261307 instance=ExtResource("210_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/EastWall0" unique_id=110055649]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.2, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/EastWall0/Body1" unique_id=2120388188]
+shape = SubResource("BoxShape3D_structures_29")
+
+[node name="SouthWall1" type="Node3D" parent="Props" unique_id=1194574455]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5, 0, 17)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-5.5, 0, -0.19, 11, 8.4, 0.38)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/SouthWall1" unique_id=2087165510 instance=ExtResource("211_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/SouthWall1" unique_id=375505165]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.2, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/SouthWall1/Body1" unique_id=982876579]
+shape = SubResource("BoxShape3D_structures_30")
+
+[node name="EastWall1" type="Node3D" parent="Props" unique_id=716913265]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0, -4.25)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-0.19, 0, -4.25, 0.38, 8.4, 8.5)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/EastWall1" unique_id=642825535 instance=ExtResource("210_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/EastWall1" unique_id=1497247020]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.2, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/EastWall1/Body1" unique_id=1434600496]
+shape = SubResource("BoxShape3D_structures_31")
+
+[node name="SouthWall2" type="Node3D" parent="Props" unique_id=2057164068]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5, 0, 17)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-5.5, 0, -0.19, 11, 8.4, 0.38)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/SouthWall2" unique_id=501107829 instance=ExtResource("212_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/SouthWall2" unique_id=1681038164]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.2, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/SouthWall2/Body1" unique_id=707262285]
+shape = SubResource("BoxShape3D_structures_32")
+
+[node name="EastWall2" type="Node3D" parent="Props" unique_id=2052466932]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0, 4.25)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-0.19, 0, -4.25, 0.38, 8.4, 8.5)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/EastWall2" unique_id=37467185 instance=ExtResource("210_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/EastWall2" unique_id=679975095]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.2, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/EastWall2/Body1" unique_id=392810479]
+shape = SubResource("BoxShape3D_structures_33")
+
+[node name="SouthWall3" type="Node3D" parent="Props" unique_id=62607350]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.5, 0, 17)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-5.5, 0, -0.19, 11, 8.4, 0.38)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/SouthWall3" unique_id=1774414829 instance=ExtResource("209_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/SouthWall3" unique_id=1373904377]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.2, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/SouthWall3/Body1" unique_id=943502877]
+shape = SubResource("BoxShape3D_structures_34")
+
+[node name="EastWall3" type="Node3D" parent="Props" unique_id=2064833958]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0, 12.75)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-0.19, 0, -4.25, 0.38, 8.4, 8.5)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/EastWall3" unique_id=1206381492 instance=ExtResource("210_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/EastWall3" unique_id=1437599142]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.2, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/EastWall3/Body1" unique_id=406616020]
+shape = SubResource("BoxShape3D_structures_35")
+
+[node name="Acoustic0_5" type="Node3D" parent="Props" unique_id=676021017]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 0, -10.4)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-0.17, 0, -2.2, 0.34, 4.2, 4.4)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/Acoustic0_5" unique_id=1608851400 instance=ExtResource("213_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/Acoustic0_5" unique_id=490012967]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/Acoustic0_5/Body1" unique_id=1187577970]
+shape = SubResource("BoxShape3D_d1cde")
+
+[node name="Acoustic0_77" type="Node3D" parent="Props" unique_id=1878872626]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 0, -3.3)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-0.17, 0, -1.1, 0.34, 4.2, 2.2)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/Acoustic0_77" unique_id=414573834 instance=ExtResource("214_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/Acoustic0_77" unique_id=2020506995]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/Acoustic0_77/Body1" unique_id=1613134880]
+shape = SubResource("BoxShape3D_q75do")
+
+[node name="Acoustic0_130" type="Node3D" parent="Props" unique_id=663337329]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 0, 2)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-0.17, 0, -1.3, 0.34, 4.2, 2.6)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/Acoustic0_130" unique_id=1220637913 instance=ExtResource("215_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/Acoustic0_130" unique_id=268026407]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/Acoustic0_130/Body1" unique_id=1967808389]
+shape = SubResource("BoxShape3D_5nmso")
+
+[node name="Acoustic0_225" type="Node3D" parent="Props" unique_id=1982873709]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 0, 11.5)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-0.17, 0, -2.6, 0.34, 4.2, 5.2)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/Acoustic0_225" unique_id=774167429 instance=ExtResource("216_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/Acoustic0_225" unique_id=1379979301]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/Acoustic0_225/Body1" unique_id=1363770052]
+shape = SubResource("BoxShape3D_tggdr")
+
+[node name="Acoustic22_5" type="Node3D" parent="Props" unique_id=623912154]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0, -10.4)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-0.17, 0, -2.2, 0.34, 4.2, 4.4)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/Acoustic22_5" unique_id=2107660120 instance=ExtResource("217_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/Acoustic22_5" unique_id=4683955]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/Acoustic22_5/Body1" unique_id=512731889]
+shape = SubResource("BoxShape3D_h2nfk")
+
+[node name="Acoustic22_77" type="Node3D" parent="Props" unique_id=839062217]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0, -3.3)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-0.17, 0, -1.1, 0.34, 4.2, 2.2)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/Acoustic22_77" unique_id=1787193243 instance=ExtResource("218_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/Acoustic22_77" unique_id=52922546]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/Acoustic22_77/Body1" unique_id=2050385994]
+shape = SubResource("BoxShape3D_qj41a")
+
+[node name="Acoustic22_130" type="Node3D" parent="Props" unique_id=1710436893]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0, 2)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-0.17, 0, -1.3, 0.34, 4.2, 2.6)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/Acoustic22_130" unique_id=1156400493 instance=ExtResource("219_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/Acoustic22_130" unique_id=1402046384]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/Acoustic22_130/Body1" unique_id=955542589]
+shape = SubResource("BoxShape3D_mbnxr")
+
+[node name="Acoustic22_225" type="Node3D" parent="Props" unique_id=2069998393]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0, 11.5)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-0.17, 0, -2.6, 0.34, 4.2, 5.2)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/Acoustic22_225" unique_id=1267517333 instance=ExtResource("220_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/Acoustic22_225" unique_id=811838484]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/Acoustic22_225/Body1" unique_id=1824091988]
+shape = SubResource("BoxShape3D_ad1sx")
+
+[node name="NewsroomWall" type="Node3D" parent="Props" unique_id=2144158558]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.8, 0, 1)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-4.075, 0, -0.165, 8.15, 4, 0.33)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/NewsroomWall" unique_id=1662613431 instance=ExtResource("221_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/NewsroomWall" unique_id=1928261257]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/NewsroomWall/Body1" unique_id=1286489712]
+shape = SubResource("BoxShape3D_uskao")
+
+[node name="ArchiveWall" type="Node3D" parent="Props" unique_id=1483370265]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.8, 0, 1)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-4.075, 0, -0.165, 8.15, 4, 0.33)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/ArchiveWall" unique_id=1212264289 instance=ExtResource("222_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/ArchiveWall" unique_id=1713713608]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/ArchiveWall/Body1" unique_id=430488839]
+shape = SubResource("BoxShape3D_et4sx")
 
 [node name="StagePlanterLeft" type="Node3D" parent="Props" unique_id=1650582160]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.55, 0.29, -5.78)
@@ -690,6 +1076,64 @@ collision_mask = 0
 
 [node name="Collision" type="CollisionShape3D" parent="Props/StagePlanterRight/Body1" unique_id=824168205]
 shape = SubResource("BoxShape3D_studio_45")
+
+[node name="WestAccessRamp" type="Node3D" parent="Props" unique_id=1791879754]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.75, 0, -6.55)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-1.1, 0, -3.55, 2.2, 3.75, 7.1)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1"), NodePath("Body2"), NodePath("Body3")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/WestAccessRamp" unique_id=1947292125 instance=ExtResource("224_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/WestAccessRamp" unique_id=899513225]
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/WestAccessRamp/Body1" unique_id=2092190902]
+shape = SubResource("ConvexPolygonShape3D_structures_48")
+
+[node name="Body2" type="StaticBody3D" parent="Props/WestAccessRamp" unique_id=218618418]
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/WestAccessRamp/Body2" unique_id=1249041745]
+shape = SubResource("ConvexPolygonShape3D_structures_49")
+
+[node name="Body3" type="StaticBody3D" parent="Props/WestAccessRamp" unique_id=1415946547]
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/WestAccessRamp/Body3" unique_id=1726983755]
+shape = SubResource("ConvexPolygonShape3D_structures_50")
+
+[node name="EastAccessRamp" type="Node3D" parent="Props" unique_id=1687609784]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.75, 0, -6.55)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-1.1, 0, -3.55, 2.2, 3.75, 7.1)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1"), NodePath("Body2"), NodePath("Body3")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/EastAccessRamp" unique_id=1888175942 instance=ExtResource("224_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/EastAccessRamp" unique_id=760687994]
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/EastAccessRamp/Body1" unique_id=1821680306]
+shape = SubResource("ConvexPolygonShape3D_structures_51")
+
+[node name="Body2" type="StaticBody3D" parent="Props/EastAccessRamp" unique_id=2015800955]
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/EastAccessRamp/Body2" unique_id=1834242812]
+shape = SubResource("ConvexPolygonShape3D_structures_52")
+
+[node name="Body3" type="StaticBody3D" parent="Props/EastAccessRamp" unique_id=884523780]
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/EastAccessRamp/Body3" unique_id=527546974]
+shape = SubResource("ConvexPolygonShape3D_structures_53")
 
 [node name="Seats0" type="Node3D" parent="Props" unique_id=650813649]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.45, 0.14, 4.5)
@@ -752,6 +1196,7 @@ bounds = AABB(-2.225, 0, -0.22, 4.45, 4.45, 0.44)
 saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
 local_bounds = true
 palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+metadata/studio_backdrop = true
 
 [node name="Model" type="Node3D" parent="Props/VarietyFlat0" unique_id=2026203819 instance=ExtResource("11_n5a5p")]
 
@@ -769,6 +1214,7 @@ bounds = AABB(-2.225, 0, -0.22, 4.45, 4.45, 0.44)
 saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
 local_bounds = true
 palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+metadata/studio_backdrop = true
 
 [node name="Model" type="Node3D" parent="Props/VarietyFlat5" unique_id=112134298 instance=ExtResource("11_n5a5p")]
 
@@ -786,6 +1232,7 @@ bounds = AABB(-2.225, 0, -0.22, 4.45, 4.45, 0.44)
 saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
 local_bounds = true
 palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+metadata/studio_backdrop = true
 
 [node name="Model" type="Node3D" parent="Props/VarietyFlat9" unique_id=417265024 instance=ExtResource("11_n5a5p")]
 
@@ -877,6 +1324,7 @@ bounds = AABB(-4.125, 0, -0.12, 8.25, 4.27, 0.24)
 saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
 local_bounds = true
 palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+metadata/studio_backdrop = true
 
 [node name="Model" type="Node3D" parent="Props/NewsBackdrop" unique_id=2052524262 instance=ExtResource("13_n8pcu")]
 
@@ -1038,6 +1486,37 @@ collision_mask = 0
 
 [node name="Collision" type="CollisionShape3D" parent="Props/ControlSwitcher3/Body1" unique_id=259051438]
 shape = SubResource("BoxShape3D_studio_64")
+
+[node name="ControlPartition" type="Node3D" parent="Props" unique_id=638054567]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.8, 0, -14.24)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-3.85, 0, -0.1, 7.7, 3.21, 0.2)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1"), NodePath("Glass"), NodePath("Body3")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/ControlPartition" unique_id=1891986345 instance=ExtResource("232_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/ControlPartition" unique_id=1042354951]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/ControlPartition/Body1" unique_id=1765154884]
+shape = SubResource("BoxShape3D_4ad7s")
+
+[node name="Glass" type="MeshInstance3D" parent="Props/ControlPartition" unique_id=460238313]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 1.83, 0)
+material_override = SubResource("StandardMaterial3D_ytyyi")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_pm7r0")
+
+[node name="Body3" type="StaticBody3D" parent="Props/ControlPartition" unique_id=1276623714]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 1.83, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/ControlPartition/Body3" unique_id=1584354608]
+shape = SubResource("BoxShape3D_qxbrq")
 
 [node name="NewsDesk" type="Node3D" parent="Props" unique_id=1927022323]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0.11, -8.4)
@@ -1311,6 +1790,37 @@ collision_mask = 0
 
 [node name="Collision" type="CollisionShape3D" parent="Props/NewsroomChair2_1/Body1" unique_id=2657878]
 shape = SubResource("BoxShape3D_p2j8a")
+
+[node name="NewsroomPartition" type="Node3D" parent="Props" unique_id=1920327046]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.15, 0, 14.78)
+script = ExtResource("9_k4y0w")
+bounds = AABB(-3.8, 0, -0.08, 7.6, 2.86, 0.16)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1"), NodePath("Glass"), NodePath("Body3")])
+local_bounds = true
+palette = Color(0.50980395, 0.3882353, 0.5411765, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="Props/NewsroomPartition" unique_id=115550516 instance=ExtResource("7_ki8vq")]
+
+[node name="Body1" type="StaticBody3D" parent="Props/NewsroomPartition" unique_id=36660024]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.32, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/NewsroomPartition/Body1" unique_id=2090973662]
+shape = SubResource("BoxShape3D_gavy0")
+
+[node name="Glass" type="MeshInstance3D" parent="Props/NewsroomPartition" unique_id=1637737514]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.73, 0)
+material_override = SubResource("StandardMaterial3D_df00n")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_qivyb")
+
+[node name="Body3" type="StaticBody3D" parent="Props/NewsroomPartition" unique_id=599366202]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.73, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Props/NewsroomPartition/Body3" unique_id=1568175879]
+shape = SubResource("BoxShape3D_x5v43")
 
 [node name="AssignmentBoard" type="Node3D" parent="Props" unique_id=913975226]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20.9, 1.125, 2.33)

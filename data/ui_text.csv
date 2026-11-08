@@ -34,7 +34,7 @@ TIME EXPIRED,时间到
 KILLED,已阵亡
 %.1f s,%.1f 秒
 BEST %.1f s,最佳 %.1f 秒
-DESTROY ALL,摧毁 一切
+DESTROY ALL,狂暴模式
 GO,开始
 HOLD,长按
 HOLD E,按住 E
@@ -51,7 +51,7 @@ BARREL DEAL,一桶双响
 YARD SHIFT,货场值班
 12 combat kills in one yard round,在一局货场中完成 12 次战斗击杀
 LAST RIDE,末班游乐
-5 kills in one park DESTROY ALL phase,在游乐园的一次摧毁阶段完成 5 次击杀
+5 kills in one park DESTROY ALL phase,在游乐园的一次狂暴模式中完成 5 次击杀
 HIGH TIDE,涨潮时刻
 3 kills from high ground on the ferry in one round,在一局渡轮地图中从高处完成 3 次击杀
 OFF AIR,节目停播

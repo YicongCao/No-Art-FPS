@@ -435,20 +435,25 @@ platform.box("Platform floor",(25.6,1.97,1),(5.3,.46,10),"purple")
 platform.box("Platform top",(25.6,2.202,1),(5.25,.016,9.96),"cream")
 platform.box("Gold fascia",(22.95,2.01,1),(.13,.35,10),"gold")
 collider((25.6,1.97,1),(5.3,.46,10))
-for z0,sign in ((6,1),(-4,-1)):
-    ramp=[(24.08,2.2,z0),(27.12,2.2,z0),(27.12,0,z0+sign*7.8),(24.08,0,z0+sign*7.8)]
-    surface(ramp,[(3,2,1,0) if sign==1 else (0,1,2,3)])
-    for i in range(14):
-        step_height=2.2*(1-i/14)
-        platform.box("Visible stair",(25.6,step_height-.08,z0+sign*(i+.5)*7.8/14),(3.04,.16,7.8/14),"gold" if i%2==0 else "gold_light")
-    for x in (24.03,27.17):
-        platform.rod("Ramp rail",(x,3.23,z0),(x,1.03,z0+sign*7.8),.054,"purple")
-        for i in range(5):
-            t=i/4
-            platform.rod("Ramp post",(x,2.2*(1-t),z0+sign*t*7.8),(x,2.2*(1-t)+1.03,z0+sign*t*7.8),.05,"purple")
-        collider((x,1.65,z0+sign*3.9),(.12,3.3,7.8))
 platform.export()
 place("StationFoundation","station_foundation")
+for direction,z0,sign in (("South",6,1),("North",-4,-1)):
+    name = f"{direction}StationStairs"
+    asset = f"station_stairs_{direction.lower()}"
+    stairs = Asset(asset,"06 Station")
+    ramp=[(24.08,2.2,z0),(27.12,2.2,z0),(27.12,0,z0+sign*7.8),(24.08,0,z0+sign*7.8)]
+    surface(ramp,[(3,2,1,0) if sign==1 else (0,1,2,3)],name)
+    for i in range(14):
+        step_height=2.2*(1-i/14)
+        stairs.box("Visible stair",(25.6,step_height-.08,z0+sign*(i+.5)*7.8/14),(3.04,.16,7.8/14),"gold" if i%2==0 else "gold_light")
+    for x in (24.03,27.17):
+        stairs.rod("Ramp rail",(x,3.23,z0),(x,1.03,z0+sign*7.8),.054,"purple")
+        for i in range(5):
+            t=i/4
+            stairs.rod("Ramp post",(x,2.2*(1-t),z0+sign*t*7.8),(x,2.2*(1-t)+1.03,z0+sign*t*7.8),.05,"purple")
+        collider((x,1.65,z0+sign*3.9),(.12,3.3,7.8),name)
+    stairs.export()
+    place(name,asset,group=name,shoot=False)
 
 station=Asset("station_roof","06 Station")
 for x in (22.8,28.16):

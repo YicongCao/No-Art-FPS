@@ -23,8 +23,9 @@ func group(label: String) -> Node3D:
 	if not groups.has(label):
 		var scenery = Destructible.new()
 		scenery.local_bounds = true
-		scenery.scenery = true
-		scenery.palette = Color("e9ba50") if label in ["Carousel","Coaster","Station"] else Color("4d7d70")
+		scenery.structural_section = label.ends_with("StationStairs")
+		scenery.scenery = not scenery.structural_section
+		scenery.palette = Color("e9ba50") if scenery.structural_section or label in ["Carousel","Coaster","Station"] else Color("4d7d70")
 		add(park,scenery,label)
 		groups[label] = scenery
 		park.structure_paths.append(park.get_path_to(scenery))
@@ -108,8 +109,15 @@ func generate() -> void:
 			faces.append(vec(item.triangles[i]))
 			faces.append(vec(item.triangles[i+2]))
 			faces.append(vec(item.triangles[i+1]))
-		shape.set_faces(faces)
-		collision.shape = shape
+		if not item.group.is_empty() and parent.structural_section:
+			var convex = ConvexPolygonShape3D.new()
+			var points = faces.duplicate()
+			for point in faces:points.append(point-Vector3.UP*.18)
+			convex.points = points
+			collision.shape = convex
+		else:
+			shape.set_faces(faces)
+			collision.shape = shape
 		add(body,collision,"Surface")
 
 	var carousel = Node3D.new()

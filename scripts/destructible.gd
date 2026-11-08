@@ -7,6 +7,7 @@ var arena: Node3D
 @export var local_bounds = false
 @export var palette = Color("b65745")
 @export var scenery = false
+@export var structural_section = false
 @export var paper = false
 @export var keep_boundary = false
 @export var batch_parts: Dictionary = {}
@@ -55,7 +56,8 @@ func _physics_process(delta: float) -> void:
 	flame_time -= delta
 	if flame_time<=0:
 		flame_time = .16
-		game.fire_effect(world_bounds().get_center()+Vector3(0,-bounds.size.y*.3,0),1.2)
+		var source = hit_point if structural_section else world_bounds().get_center()+Vector3(0,-bounds.size.y*.3,0)
+		game.fire_effect(source,1.2)
 	if burn_time<=0:collapse()
 
 func collapse(show_effects: bool = true) -> void:
@@ -85,6 +87,8 @@ func collapse(show_effects: bool = true) -> void:
 			blast_center.y = area.position.y+minf(area.size.y*.5,.85)
 			game.finale_explosion(blast_center,clampf(area.size.length()*.2,.65,1.5),palette)
 			game.play_world_sound("explosion",blast_center,-11)
+		elif structural_section and game.finale_active:
+			game.finale_explosion(area.get_center(),clampf(area.size.length()*.17,1.4,2.8),palette)
 		else:game.collapse_effect(area,palette)
 		if hits>=2 and not keep_boundary:
 			var excluded: Array[RID] = []

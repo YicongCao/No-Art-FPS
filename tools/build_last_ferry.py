@@ -181,14 +181,16 @@ for (px, z), (qx, w) in zip(bridge_outline, bridge_outline[1:] + bridge_outline[
 for side in (-1, 1):
     for z in (-2.15, 2.15):
         bridge.box("Support", (x + side*3.5, 1.15, z), (.36, 2.3, .36), "gold")
+    ramp = Kit("bridge_ramp_fore" if side < 0 else "bridge_ramp_aft")
+    kits.append(ramp)
     za, zb = half * side, end * side
     left, right = x - ramp_width / 2, x + ramp_width / 2
     vertices = [(left,h,za),(right,h,za),(right,0,zb),(left,0,zb),
                 (left,h-.24,za),(right,h-.24,za),(right,-.24,zb),(left,-.24,zb)]
     faces = [(0,1,2,3),(7,6,5,4),(0,4,5,1),(1,5,6,2),(2,6,7,3),(3,7,4,0)]
-    bridge.mesh("Ramp", vertices, faces if side < 0 else [tuple(reversed(f)) for f in faces], "blue")
+    ramp.mesh("Ramp", vertices, faces if side < 0 else [tuple(reversed(f)) for f in faces], "blue")
     for edge in (left + .08, right - .08):
-        railing(bridge, (edge, h, za), (edge, 0, zb), "blue_light")
+        railing(ramp, (edge, h, za), (edge, 0, zb), "blue_light")
 
 cabin = Kit("deckhouse", LAYOUT["deckhouse"])
 kits.append(cabin)

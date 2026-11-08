@@ -67,6 +67,19 @@ func add_deck(outline: Array) -> void:
 		var b = top[(i+1)%top.size()]*Vector3(.981,1,.985)
 		rail(ferry,a,b)
 
+func structure(label: String, bounds: AABB, color: Color) -> Node3D:
+	var part = Destructible.new()
+	part.bounds = bounds
+	part.local_bounds = true
+	part.palette = color
+	part.structural_section = true
+	add(ferry,part,label)
+	ferry.structure_paths.append(ferry.get_path_to(part))
+	return part
+
+func bind_parts(part: Node3D) -> void:
+	for child in part.get_children():part.saved_parts.append(part.get_path_to(child))
+
 func add_bridge(layout: Dictionary) -> void:
 	model(ferry,"Catwalk","bridge")
 	var x: float = layout.x
@@ -86,9 +99,14 @@ func add_bridge(layout: Dictionary) -> void:
 		var right = Vector3(x+half,height,start)
 		var foot_left = Vector3(x-half,0,finish)
 		var foot_right = Vector3(x+half,0,finish)
-		floor_prism(ferry,PackedVector3Array([left,right,foot_right,foot_left]),.24)
-		rail(ferry,left+Vector3.RIGHT*.08,foot_left+Vector3.RIGHT*.08)
-		rail(ferry,right-Vector3.RIGHT*.08,foot_right-Vector3.RIGHT*.08)
+		var ramp = structure("ForeRamp" if side<0 else "AftRamp",
+			AABB(Vector3(left.x,0,minf(start,finish)),Vector3(half*2,height+1.85,absf(start-finish))),
+			Color("465ba5"))
+		model(ramp,"Model","bridge_ramp_fore" if side<0 else "bridge_ramp_aft")
+		floor_prism(ramp,PackedVector3Array([left,right,foot_right,foot_left]),.24)
+		rail(ramp,left+Vector3.RIGHT*.08,foot_left+Vector3.RIGHT*.08)
+		rail(ramp,right-Vector3.RIGHT*.08,foot_right-Vector3.RIGHT*.08)
+		bind_parts(ramp)
 		for z in [-2.15,2.15]:
 			box(ferry,Vector3(x+side*3.5,1.15,z),Vector3(.36,2.3,.36))
 
@@ -170,8 +188,11 @@ func generate() -> void:
 	add_harbor(layout)
 	add_deck(layout.outline)
 	add_bridge(layout.bridge)
-	model(ferry,"Wheelhouse","deckhouse",vec(layout.deckhouse))
-	box(ferry,vec(layout.deckhouse)+Vector3.UP*1.43,Vector3(5.86,2.86,5.3))
+	var wheelhouse = structure("Wheelhouse",AABB(Vector3(-3.14,0,-2.85),Vector3(6.28,4.8,5.7)),Color("ebe1be"))
+	wheelhouse.position = vec(layout.deckhouse)
+	model(wheelhouse,"Model","deckhouse")
+	box(wheelhouse,Vector3.UP*1.43,Vector3(5.86,2.86,5.3))
+	bind_parts(wheelhouse)
 	model(ferry,"MainMast","mast",vec(layout.mast))
 	box(ferry,vec(layout.mast)+Vector3.UP*5.95,Vector3(.82,11.9,.82))
 	add_cover(layout.props)

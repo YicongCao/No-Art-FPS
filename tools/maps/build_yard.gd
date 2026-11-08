@@ -179,7 +179,13 @@ func rail(a: Vector3, b: Vector3, color: String = "purple") -> void:
 	for h in [.45,1.15]:solid(mid+Vector3(0,h,0),dim,color,true)
 
 
-func stairs(x: float, start_z: float, height: float, length: float, width: float) -> void:
+func stairs(label: String, x: float, start_z: float, height: float, length: float, width: float) -> void:
+	var support = active_structure
+	active_structure = structure(AABB(Vector3(x-width*.5,0,start_z-length),Vector3(width,height+1.2,length)),"red")
+	active_structure.name = label
+	active_structure.structural_section = true
+	if not supported_scenery.has(support):supported_scenery[support] = []
+	supported_scenery[support].append(active_structure)
 	var count = 16
 	for i in range(count):
 		var h = height*float(i+1)/count
@@ -208,6 +214,7 @@ func stairs(x: float, start_z: float, height: float, length: float, width: float
 			var point = bottom.lerp(top,float(i)/5)
 			solid(point+Vector3(0,.57,0),Vector3(.09,1.14,.09),"purple",true)
 		for y in [.42,1.10]:beam(bottom+Vector3.UP*y,top+Vector3.UP*y,.095,"purple",true)
+	active_structure = support
 
 func wall_paint(artwork: Texture2D, center: Vector3, size: Vector2, colors: Array, normal: Vector3 = Vector3.BACK) -> void:
 	# Configure the existing opaque material, so paint and wall never compete for depth.
@@ -245,8 +252,8 @@ func build() -> void:
 		solid(Vector3(x+1,1.4,-8.92),Vector3(.06,2.8,.08),"ink",false)
 	# Ramp tops meet the actual 3.1 m walking surface at each landing front.
 	# The old 3.0 m ramps ended underneath the slab, exposing a vertical lip.
-	stairs(-11,-1.5,3.1,6.9,2.6)
-	stairs(7.6,-2,3.1,6.8,2.2)
+	stairs("WestStairs",-11,-1.5,3.1,6.9,2.6)
+	stairs("EastStairs",7.6,-2,3.1,6.8,2.2)
 	solid(Vector3(-10.3,3,-9.7),Vector3(2.6,.2,2.6),"purple")
 	rail(Vector3(-6.5,3.1,-8.85),Vector3(6.5,3.1,-8.85))
 	pool_terrace()

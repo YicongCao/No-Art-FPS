@@ -45,6 +45,12 @@ func prism(parent: Node3D, outline: PackedVector3Array, thickness: Vector3) -> v
 	shape.points = points
 	collider(parent,shape)
 
+func rail(parent: Node3D, ends: Array) -> void:
+	var a = vec(ends[0])
+	var b = vec(ends[1])
+	var height = Vector3.UP*1.13
+	prism(parent,PackedVector3Array([a,b,b+height,a+height]),Vector3.RIGHT*.10)
+
 func place_props(items: Array) -> void:
 	var props = add(studio,Node3D.new(),"Props")
 	for item in items:
@@ -52,17 +58,28 @@ func place_props(items: Array) -> void:
 		part.position = vec(item.at)
 		part.rotation.y = float(item.angle)
 		part.scenery = not item.structural
+		part.structural_section = item.section
+		if item.asset in ["stage_flat","news_backdrop"]:part.set_meta("studio_backdrop",true)
 		part.paper = item.paper
 		part.local_bounds = true
 		part.palette = Color("46727a") if item.paper else Color("82638a")
 		add(props,part,item.name)
-		var visual = model(part,item.asset,"Model")
+		model(part,item.asset,"Model")
 		var size = vec(item.size)
-		var body = box(part,Vector3.UP*size.y*.5,size)
-		if item.shoot_only:body.collision_layer = 16
 		part.bounds = AABB(Vector3(-size.x*.5,0,-size.z*.5),size)
-		part.saved_parts.append(part.get_path_to(visual))
-		part.saved_parts.append(part.get_path_to(body))
+		if item.has("ramp"):
+			var outline = PackedVector3Array()
+			for point in item.ramp:outline.append(vec(point))
+			prism(part,outline,Vector3.DOWN*.23)
+			for ends in item.rails:rail(part,ends)
+		else:
+			var body = box(part,Vector3.UP*size.y*.5,size)
+			if item.shoot_only:body.collision_layer = 16
+		if item.has("window"):
+			var aperture = item.window[1]
+			window(part,vec(item.window[0]),Vector2(aperture[0],aperture[1]),"Glass")
+			part.bounds.size.y = item.window[2]
+		for child in part.get_children():part.saved_parts.append(part.get_path_to(child))
 		studio.structure_paths.append(studio.get_path_to(part))
 
 func light_beams(spots: Array) -> void:
@@ -129,13 +146,6 @@ func build() -> void:
 		var outline = PackedVector3Array()
 		for point in points:outline.append(vec(point))
 		prism(architecture,outline,Vector3.DOWN*.23)
-	for ends in layout.ramp_rails:
-		var a = vec(ends[0])
-		var b = vec(ends[1])
-		var height = Vector3.UP*1.13
-		prism(architecture,PackedVector3Array([a,b,b+height,a+height]),Vector3.RIGHT*.10)
-	window(architecture,Vector3(-17.75,1.83,-14.24),Vector2(7.53,1.96),"ControlRoomGlass")
-	window(architecture,Vector3(-17.15,1.73,14.78),Vector2(7.48,2.06),"NewsroomGlass")
 	place_props(layout.props)
 	light_beams(layout.spots)
 	for at in [Vector3(12.7,0,-2.65),Vector3(-12.2,0,11.4),Vector3(6.2,0,12.1)]:

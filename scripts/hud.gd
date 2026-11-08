@@ -798,10 +798,14 @@ func draw_destroy_notice(center: Vector2) -> void:
 	var settle = smoothstep(0,.12,DESTROY_NOTICE_DURATION-destroy_time)
 	var scale_factor = 1.0 if game.reduced_motion else lerpf(1.08,1,settle)
 	var words = tr("DESTROY ALL").split(" ")
-	var widths = [font.get_string_size(words[0],HORIZONTAL_ALIGNMENT_LEFT,-1,text_size).x,
-		font.get_string_size(words[1],HORIZONTAL_ALIGNMENT_LEFT,-1,text_size).x]
+	var widths: Array[float] = []
 	var gap = text_size*.2
-	var baseline = Vector2(-(widths[0]+gap+widths[1])*.5,text_size*.32)
+	var width = gap*(words.size()-1)
+	for word in words:
+		var extent = font.get_string_size(word,HORIZONTAL_ALIGNMENT_LEFT,-1,text_size).x
+		widths.append(extent)
+		width += extent
+	var baseline = Vector2(-width*.5,text_size*.32)
 	draw_set_transform(center-Vector2(0,96),0,Vector2.ONE*scale_factor)
 	for i in range(words.size()):
 		draw_string_outline(font,baseline,words[i],HORIZONTAL_ALIGNMENT_LEFT,-1,text_size,3,Color(INK,.85*opacity))

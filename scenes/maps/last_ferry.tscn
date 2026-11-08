@@ -8,9 +8,11 @@
 [ext_resource type="Shader" path="res://assets/shaders/ferry_water.gdshader" id="6_18rsc"]
 [ext_resource type="PackedScene" path="res://assets/models/ferry/deck.glb" id="7_cgjm6"]
 [ext_resource type="PackedScene" path="res://assets/models/ferry/bridge.glb" id="8_3vrbd"]
+[ext_resource type="Script" path="res://scripts/destructible.gd" id="11_boiu7"]
+[ext_resource type="PackedScene" path="res://assets/models/ferry/bridge_ramp_fore.glb" id="209_structures"]
+[ext_resource type="PackedScene" path="res://assets/models/ferry/bridge_ramp_aft.glb" id="210_structures"]
 [ext_resource type="PackedScene" path="res://assets/models/ferry/deckhouse.glb" id="9_t17wj"]
 [ext_resource type="PackedScene" path="res://assets/models/ferry/mast.glb" id="10_4i3cc"]
-[ext_resource type="Script" path="res://scripts/destructible.gd" id="11_boiu7"]
 [ext_resource type="PackedScene" path="res://assets/models/ferry/crates_teal.glb" id="12_8ml4w"]
 [ext_resource type="PackedScene" path="res://assets/models/ferry/crates_purple.glb" id="13_25wrh"]
 [ext_resource type="PackedScene" path="res://assets/models/ferry/locker.glb" id="14_c48lc"]
@@ -190,7 +192,7 @@ agent_max_slope = 39.0
 script = ExtResource("1_ui5uo")
 route_paths = Array[NodePath]([NodePath("Markers/Tour0"), NodePath("Markers/Tour1"), NodePath("Markers/Tour2"), NodePath("Markers/Tour3"), NodePath("Markers/Tour4"), NodePath("Markers/Tour5"), NodePath("Markers/Tour6"), NodePath("Markers/Tour7"), NodePath("Markers/Tour8"), NodePath("Markers/Tour9"), NodePath("Markers/Tour10"), NodePath("Markers/Tour11"), NodePath("Markers/Crossing0"), NodePath("Markers/Crossing1"), NodePath("Markers/Crossing2"), NodePath("Markers/Crossing3"), NodePath("Markers/Crossing4"), NodePath("Markers/Crossing5"), NodePath("Markers/Crossing6")])
 navigation_path = NodePath("Navigation")
-structure_paths = Array[NodePath]([NodePath("PortCrates"), NodePath("StarboardCrates"), NodePath("ForeCrates"), NodePath("AftCrates"), NodePath("PortLocker"), NodePath("StarboardLocker"), NodePath("BowLocker"), NodePath("PortLifeboat"), NodePath("StarboardLifeboat")])
+structure_paths = Array[NodePath]([NodePath("ForeRamp"), NodePath("AftRamp"), NodePath("Wheelhouse"), NodePath("PortCrates"), NodePath("StarboardCrates"), NodePath("ForeCrates"), NodePath("AftCrates"), NodePath("PortLocker"), NodePath("StarboardLocker"), NodePath("BowLocker"), NodePath("PortLifeboat"), NodePath("StarboardLifeboat")])
 barrel_paths = Array[NodePath]([NodePath("Barrel0"), NodePath("Barrel1"), NodePath("Barrel2"), NodePath("Barrel3")])
 map_id = "last_ferry"
 sun_rotation_degrees = Vector3(-49, -23, 0)
@@ -364,88 +366,116 @@ collision_mask = 0
 [node name="Collision" type="CollisionShape3D" parent="Body27" unique_id=1663316554]
 shape = SubResource("ConvexPolygonShape3D_cgvq5")
 
-[node name="Body28" type="StaticBody3D" parent="." unique_id=933039350]
+[node name="ForeRamp" type="Node3D" parent="." unique_id=482345115]
+script = ExtResource("11_boiu7")
+bounds = AABB(-3.7, 0, -12, 4.2, 4.5, 8)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1"), NodePath("Body2"), NodePath("Body3")])
+local_bounds = true
+palette = Color(0.27450982, 0.35686275, 0.64705884, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="ForeRamp" unique_id=1527969014 instance=ExtResource("209_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="ForeRamp" unique_id=590667795]
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Body28" unique_id=1583517172]
+[node name="Collision" type="CollisionShape3D" parent="ForeRamp/Body1" unique_id=1347896172]
 shape = SubResource("ConvexPolygonShape3D_ljcyr")
 
-[node name="Body29" type="StaticBody3D" parent="." unique_id=339998902]
+[node name="Body2" type="StaticBody3D" parent="ForeRamp" unique_id=1339315986]
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Body29" unique_id=1040874925]
+[node name="Collision" type="CollisionShape3D" parent="ForeRamp/Body2" unique_id=1122343815]
 shape = SubResource("ConvexPolygonShape3D_uhsjn")
 
-[node name="Body30" type="StaticBody3D" parent="." unique_id=157835244]
+[node name="Body3" type="StaticBody3D" parent="ForeRamp" unique_id=185627997]
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Body30" unique_id=653045715]
+[node name="Collision" type="CollisionShape3D" parent="ForeRamp/Body3" unique_id=925188707]
 shape = SubResource("ConvexPolygonShape3D_x5nax")
 
-[node name="Body31" type="StaticBody3D" parent="." unique_id=1295821821]
+[node name="Body29" type="StaticBody3D" parent="." unique_id=339998902]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.1, 1.15, -2.15)
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Body31" unique_id=1792417952]
+[node name="Collision" type="CollisionShape3D" parent="Body29" unique_id=1040874925]
 shape = SubResource("BoxShape3D_usrxx")
 
-[node name="Body32" type="StaticBody3D" parent="." unique_id=594940315]
+[node name="Body30" type="StaticBody3D" parent="." unique_id=157835244]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.1, 1.15, 2.15)
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Body32" unique_id=1076834442]
+[node name="Collision" type="CollisionShape3D" parent="Body30" unique_id=653045715]
 shape = SubResource("BoxShape3D_8sdhs")
 
-[node name="Body33" type="StaticBody3D" parent="." unique_id=1001244070]
+[node name="AftRamp" type="Node3D" parent="." unique_id=1757943561]
+script = ExtResource("11_boiu7")
+bounds = AABB(-3.7, 0, 4, 4.2, 4.5, 8)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1"), NodePath("Body2"), NodePath("Body3")])
+local_bounds = true
+palette = Color(0.27450982, 0.35686275, 0.64705884, 1)
+structural_section = true
+
+[node name="Model" type="Node3D" parent="AftRamp" unique_id=924728173 instance=ExtResource("210_structures")]
+
+[node name="Body1" type="StaticBody3D" parent="AftRamp" unique_id=1851173815]
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Body33" unique_id=2126691628]
+[node name="Collision" type="CollisionShape3D" parent="AftRamp/Body1" unique_id=2100731346]
 shape = SubResource("ConvexPolygonShape3D_cbldw")
 
-[node name="Body34" type="StaticBody3D" parent="." unique_id=657785550]
+[node name="Body2" type="StaticBody3D" parent="AftRamp" unique_id=288668527]
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Body34" unique_id=591621138]
+[node name="Collision" type="CollisionShape3D" parent="AftRamp/Body2" unique_id=693132592]
 shape = SubResource("ConvexPolygonShape3D_rm2ar")
 
-[node name="Body35" type="StaticBody3D" parent="." unique_id=1971405675]
+[node name="Body3" type="StaticBody3D" parent="AftRamp" unique_id=286415909]
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Body35" unique_id=1109276656]
+[node name="Collision" type="CollisionShape3D" parent="AftRamp/Body3" unique_id=1011787290]
 shape = SubResource("ConvexPolygonShape3D_q42pb")
 
-[node name="Body36" type="StaticBody3D" parent="." unique_id=2061389607]
+[node name="Body32" type="StaticBody3D" parent="." unique_id=594940315]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9, 1.15, -2.15)
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Body36" unique_id=1680257482]
+[node name="Collision" type="CollisionShape3D" parent="Body32" unique_id=1076834442]
 shape = SubResource("BoxShape3D_7i0p7")
 
-[node name="Body37" type="StaticBody3D" parent="." unique_id=141678011]
+[node name="Body33" type="StaticBody3D" parent="." unique_id=1001244070]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9, 1.15, 2.15)
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Body37" unique_id=1141467729]
+[node name="Collision" type="CollisionShape3D" parent="Body33" unique_id=2126691628]
 shape = SubResource("BoxShape3D_2a3hw")
 
-[node name="Wheelhouse" type="Node3D" parent="." unique_id=369423005 instance=ExtResource("9_t17wj")]
+[node name="Wheelhouse" type="Node3D" parent="." unique_id=369423005]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, -21)
+script = ExtResource("11_boiu7")
+bounds = AABB(-3.14, 0, -2.85, 6.28, 4.8, 5.7)
+saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
+local_bounds = true
+palette = Color(0.92156863, 0.88235295, 0.74509805, 1)
+structural_section = true
 
-[node name="Body39" type="StaticBody3D" parent="." unique_id=2116204691]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1.43, -21)
+[node name="Model" type="Node3D" parent="Wheelhouse" unique_id=2143763862 instance=ExtResource("9_t17wj")]
+
+[node name="Body1" type="StaticBody3D" parent="Wheelhouse" unique_id=263066641]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.43, 0)
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Body39" unique_id=1679923177]
+[node name="Collision" type="CollisionShape3D" parent="Wheelhouse/Body1" unique_id=5814773]
 shape = SubResource("BoxShape3D_2ux5k")
 
 [node name="MainMast" type="Node3D" parent="." unique_id=196077200 instance=ExtResource("10_4i3cc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.55, 0, 0)
 
-[node name="Body41" type="StaticBody3D" parent="." unique_id=189993772]
+[node name="Body36" type="StaticBody3D" parent="." unique_id=2061389607]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.55, 5.95, 0)
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Body41" unique_id=1931727345]
+[node name="Collision" type="CollisionShape3D" parent="Body36" unique_id=1680257482]
 shape = SubResource("BoxShape3D_putv1")
 
 [node name="PortCrates" type="Node3D" parent="." unique_id=592947254]

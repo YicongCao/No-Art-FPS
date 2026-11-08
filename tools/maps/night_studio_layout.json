@@ -16,48 +16,48 @@
       [
         0,
         4.2,
-        -17
+        -17.32
       ],
       [
-        44,
+        44.8,
         8.4,
-        0.38
+        0.14
+      ]
+    ],
+    [
+      [
+        -22.32,
+        4.2,
+        0
+      ],
+      [
+        0.14,
+        8.4,
+        34.8
       ]
     ],
     [
       [
         0,
         4.2,
-        17
+        17.32
       ],
       [
-        44,
+        44.8,
         8.4,
-        0.38
+        0.14
       ]
     ],
     [
       [
-        -22,
+        22.32,
         4.2,
         0
       ],
       [
-        0.38,
+        0.14,
         8.4,
-        34
-      ]
-    ],
-    [
-      [
-        22,
-        4.2,
-        0
-      ],
-      [
-        0.38,
-        8.4,
-        34
+        34.8
       ]
     ],
     [
@@ -70,126 +70,6 @@
         44,
         0.35,
         34
-      ]
-    ],
-    [
-      [
-        -11,
-        2.1,
-        -10.4
-      ],
-      [
-        0.34,
-        4.2,
-        4.4
-      ]
-    ],
-    [
-      [
-        -11,
-        2.1,
-        -3.3
-      ],
-      [
-        0.34,
-        4.2,
-        2.2
-      ]
-    ],
-    [
-      [
-        -11,
-        2.1,
-        2.0
-      ],
-      [
-        0.34,
-        4.2,
-        2.6
-      ]
-    ],
-    [
-      [
-        -11,
-        2.1,
-        11.5
-      ],
-      [
-        0.34,
-        4.2,
-        5.2
-      ]
-    ],
-    [
-      [
-        11,
-        2.1,
-        -10.4
-      ],
-      [
-        0.34,
-        4.2,
-        4.4
-      ]
-    ],
-    [
-      [
-        11,
-        2.1,
-        -3.3
-      ],
-      [
-        0.34,
-        4.2,
-        2.2
-      ]
-    ],
-    [
-      [
-        11,
-        2.1,
-        2.0
-      ],
-      [
-        0.34,
-        4.2,
-        2.6
-      ]
-    ],
-    [
-      [
-        11,
-        2.1,
-        11.5
-      ],
-      [
-        0.34,
-        4.2,
-        5.2
-      ]
-    ],
-    [
-      [
-        -17.8,
-        2.0,
-        1
-      ],
-      [
-        8.15,
-        4,
-        0.33
-      ]
-    ],
-    [
-      [
-        17.8,
-        2.0,
-        1
-      ],
-      [
-        8.15,
-        4,
-        0.33
       ]
     ],
     [
@@ -335,30 +215,6 @@
         0.11,
         7.0
       ]
-    ],
-    [
-      [
-        -17.8,
-        0.42,
-        -14.24
-      ],
-      [
-        7.7,
-        0.84,
-        0.2
-      ]
-    ],
-    [
-      [
-        -17.15,
-        0.32,
-        14.78
-      ],
-      [
-        7.6,
-        0.64,
-        0.16
-      ]
     ]
   ],
   "ramps": [
@@ -383,103 +239,503 @@
         0,
         -0.65
       ]
-    ],
-    [
-      [
-        -9.8,
-        2.62,
-        -10.1
-      ],
-      [
-        -7.7,
-        2.62,
-        -10.1
-      ],
-      [
-        -7.7,
-        0,
-        -3.0
-      ],
-      [
-        -9.8,
-        0,
-        -3.0
-      ]
-    ],
-    [
-      [
-        7.7,
-        2.62,
-        -10.1
-      ],
-      [
-        9.8,
-        2.62,
-        -10.1
-      ],
-      [
-        9.8,
-        0,
-        -3.0
-      ],
-      [
-        7.7,
-        0,
-        -3.0
-      ]
-    ]
-  ],
-  "ramp_rails": [
-    [
-      [
-        -9.8,
-        2.62,
-        -10.1
-      ],
-      [
-        -9.8,
-        0,
-        -3.0
-      ]
-    ],
-    [
-      [
-        -7.7,
-        2.62,
-        -10.1
-      ],
-      [
-        -7.7,
-        0,
-        -3.0
-      ]
-    ],
-    [
-      [
-        7.7,
-        2.62,
-        -10.1
-      ],
-      [
-        7.7,
-        0,
-        -3.0
-      ]
-    ],
-    [
-      [
-        9.8,
-        2.62,
-        -10.1
-      ],
-      [
-        9.8,
-        0,
-        -3.0
-      ]
     ]
   ],
   "props": [
+    {
+      "asset": "wall_navy_1100_840_38",
+      "name": "NorthWall0",
+      "at": [
+        -16.5,
+        0.0,
+        -17
+      ],
+      "size": [
+        11,
+        8.4,
+        0.38
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true
+    },
+    {
+      "asset": "wall_navy_38_840_850",
+      "name": "WestWall0",
+      "at": [
+        -22,
+        0.0,
+        -12.75
+      ],
+      "size": [
+        0.38,
+        8.4,
+        8.5
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true
+    },
+    {
+      "asset": "wall_navy_1100_840_38",
+      "name": "NorthWall1",
+      "at": [
+        -5.5,
+        0.0,
+        -17
+      ],
+      "size": [
+        11,
+        8.4,
+        0.38
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true
+    },
+    {
+      "asset": "wall_navy_38_840_850",
+      "name": "WestWall1",
+      "at": [
+        -22,
+        0.0,
+        -4.25
+      ],
+      "size": [
+        0.38,
+        8.4,
+        8.5
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true
+    },
+    {
+      "asset": "wall_navy_1100_840_38",
+      "name": "NorthWall2",
+      "at": [
+        5.5,
+        0.0,
+        -17
+      ],
+      "size": [
+        11,
+        8.4,
+        0.38
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true
+    },
+    {
+      "asset": "wall_navy_38_840_850",
+      "name": "WestWall2",
+      "at": [
+        -22,
+        0.0,
+        4.25
+      ],
+      "size": [
+        0.38,
+        8.4,
+        8.5
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true
+    },
+    {
+      "asset": "wall_navy_1100_840_38",
+      "name": "NorthWall3",
+      "at": [
+        16.5,
+        0.0,
+        -17
+      ],
+      "size": [
+        11,
+        8.4,
+        0.38
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true
+    },
+    {
+      "asset": "wall_navy_38_840_850",
+      "name": "WestWall3",
+      "at": [
+        -22,
+        0.0,
+        12.75
+      ],
+      "size": [
+        0.38,
+        8.4,
+        8.5
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true
+    },
+    {
+      "asset": "wall_navy_1100_840_38",
+      "name": "SouthWall0",
+      "at": [
+        -16.5,
+        0.0,
+        17
+      ],
+      "size": [
+        11,
+        8.4,
+        0.38
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true
+    },
+    {
+      "asset": "wall_navy_38_840_850",
+      "name": "EastWall0",
+      "at": [
+        22,
+        0.0,
+        -12.75
+      ],
+      "size": [
+        0.38,
+        8.4,
+        8.5
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true
+    },
+    {
+      "asset": "wall_southwall1",
+      "name": "SouthWall1",
+      "at": [
+        -5.5,
+        0.0,
+        17
+      ],
+      "size": [
+        11,
+        8.4,
+        0.38
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true
+    },
+    {
+      "asset": "wall_navy_38_840_850",
+      "name": "EastWall1",
+      "at": [
+        22,
+        0.0,
+        -4.25
+      ],
+      "size": [
+        0.38,
+        8.4,
+        8.5
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true
+    },
+    {
+      "asset": "wall_southwall2",
+      "name": "SouthWall2",
+      "at": [
+        5.5,
+        0.0,
+        17
+      ],
+      "size": [
+        11,
+        8.4,
+        0.38
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true
+    },
+    {
+      "asset": "wall_navy_38_840_850",
+      "name": "EastWall2",
+      "at": [
+        22,
+        0.0,
+        4.25
+      ],
+      "size": [
+        0.38,
+        8.4,
+        8.5
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true
+    },
+    {
+      "asset": "wall_navy_1100_840_38",
+      "name": "SouthWall3",
+      "at": [
+        16.5,
+        0.0,
+        17
+      ],
+      "size": [
+        11,
+        8.4,
+        0.38
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true
+    },
+    {
+      "asset": "wall_navy_38_840_850",
+      "name": "EastWall3",
+      "at": [
+        22,
+        0.0,
+        12.75
+      ],
+      "size": [
+        0.38,
+        8.4,
+        8.5
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true
+    },
+    {
+      "asset": "wall_violet_34_420_440",
+      "name": "Acoustic0_5",
+      "at": [
+        -11,
+        0.0,
+        -10.4
+      ],
+      "size": [
+        0.34,
+        4.2,
+        4.4
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true
+    },
+    {
+      "asset": "wall_violet_34_420_220",
+      "name": "Acoustic0_77",
+      "at": [
+        -11,
+        0.0,
+        -3.3
+      ],
+      "size": [
+        0.34,
+        4.2,
+        2.2
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true
+    },
+    {
+      "asset": "wall_violet_34_420_260",
+      "name": "Acoustic0_130",
+      "at": [
+        -11,
+        0.0,
+        2.0
+      ],
+      "size": [
+        0.34,
+        4.2,
+        2.6
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true
+    },
+    {
+      "asset": "wall_violet_34_420_520",
+      "name": "Acoustic0_225",
+      "at": [
+        -11,
+        0.0,
+        11.5
+      ],
+      "size": [
+        0.34,
+        4.2,
+        5.2
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true
+    },
+    {
+      "asset": "wall_slate_34_420_440",
+      "name": "Acoustic22_5",
+      "at": [
+        11,
+        0.0,
+        -10.4
+      ],
+      "size": [
+        0.34,
+        4.2,
+        4.4
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true
+    },
+    {
+      "asset": "wall_slate_34_420_220",
+      "name": "Acoustic22_77",
+      "at": [
+        11,
+        0.0,
+        -3.3
+      ],
+      "size": [
+        0.34,
+        4.2,
+        2.2
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true
+    },
+    {
+      "asset": "wall_slate_34_420_260",
+      "name": "Acoustic22_130",
+      "at": [
+        11,
+        0.0,
+        2.0
+      ],
+      "size": [
+        0.34,
+        4.2,
+        2.6
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true
+    },
+    {
+      "asset": "wall_slate_34_420_520",
+      "name": "Acoustic22_225",
+      "at": [
+        11,
+        0.0,
+        11.5
+      ],
+      "size": [
+        0.34,
+        4.2,
+        5.2
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true
+    },
+    {
+      "asset": "wall_green_815_400_33",
+      "name": "NewsroomWall",
+      "at": [
+        -17.8,
+        0.0,
+        1
+      ],
+      "size": [
+        8.15,
+        4,
+        0.33
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true
+    },
+    {
+      "asset": "wall_dark_teal_815_400_33",
+      "name": "ArchiveWall",
+      "at": [
+        17.8,
+        0.0,
+        1
+      ],
+      "size": [
+        8.15,
+        4,
+        0.33
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true
+    },
     {
       "asset": "stage_planter",
       "name": "StagePlanterLeft",
@@ -496,7 +752,8 @@
       "angle": 0,
       "paper": false,
       "structural": false,
-      "shoot_only": true
+      "shoot_only": true,
+      "section": false
     },
     {
       "asset": "stage_planter",
@@ -514,7 +771,142 @@
       "angle": 0,
       "paper": false,
       "structural": false,
-      "shoot_only": true
+      "shoot_only": true,
+      "section": false
+    },
+    {
+      "asset": "technical_access",
+      "name": "WestAccessRamp",
+      "at": [
+        -8.75,
+        0,
+        -6.55
+      ],
+      "size": [
+        2.2,
+        3.75,
+        7.1
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true,
+      "ramp": [
+        [
+          -1.05,
+          2.62,
+          -3.55
+        ],
+        [
+          1.05,
+          2.62,
+          -3.55
+        ],
+        [
+          1.05,
+          0,
+          3.55
+        ],
+        [
+          -1.05,
+          0,
+          3.55
+        ]
+      ],
+      "rails": [
+        [
+          [
+            -1.05,
+            2.62,
+            -3.55
+          ],
+          [
+            -1.05,
+            0,
+            3.55
+          ]
+        ],
+        [
+          [
+            1.05,
+            2.62,
+            -3.55
+          ],
+          [
+            1.05,
+            0,
+            3.55
+          ]
+        ]
+      ]
+    },
+    {
+      "asset": "technical_access",
+      "name": "EastAccessRamp",
+      "at": [
+        8.75,
+        0,
+        -6.55
+      ],
+      "size": [
+        2.2,
+        3.75,
+        7.1
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true,
+      "ramp": [
+        [
+          -1.05,
+          2.62,
+          -3.55
+        ],
+        [
+          1.05,
+          2.62,
+          -3.55
+        ],
+        [
+          1.05,
+          0,
+          3.55
+        ],
+        [
+          -1.05,
+          0,
+          3.55
+        ]
+      ],
+      "rails": [
+        [
+          [
+            -1.05,
+            2.62,
+            -3.55
+          ],
+          [
+            -1.05,
+            0,
+            3.55
+          ]
+        ],
+        [
+          [
+            1.05,
+            2.62,
+            -3.55
+          ],
+          [
+            1.05,
+            0,
+            3.55
+          ]
+        ]
+      ]
     },
     {
       "asset": "seat_row",
@@ -532,7 +924,8 @@
       "angle": 0,
       "paper": false,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "seat_row",
@@ -550,7 +943,8 @@
       "angle": 0,
       "paper": false,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "seat_row",
@@ -568,7 +962,8 @@
       "angle": 0,
       "paper": false,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "stage_flat",
@@ -586,7 +981,8 @@
       "angle": 0,
       "paper": false,
       "structural": true,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "stage_flat",
@@ -604,7 +1000,8 @@
       "angle": 0,
       "paper": false,
       "structural": true,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "stage_flat",
@@ -622,7 +1019,8 @@
       "angle": 0,
       "paper": false,
       "structural": true,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "sofa",
@@ -640,7 +1038,8 @@
       "angle": 0,
       "paper": false,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "sofa",
@@ -658,7 +1057,8 @@
       "angle": -0.17,
       "paper": false,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "floor_monitor",
@@ -676,7 +1076,8 @@
       "angle": -0.2115,
       "paper": false,
       "structural": false,
-      "shoot_only": true
+      "shoot_only": true,
+      "section": false
     },
     {
       "asset": "floor_monitor",
@@ -694,7 +1095,8 @@
       "angle": 0.2655,
       "paper": false,
       "structural": false,
-      "shoot_only": true
+      "shoot_only": true,
+      "section": false
     },
     {
       "asset": "news_backdrop",
@@ -712,7 +1114,8 @@
       "angle": 0,
       "paper": false,
       "structural": true,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "control_monitor",
@@ -730,7 +1133,8 @@
       "angle": 0,
       "paper": false,
       "structural": false,
-      "shoot_only": true
+      "shoot_only": true,
+      "section": false
     },
     {
       "asset": "control_switcher",
@@ -748,7 +1152,8 @@
       "angle": 0,
       "paper": false,
       "structural": false,
-      "shoot_only": true
+      "shoot_only": true,
+      "section": false
     },
     {
       "asset": "control_monitor",
@@ -766,7 +1171,8 @@
       "angle": 0,
       "paper": false,
       "structural": false,
-      "shoot_only": true
+      "shoot_only": true,
+      "section": false
     },
     {
       "asset": "control_switcher",
@@ -784,7 +1190,8 @@
       "angle": 0,
       "paper": false,
       "structural": false,
-      "shoot_only": true
+      "shoot_only": true,
+      "section": false
     },
     {
       "asset": "control_monitor",
@@ -802,7 +1209,8 @@
       "angle": 0,
       "paper": false,
       "structural": false,
-      "shoot_only": true
+      "shoot_only": true,
+      "section": false
     },
     {
       "asset": "control_switcher",
@@ -820,7 +1228,8 @@
       "angle": 0,
       "paper": false,
       "structural": false,
-      "shoot_only": true
+      "shoot_only": true,
+      "section": false
     },
     {
       "asset": "control_monitor",
@@ -838,7 +1247,8 @@
       "angle": 0,
       "paper": false,
       "structural": false,
-      "shoot_only": true
+      "shoot_only": true,
+      "section": false
     },
     {
       "asset": "control_switcher",
@@ -856,7 +1266,39 @@
       "angle": 0,
       "paper": false,
       "structural": false,
-      "shoot_only": true
+      "shoot_only": true,
+      "section": false
+    },
+    {
+      "asset": "control_partition",
+      "name": "ControlPartition",
+      "at": [
+        -17.8,
+        0,
+        -14.24
+      ],
+      "size": [
+        7.7,
+        0.84,
+        0.2
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true,
+      "window": [
+        [
+          0.05,
+          1.83,
+          0
+        ],
+        [
+          7.53,
+          1.96
+        ],
+        3.21
+      ]
     },
     {
       "asset": "broadcast_desk",
@@ -874,7 +1316,8 @@
       "angle": 0,
       "paper": false,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "broadcast_desk",
@@ -892,7 +1335,8 @@
       "angle": -0.13,
       "paper": false,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "camera",
@@ -910,7 +1354,8 @@
       "angle": 0.29,
       "paper": false,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "camera",
@@ -928,7 +1373,8 @@
       "angle": -0.38,
       "paper": false,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "camera",
@@ -946,7 +1392,8 @@
       "angle": 0,
       "paper": false,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "camera",
@@ -964,7 +1411,8 @@
       "angle": 0,
       "paper": false,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "office_island",
@@ -982,7 +1430,8 @@
       "angle": 0,
       "paper": true,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "chair",
@@ -1000,7 +1449,8 @@
       "angle": 0.11,
       "paper": false,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "chair",
@@ -1018,7 +1468,8 @@
       "angle": 2.991592653589793,
       "paper": false,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "office_island",
@@ -1036,7 +1487,8 @@
       "angle": 0,
       "paper": true,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "chair",
@@ -1054,7 +1506,8 @@
       "angle": 0.11,
       "paper": false,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "chair",
@@ -1072,7 +1525,8 @@
       "angle": 2.991592653589793,
       "paper": false,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "office_island",
@@ -1090,7 +1544,8 @@
       "angle": 0,
       "paper": true,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "chair",
@@ -1108,7 +1563,8 @@
       "angle": 0.11,
       "paper": false,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "chair",
@@ -1126,7 +1582,39 @@
       "angle": 2.991592653589793,
       "paper": false,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
+    },
+    {
+      "asset": "newsroom",
+      "name": "NewsroomPartition",
+      "at": [
+        -17.15,
+        0,
+        14.78
+      ],
+      "size": [
+        7.6,
+        0.64,
+        0.16
+      ],
+      "angle": 0,
+      "paper": false,
+      "structural": true,
+      "shoot_only": false,
+      "section": true,
+      "window": [
+        [
+          0,
+          1.73,
+          0
+        ],
+        [
+          7.48,
+          2.06
+        ],
+        2.86
+      ]
     },
     {
       "asset": "bulletin_board",
@@ -1144,7 +1632,8 @@
       "angle": 0,
       "paper": true,
       "structural": false,
-      "shoot_only": true
+      "shoot_only": true,
+      "section": false
     },
     {
       "asset": "patch_bay",
@@ -1162,7 +1651,8 @@
       "angle": 0,
       "paper": false,
       "structural": false,
-      "shoot_only": true
+      "shoot_only": true,
+      "section": false
     },
     {
       "asset": "archive_rack",
@@ -1180,7 +1670,8 @@
       "angle": 0,
       "paper": true,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "archive_rack",
@@ -1198,7 +1689,8 @@
       "angle": 0,
       "paper": true,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "archive_rack",
@@ -1216,7 +1708,8 @@
       "angle": 0,
       "paper": true,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "archive_rack",
@@ -1234,7 +1727,8 @@
       "angle": 0,
       "paper": true,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "archive_rack",
@@ -1252,7 +1746,8 @@
       "angle": 0,
       "paper": true,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "archive_rack",
@@ -1270,7 +1765,8 @@
       "angle": 0,
       "paper": true,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "archive_rack",
@@ -1288,7 +1784,8 @@
       "angle": -1.5707963267948966,
       "paper": true,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "road_case",
@@ -1306,7 +1803,8 @@
       "angle": 0.0,
       "paper": false,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "road_case",
@@ -1324,7 +1822,8 @@
       "angle": 0.22,
       "paper": false,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "road_case",
@@ -1342,7 +1841,8 @@
       "angle": 0.44,
       "paper": false,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "road_case",
@@ -1360,7 +1860,8 @@
       "angle": 0.66,
       "paper": false,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "road_case",
@@ -1378,7 +1879,8 @@
       "angle": 0.88,
       "paper": false,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "road_case",
@@ -1396,7 +1898,8 @@
       "angle": 1.1,
       "paper": false,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "road_case",
@@ -1414,7 +1917,8 @@
       "angle": 1.32,
       "paper": false,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     },
     {
       "asset": "green_cyc",
@@ -1432,7 +1936,8 @@
       "angle": 0,
       "paper": false,
       "structural": false,
-      "shoot_only": false
+      "shoot_only": false,
+      "section": false
     }
   ],
   "spots": [

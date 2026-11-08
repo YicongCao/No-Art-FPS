@@ -45,7 +45,7 @@ const DESTROY_MUSIC = preload("res://assets/music/destroy.ogg")
 const MAX_HEALTH = 150.0
 const HEAL_DELAY = 5.0
 const HEAL_RATE = 12.0
-const RESPAWN_DELAY = 2.3
+const RESPAWN_DELAY = 2.0
 const RANGED_ATTACK_LIMIT = 3
 const SCENERY_TARGET_LAYER = 16
 const SCENERY_BLAST_RADIUS = 5.0
@@ -1484,7 +1484,7 @@ func scenery_blast(center: Vector3, excluded: Array[RID]) -> void:
 func on_structure_destroyed(structure: Node3D) -> void:
 	if not rules.active or rules.mission or not destroy_active:return
 	achievements.increment("wreck")
-	if session.session_id=="night_studio" and not structure.scenery:achievements.advance("studio",1)
+	if session.session_id=="night_studio" and structure.has_meta("studio_backdrop"):achievements.advance("studio",1)
 
 func barrel_blast(center: Vector3, radius: float, source: StaticBody3D) -> void:
 	if state!="RUNNING":return

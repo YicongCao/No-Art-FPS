@@ -29,8 +29,10 @@ var spawn_points: Array[Vector3] = []
 var nav: NavigationRegion3D
 var materials: Dictionary = {}
 var navigation_dirty = false
+var navigation_delay = 0.0
 var navigation_baking = false
 var restore_navigation_pending = false
+var restore_navigation_iteration = -1
 var original_navigation_mesh: NavigationMesh
 var traffic_phase = -1
 var finale_props: Array[Node3D] = []
@@ -109,19 +111,33 @@ func restore_structures() -> void:
 		node.restore()
 	if changed:
 		restore_navigation_pending = true
-		request_navigation_update()
+		navigation_dirty = true
+		navigation_delay = 0.0
 
 func request_navigation_update() -> void:
 	if game.finale_active:return
+	if not navigation_dirty:navigation_delay = .18
 	navigation_dirty = true
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
+	if restore_navigation_iteration>=0:
+		if NavigationServer3D.map_get_iteration_id(nav.get_navigation_map())==restore_navigation_iteration:return
+		restore_navigation_iteration = -1
+		navigation_baking = false
 	if not navigation_dirty or navigation_baking or not nav:return
-	navigation_dirty = false
 	if restore_navigation_pending:
+		navigation_dirty = false
 		restore_navigation_pending = false
+		restore_navigation_iteration = NavigationServer3D.map_get_iteration_id(nav.get_navigation_map())
+		navigation_baking = true
 		nav.navigation_mesh = original_navigation_mesh.duplicate()
 		return
+	if game.finale_active:
+		navigation_dirty = false
+		return
+	navigation_delay = maxf(0,navigation_delay-delta)
+	if navigation_delay>0:return
+	navigation_dirty = false
 	navigation_baking = true
 	bake_changed_geometry.call_deferred()
 

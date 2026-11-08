@@ -103,7 +103,7 @@ class Kit:
         bpy.data.meshes.remove(mesh)
 
 
-layout = {"boxes": [], "ramps": [], "ramp_rails": [], "props": [], "spots": []}
+layout = {"boxes": [], "ramps": [], "props": [], "spots": []}
 kits = {}
 scene = bpy.context.scene
 
@@ -120,12 +120,22 @@ def solid(item, label, center, size, color):
     layout["boxes"].append([center, size])
 
 
-def wall(item, label, center, size, color):
-    solid(item, label, center, size, color)
+def wall(label, center, size, color, baffles=()):
     x,y,z = center
     w,h,d = size
-    item.box("Dark baseboard",(x,y-h/2+.11,z),(w+.045,.22,d+.045),"navy")
-    item.box("Header trim",(x,y+h/2-.12,z),(w+.05,.21,d+.05),"slate")
+    dimensions = "_".join(str(round(value*100)) for value in size)
+    asset = f"wall_{label.lower()}" if baffles else f"wall_{color}_{dimensions}"
+    if asset not in kits:
+        item = kit(asset)
+        item.box("Wall", (0,h/2,0), size, color)
+        # Extend the trim across the thickness, leaving adjacent panels flush.
+        trim_x,trim_z = (.045,0) if d>w else (0,.045)
+        item.box("Dark baseboard",(0,.11,0),(w+trim_x,.22,d+trim_z),"navy")
+        item.box("Header trim",(0,h-.12,0),(w+trim_x,.21,d+trim_z),"slate")
+        for offset in baffles:
+            item.box("Acoustic sound baffle",(offset,3.67,-.26),(2.2,2.8,.14),"slate")
+            item.box("Baffle lower edge",(offset,2.33,-.37),(2.2,.09,.09),"violet")
+    instance(asset,label,(x,y-h/2,z),size,structural=True,section=True)
 
 
 def door(item, x, z, span=3.3):
@@ -144,7 +154,7 @@ def rails(item, x1, x2, z, y=2.7):
     layout["boxes"].append([((x1+x2)/2,y+.57,z),(x2-x1,1.18,.10)])
 
 
-def instance(asset, label, at, size, rotation=0, paper=False, structural=False, shoot_only=False):
+def instance(asset, label, at, size, rotation=0, paper=False, structural=False, shoot_only=False, section=False):
     obj = bpy.data.objects.new(label, None)
     obj.instance_type = "COLLECTION"
     obj.instance_collection = kits[asset].collection
@@ -152,7 +162,7 @@ def instance(asset, label, at, size, rotation=0, paper=False, structural=False, 
     obj.rotation_euler.z = rotation
     scene.collection.objects.link(obj)
     layout["props"].append(dict(asset=asset,name=label,at=at,size=size,angle=rotation,
-                                paper=paper,structural=structural,shoot_only=shoot_only))
+                                paper=paper,structural=structural,shoot_only=shoot_only,section=section))
 
 
 # Warm stage floor, perimeter, back corridor and ceiling. All dimensions are in Godot axes.
@@ -164,13 +174,14 @@ for center,size,color in [
     ((0,.012,-14.5),(43.7,.02,4.9),"slate"),
 ]:
     shell.box("Zoned flooring",center,size,color)
-for z in (-17,17):
-    wall(shell,"Outer wall",(0,4.2,z),(44,8.4,.38),"navy")
-for x in (-22,22):
-    wall(shell,"Outer wall",(x,4.2,0),(.38,8.4,34),"navy")
-for x in range(-9,10,3):
-    shell.box("Acoustic sound baffle",(x,3.67,16.74),(2.2,2.8,.14),"slate")
-    shell.box("Baffle lower edge",(x,2.33,16.63),(2.2,.09,.09),"violet")
+for side,z_label,x_label in ((-1,"North","West"),(1,"South","East")):
+    for i in range(4):
+        center = -16.5+i*11
+        baffles = [x-center for x in range(-9,10,3) if side==1 and center-5.5<=x<center+5.5]
+        wall(f"{z_label}Wall{i}",(center,4.2,side*17),(11,8.4,.38),"navy",baffles)
+        wall(f"{x_label}Wall{i}",(side*22,4.2,-12.75+i*8.5),(.38,8.4,8.5),"navy")
+    layout["boxes"].append([(0,4.2,side*17.32),(44.8,8.4,.14)])
+    layout["boxes"].append([(side*22.32,4.2,0),(.14,8.4,34.8)])
 for x in (-10.64,10.64):
     for z in (-9.9,2.2,12.3):
         shell.box("Soundstage service trim",(x,1.05,z),(.13,.24,1.4),"slate")
@@ -193,12 +204,12 @@ for x in (-16.5,16.5):
 
 for x in (-11,11):
     for z, length in [(-10.4,4.4),(-3.3,2.2),(2.0,2.6),(11.5,5.2)]:
-        wall(shell,"Acoustic partition",(x,2.1,z),(.34,4.2,length),"violet" if x<0 else "slate")
+        wall(f"Acoustic{int(x+11)}_{int((z+11)*10)}",(x,2.1,z),(.34,4.2,length),"violet" if x<0 else "slate")
     for z in (-6.5, -.75, 6.0):
         shell.box("Portal header",(x,3.24,z),(.48,.24,3.0),"navy")
         shell.box("Portal pilot",(x+(.25 if x<0 else -.25),3.39,z),(.07,.15,.48),"tally")
 for x in (-17.8,17.8):
-    wall(shell,"Office separator",(x,2.0,1),(8.15,4,.33),"green" if x<0 else "dark_teal")
+    wall("NewsroomWall" if x<0 else "ArchiveWall",(x,2.0,1),(8.15,4,.33),"green" if x<0 else "dark_teal")
 for x in (-14.1,14.1):
     door(shell,x,1,2.8)
 
@@ -234,20 +245,29 @@ for i in range(6):
 for label,x in (("Left",-5.55),("Right",5.75)):
     instance("stage_planter",f"StagePlanter{label}",(x,.29,-5.78),(1.52,2.10,1.40),shoot_only=True)
 
-for x in (-8.75,8.75):
-    z0,z1,top = -10.1,-3.0,2.62
-    left,right = x-1.05,x+1.05
-    points = [(left,top,z0),(right,top,z0),(right,0,z1),(left,0,z1)]
-    stage.mesh("Technical access ramp",points,[(3,2,1,0)],"slate")
-    layout["ramps"].append(points)
-    for side in (left,right):
-        for h in (.48,1.01):
-            stage.rod("Ramp railing",(side,top+h,z0),(side,h,z1),.046,"gold")
-        for i in range(6):
-            t = i/5
-            z,y = z0+(z1-z0)*t,top*(1-t)
-            stage.rod("Ramp stanchion",(side,y,z),(side,y+1.04,z),.051,"navy")
-        layout["ramp_rails"].append([(side,top,z0),(side,0,z1)])
+access = kit("technical_access")
+z0,z1,top = -3.55,3.55,2.62
+left,right = -1.05,1.05
+points = [(left,top,z0),(right,top,z0),(right,0,z1),(left,0,z1)]
+# Match the authored collision slope and give it a solid underside to shoot.
+access.mesh("Technical access ramp",points,[(3,2,1,0)],"slate")
+bottom = [(x,y-.23,z) for x,y,z in points]
+access.mesh("Ramp underside",bottom,[(0,1,2,3)],"slate")
+for i in range(4):
+    j = (i+1)%4
+    access.mesh("Ramp edge",[points[i],points[j],bottom[j],bottom[i]],[(0,1,2,3)],"slate")
+ramp_rails = []
+for side in (left,right):
+    for h in (.48,1.01):
+        access.rod("Ramp railing",(side,top+h,z0),(side,h,z1),.046,"gold")
+    for i in range(6):
+        t = i/5
+        z,y = z0+(z1-z0)*t,top*(1-t)
+        access.rod("Ramp stanchion",(side,y,z),(side,y+1.04,z),.052,"navy",6)
+    ramp_rails.append([(side,top,z0),(side,0,z1)])
+for label,x in (("WestAccessRamp",-8.75),("EastAccessRamp",8.75)):
+    instance("technical_access",label,(x,0,-6.55),(2.2,3.75,7.1),structural=True,section=True)
+    layout["props"][-1].update(ramp=points,rails=ramp_rails)
 solid(stage,"Lighting catwalk",(0,2.49,-11.25),(19.6,.26,2.3),"slate")
 rails(stage,-9.78,9.78,-12.33,2.62)
 rails(stage,-7.65,7.65,-10.13,2.62)
@@ -349,12 +369,15 @@ for i in range(5):
 for i,x in enumerate((-20,-18.1,-16.2,-14.3)):
     instance("control_monitor",f"ControlMonitor{i}",(x,1.375,-15.94),(1.66,.95,.29),shoot_only=True)
     instance("control_switcher",f"ControlSwitcher{i}",(x,.82,-15.35),(1.78,.20,.65),shoot_only=True)
+control_partition = kit("control_partition")
 for x in (-21.5,-19,-16.5,-14):
-    news.box("Control room window upright",(x,1.83,-14.24),(.09,2.11,.12),"slate")
+    control_partition.box("Control room window upright",(x+17.8,1.83,0),(.09,2.11,.12),"slate")
 for y in (.81,2.87):
-    news.box("Control room window frame",(-17.75,y,-14.24),(7.6,.13,.13),"slate")
-solid(news,"Control room sill",(-17.8,.42,-14.24),(7.7,.84,.20),"navy")
-news.box("Control room fascia",(-17.8,3.05,-14.24),(7.7,.31,.21),"navy")
+    control_partition.box("Control room window frame",(.05,y,0),(7.6,.13,.13),"slate")
+control_partition.box("Control room sill",(0,.42,0),(7.7,.84,.20),"navy")
+control_partition.box("Control room fascia",(0,3.05,0),(7.7,.31,.21),"navy")
+instance("control_partition","ControlPartition",(-17.8,0,-14.24),(7.7,.84,.20),structural=True,section=True)
+layout["props"][-1]["window"] = [[.05,1.83,0],[7.53,1.96],3.21]
 
 desk = kit("broadcast_desk")
 desk.box("Curved console center",(0,.52,0),(3.4,.86,.82),"blue")
@@ -414,12 +437,15 @@ for i,(x,z) in enumerate([(-17.7,4.9),(-15.3,9.1),(-18.2,13.0)]):
     for j,(dx,dz,angle) in enumerate([(-.6,1.04,.11),(.69,-1.02,math.pi-.15)]):
         instance("chair",f"NewsroomChair{i}_{j}",(x+dx,0,z+dz),(.56,1.08,.58),angle)
 
-details = kit("newsroom", True)
+details = kit("newsroom")
 for x in (-20.9,-18.4,-15.9,-13.4):
-    details.box("Glass divider frame",(x,1.52,14.78),(.09,2.65,.10),"green")
+    details.box("Glass divider frame",(x+17.15,1.52,0),(.09,2.65,.10),"green")
 for y in (.66,2.81):
-    details.box("Glass divider crossbar",(-17.15,y,14.78),(7.6,.09,.10),"green")
-solid(details,"Divider knee wall",(-17.15,.32,14.78),(7.6,.64,.16),"mint")
+    details.box("Glass divider crossbar",(0,y,0),(7.6,.09,.10),"green")
+details.box("Divider knee wall",(0,.32,0),(7.6,.64,.16),"mint")
+instance("newsroom","NewsroomPartition",(-17.15,0,14.78),(7.6,.64,.16),structural=True,section=True)
+layout["props"][-1]["window"] = [[0,1.73,0],[7.48,2.06],2.86]
+
 bulletin = kit("bulletin_board")
 bulletin.box("Cork and frame",(0,.475,0),(1.50,.95,.12),"card")
 for i in range(5):
