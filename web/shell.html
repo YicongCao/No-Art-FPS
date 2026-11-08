@@ -97,10 +97,10 @@
     .gyro-axis-list input{width:16px;height:16px;margin:0}
     #gyro-panel[data-step=practice] section{width:min(550px,100%)}
     #gyro-room{display:block;width:100%;height:min(38vh,220px);background:#1c2b3e;border:2px solid #17202a}
-    .gyro-calibration{width:min(176px,46vh,100%);aspect-ratio:1;min-height:0;margin:10px auto 16px;--gyro-signal:#8796a4}
+    .gyro-calibration{position:relative;width:min(176px,46vh,100%);aspect-ratio:1;min-height:0;margin:10px auto 16px;--gyro-signal:#8796a4}
     .gyro-calibration[data-signal=steady]{--gyro-signal:#f2d084}
     .gyro-calibration[data-signal=shaky]{--gyro-signal:#ff9676}
-    #gyro-gimbal{display:block;width:100%;height:100%;color:var(--gyro-signal)}
+    #gyro-gimbal{position:absolute;inset:0;display:block;width:100%;height:100%;color:var(--gyro-signal)}
     @media(max-height:400px){
       #gyro-panel section{padding:10px 20px}
       #gyro-panel header{margin-bottom:6px;padding-bottom:5px}
