@@ -18,6 +18,8 @@ const Rules = preload("res://scripts/run_rules.gd")
 const LoadingTransition = preload("res://scripts/loading_transition.gd")
 const CombatFX = preload("res://scripts/combat_fx.gd")
 const ComedyFX = preload("res://scripts/comedy_fx.gd")
+const ComedyToilet = preload("res://scripts/comedy_toilet.gd")
+const TOILET_BLAST_RADIUS = 10.0
 const AchievementProgress = preload("res://scripts/achievements.gd")
 var achievements = AchievementProgress.new()
 var progress_save_pending = false
@@ -61,6 +63,8 @@ var respawn_time = 0.0
 var best = 0
 var reduced_motion = false
 var comedy_mode = ""
+var comedy_toilet: Node3D
+var toilet_blast_active = false
 var bullets: Array[Dictionary] = []
 var ranged_aimers: Dictionary = {}
 var player_bullets: Array[Dictionary] = []
@@ -443,6 +447,7 @@ func reset_run_state() -> void:
 	hud.health_shade = 0
 	player.reset_position()
 	player.set_weapon_style(comedy_mode)
+	prepare_comedy_toilet()
 	player.gun.show()
 	player.enabled = false
 	hud.hit = 0
@@ -668,6 +673,7 @@ func clear_round() -> void:
 	objective_focus = null
 	arena.reset_objectives()
 	restore_frozen_world()
+	remove_comedy_toilet()
 	hud.reset_results_frame()
 	finale_active = false
 	arena.restore_finale_decor()
@@ -687,6 +693,23 @@ func clear_round() -> void:
 	for voice in audio_voices:voice.stop()
 	if web_rifle:web_rifle.stop()
 	if music:music.stop()
+
+func remove_comedy_toilet() -> void:
+	if not is_instance_valid(comedy_toilet):return
+	comedy_toilet.get_parent().remove_child(comedy_toilet)
+	comedy_toilet.queue_free()
+	comedy_toilet = null
+
+func prepare_comedy_toilet() -> void:
+	remove_comedy_toilet()
+	if comedy_mode.is_empty() or not ComedyToilet.PLACEMENTS.has(arena.map_id):return
+	var site: Vector4 = ComedyToilet.PLACEMENTS[arena.map_id]
+	comedy_toilet = ComedyToilet.new()
+	comedy_toilet.name = "ComedyToilet"
+	comedy_toilet.game = self
+	comedy_toilet.position = Vector3(site.x,site.y,site.z)
+	comedy_toilet.rotation.y = site.w
+	arena.add_child(comedy_toilet)
 
 func begin_running() -> void:
 	state = "RUNNING"
@@ -771,6 +794,7 @@ func start_finale() -> void:
 	for building in arena.structures:
 		if not building.scenery:building.collapse()
 	for barrel in arena.barrels:barrel.explode()
+	if is_instance_valid(comedy_toilet):comedy_toilet.explode(true)
 	arena.explode_finale_decor()
 	for fx in finale_fx_groups.values():fx.show_pieces()
 	finale_fx_groups.clear()
@@ -1117,6 +1141,11 @@ func resolve_shot(result: Dictionary, origin: Vector3, target: Vector3, burning:
 	if state!="RUNNING" or not rules.active:return
 	if not result.is_empty():
 		var collider = result.collider
+		if collider.has_meta("comedy_toilet"):
+			var fixture = collider.get_meta("comedy_toilet")
+			if fixture.shot_hit(collider.get_meta("charge",false),burning):hud.hit = .12
+			spark(target,Color("ef7833") if burning else Color("e5e0d2"),.08,.1)
+			return
 		var enemy = enemy_from_hit(result)
 		var building = collider.get_meta("structure",null) if collider.has_meta("structure") else null
 		var barrel = enemy==null and collider.has_method("ignite")
@@ -1196,6 +1225,7 @@ func on_kill(enemy: Node3D, headshot: bool, from_finale: bool = false) -> void:
 		hud.kill_group = kill_group_count
 		hud.kill_pop = .5
 		hud.multi_time = .65 if kill_group_count>=2 else 0.0
+		if toilet_blast_active:return
 		var pitch = minf(1.25,1+(kill_group_count-1)*.08)
 		if not comedy_mode.is_empty() and not from_finale:
 			var center: Vector3 = enemy.global_position+Vector3.UP*(1.78 if comedy_mode=="roach" else 1.02)
@@ -1437,10 +1467,37 @@ func barrel_blast(center: Vector3, radius: float, source: StaticBody3D) -> void:
 		trace(center+direction,center+direction*2.2,Color("573e37"),.12,.4)
 	blast_ring(center,radius)
 
-func blast_ring(center: Vector3, radius: float) -> void:
+func toilet_blast(center: Vector3) -> void:
+	if state!="RUNNING" or not rules.active:return
+	toilet_blast_active = true
+	for enemy in live_enemies():
+		var offset: Vector3 = enemy.global_position-center
+		if Vector2(offset.x,offset.z).length_squared()<=TOILET_BLAST_RADIUS*TOILET_BLAST_RADIUS:
+			enemy.take_damage(Enemy.MAX_HEALTH)
+	toilet_blast_active = false
+	if destroy_active and not rules.mission:achievements.increment("wreck")
+	var roach = comedy_mode=="roach"
+	var accent = Color("b59df0") if roach else Color("e6aa60")
+	var raised = center+Vector3.UP*.65
+	play_world_sound("explosion",raised,-4)
+	play_world_sound("roach_buzz" if roach else "comedy_plop",raised,-3)
+	var plume = CombatFX.new()
+	plume.game = self
+	plume.duration = 1.22
+	effects.add_child(plume)
+	plume.bloom(raised+Vector3.UP,1.42,Color("fff0aa"))
+	for i in range(8):
+		var ray = Vector3(cos(i*TAU/8),0,sin(i*TAU/8))
+		plume.bloom(raised+ray*(.8+float(i%2)*.56)+Vector3.UP*(.3+float(i%3)*.48),.75+float(i%3)*.25,accent)
+		plume.chunk(raised+ray*.55,Vector3(.29,.14,.58),Color("47a99d") if i%2==0 else Color("fff0cb"),ray*5+Vector3.UP*(4+float(i%3)),center.y+.08)
+	plume.show_pieces()
+	ComedyFX.toilet_scatter(effects,center,comedy_mode,reduced_motion)
+	blast_ring(center+Vector3.UP*.59,TOILET_BLAST_RADIUS,accent)
+
+func blast_ring(center: Vector3, radius: float, color: Color = Color("f6bc62")) -> void:
 	var ring = MeshInstance3D.new()
 	ring.mesh = blast_ring_mesh
-	ring.material_override = effect_material(Color("f6bc62"))
+	ring.material_override = effect_material(color)
 	ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	effects.add_child(ring)
 	ring.global_position = center-Vector3.UP*.5

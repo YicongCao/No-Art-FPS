@@ -68,6 +68,33 @@ static func fly(parent: Node3D, mode: String, from: Vector3, to: Vector3) -> voi
 	if mode=="roach":tween.parallel().tween_property(node.get_child(0),"rotation:z",1.1,.09)
 	tween.tween_callback(node.queue_free)
 
+static func blast_arc(node: Node3D, destination: Vector3, lift: float, spin: Vector3, duration: float) -> void:
+	var origin = node.global_position
+	var angle = node.rotation
+	var extent = node.scale
+	var move = func(t: float) -> void:
+		node.global_position = origin.lerp(destination,t)+Vector3.UP*(4*lift*t*(1-t))
+		node.rotation = angle+spin*t
+		node.scale = extent*(1-.95*smoothstep(.72,1,t))
+	var flight = node.create_tween()
+	flight.tween_method(move,0.0,1.0,duration)
+	flight.tween_callback(node.queue_free)
+
+static func toilet_scatter(parent: Node3D, center: Vector3, mode: String, reduced_motion: bool) -> void:
+	var art = ROACH_ART if mode=="roach" else POOP_ART
+	var count = 10 if reduced_motion else 22
+	for i in range(count):
+		var particle = sprite(art[i%art.size()],.55+float(i%5)*.16)
+		particle.name = "ToiletScatter"
+		particle.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		particle.flip_h = i%2==0
+		parent.add_child(particle)
+		var heading = float(i)*2.39996
+		var radial = Vector3(cos(heading),0,sin(heading))
+		particle.global_position = center+Vector3.UP*(1.4+float(i%3)*.23)+radial*.38
+		var destination = center+radial*(3.0+float(i%7)*.85)+Vector3.UP*.25
+		blast_arc(particle,destination,1.8+float(i%6)*.47,Vector3.ZERO,1.04+float(i%5)*.11)
+
 static func kill(parent: Node3D, center: Vector3, mode: String, reduced_motion: bool) -> void:
 	var roach = mode=="roach"
 	var burst = sprite(ROACH_KNOCKOUT if roach else SPLAT,1.22)
