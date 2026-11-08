@@ -54,6 +54,9 @@ func uses_patrol(zone: String) -> bool:
 func accepts_fast(zone: String) -> bool:
 	return zone=="yard"
 
+func prefers_reinforcement(_point: Vector3, _player: Node3D) -> bool:
+	return true
+
 func reset_objectives() -> void:
 	pass
 

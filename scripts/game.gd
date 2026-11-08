@@ -971,6 +971,8 @@ func menu_action(action: String) -> void:
 			select_session(FERRY_SESSION_PATH,action)
 		"night_studio":
 			select_session(STUDIO_SESSION_PATH,action)
+		"sandgate":
+			select_session(SANDGATE_SESSION_PATH,action)
 		"comedy", "roach":
 			if state!="TITLE":return
 			comedy_mode = "" if comedy_mode==action else action
@@ -1136,6 +1138,8 @@ func update_spawns(delta: float) -> void:
 	# Fill missing patrol posts first; reserve their slots even while they are visible.
 	var patrol_choices = choices.filter(func(i):return arena.enemy_zone(arena.spawn_points[i])!="yard")
 	if not patrol_choices.is_empty():choices.assign(patrol_choices)
+	var approach_choices = choices.filter(func(i):return arena.prefers_reinforcement(arena.spawn_points[i],player))
+	if not approach_choices.is_empty():choices.assign(approach_choices)
 	choices.sort_custom(func(a,b):return arena.spawn_points[a].distance_squared_to(player.position)<arena.spawn_points[b].distance_squared_to(player.position))
 	var index = choices[rng.randi_range(0,mini(2,choices.size()-1))]
 	var pos: Vector3 = arena.spawn_points[index]
@@ -1749,7 +1753,7 @@ func settle_rules() -> void:
 
 func title_preview_key() -> String:
 	var path: String = session.resource_path
-	if path in [DefaultSession.resource_path,PARK_SESSION_PATH,FERRY_SESSION_PATH,STUDIO_SESSION_PATH]:return path
+	if path in [DefaultSession.resource_path,PARK_SESSION_PATH,FERRY_SESSION_PATH,STUDIO_SESSION_PATH,SANDGATE_SESSION_PATH]:return path
 	return ""
 
 func select_session(selection: Variant, highlighted_id: String = "") -> void:

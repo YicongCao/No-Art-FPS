@@ -26,6 +26,8 @@ Pass `--headless` before the `--` separator for checks that do not need a render
 
 ## Maps and assets
 
+[Sandgate](../scenes/maps/sandgate.tscn) is the desert score arena. See the [concept-to-game views](art/sandgate/concepts.md) for the build source and camera references.
+
 Edit the [yard](../scenes/maps/yard.tscn) and [Dust](../scenes/maps/dust_flavor.tscn) scenes in Godot. Rebake navigation after changing collision geometry. To preview Dust locally, press Ctrl + Shift + 9 on the title screen and select DEFUSE C4, or launch with `./tools/run.sh -- --mission`.
 
 Editable Blender sources are in [`art_source/`](../art_source/). Asset builders are in [`tools/`](../tools/), including `build_assets.py`, `build_playbox_assets.py`, `build_leisure_assets.py`, `build_audio.py`, and `build_music.py`.

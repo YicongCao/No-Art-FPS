@@ -2,6 +2,13 @@ extends "res://scripts/arena.gd"
 
 @export var route_paths: Array[NodePath] = []
 
+func prefers_reinforcement(point: Vector3, player: Node3D) -> bool:
+	var offset = point-player.global_position
+	offset.y = 0
+	var forward = -player.global_basis.z
+	forward.y = 0
+	return forward.normalized().dot(offset.normalized())>=-.42
+
 func validate_map() -> bool:
 	return opening_paths.size()==8 and reinforcement_paths.size()>=12 and respawn_paths.size()>=6
 

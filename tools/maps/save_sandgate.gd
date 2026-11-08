@@ -147,6 +147,12 @@ func build() -> void:
 		if node.has_meta("structure"):node.remove_meta("structure")
 	var scene = PackedScene.new()
 	assert(scene.pack(arena)==OK)
-	assert(ResourceSaver.save(scene,"res://scenes/maps/sandgate.tscn")==OK)
+	var pending = "res://scenes/maps/.sandgate-%d.tscn"%OS.get_process_id()
+	if ResourceSaver.save(scene,pending)!=OK or not ResourceLoader.load(pending,"PackedScene",ResourceLoader.CACHE_MODE_IGNORE):
+		DirAccess.remove_absolute(pending)
+		push_error("Could not save and reload Sandgate")
+		quit(1)
+		return
+	assert(DirAccess.rename_absolute(pending,"res://scenes/maps/sandgate.tscn")==OK)
 	print("SANDGATE_SCENE_READY ",mesh.get_polygon_count()," navigation polygons")
 	quit()

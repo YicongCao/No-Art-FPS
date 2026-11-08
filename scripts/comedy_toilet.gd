@@ -8,6 +8,7 @@ const PLACEMENTS = {
 	"amusement_park": Vector4(4.8,.0,12.1,.08),
 	"last_ferry": Vector4(6.8,.0,5.2,-.12),
 	"night_studio": Vector4(-6.7,.0,3.35,.12),
+	"sandgate": Vector4(-4.7,.0,-10.82,.10),
 }
 const CHARGE_POSITIONS = [Vector3(-1.32,0,.40),Vector3(-2.04,0,.57),Vector3(-1.64,0,-.33)]
 var game: Node3D
