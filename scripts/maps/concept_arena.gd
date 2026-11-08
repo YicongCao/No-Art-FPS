@@ -3,6 +3,7 @@ extends "res://scripts/arena.gd"
 const Sweep = preload("res://scripts/maps/sweeping_light.gd")
 const AirportDisplay = preload("res://scripts/maps/airport_display.gd")
 const CombatFX = preload("res://scripts/combat_fx.gd")
+const SNOW_SHADER = preload("res://assets/shaders/observatory_snow.gdshader")
 const RAIN_SHADER = preload("res://assets/shaders/market_rain.gdshader")
 const AWNING_SHADER = preload("res://assets/shaders/market_awning.gdshader")
 const PUDDLES_SHADER = preload("res://assets/shaders/market_puddles.gdshader")
@@ -33,6 +34,9 @@ var frenzy_motion: Array[Vector3] = []
 var airport_display: AirportDisplay
 var belts: Array[StaticBody3D] = []
 var rain: MultiMeshInstance3D
+var snow: MultiMeshInstance3D
+var snow_paint: ShaderMaterial
+var snow_elapsed: float = 0.0
 var puddles: ShaderMaterial
 var awning_paint: ShaderMaterial
 var wind_phase: float = 0.0
@@ -92,6 +96,7 @@ func _ready() -> void:
 		pipe_spray.position = service_shortcut.position+Vector3(1.51,1.01,-1.98)
 		add_child(pipe_spray)
 	if is_instance_valid(dome):
+		add_snow()
 		var paint = ShaderMaterial.new()
 		paint.shader = RED_STRIP_SHADER
 		deck_light = horizontal_effect(Vector2(1.04,8.7),Vector3(16.05,2.434,-2.51),paint)
@@ -170,6 +175,34 @@ func add_rain() -> void:
 	rain.material_override = paint
 	add_child(rain)
 
+func add_snow() -> void:
+	var batch = MultiMesh.new()
+	batch.transform_format = MultiMesh.TRANSFORM_3D
+	batch.use_custom_data = true
+	var crystal = QuadMesh.new()
+	crystal.size = Vector2.ONE
+	batch.mesh = crystal
+	batch.instance_count = 2200
+	batch.custom_aabb = AABB(Vector3(-26,0,-28),Vector3(55,16,54))
+	var random = RandomNumberGenerator.new()
+	random.seed = 9253
+	for i in range(batch.instance_count):
+		var at = Vector3(random.randf_range(-25.0,25.0),0,random.randf_range(-25.0,25.0))
+		batch.set_instance_transform(i,Transform3D(Basis.IDENTITY,at))
+		batch.set_instance_custom_data(i,Color(random.randf(),random.randf(),random.randf(),random.randf()))
+	snow = MultiMeshInstance3D.new()
+	snow.name = "Snowfall"
+	snow.multimesh = batch
+	snow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	snow_paint = ShaderMaterial.new()
+	snow_paint.shader = SNOW_SHADER
+	snow_paint.set_shader_parameter("crystal",load("res://assets/art/weather/snow-crystal.svg"))
+	snow_paint.set_shader_parameter("arena_origin",global_position)
+	snow_paint.set_shader_parameter("dome_center",Vector2(dome.position.x,dome.position.z))
+	snow.material_override = snow_paint
+	snow.visible = not game.reduced_motion
+	add_child(snow)
+
 func add_belt_bags() -> void:
 	var model = load("res://assets/models/baggage_below/suitcase.glb") as PackedScene
 	for _index in range(belts.size()*2):
@@ -182,6 +215,11 @@ func _process(delta: float) -> void:
 	if game==null:
 		return
 	var active: bool = game.state=="RUNNING" and game.rules.active and not game.finale_active
+	if snow:
+		snow.visible = not game.reduced_motion
+		if snow.visible and (active or game.state=="TITLE"):
+			snow_elapsed += delta
+			snow_paint.set_shader_parameter("elapsed",snow_elapsed)
 	if is_instance_valid(rain):
 		rain.visible = not game.reduced_motion
 		if active or game.state=="TITLE":

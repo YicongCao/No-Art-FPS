@@ -71,6 +71,8 @@ func check() -> void:
 			assert(display.board_paint.get_shader_parameter("elapsed")==game.rules.elapsed)
 			cargo_before = display.cargo_bags[1].position
 			assert(display.lens_paints[0].albedo_color==display.OFF_COLOR)
+		if id=="snowline":
+			check_snowfall()
 		game._physics_process(.01)
 		assert(game.destroy_active and is_equal_approx(game.rules.remaining(),15.0))
 		assert(game.arena.frenzy_lights.all(func(light):return light.visible))
@@ -92,9 +94,11 @@ func check() -> void:
 			assert(game.arena.deck_light.visible and game.arena.star_chart.visible)
 			assert(not is_zero_approx(game.arena.dome.rotation.y))
 		var held: Basis = game.arena.frenzy_lights[0].basis
+		var held_snow: float = game.arena.snow_elapsed
 		game.pause_run()
-		game.arena._process(0)
+		game.arena._process(.2)
 		assert(held==game.arena.frenzy_lights[0].basis)
+		assert(is_equal_approx(held_snow,game.arena.snow_elapsed))
 		if id=="baggage_below":
 			assert(game.arena.belts.all(func(belt):return belt.constant_linear_velocity.is_zero_approx()))
 			assert(game.arena.airport_display.board_paint.get_shader_parameter("elapsed")==47.0)
@@ -168,6 +172,21 @@ func walk_to(goal: Vector3) -> bool:
 			return false
 	game.player.touch_move = Vector2.ZERO
 	return game.player.position.distance_to(goal)<.93
+
+func check_snowfall() -> void:
+	var arena = game.arena
+	assert(arena.snow is MultiMeshInstance3D)
+	var was_reduced: bool = game.reduced_motion
+	game.reduced_motion = false
+	var elapsed: float = arena.snow_elapsed
+	arena._process(.2)
+	assert(arena.snow.visible and is_equal_approx(arena.snow_elapsed,elapsed+.2))
+	assert(is_equal_approx(arena.snow_paint.get_shader_parameter("elapsed"),arena.snow_elapsed))
+	game.reduced_motion = true
+	arena._process(.2)
+	assert(not arena.snow.visible)
+	assert(is_equal_approx(arena.snow_elapsed,elapsed+.2))
+	game.reduced_motion = was_reduced
 
 func check_player_carry() -> void:
 	game.player.enabled = true
