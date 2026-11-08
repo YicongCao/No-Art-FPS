@@ -24,16 +24,18 @@ func _ready() -> void:
 	game._physics_process(0)
 	assert(not game.destroy_active)
 	game._physics_process(1.0/60.0)
-	assert(game.destroy_active and game.hud.destroy_time>1.5)
+	assert(game.destroy_active and is_equal_approx(game.hud.destroy_time,1.2))
 	assert(game.music.stream==game.DESTROY_MUSIC and game.music.playing)
 	assert(is_equal_approx(game.rules.remaining(),15),"DESTROY starts at exactly 45 seconds / 2700 ticks")
-	var audio_before = game.audio_index
+	game.hud.destroy_time -= .1
 	game._physics_process(1.0/60.0)
-	assert(game.audio_index==audio_before,"The DESTROY announcement only plays once")
+	assert(is_equal_approx(game.hud.destroy_time,1.1),"The DESTROY announcement starts only once")
 	game.ammo = 20
 	game.reload_time = 0
 	shoot_rounds(1)
 	assert(room.hits==1 and room.burn_time<0 and not room.collapsed)
+	var chips = game.effects.get_node_or_null("SceneryImpact")
+	assert(chips and chips.get_child(0).multimesh.instance_count==6,"First hit throws debris before ignition")
 	shoot_rounds(1)
 	assert(room.burn_time>0 and room.hits==2,"Second burning shot ignites the wall")
 	await capture("destroy-ignition")
@@ -137,6 +139,7 @@ func check_nonstructural_hits() -> void:
 	assert(body.dead and game.rules.kills==2 and game.rules.headshots==1,"Burning body shots immediately kill without counting as headshots")
 	shoot_nonstructural(Vector3(18,0,12))
 	assert(game.rules.kills==2,"Ground hits cannot score or be treated as a building")
+	assert(not game.effects.has_node("SceneryImpact"),"Enemy and ground hits do not throw scenery debris")
 	game.player.position = Vector3(-8,.05,8)
 	await get_tree().physics_frame
 	var barrel = game.arena.barrels[0]

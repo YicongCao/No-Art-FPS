@@ -854,10 +854,9 @@ func _physics_process(delta: float) -> void:
 	if rules.destroy_duration>0 and not destroy_active and rules.remaining()<=rules.destroy_duration+.000001:
 		destroy_active = true
 		hud.go_time = 0
-		hud.destroy_time = 1.7
+		hud.destroy_time = hud.DESTROY_NOTICE_DURATION
 		music.stream = session.destroy_music if session.destroy_music else DESTROY_MUSIC
 		music.play()
-		play_sound("end",-12,1.25)
 	invulnerable = maxf(0,invulnerable-delta)
 	since_damage += delta
 	if health<MAX_HEALTH and since_damage>=HEAL_DELAY and respawn_time<=0:
@@ -1049,11 +1048,12 @@ func resolve_shot(result: Dictionary, origin: Vector3, target: Vector3, burning:
 	if not result.is_empty():
 		var collider = result.collider
 		var enemy = enemy_from_hit(result)
-		if burning:
-			var building = collider.get_meta("structure") if collider.has_meta("structure") else null
+		var building = collider.get_meta("structure") if burning and collider.has_meta("structure") else null
+		var barrel = enemy==null and collider.has_method("ignite")
+		if burning and (building or barrel):
+			scenery_impact(target,result.normal)
 			if building:building.ignite_hit(target)
-			spark(target,Color("ef7833"),.16,.10)
-		if enemy==null and collider.has_method("ignite"):
+		if barrel:
 			collider.shot_hit(burning)
 			hud.hit = .12
 		elif enemy!=null:
@@ -1068,7 +1068,7 @@ func resolve_shot(result: Dictionary, origin: Vector3, target: Vector3, burning:
 			enemy.take_hit(is_head,burning or (touch_mode and touch_body_one_shot))
 			if is_head:spark(target,Color("f2d084"),.07,.12)
 			else:spark(target,Color("ed9957"),.12,.16)
-		else:spark(target,Color("e5e0d2"),.045,.1)
+		elif not building:spark(target,Color("e5e0d2"),.045,.1)
 
 func update_player_bullets(delta: float) -> void:
 	for i in range(player_bullets.size()-1,-1,-1):
@@ -1197,6 +1197,20 @@ func fire_effect(at: Vector3, extent: float) -> void:
 	fx.flame(at,extent,Color("ef7833"))
 	fx.flame(at+Vector3.UP*extent*.25,extent*.55,Color("fff1b7"))
 	fx.show_pieces()
+
+func scenery_impact(point: Vector3, normal: Vector3) -> void:
+	var fx = CombatFX.new()
+	fx.name = "SceneryImpact"
+	fx.game = self
+	fx.duration = .22
+	effects.add_child(fx)
+	var tangent = normal.cross(Vector3.UP if absf(normal.y)<.95 else Vector3.RIGHT).normalized()
+	var colors = [Color("ffb557"),Color("dc5e2b"),Color("fff1b7")]
+	for i in range(6):
+		var radial = tangent.rotated(normal,i*TAU/6)
+		var velocity = radial*(2.1+float(i%3)*.45)+normal*1.6
+		fx.chunk(point+normal*.05+radial*.07,Vector3(.18,.075,.13),colors[i%colors.size()],velocity,point.y-.55)
+	fx.show_pieces(false)
 
 func collapse_effect(bounds: AABB, color: Color) -> void:
 	var fx = CombatFX.new()

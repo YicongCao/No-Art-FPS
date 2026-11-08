@@ -29,6 +29,7 @@ var time_pulse = 0.0
 var go_time = 0.0
 var destroy_time = 0.0
 const GO_DURATION = .8
+const DESTROY_NOTICE_DURATION = 1.2
 var health_shade = 0.0
 var feed_shift = 0.0
 var ejections: Array[float] = []
@@ -665,6 +666,23 @@ func draw_results() -> void:
 	label(best,Vector2(row_left+54,c.y+16),34,GOLD)
 	draw_line(c+Vector2(-174,66),c+Vector2(174,66),Color(WHITE,.16),1)
 
+func draw_destroy_notice(center: Vector2) -> void:
+	var text_size = 66 if game.touch_mode else 82
+	var opacity = smoothstep(0,.22,destroy_time)
+	var settle = smoothstep(0,.12,DESTROY_NOTICE_DURATION-destroy_time)
+	var scale_factor = 1.0 if game.reduced_motion else lerpf(1.08,1,settle)
+	var words = ["DESTROY","ALL"]
+	var widths = [font.get_string_size(words[0],HORIZONTAL_ALIGNMENT_LEFT,-1,text_size).x,
+		font.get_string_size(words[1],HORIZONTAL_ALIGNMENT_LEFT,-1,text_size).x]
+	var gap = text_size*.2
+	var baseline = Vector2(-(widths[0]+gap+widths[1])*.5,text_size*.32)
+	draw_set_transform(center-Vector2(0,96),0,Vector2.ONE*scale_factor)
+	for i in range(words.size()):
+		draw_string_outline(font,baseline,words[i],HORIZONTAL_ALIGNMENT_LEFT,-1,text_size,3,Color(INK,.85*opacity))
+		draw_string(font,baseline,words[i],HORIZONTAL_ALIGNMENT_LEFT,-1,text_size,Color(WHITE if i==0 else Color("ffb557"),opacity))
+		baseline.x += widths[i]+gap
+	draw_set_transform(Vector2.ZERO)
+
 func _draw() -> void:
 	if game == null:return
 	var c = size*.5
@@ -716,14 +734,7 @@ func _draw() -> void:
 	if state=="RUNNING" and game.respawn_time<=0 and go_time>0:
 		var opacity = smoothstep(0,.65,go_time)
 		label("GO",c+Vector2(0,22),70,Color(WHITE,opacity),true)
-	if state=="RUNNING" and destroy_time>0 and game.respawn_time<=0:
-		var text_size = 66 if game.touch_mode else 82
-		var center = c-Vector2(0,74)
-		var opacity = smoothstep(0,.25,destroy_time)
-		var width = font.get_string_size("DESTROY ALL",HORIZONTAL_ALIGNMENT_LEFT,-1,text_size).x
-		var extent = Vector2(width+text_size*.56,text_size*.95)
-		draw_rect(Rect2(center-extent*.5,extent),Color(INK,opacity*.88))
-		label("DESTROY ALL",center+Vector2(0,text_size*.32),text_size,Color(GOLD,opacity),true)
+	if state=="RUNNING" and destroy_time>0:draw_destroy_notice(c)
 	draw_damage_impact()
 	if game.rules.mission:
 		draw_mission_radar()

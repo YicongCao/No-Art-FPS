@@ -57,9 +57,10 @@ static func paint_for(lit: bool) -> StandardMaterial3D:
 		paints[lit] = paint
 	return paints[lit]
 
-func show_pieces() -> void:
+func show_pieces(lit_chunks: bool = true) -> void:
 	for shape in pieces:
 		var falling = shape==Shape.CHUNK
+		var lit = falling and lit_chunks
 		var instances: Array = pieces[shape]
 		var batch = MultiMesh.new()
 		batch.transform_format = MultiMesh.TRANSFORM_3D
@@ -79,8 +80,8 @@ func show_pieces() -> void:
 		batch.custom_aabb = bounds.grow(padding)
 		var visual = MultiMeshInstance3D.new()
 		visual.multimesh = batch
-		visual.material_override = paint_for(falling)
-		if not falling or OS.has_feature("web"):visual.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		visual.material_override = paint_for(lit)
+		if not lit or OS.has_feature("web"):visual.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		add_child(visual)
 		batches[shape] = batch
 
