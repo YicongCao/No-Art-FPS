@@ -1132,6 +1132,7 @@ func spawn_is_clear(point: Vector3) -> bool:
 
 func update_spawns(delta: float) -> void:
 	if finale_active or not rules.continuous_spawns:return
+	arena.dispatch_reinforcements()
 	for i in range(spawn_cooldowns.size()):spawn_cooldowns[i] = maxf(0,spawn_cooldowns[i]-delta)
 	if not pending_spawn.is_empty():
 		pending_spawn.delay -= delta

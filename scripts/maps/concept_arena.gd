@@ -10,6 +10,9 @@ const PUDDLES_SHADER = preload("res://assets/shaders/market_puddles.gdshader")
 const RED_STRIP_SHADER = preload("res://assets/shaders/observatory_light_strip.gdshader")
 const PIPE_SPRAY_SHADER = preload("res://assets/shaders/market_pipe_spray.gdshader")
 const STAR_CHART_SHADER = preload("res://assets/shaders/observatory_star_chart.gdshader")
+const MINIBUS_START = 32.0
+const MINIBUS_DOOR_OPEN_TIME = .85
+const MINIBUS_WAVE_SIZE = 3
 const BELT_SPEED = 1.05
 const BELT_SURGE_SPEED = 1.9
 const IMPACTS = {
@@ -21,6 +24,8 @@ const IMPACTS = {
 }
 
 @export var route_paths: Array[NodePath] = []
+@export var minibus_entry_path: NodePath
+@export var minibus_rally_paths: Array[NodePath] = []
 @export var spot_specs: Array = []
 @export var awning_specs: Array = []
 @export var airport_layout: Dictionary = {}
@@ -34,6 +39,12 @@ var frenzy_motion: Array[Vector3] = []
 var airport_display: AirportDisplay
 var belts: Array[StaticBody3D] = []
 var rain: MultiMeshInstance3D
+var minibus_entry: Marker3D
+var minibus_door: Node3D
+var minibus_door_shape: CollisionShape3D
+var minibus_closed_x: float
+var minibus_next_spawn := MINIBUS_START
+var minibus_seats := 0
 var snow: MultiMeshInstance3D
 var snow_paint: ShaderMaterial
 var snow_elapsed: float = 0.0
@@ -71,6 +82,7 @@ func _ready() -> void:
 	dome = get_node_or_null("Moving/dome")
 	shutter_lights = get_node_or_null("Moving/shutter_lights")
 	if map_id=="rain_market":
+		setup_minibus()
 		add_rain()
 		puddles = ShaderMaterial.new()
 		puddles.shader = PUDDLES_SHADER
@@ -203,6 +215,55 @@ func add_snow() -> void:
 	snow.visible = not game.reduced_motion
 	add_child(snow)
 
+func setup_minibus() -> void:
+	if minibus_entry_path.is_empty():return
+	minibus_entry = get_node(minibus_entry_path)
+	minibus_door = get_node("Moving/minibus_door")
+	minibus_closed_x = minibus_door.position.x
+	var body = StaticBody3D.new()
+	body.collision_mask = 0
+	var shape = BoxShape3D.new()
+	shape.size = Vector3(2.01,2.0,.12)
+	minibus_door_shape = CollisionShape3D.new()
+	minibus_door_shape.shape = shape
+	body.add_child(minibus_door_shape)
+	minibus_door.add_child(body)
+
+func pose_minibus(open_amount: float) -> void:
+	minibus_door.position.x = minibus_closed_x-2.06*open_amount
+	var clear = open_amount>=.95
+	if minibus_door_shape.disabled!=clear:
+		minibus_door_shape.set_deferred("disabled",clear)
+
+func reset_objectives() -> void:
+	minibus_seats = 0
+	minibus_next_spawn = MINIBUS_START
+	if minibus_door:pose_minibus(0.0)
+
+func dispatch_reinforcements() -> void:
+	if not minibus_entry or game.rules.elapsed<minibus_next_spawn:return
+	var enemies: Array = game.live_enemies()
+	var room: int = game.population_target()-enemies.size()
+	if room<=0:return
+	if minibus_seats==0:
+		minibus_seats = mini(MINIBUS_WAVE_SIZE,room)
+	var point := minibus_entry.global_position
+	if point.distance_to(game.player.global_position)<1.8 or not game.spawn_is_clear(point):
+		minibus_next_spawn = game.rules.elapsed+.20
+		return
+	var rushers = enemies.filter(func(enemy):return enemy.fast).size()
+	var enemy = game.spawn_enemy(point,minibus_seats==MINIBUS_WAVE_SIZE and rushers<3)
+	enemy.rotation.y = PI
+	var closest = INF
+	for path in minibus_rally_paths:
+		var rally: Vector3 = get_node(path).global_position
+		var distance = rally.distance_squared_to(game.player.global_position)
+		if distance<closest:
+			closest = distance
+			enemy.reinforcement_rally = rally
+	minibus_seats -= 1
+	minibus_next_spawn = game.rules.elapsed+(3.0 if minibus_seats==0 else .70)
+
 func add_belt_bags() -> void:
 	var model = load("res://assets/models/baggage_below/suitcase.glb") as PackedScene
 	for _index in range(belts.size()*2):
@@ -229,6 +290,8 @@ func _process(delta: float) -> void:
 		awning_paint.set_shader_parameter("wind_phase",phase)
 		puddles.set_shader_parameter("ripple_phase",phase)
 	var elapsed: float = game.rules.elapsed
+	if minibus_door and active:
+		pose_minibus(smoothstep(MINIBUS_START-MINIBUS_DOOR_OPEN_TIME,MINIBUS_START-.05,elapsed))
 	if pipe_spray:
 		pipe_spray.visible = game.destroy_active and service_shortcut.collapsed
 		pipe_spray.material_override.set_shader_parameter("elapsed",elapsed)
@@ -335,7 +398,9 @@ func validate_navigation() -> bool:
 	var navigation_map = get_world_3d().navigation_map
 	var start = player_start().origin
 	var valid = true
-	for path in opening_paths+reinforcement_paths+respawn_paths+route_paths:
+	var paths = opening_paths+reinforcement_paths+respawn_paths+route_paths+minibus_rally_paths
+	if not minibus_entry_path.is_empty():paths.append(minibus_entry_path)
+	for path in paths:
 		var at: Vector3 = get_node(path).global_position
 		var point = NavigationServer3D.map_get_closest_point(navigation_map,at)
 		var route = NavigationServer3D.map_get_path(navigation_map,start,point,true)

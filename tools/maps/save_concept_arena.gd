@@ -173,6 +173,9 @@ func build() -> void:
 	arena.reinforcement_paths = marks(route,"Reinforcement",layout.spawns)
 	arena.respawn_paths = marks(route,"Respawn",layout.respawns)
 	arena.route_paths = marks(route,"Tour",layout.route)
+	if layout.has("minibus_entry"):
+		arena.minibus_entry_path = marks(route,"Minibus",layout.minibus_entry)[0]
+		arena.minibus_rally_paths = marks(route,"MinibusRally",layout.minibus_rallies)
 
 	var nav = NavigationRegion3D.new()
 	var mesh = NavigationMesh.new()
@@ -186,6 +189,8 @@ func build() -> void:
 	mesh.geometry_source_geometry_mode = NavigationMesh.SOURCE_GEOMETRY_GROUPS_WITH_CHILDREN
 	mesh.geometry_source_group_name = key+"_navigation"
 	mesh.filter_baking_aabb = AABB(Vector3(-24,-.52,-25),Vector3(48,8.38,51))
+	if key=="rain_market":
+		mesh.filter_baking_aabb = AABB(Vector3(-24,-.52,-29.6),Vector3(48,8.38,55.6))
 	nav.navigation_mesh = mesh
 	add(arena,nav,"Navigation")
 	arena.navigation_path = arena.get_path_to(nav)

@@ -127,10 +127,13 @@ for x in (-13,13):
         street.box("Vertical picket",(x-3.8+i*.69,.53,23),(.075,1.05,.14),"mint")
 # End facades and rails prevent jumps outside the route.
 a.solid(street,"Foot boundary",(0,1.1,24.85),(46,2.2,.3),"navy")
-a.solid(street,"Upper curb",(0,3.79,-24.85),(46,.18,.31),"green")
-# Invisible street boundary preserves the view toward the stop.
-a.layout["boxes"].append([(0,5.15,-24.90),(46,2.91,.24),0])
-street.box("Bus lane beyond the market",(0,3.57,-27.2),(46,.26,4.7),"asphalt")
+# The upper landing now connects to the minibus stop.
+for x in (-15,15):
+    street.box("Upper curb", (x,3.74,-24.85),(16,.08,.31),"green")
+a.solid(street,"Bus lane at the market crest",(0,3.49,-27.20),(46,.42,4.60),"asphalt")
+a.layout["boxes"].append([(0,5.15,-29.48),(46,2.91,.24),0])
+for side in (-1,1):
+    a.layout["boxes"].append([(side*23.1,5.15,-26.92),(.25,2.91,5.10),0])
 for x in range(-19,20,4):
     street.box("Bus lane road marking",(x,3.714,-28.9),(2.35,.022,.12),"gold")
 
@@ -374,9 +377,25 @@ bx,by,bz=2.25,3.7,-27.04
 def bus_box(label,at,size,color):
     bus.box(label,(bx+at[0],by+at[1],bz+at[2]),size,color)
 
-bus_box("Minibus undercarriage",(0,.54,0),(5.91,.41,1.83),"ink")
-bus_box("Cream minibus lower body",(.04,1.00,0),(6.5,1.06,2.09),"white")
-bus_box("Minibus upper body",(-.23,1.88,0),(5.83,.81,2.04),"white")
+def bus_solid(label,at,size,color):
+    a.solid(bus,label,(bx+at[0],by+at[1],bz+at[2]),size,color)
+
+door_x=1.13
+door_z=bz+1.10
+# Divide the shell around a 2 m opening on the market-facing side.
+for lo,hi in [(-3.21,.10),(2.16,3.30)]:
+    bus_solid("Solid body beside boarding door",((lo+hi)*.5,1.32,0),(hi-lo,1.94,2.09),"white")
+bus_solid("Cabin back wall",(door_x,1.29,-.83),(2.06,2.02,.40),"navy")
+bus_solid("Cabin floor",(door_x,.13,.05),(2.06,.32,1.56),"ink")
+bus_box("Dark cabin step edge",(door_x,.26,.82),(2.01,.083,.18),"ink")
+a.slope(bus,"Boarding step collision",bx+.10,bx+2.16,bz+.80,bz+1.85,by+.29,by,.18,"steel")
+for depth in (1.0,1.53):
+    y=.29*(1-(depth-.80)/1.05)
+    bus_box("Yellow step nosing",(door_x,y+.015,depth),(1.99,.033,.054),"gold")
+for x in (.13,2.13):
+    bus_box("Boarding door jamb",(x,1.26,1.075),(.072,1.93,.09),"ink")
+bus_box("Boarding door lintel",(door_x,2.24,1.07),(2.08,.12,.13),"navy")
+bus_box("Boarding cabin lamp",(door_x,2.16,.72),(.64,.08,.24),"light")
 bus_box("Red public light bus roof",(-.16,2.34,0),(6.02,.24,2.11),"red")
 bus_box("Red rounded roof cap",(-.16,2.48,0),(5.75,.095,1.89),"red")
 bus_box("Cab forward fascia",(3.30,1.12,0),(.23,.62,2.01),"white")
@@ -384,19 +403,23 @@ bus_box("Dark windscreen",(2.72,1.94,0),(.091,.66,1.82),"navy")
 bus_box("Route display housing",(2.774,2.22,0),(.071,.15,1.18),"ink")
 bus_box("Amber route display",(2.82,2.22,0),(.025,.096,.94),"light")
 for s in (-1,1):
-    bus_box("Window belt stripe",(0,1.48,s*1.058),(6.41,.16,.071),"red")
+    if s<0:
+        bus_box("Window belt stripe",(0,1.48,s*1.058),(6.41,.16,.071),"red")
+    else:
+        for lo,hi in [(-3.21,.10),(2.16,3.30)]:
+            bus_box("Window belt stripe",((lo+hi)*.5,1.48,s*1.058),(hi-lo,.16,.071),"red")
     for i in range(6):
         x=-2.68+i*.96
+        if s>0 and x+.45>.10 and x-.45<2.16:
+            continue
         bus_box("Passenger window gasket",(x,1.92,s*1.035),(.865,.69,.052),"ink")
         bus_box("Blue passenger glazing",(x,1.94,s*1.068),(.80,.57,.023),"steel")
         bus_box("Window reflection",(x,2.17,s*1.086),(.70,.048,.017),"fish")
-    bus_box("Sliding minibus door outline",(1.60,1.05,s*1.071),(.021,.81,.019),"ink")
-    bus_box("Minibus door handle",(1.68,1.30,s*1.089),(.19,.046,.035),"ink")
     bus_box("Side mirror arm",(2.56,1.94,s*1.14),(.16,.061,.25),"steel")
     bus_box("Side mirror",(2.61,1.97,s*1.28),(.13,.245,.107),"ink")
     bus_box("Bus headlamp",(3.43,1.09,s*.71),(.039,.22,.39),"light")
     bus_box("Bus red tail lamp",(-3.24,1.05,s*.78),(.041,.24,.26),"red")
-    for x in (-2.09,2.04):
+    for x in (-2.09,2.52):
         bus.rod("Recessed wheel arch",(bx+x,by+.46,bz+s*1.05),(bx+x,by+.46,bz+s*1.08),.465,"ink",12)
         bus.rod("Rubber tire",(bx+x,by+.43,bz+s*.79),(bx+x,by+.43,bz+s*1.115),.405,"ink",14)
         bus.rod("Steel wheel cap",(bx+x,by+.43,bz+s*1.12),(bx+x,by+.43,bz+s*1.145),.234,"metal",12)
@@ -404,6 +427,16 @@ bus_box("Front bumper",(3.42,.71,0),(.22,.22,2.10),"ink")
 bus_box("Front grille",(3.45,1.08,0),(.066,.23,.83),"ink")
 for y in (1.015,1.081,1.147):
     bus_box("Front grille chrome slat",(3.49,y,0),(.025,.017,.78),"metal")
+
+door=a.kit("minibus_door")
+door.box("Painted sliding passenger door",(0,-.39,0),(2.01,1.14,.105),"white")
+door.box("Dark window seal",(0,.56,0),(2.01,.81,.114),"ink")
+door.box("Sliding door tinted pane",(0,.56,.064),(1.78,.65,.018),"steel")
+door.box("Door kick stripe",(0,.14,.063),(2.0,.15,.025),"red")
+door.box("Passenger door handle",(.71,.04,.079),(.21,.054,.044),"ink")
+a.moving("minibus_door",(bx+door_x,by+1.28,door_z))
+a.layout["minibus_entry"]=[(bx+door_x,by+.35,bz+.43)]
+a.layout["minibus_rallies"]=[ground(x,z) for x,z in [(0,10),(-13,10),(13,8)]]
 
 x,z=-2.47,-24.04
 a.solid(decor,"Minibus stop post",(x,4.98,z),(.09,2.54,.09),"red")

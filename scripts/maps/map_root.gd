@@ -57,6 +57,9 @@ func accepts_fast(zone: String) -> bool:
 func prefers_reinforcement(_point: Vector3, _player: Node3D) -> bool:
 	return true
 
+func dispatch_reinforcements() -> void:
+	pass
+
 func reset_objectives() -> void:
 	pass
 

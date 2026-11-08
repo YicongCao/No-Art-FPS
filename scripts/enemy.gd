@@ -20,6 +20,7 @@ var container_room: Node3D
 var home_zone = "yard"
 var patrol_offset = 0
 var tracking_player = false
+var reinforcement_rally := Vector3.INF
 var rush_state = "CHASE"
 var rush_time = 0.0
 var rush_direction = Vector3.ZERO
@@ -170,6 +171,9 @@ func _physics_process(delta: float) -> void:
 	if tracking_player and to_player.length_squared()>.1:
 		rotation.y = lerp_angle(rotation.y,atan2(-to_player.x,-to_player.z),delta*8)
 	var has_patrol = game.arena.uses_patrol(home_zone)
+	if reinforcement_rally.is_finite() and global_position.distance_to(reinforcement_rally)<1.2:
+		reinforcement_rally = Vector3.INF
+	var rallying = reinforcement_rally.is_finite() and not tracking_player
 	think -= delta
 	if think <= 0:
 		think = .35+randf()*.15
@@ -179,6 +183,8 @@ func _physics_process(delta: float) -> void:
 				var angle = age*.35+float(get_instance_id()%7)
 				offset = Vector3(cos(angle),0,sin(angle))*8
 			agent.target_position = game.player.global_position+offset
+		elif rallying:
+			agent.target_position = reinforcement_rally
 		elif has_patrol:
 			if tracking_player and distance>6 and game.arena.enemy_zone(game.player.global_position)==home_zone:
 				agent.target_position = game.player.global_position
@@ -188,13 +194,13 @@ func _physics_process(delta: float) -> void:
 					patrol_offset = (patrol_offset+1)%posts.size()
 				agent.target_position = posts[patrol_offset]
 	var dir = Vector3.ZERO
-	if tracking_player or has_patrol:
+	if tracking_player or has_patrol or rallying:
 		var step = agent.get_next_path_position()-global_position
 		step.y = 0
 		if step.length_squared()>.0025 and not agent.is_navigation_finished():dir = step.normalized()
 	if not tracking_player and not dir.is_zero_approx():
 		rotation.y = lerp_angle(rotation.y,atan2(-dir.x,-dir.z),delta*8)
-	var speed = 2.5
+	var speed = 4.1 if rallying else 2.5
 	if windup > 0:speed *= .25
 	velocity.x = dir.x*speed
 	velocity.z = dir.z*speed
