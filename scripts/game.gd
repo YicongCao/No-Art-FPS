@@ -273,9 +273,19 @@ func score_record_key() -> String:
 	if session.session_id==DefaultSession.session_id:return "score"
 	return "score_%s_v%d"%[session.session_id,session.layout_version]
 
+func map_best_score(map_id: String) -> int:
+	if map_id==DefaultSession.session_id:return achievements.scores.get("score",0)
+	var prefix = "score_%s_v"%map_id
+	var record = 0
+	for key in achievements.scores:
+		if key.begins_with(prefix) and key.substr(prefix.length()).is_valid_int():
+			record = maxi(record,achievements.scores[key])
+	return record
+
 func load_session_record(cfg: ConfigFile) -> void:
 	var key = score_record_key()
-	best = maxi(int(cfg.get_value(key,"best",0)),achievements.scores.get(key,0))
+	achievements.merge_score(key,cfg.get_value(key,"best",0))
+	best = achievements.scores.get(key,0)
 	best_mission = float(cfg.get_value(mission_record_key(),"fastest",0.0))
 
 static func system_language(locale: String) -> String:
@@ -431,16 +441,16 @@ func capture_map_preview() -> Image:
 	return image
 
 func save_record() -> void:
+	var key = score_record_key()
+	if not rules.mission and best>achievements.scores.get(key,0):
+		achievements.merge_score(key,best)
+		if OS.has_feature("web"):queue_progress_save()
 	if qa_mode:return
 	var cfg = ConfigFile.new()
 	cfg.load("user://record.cfg")
 	if rules.mission:cfg.set_value(mission_record_key(),"fastest",best_mission)
 	else:
-		var key = score_record_key()
 		cfg.set_value(key,"best",maxi(best,int(cfg.get_value(key,"best",0))))
-		if best>achievements.scores.get(key,0):
-			achievements.merge_score(key,best)
-			if OS.has_feature("web"):queue_progress_save()
 	cfg.set_value("settings","sensitivity",player.sensitivity)
 	cfg.set_value("settings","reduced_motion",reduced_motion)
 	cfg.set_value("settings","music_volume",music_volume)
@@ -936,7 +946,8 @@ func menu_action(action: String) -> void:
 			player.enabled = state == "RUNNING" and rules.active and respawn_time<=0
 			capture_pointer()
 		"menu":
-			if state != "RESULTS":return
+			if state not in ["RESULTS","PAUSED"]:return
+			rules.active = false
 			state = "TITLE"
 			clear_round()
 			player.set_weapon_style("")

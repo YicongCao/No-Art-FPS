@@ -26,7 +26,9 @@ const INSET_ICON = preload("res://assets/ui/settings/inset.svg")
 const GYRO_ICON = preload("res://assets/ui/settings/gyro.svg")
 const RESUME_ICON = preload("res://assets/ui/settings/resume.svg")
 const RESTART_ICON = preload("res://assets/ui/settings/restart.svg")
+const PAUSE_HOME_ICON = preload("res://assets/ui/settings/home.svg")
 const SLIDER_GRIP = preload("res://assets/ui/settings/grip.svg")
+const MEDAL_ICON = preload("res://assets/ui/maps/best-medal.svg")
 var game: Node
 var touch_inset_available = false
 var font: Font
@@ -441,10 +443,11 @@ func menu_button(text: String, rect: Rect2, action: String, primary: bool = fals
 	return button
 
 func map_button(node_name: String, map_name: String, action: String, thumbnail: Texture2D,
-		rect: Rect2, selected: bool) -> Button:
+		rect: Rect2, selected: bool, best_kills: int) -> Button:
 	var card = Button.new()
 	card.name = node_name
 	card.accessibility_name = map_name
+	card.accessibility_description = tr("Best kills %d")%best_kills
 	card.position = rect.position
 	card.size = rect.size
 	card.disabled = game.switching_session
@@ -471,7 +474,39 @@ func map_button(node_name: String, map_name: String, action: String, thumbnail: 
 		outline.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	card.pressed.connect(func():game.menu_action(action))
 	menu.add_child(card)
+	map_record(card,best_kills)
 	return card
+
+func map_record(card: Button, best_kills: int) -> void:
+	var record = PanelContainer.new()
+	record.name = "Record"
+	record.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var backing = StyleBoxFlat.new()
+	backing.bg_color = Color("15222eee")
+	backing.set_corner_radius_all(5)
+	backing.content_margin_left = 5
+	backing.content_margin_right = 8
+	record.add_theme_stylebox_override("panel",backing)
+	card.add_child(record)
+	var row = HBoxContainer.new()
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_theme_constant_override("separation",4)
+	record.add_child(row)
+	var medal = TextureRect.new()
+	medal.texture = MEDAL_ICON
+	medal.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	medal.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	medal.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(medal)
+	var score = Label.new()
+	score.name = "Score"
+	score.text = str(best_kills)
+	score.add_theme_font_size_override("font_size",26)
+	score.add_theme_color_override("font_color",WHITE)
+	score.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(score)
+	record.reset_size()
+	record.position = Vector2(card.size.x-record.size.x-8,8)
 
 func sync_comedy_buttons() -> void:
 	for action in comedy_buttons:
@@ -687,7 +722,7 @@ func rebuild_menu() -> void:
 			var item: Array = maps[i]
 			var position = corner+Vector2((i%2)*(width+gap),floori(i*.5)*(height+gap))
 			tab_order.append(map_button(item[0],item[1],item[2],item[3],Rect2(position,Vector2(width,height)),
-				game.title_session_id==item[4]))
+				game.title_session_id==item[4],game.map_best_score(item[4])))
 		if not OS.has_feature("web"):
 			var modes = [["comedy",tr("Poop Mode"),COMEDY_ICON,Color("62412f")],
 				["roach",tr("Cockroach Mode"),ROACH_ICON,Color("533c65")]]
@@ -761,8 +796,18 @@ func rebuild_menu() -> void:
 		var language = pause_button(tr("Language · English"),Rect2(card.end.x-238,card.position.y+17,214,44),"language",false,"")
 		language.add_theme_font_size_override("font_size",21)
 		var footer = card.position+Vector2(24,card.size.y-76)
-		pause_button(tr("RESUME"),Rect2(footer,Vector2(230,52)),"resume",true,"Esc",RESUME_ICON)
-		pause_button(tr("RESTART"),Rect2(footer+Vector2(242,0),Vector2(230,52)),"retry",false,tr("Enter"),RESTART_ICON)
+		var button_size = Vector2((card.size.x-68)/3,52)
+		var step = Vector2(button_size.x+10,0)
+		var actions = [
+			[tr("RESUME"),"resume","Esc",RESUME_ICON],
+			[tr("RESTART"),"retry",tr("Enter"),RESTART_ICON],
+			[tr("HOME"),"menu","",PAUSE_HOME_ICON],
+		]
+		for i in range(actions.size()):
+			var item: Array = actions[i]
+			var button = pause_button(item[0],Rect2(footer+step*i,button_size),item[1],i==0,item[2],item[3])
+			button.add_theme_font_size_override("font_size",21)
+			button.size = button_size
 
 func pause_card() -> Rect2:
 	var extent = Vector2(520,492 if game.touch_mode else 364)

@@ -1,5 +1,6 @@
 keys,zh
 Map loading progress,地图加载进度
+Best kills %d,最高击杀 %d
 Container Yard,集装箱货场
 Sunset Park,夕阳游乐园
 Last Ferry,末班渡轮
@@ -22,6 +23,7 @@ Control inset,触控按键内距
 GYRO AIM,体感瞄准
 RESUME,继续游戏
 RESTART,重新开始
+HOME,返回首页
 LOW,减少
 FULL,完整
 ON,开启

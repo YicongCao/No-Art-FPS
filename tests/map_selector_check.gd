@@ -17,6 +17,7 @@ func check() -> void:
 		if game.title_frame_ready:break
 	game.qa_mode = true
 	game.achievements.scores.clear()
+	game.hud.rebuild_menu()
 	assert(game.title_frame_ready and game.nav_ready and game.session==YardSession)
 	assert(game.hud.fire_button.text=="FIRE")
 	assert(game.hud.menu.get_children().filter(func(node):return node is Button).size()==7)
@@ -33,6 +34,12 @@ func check() -> void:
 	assert(yard_rect.position.y==park_rect.position.y and ferry_rect.position.y==last_card.position.y)
 	assert(yard_rect.end.x<park_rect.position.x and yard_rect.end.y<ferry_rect.position.y)
 	assert(is_equal_approx(fire.end.y,last_card.end.y),"FIRE and the last map share a baseline")
+	assert_card_records([0,0,0,0])
+	game.achievements.merge({"scores":{"score":13,"score_amusement_park_v1":7,
+		"score_last_ferry_v1":5,"score_night_studio_v1":9,"score_night_studio_v2":123}})
+	game.hud.rebuild_menu()
+	assert_card_records([13,7,5,123])
+	if DisplayServer.get_name()!="headless":await capture("map-medals-title")
 	var old_frame = game.hud.title_frame
 	var park_card = game.hud.menu.get_node("MapPark")
 	assert(park_card.text.is_empty() and not park_card.accessibility_name.is_empty())
@@ -122,17 +129,58 @@ func check() -> void:
 
 	game.start_run()
 	game.begin_running()
+	game.rules.kills = 17
 	game.finish_run()
 	game.menu_action("menu")
 	assert(game.state=="TITLE" and game.session==ParkSession)
+	game.hud.rebuild_menu()
 	assert(game.hud.menu.get_node("MapPark/Selected"))
-	print("MAP_SELECTOR_PASS: immediate highlight, staged FIRE progress, navigation lockout, cached preview, focus, rollback, records and title return")
+	assert_card_records([13,17,5,123])
+	game.start_run()
+	game.begin_running()
+	game.rules.kills = 99
+	game.pause_run()
+	game.set_physics_process(false)
+	game.touch_mode = true
+	root.content_scale_size = Vector2i(960,540)
+	root.size = Vector2i(844,390)
+	await process_frame
+	game.hud.rebuild_menu()
+	if DisplayServer.get_name()!="headless":await capture("pause-home-touch")
+	var home = game.hud.menu.get_node("menu")
+	assert(home.text==game.hud.tr("HOME"))
+	assert(home.get_rect().position.x>game.hud.menu.get_node("retry").get_rect().end.x)
+	assert(game.hud.get_rect().encloses(home.get_rect()))
+	click(home.get_global_rect().get_center())
+	assert(game.state=="TITLE" and game.session==ParkSession)
+	assert(not game.rules.active and not game.player.enabled)
+	assert(game.enemies.get_child_count()==0 and game.effects.get_child_count()==0)
+	game.hud.rebuild_menu()
+	assert_card_records([13,17,5,123])
+	print("MAP_SELECTOR_PASS: staged selection, focus, rollback, individual records and return home from results or pause")
 	await process_frame
 	await process_frame
 	if DisplayServer.get_name()=="headless":
 		var audio_deadline = Time.get_ticks_msec()+450
 		while Time.get_ticks_msec()<audio_deadline:await process_frame
 	quit()
+
+func assert_card_records(expected: Array) -> void:
+	var names = ["MapYard","MapPark","MapFerry","MapStudio"]
+	for i in range(names.size()):
+		var card = game.hud.menu.get_node(names[i])
+		var panel = card.get_node("Record")
+		assert(panel.find_child("Score",true,false).text==str(expected[i]))
+		assert(panel.mouse_filter==Control.MOUSE_FILTER_IGNORE)
+		assert(panel.position.x>0 and panel.get_rect().end.x<card.size.x)
+
+func click(center: Vector2) -> void:
+	for pressed in [true,false]:
+		var event = InputEventMouseButton.new()
+		event.position = center
+		event.button_index = MOUSE_BUTTON_LEFT
+		event.pressed = pressed
+		root.push_input(event,true)
 
 func wait_for_switch() -> Array[float]:
 	var stages: Array[float] = []
