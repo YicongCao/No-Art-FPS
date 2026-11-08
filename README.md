@@ -6,6 +6,9 @@ A colorful low-poly FPS built with Godot and Blender. Score as many kills as you
 
 <table width="100%">
   <tr>
+    <td colspan="3"><a href="artifacts/readme/studio-frenzy.png"><img src="artifacts/readme/studio-frenzy.png" width="100%" alt="Night Studio in DESTROY ALL mode, with neon spotlights sweeping the stage"></a></td>
+  </tr>
+  <tr>
     <td width="33%"><a href="artifacts/readme/title.png"><img src="artifacts/readme/title.png" width="100%" alt="No-Art-FPS title screen with the three map selections"></a></td>
     <td width="33%"><a href="artifacts/readme/yard-containers.png"><img src="artifacts/readme/yard-containers.png" width="100%" alt="Container Yard forklift and graffiti with an approaching rusher"></a></td>
     <td width="33%"><a href="artifacts/readme/yard-terrace.png"><img src="artifacts/readme/yard-terrace.png" width="100%" alt="Container Yard pool terrace on the upper level"></a></td>
