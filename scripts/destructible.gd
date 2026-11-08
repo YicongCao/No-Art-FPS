@@ -7,6 +7,7 @@ var arena: Node3D
 @export var local_bounds = false
 @export var palette = Color("b65745")
 @export var scenery = false
+@export var paper = false
 @export var keep_boundary = false
 @export var batch_parts: Dictionary = {}
 @export var supported_paths: Array[NodePath] = []
@@ -77,6 +78,7 @@ func collapse(show_effects: bool = true) -> void:
 			if (bounds.grow(.35).has_point(to_local(enemy.global_position+Vector3.UP)) if local_bounds else bounds.grow(.35).has_point(enemy.global_position+Vector3.UP)):enemy.take_damage(enemy.MAX_HEALTH)
 	if show_effects:
 		var blast_center = hit_point
+		if paper and hits>=2:game.paper_impact(hit_point,Vector3.UP,area.position.y,true)
 		if scenery:
 			blast_center = area.get_center()
 			blast_center.y = area.position.y+minf(area.size.y*.5,.85)
