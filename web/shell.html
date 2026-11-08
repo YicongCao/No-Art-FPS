@@ -39,7 +39,7 @@
     body.mobile.portrait #loading[hidden]~#rotate{display:flex}#rotate svg{width:100px;height:100px;stroke:#e9ba50;fill:none;stroke-width:3}
     #rotate-full{background:#754c87;color:#fff5d3;border:1px solid #fff5d355;border-radius:4px;padding:14px 24px;min-height:48px}
     #rotate p{font-size:22px;margin:0}#rotate small{max-width:280px;color:#c4bfb2;line-height:1.6}
-    #touch-ui{display:none;position:fixed;inset:0;z-index:3;touch-action:none;user-select:none;-webkit-user-select:none}
+    #touch-ui{--control-inset:0px;display:none;position:fixed;inset:0;z-index:3;touch-action:none;user-select:none;-webkit-user-select:none}
     body.mobile[data-game=RUNNING]:not(.portrait) #touch-ui{display:block}
     .touch-button{position:absolute;width:62px;height:62px;border-radius:50%;border:2px solid #fff5d388;color:#fff5d3;background:#182631b8;font-size:18px;touch-action:none}
     .touch-button.held{background:#e9ba50aa;color:#243440}
@@ -47,11 +47,12 @@
     .touch-action-icon .accent{fill:var(--accent)}
     .touch-button.held .touch-action-icon{--accent:#754c87}
     #fire .touch-action-icon{width:50px;height:50px}
-    #fire{width:92px;height:92px;right:max(24px,env(safe-area-inset-right));bottom:max(42px,env(safe-area-inset-bottom));font-size:22px}
-    #interact{display:none;right:134px;bottom:114px;width:90px;border-radius:8px}body[data-mode=defuse] #interact{display:block}
-    #jump{right:max(134px,calc(env(safe-area-inset-right) + 110px));bottom:28px}#reload{right:max(32px,env(safe-area-inset-right));bottom:154px}
+    #fire{width:92px;height:92px;right:calc(max(24px,env(safe-area-inset-right)) + var(--control-inset));bottom:calc(max(42px,env(safe-area-inset-bottom)) + var(--control-inset));font-size:22px}
+    #interact{display:none;right:calc(134px + var(--control-inset));bottom:calc(114px + var(--control-inset));width:90px;border-radius:8px}body[data-mode=defuse] #interact{display:block}
+    #jump{right:calc(max(134px,env(safe-area-inset-right) + 110px) + var(--control-inset));bottom:calc(28px + var(--control-inset))}
+    #reload{right:calc(max(32px,env(safe-area-inset-right)) + var(--control-inset));bottom:calc(154px + var(--control-inset))}
     #pause{right:max(24px,env(safe-area-inset-right));top:max(12px,env(safe-area-inset-top));width:48px;height:48px;font-size:16px}
-    #stick{position:absolute;left:max(28px,env(safe-area-inset-left));bottom:35px;width:120px;height:120px;border:2px solid #fff5d355;border-radius:50%;background:#24344030;pointer-events:none}
+    #stick{position:absolute;left:calc(max(28px,env(safe-area-inset-left)) + var(--control-inset));bottom:calc(35px + var(--control-inset));width:120px;height:120px;border:2px solid #fff5d355;border-radius:50%;background:#24344030;pointer-events:none}
     #stick span{position:absolute;left:38px;top:38px;width:40px;height:40px;border-radius:50%;background:#fff5d366}
     #title-tools{position:fixed;top:var(--title-top);right:var(--title-right);display:flex;gap:8px;z-index:7}
     #title-tools button{display:none;min-height:44px;padding:8px 14px;background:#173b30;color:#fff5d3;border:1px solid #fff5d366}
@@ -233,8 +234,24 @@
     };
     document.querySelector('#gyro-open').onclick=window.noArtOpenGyro;
     const fingers=new Map(),ui=document.querySelector('#touch-ui'),knob=document.querySelector('#stick span');
+    const controlInsetKey='no-art-control-inset';
+    let savedControlInset=null;
+    function boundedControlInset(value){return Math.max(0,Math.min(96,Math.round(value)));}
+    try{
+      const saved=window.localStorage.getItem(controlInsetKey);
+      if(saved!==null&&/^\d+$/.test(saved))savedControlInset=boundedControlInset(Number(saved));
+    }catch{}
+    window.noArtHasControlInset=()=>window.noArtMobile&&innerWidth>=900&&innerHeight>=600&&innerWidth>=innerHeight;
+    window.noArtGetControlInset=()=>window.noArtHasControlInset()?(savedControlInset??40):0;
+    function syncControlInset(){ui.style.setProperty('--control-inset',`${window.noArtGetControlInset()}px`);}
+    window.noArtSetControlInset=value=>{
+      if(!window.noArtHasControlInset()||!Number.isFinite(value))return;
+      savedControlInset=boundedControlInset(value);
+      syncControlInset();
+      try{window.localStorage.setItem(controlInsetKey,String(savedControlInset));}catch{}
+    };
     function clearTouch(){gyroSetup?.gyro.reset();fingers.clear();Object.assign(touch,{x:0,y:0,dx:0,dy:0,fire:false,interact:false,jump:false,reload:false,pause:false});knob.style.transform='';document.querySelectorAll('.held').forEach(e=>e.classList.remove('held'));}
-    function syncScreenLayout(){const portrait=innerHeight>innerWidth;document.body.classList.toggle('portrait',portrait);touch.blocked=portrait||document.hidden;if(portrait){clearTouch();pauseRequested=true;}syncGyro();}
+    function syncScreenLayout(){const portrait=innerHeight>innerWidth;document.body.classList.toggle('portrait',portrait);touch.blocked=portrait||document.hidden;syncControlInset();if(portrait){clearTouch();pauseRequested=true;}syncGyro();}
     document.body.classList.toggle('mobile',window.noArtMobile);syncScreenLayout();window.addEventListener('resize',()=>{clearTouch();syncScreenLayout();});window.addEventListener('orientationchange',()=>{clearTouch();syncScreenLayout();});screen.orientation?.addEventListener?.('change',()=>{clearTouch();syncScreenLayout();});
     document.addEventListener('visibilitychange',()=>{clearTouch();syncScreenLayout();if(document.hidden)pauseRequested=true;});window.addEventListener('blur',()=>{focused=false;clearTouch();if(document.body.dataset.game==='RUNNING')pauseRequested=true;syncGyro();});window.addEventListener('focus',()=>{focused=true;syncGyro();});
     window.noArtMode=mode=>{document.body.dataset.mode=mode;clearTouch();};
@@ -318,7 +335,7 @@
       const width=innerWidth/scale,height=innerHeight/scale;
       const safe=safeArea.getBoundingClientRect();
       const left=safe.left/scale,bottom=safe.bottom/scale;
-      window.noArtTitleLayoutChanged?.(safe.left/innerWidth,(innerWidth-safe.right)/innerWidth,(innerHeight-safe.bottom)/innerHeight,safe.top/innerHeight);
+      window.noArtTitleLayoutChanged?.(safe.left/innerWidth,(innerWidth-safe.right)/innerWidth,(innerHeight-safe.bottom)/innerHeight,safe.top/innerHeight,window.noArtHasControlInset());
       document.querySelector('#loader-scene').setAttribute('viewBox',`0 0 ${width} ${height}`);
       for(const id of ['loader-sky','loader-background','loader-shade']){
         const element=document.getElementById(id);

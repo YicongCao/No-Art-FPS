@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 const shell=readFileSync(new URL('../web/shell.html',import.meta.url),'utf8');
 const source=shell.match(/<script>\s*(window.noArtMobile=[\s\S]*?)<\/script>/)[1];
 class Element {
-  handlers={}; listenerOptions={}; style={}; dataset={}; hidden=true; classes=new Set();
+  handlers={}; listenerOptions={}; style={setProperty(name,value){this[name]=value;}}; dataset={}; hidden=true; classes=new Set();
   classList={add:c=>this.classes.add(c),remove:c=>this.classes.delete(c),toggle:(c,v)=>v?this.classes.add(c):this.classes.delete(c)};
   addEventListener(type,fn,options){(this.handlers[type]??=[]).push(fn);this.listenerOptions[type]=options;}
   setPointerCapture(){}
@@ -29,7 +29,8 @@ let sensorTime=0;
 Object.assign(window,{isSecureContext:true,DeviceMotionEvent:{},screen:{orientation:{angle:90}},setTimeout:context.setTimeout,clearTimeout:context.clearTimeout,removeEventListener(type,fn){this.handlers[type]=(this.handlers[type]??[]).filter(item=>item!==fn);}});
 // The guided setup is a separate browser module. Keep this bridge check in the
 // returning-player settings flow; browser QA exercises the first-use practice.
-window.localStorage={getItem:key=>key==='no-art-gyro-settings'?JSON.stringify({preference:true,practicePassed:true}):null,setItem(){}};
+const stored=new Map([['no-art-gyro-settings',JSON.stringify({preference:true,practicePassed:true})]]);
+window.localStorage={getItem:key=>stored.get(key)??null,setItem:(key,value)=>stored.set(key,value)};
 context.cancelAnimationFrame=()=>{};
 context.requestAnimationFrame=()=>0;
 context.performance={now:()=>sensorTime};
@@ -38,6 +39,21 @@ runInNewContext(readFileSync(new URL('../web/gyro-setup.js',import.meta.url),'ut
 context.loadModule=async path=>path.endsWith('gyro-setup.js')?{setupGyroPanel:context.setupGyroPanel}:{};
 runInNewContext(source.replaceAll('import(', 'loadModule('),context);
 const ui=get('#touch-ui');
+assert.equal(window.noArtHasControlInset(),false);
+assert.equal(ui.style['--control-inset'],'0px');
+window.noArtSetControlInset(80);
+assert.equal(stored.has('no-art-control-inset'),false);
+context.innerWidth=1180;context.innerHeight=820;window.emit('resize');
+assert.equal(window.noArtHasControlInset(),true);
+assert.equal(ui.style['--control-inset'],'40px');
+window.noArtSetControlInset(112);
+assert.equal(ui.style['--control-inset'],'96px');
+assert.equal(stored.get('no-art-control-inset'),'96');
+context.innerWidth=844;context.innerHeight=390;window.emit('resize');
+assert.equal(ui.style['--control-inset'],'0px');
+context.innerWidth=1180;context.innerHeight=820;window.emit('resize');
+assert.equal(ui.style['--control-inset'],'96px');
+context.innerWidth=844;context.innerHeight=390;window.emit('resize');
 const read=()=>JSON.parse(window.noArtReadTouch());
 const pointer=(type,id,x,y,target=ui)=>ui.emit(type,{pointerId:id,clientX:x,clientY:y,target});
 window.noArtState('RUNNING');

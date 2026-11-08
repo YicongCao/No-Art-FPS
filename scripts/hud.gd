@@ -10,11 +10,13 @@ const AIM_ICON = preload("res://assets/ui/settings/aim.svg")
 const MOTION_ICON = preload("res://assets/ui/settings/motion.svg")
 const MUSIC_ICON = preload("res://assets/ui/settings/music.svg")
 const ONE_HIT_ICON = preload("res://assets/ui/settings/one_hit.svg")
+const INSET_ICON = preload("res://assets/ui/settings/inset.svg")
 const GYRO_ICON = preload("res://assets/ui/settings/gyro.svg")
 const RESUME_ICON = preload("res://assets/ui/settings/resume.svg")
 const RESTART_ICON = preload("res://assets/ui/settings/restart.svg")
 const SLIDER_GRIP = preload("res://assets/ui/settings/grip.svg")
 var game: Node
+var touch_inset_available = false
 var font: Font
 var hit = 0.0
 var kill_pop = 0.0
@@ -210,6 +212,8 @@ func show_title_frame(texture: ImageTexture, tints: PackedStringArray) -> void:
 		JavaScriptBridge.eval("window.noArtSetSky?.('#%s','#%s')"%[tints[0],tints[1]])
 
 func update_web_title_layout(args: Array) -> void:
+	if menu_state=="PAUSED" and args.size()>4 and touch_inset_available!=bool(args[4]):
+		menu_size = Vector2.ZERO
 	var next = Vector4(args[0],args[1],args[2],args[3])
 	if next==title_gutter_ratios:return
 	title_gutter_ratios = next
@@ -482,6 +486,7 @@ func rebuild_menu() -> void:
 			results_button(RETRY_ICON,Rect2(c.x-174,c.y+106,160,88),"retry",true,"重试 · Enter")
 			results_button(HOME_ICON,Rect2(c.x+14,c.y+106,160,88),"menu",false,"返回标题 · Esc")
 	elif menu_state == "PAUSED":
+		touch_inset_available = game.touch_mode and OS.has_feature("web") and bool(JavaScriptBridge.eval("window.noArtHasControlInset?.()"))
 		var card = pause_card()
 		sensitivity_slider = pause_slider("Sensitivity",pause_row(card,0),Vector3(.0006,.006,.0002),game.player.sensitivity,func(value):
 			game.player.sensitivity = value
@@ -504,17 +509,25 @@ func rebuild_menu() -> void:
 			enabled_style.set_border_width_all(1)
 			enabled_style.border_color = Color(GOLD,.5)
 			body_shot_button.add_theme_stylebox_override("pressed",enabled_style)
-			pause_button("GYRO AIM",pause_row(card,4),"gyro",false,"",GYRO_ICON)
+			var gyro_row = 4
+			if touch_inset_available:
+				var inset = float(JavaScriptBridge.eval("window.noArtGetControlInset()"))
+				pause_slider("Control inset",pause_row(card,4),Vector3(0,96,4),inset,func(value):
+					JavaScriptBridge.eval("window.noArtSetControlInset(%d)"%roundi(value)))
+				gyro_row += 1
+			pause_button("GYRO AIM",pause_row(card,gyro_row),"gyro",false,"",GYRO_ICON)
 		var footer = card.position+Vector2(24,card.size.y-76)
 		pause_button("RESUME",Rect2(footer,Vector2(230,52)),"resume",true,"Esc",RESUME_ICON)
 		pause_button("RESTART",Rect2(footer+Vector2(242,0),Vector2(230,52)),"retry",false,"Enter",RESTART_ICON)
 
 func pause_card() -> Rect2:
 	var extent = Vector2(520,492 if game.touch_mode else 364)
+	if touch_inset_available:extent.y = 520
 	return Rect2((size-extent)*.5,extent)
 
 func pause_row(card: Rect2, index: int) -> Rect2:
-	return Rect2(card.position+Vector2(24,82+index*64),Vector2(card.size.x-48,54))
+	var top = 76+index*58 if touch_inset_available else 82+index*64
+	return Rect2(card.position+Vector2(24,top),Vector2(card.size.x-48,54))
 
 func pause_button(text: String, rect: Rect2, action: String, primary: bool, shortcut: String, icon: Texture2D = null) -> Button:
 	var button = menu_button(text,rect,action,false,shortcut)
@@ -578,6 +591,9 @@ func draw_pause() -> void:
 	if game.touch_mode:
 		names.append("One-hit body shots")
 		icons.append(ONE_HIT_ICON)
+	if touch_inset_available:
+		names.append("Control inset")
+		icons.append(INSET_ICON)
 	var row_style = StyleBoxFlat.new()
 	row_style.bg_color = Color("1f2e3c")
 	row_style.set_corner_radius_all(6)
