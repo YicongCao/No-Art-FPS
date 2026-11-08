@@ -28,15 +28,20 @@ func check() -> void:
 	for style in ["","comedy","roach"]:
 		start_round(style)
 		assert(game.grenade_stock==3)
+		assert(is_equal_approx(game.hud.grenade_stock_rect(0).get_center().y,game.hud.magazine_rect().get_center().y))
+		if style.is_empty():await capture("hud-ready")
 		game.request_grenade()
 		var ammo: int = game.ammo
 		game.shoot()
 		assert(game.ammo==ammo and game.grenade_stock==3)
 		await step(5)
 		assert(game.grenade_stock==3 and game.player.held_grenade.visible)
+		assert(game.hud.grenade_eject_time==0)
 		await capture("throw-"+(style if not style.is_empty() else "frag"))
 		await step(3)
 		assert(game.grenade_stock==2 and game.grenades.size()==1)
+		assert(game.hud.grenade_eject_time>0)
+		if style.is_empty():await capture("hud-eject")
 		var grenade = game.grenades[0]
 		assert(grenade.style==style and grenade.visual.scene_file_path==Grenade.MODELS[style].resource_path)
 		game.pause_run()
@@ -88,6 +93,7 @@ func check() -> void:
 	game.damage_player(999)
 	await step(16)
 	assert(game.grenade_stock==1 and game.grenades.is_empty(),"Death before release preserves inventory")
+	assert(game.hud.grenade_eject_time==0)
 	game.respawn_time = 0
 	game.player.enabled = true
 	game.health = game.MAX_HEALTH

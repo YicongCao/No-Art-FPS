@@ -793,7 +793,6 @@ func begin_running() -> void:
 	rules.start()
 	player.enabled = true
 	hud.go_time = hud.GO_DURATION
-	if not rules.mission:hud.show_grenade_stock()
 	# Reuse the opening actors prepared under the loading cover. Isolated QA
 	# fixtures can still initialize them here. Reinforcements use hidden gates.
 	if not opening_prepared:
@@ -1250,7 +1249,6 @@ func request_grenade() -> void:
 	grenade_throw_time = GRENADE_WINDUP
 	grenade_cooldown = GRENADE_INTERVAL
 	player.prepare_grenade(comedy_mode)
-	hud.show_grenade_stock()
 	play_sound("cartridge_insert",-12,1.27)
 
 func update_grenades(delta: float) -> void:
@@ -1282,10 +1280,11 @@ func launch_grenade() -> void:
 	grenades.append(grenade)
 	grenade_stock -= 1
 	sync_grenade_stock()
-	hud.show_grenade_stock()
+	hud.grenade_eject_time = hud.GRENADE_EJECT_DURATION
 
 func clear_grenades() -> void:
 	grenade_throw_time = 0
+	hud.grenade_eject_time = 0
 	for grenade in grenades:
 		grenade.get_parent().remove_child(grenade)
 		grenade.queue_free()
