@@ -1,5 +1,7 @@
 # 成就徽章 Review
 
+[打开 HTML 审阅版](achievement-badges.html)
+
 共 12 枚，按标题页摆放顺序排列。中英文说明沿用游戏原文，文末补充实际计数口径。
 
 1. <img src="../../assets/ui/achievements/first.svg" width="24" height="24" alt="第一滴血徽章"> **第一滴血 · FIRST BLOOD**

@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>成就徽章 Review · No-Art-FPS</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+      color: #fff3db;
+      background: #121c26;
+      line-height: 1.55;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    main { width: min(1100px, calc(100% - 44px)); margin: 0 auto; padding: 46px 0 42px; }
+    header { margin-bottom: 24px; }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: clamp(26px, 4vw, 40px); line-height: 1.24; letter-spacing: -.025em; }
+    header p { margin-top: 8px; color: #b8c5ce; font-size: 14px; }
+    .badges {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .badge {
+      min-width: 0;
+      padding: 16px;
+      border: 1px solid #354653;
+      border-radius: 8px;
+      background: #1c2a37;
+    }
+    .badge-heading {
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .badge svg { display: block; width: 48px; height: 48px; }
+    .badge h2 { font-size: 18px; line-height: 1.3; }
+    .english-name { color: #f2d084; font-size: 11px; font-weight: 700; letter-spacing: .045em; }
+    .index { align-self: start; color: #a7b5bf; font: 12px/1.4 ui-monospace, monospace; }
+    .condition { color: #fff3db; font-size: 14px; }
+    .english-condition { margin-top: 4px; color: #b8c5ce; font-size: 13px; }
+    .notes {
+      margin-top: 26px;
+      padding-top: 20px;
+      border-top: 1px solid #354653;
+      color: #cbd5db;
+      font-size: 14px;
+    }
+    .notes h2 { color: #fff3db; font-size: 18px; }
+    .notes ul { margin: 8px 0 0; padding-left: 20px; }
+    .notes li + li { margin-top: 5px; }
+    .notes strong { color: #fff3db; }
+    @media (max-width: 810px) {
+      main { padding-top: 32px; }
+      .badges { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 540px) {
+      main { width: calc(100% - 28px); padding-top: 24px; }
+      .badges { grid-template-columns: minmax(0, 1fr); }
+    }
+    @media print {
+      :root { color-scheme: light; background: white; color: #172330; }
+      main { width: 100%; padding: 0; }
+      header p, .index, .english-condition, .notes { color: #384957; }
+      .badge { background: white; border-color: #a6b3be; break-inside: avoid; }
+      .condition, .notes h2, .notes strong { color: #172330; }
+      .english-name { color: #704b19; }
+      .badges { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>成就徽章 Review</h1>
+      <p>12 枚徽章，按标题页摆放顺序排列。</p>
+    </header>
+    <ol class="badges" aria-label="成就徽章">
+      <li class="badge" id="first">
+        <div class="badge-heading">
+          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" shape-rendering="crispEdges">
+            <path fill="#182332" d="M5 0h14v2h3v3h2v14h-2v3h-3v2H5v-2H2v-3H0V5h2V2h3z"/>
+            <path fill="#c4606b" d="M5 2h14v2h2v3h1v10h-1v3h-2v2H5v-2H3v-3H2V7h1V4h2z"/>
+            <path fill="#ffffff" opacity=".27" d="M5 2h14v2H5zM3 4h2v2H3z"/>
+            <path fill="#16202f" opacity=".32" d="M5 20h14v2H5zM19 18h2v2h-2z"/>
+            <path fill="#ffebbc" fill-rule="evenodd" d="M9 5h6v5h5v5h-5v5H9v-5H4v-5h5z M11 7h2v5h5v1h-5v5h-2v-5H6v-1h5z"/>
+          </svg>
+          <div>
+            <h2>第一滴血</h2>
+            <p class="english-name" lang="en">FIRST BLOOD</p>
+          </div>
+          <span class="index" aria-hidden="true">01</span>
+        </div>
+        <p class="condition">完成首次战斗击杀</p>
+        <p class="english-condition" lang="en">First combat kill</p>
+      </li>
+      <li class="badge" id="headshot">
+        <div class="badge-heading">
+          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" shape-rendering="crispEdges">
+            <path fill="#182332" d="M5 0h14v2h3v3h2v14h-2v3h-3v2H5v-2H2v-3H0V5h2V2h3z"/>
+            <path fill="#527ac7" d="M5 2h14v2h2v3h1v10h-1v3h-2v2H5v-2H3v-3H2V7h1V4h2z"/>
+            <path fill="#ffffff" opacity=".27" d="M5 2h14v2H5zM3 4h2v2H3z"/>
+            <path fill="#16202f" opacity=".32" d="M5 20h14v2H5zM19 18h2v2h-2z"/>
+            <path fill="#a8e8fb" fill-rule="evenodd" d="M7 5h10v2h2v2h2v7h-2v2h-2v2H7v-2H5v-2H3V9h2V7h2z M8 8v2H6v5h2v2h8v-2h2v-5h-2V8z M10 11h4v4h-4z"/>
+          </svg>
+          <div>
+            <h2>爆头专家</h2>
+            <p class="english-name" lang="en">PINPOINT</p>
+          </div>
+          <span class="index" aria-hidden="true">02</span>
+        </div>
+        <p class="condition">累计完成 12 次爆头击杀</p>
+        <p class="english-condition" lang="en">12 headshots across rounds</p>
+      </li>
+      <li class="badge" id="triple">
+        <div class="badge-heading">
+          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" shape-rendering="crispEdges">
+            <path fill="#182332" d="M5 0h14v2h3v3h2v14h-2v3h-3v2H5v-2H2v-3H0V5h2V2h3z"/>
+            <path fill="#8c59b8" d="M5 2h14v2h2v3h1v10h-1v3h-2v2H5v-2H3v-3H2V7h1V4h2z"/>
+            <path fill="#ffffff" opacity=".27" d="M5 2h14v2H5zM3 4h2v2H3z"/>
+            <path fill="#16202f" opacity=".32" d="M5 20h14v2H5zM19 18h2v2h-2z"/>
+            <path fill="#f7c7ff" fill-rule="evenodd" d="M5 7h3v10H5z M10 4h4v16h-4z M16 7h3v10h-3z M5 5h3v1H5z M16 5h3v1h-3z"/>
+          </svg>
+          <div>
+            <h2>三连击</h2>
+            <p class="english-name" lang="en">TRIPLE TAP</p>
+          </div>
+          <span class="index" aria-hidden="true">03</span>
+        </div>
+        <p class="condition">在 1.25 秒内完成 3 次击杀</p>
+        <p class="english-condition" lang="en">3 kills within 1.25 seconds</p>
+      </li>
+      <li class="badge" id="barrel">
+        <div class="badge-heading">
+          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" shape-rendering="crispEdges">
+            <path fill="#182332" d="M5 0h14v2h3v3h2v14h-2v3h-3v2H5v-2H2v-3H0V5h2V2h3z"/>
+            <path fill="#ae4f41" d="M5 2h14v2h2v3h1v10h-1v3h-2v2H5v-2H3v-3H2V7h1V4h2z"/>
+            <path fill="#ffffff" opacity=".27" d="M5 2h14v2H5zM3 4h2v2H3z"/>
+            <path fill="#16202f" opacity=".32" d="M5 20h14v2H5zM19 18h2v2h-2z"/>
+            <path fill="#ffdf80" fill-rule="evenodd" d="M7 5h10v2h2v12h-2v2H7v-2H5V7h2z M7 9h10v2H7z M7 16h10v2H7z M10 12h4v3h-4z"/>
+          </svg>
+          <div>
+            <h2>一桶双响</h2>
+            <p class="english-name" lang="en">BARREL DEAL</p>
+          </div>
+          <span class="index" aria-hidden="true">04</span>
+        </div>
+        <p class="condition">用同一个油桶击杀 2 名敌人</p>
+        <p class="english-condition" lang="en">2 kills from a single oil barrel</p>
+      </li>
+      <li class="badge" id="yard">
+        <div class="badge-heading">
+          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" shape-rendering="crispEdges">
+            <path fill="#182332" d="M5 0h14v2h3v3h2v14h-2v3h-3v2H5v-2H2v-3H0V5h2V2h3z"/>
+            <path fill="#a96738" d="M5 2h14v2h2v3h1v10h-1v3h-2v2H5v-2H3v-3H2V7h1V4h2z"/>
+            <path fill="#ffffff" opacity=".27" d="M5 2h14v2H5zM3 4h2v2H3z"/>
+            <path fill="#16202f" opacity=".32" d="M5 20h14v2H5zM19 18h2v2h-2z"/>
+            <path fill="#ffcf58" fill-rule="evenodd" d="M6 5h8v3h3v9h4v2H4v-5h2z M8 7v6h6V9h-2V7z M6 19h4v2H6z M14 19h4v2h-4z"/>
+          </svg>
+          <div>
+            <h2>货场值班</h2>
+            <p class="english-name" lang="en">YARD SHIFT</p>
+          </div>
+          <span class="index" aria-hidden="true">05</span>
+        </div>
+        <p class="condition">在一局货场中完成 12 次战斗击杀</p>
+        <p class="english-condition" lang="en">12 combat kills in one yard round</p>
+      </li>
+      <li class="badge" id="park">
+        <div class="badge-heading">
+          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" shape-rendering="crispEdges">
+            <path fill="#182332" d="M5 0h14v2h3v3h2v14h-2v3h-3v2H5v-2H2v-3H0V5h2V2h3z"/>
+            <path fill="#9d568f" d="M5 2h14v2h2v3h1v10h-1v3h-2v2H5v-2H3v-3H2V7h1V4h2z"/>
+            <path fill="#ffffff" opacity=".27" d="M5 2h14v2H5zM3 4h2v2H3z"/>
+            <path fill="#16202f" opacity=".32" d="M5 20h14v2H5zM19 18h2v2h-2z"/>
+            <path fill="#ffd78d" fill-rule="evenodd" d="M10 4h4v2h3v2h3v3h-7v7h5v3H6v-3h5v-7H4V8h3V6h3z M6 12h2v3H6z M16 12h2v3h-2z"/>
+          </svg>
+          <div>
+            <h2>末班游乐</h2>
+            <p class="english-name" lang="en">LAST RIDE</p>
+          </div>
+          <span class="index" aria-hidden="true">06</span>
+        </div>
+        <p class="condition">在游乐园的一次狂暴模式中完成 5 次击杀</p>
+        <p class="english-condition" lang="en">5 kills in one park DESTROY ALL phase</p>
+      </li>
+      <li class="badge" id="ferry">
+        <div class="badge-heading">
+          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" shape-rendering="crispEdges">
+            <path fill="#182332" d="M5 0h14v2h3v3h2v14h-2v3h-3v2H5v-2H2v-3H0V5h2V2h3z"/>
+            <path fill="#3867ab" d="M5 2h14v2h2v3h1v10h-1v3h-2v2H5v-2H3v-3H2V7h1V4h2z"/>
+            <path fill="#ffffff" opacity=".27" d="M5 2h14v2H5zM3 4h2v2H3z"/>
+            <path fill="#16202f" opacity=".32" d="M5 20h14v2H5zM19 18h2v2h-2z"/>
+            <path fill="#edf4cd" fill-rule="evenodd" d="M11 4h2v4h3v5h4v3h-2v3H6v-3H4v-3h5V8h2z M5 21h5v1H5z M14 21h5v1h-5z M11 10h2v2h-2z"/>
+          </svg>
+          <div>
+            <h2>涨潮时刻</h2>
+            <p class="english-name" lang="en">HIGH TIDE</p>
+          </div>
+          <span class="index" aria-hidden="true">07</span>
+        </div>
+        <p class="condition">在一局渡轮地图中从高处完成 3 次击杀</p>
+        <p class="english-condition" lang="en">3 kills from high ground on the ferry in one round</p>
+      </li>
+      <li class="badge" id="studio">
+        <div class="badge-heading">
+          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" shape-rendering="crispEdges">
+            <path fill="#182332" d="M5 0h14v2h3v3h2v14h-2v3h-3v2H5v-2H2v-3H0V5h2V2h3z"/>
+            <path fill="#7452aa" d="M5 2h14v2h2v3h1v10h-1v3h-2v2H5v-2H3v-3H2V7h1V4h2z"/>
+            <path fill="#ffffff" opacity=".27" d="M5 2h14v2H5zM3 4h2v2H3z"/>
+            <path fill="#16202f" opacity=".32" d="M5 20h14v2H5zM19 18h2v2h-2z"/>
+            <path fill="#f7c4a3" fill-rule="evenodd" d="M4 6h14v3h3v8h-3v2H4z M7 9v7h9V9z M10 10h2v2h2v2h-4z M9 3h6v2H9z"/>
+          </svg>
+          <div>
+            <h2>节目停播</h2>
+            <p class="english-name" lang="en">OFF AIR</p>
+          </div>
+          <span class="index" aria-hidden="true">08</span>
+        </div>
+        <p class="condition">摧毁深夜摄影棚的一块背景板</p>
+        <p class="english-condition" lang="en">Destroy a Night Studio backdrop</p>
+      </li>
+      <li class="badge" id="wreck">
+        <div class="badge-heading">
+          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" shape-rendering="crispEdges">
+            <path fill="#182332" d="M5 0h14v2h3v3h2v14h-2v3h-3v2H5v-2H2v-3H0V5h2V2h3z"/>
+            <path fill="#a46939" d="M5 2h14v2h2v3h1v10h-1v3h-2v2H5v-2H3v-3H2V7h1V4h2z"/>
+            <path fill="#ffffff" opacity=".27" d="M5 2h14v2H5zM3 4h2v2H3z"/>
+            <path fill="#16202f" opacity=".32" d="M5 20h14v2H5zM19 18h2v2h-2z"/>
+            <path fill="#ffe5a5" fill-rule="evenodd" d="M6 5h11v3h3v5h-5v4h-3v4H8v-3h2v-4h2v-3H6z M5 9h4v3H5z"/>
+          </svg>
+          <div>
+            <h2>拆迁小队</h2>
+            <p class="english-name" lang="en">WRECKING CREW</p>
+          </div>
+          <span class="index" aria-hidden="true">09</span>
+        </div>
+        <p class="condition">累计摧毁 8 件道具或建筑</p>
+        <p class="english-condition" lang="en">Destroy 8 props or structures across rounds</p>
+      </li>
+      <li class="badge" id="clean">
+        <div class="badge-heading">
+          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" shape-rendering="crispEdges">
+            <path fill="#182332" d="M5 0h14v2h3v3h2v14h-2v3h-3v2H5v-2H2v-3H0V5h2V2h3z"/>
+            <path fill="#348b88" d="M5 2h14v2h2v3h1v10h-1v3h-2v2H5v-2H3v-3H2V7h1V4h2z"/>
+            <path fill="#ffffff" opacity=".27" d="M5 2h14v2H5zM3 4h2v2H3z"/>
+            <path fill="#16202f" opacity=".32" d="M5 20h14v2H5zM19 18h2v2h-2z"/>
+            <path fill="#b6f5df" fill-rule="evenodd" d="M5 5h14v3h2v7h-2v3h-3v2h-3v2h-2v-2H8v-2H5v-3H3V8h2z M10 10h3V7h2v6h-3v4h-2v-5H8v-2z"/>
+          </svg>
+          <div>
+            <h2>屹立不倒</h2>
+            <p class="english-name" lang="en">STILL STANDING</p>
+          </div>
+          <span class="index" aria-hidden="true">10</span>
+        </div>
+        <p class="condition">撑过 60 秒且零死亡并完成 8 次战斗击杀</p>
+        <p class="english-condition" lang="en">Finish 60 seconds with no deaths and 8 combat kills</p>
+      </li>
+      <li class="badge" id="water">
+        <div class="badge-heading">
+          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" shape-rendering="crispEdges">
+            <path fill="#182332" d="M5 0h14v2h3v3h2v14h-2v3h-3v2H5v-2H2v-3H0V5h2V2h3z"/>
+            <path fill="#3c849a" d="M5 2h14v2h2v3h1v10h-1v3h-2v2H5v-2H3v-3H2V7h1V4h2z"/>
+            <path fill="#ffffff" opacity=".27" d="M5 2h14v2H5zM3 4h2v2H3z"/>
+            <path fill="#16202f" opacity=".32" d="M5 20h14v2H5zM19 18h2v2h-2z"/>
+            <path fill="#9ef1ff" fill-rule="evenodd" d="M11 4h2v3h2v3h2v3h2v5h-2v2H7v-2H5v-5h2v-3h2V7h2z M8 14h2v4H8z M10 18h3v1h-3z"/>
+          </svg>
+          <div>
+            <h2>水花四溅</h2>
+            <p class="english-name" lang="en">SPLASH ZONE</p>
+          </div>
+          <span class="index" aria-hidden="true">11</span>
+        </div>
+        <p class="condition">用滋水枪累计完成 10 次战斗击杀</p>
+        <p class="english-condition" lang="en">10 combat kills in water blaster mode</p>
+      </li>
+      <li class="badge" id="slipper">
+        <div class="badge-heading">
+          <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" shape-rendering="crispEdges">
+            <path fill="#182332" d="M5 0h14v2h3v3h2v14h-2v3h-3v2H5v-2H2v-3H0V5h2V2h3z"/>
+            <path fill="#588b65" d="M5 2h14v2h2v3h1v10h-1v3h-2v2H5v-2H3v-3H2V7h1V4h2z"/>
+            <path fill="#ffffff" opacity=".27" d="M5 2h14v2H5zM3 4h2v2H3z"/>
+            <path fill="#16202f" opacity=".32" d="M5 20h14v2H5zM19 18h2v2h-2z"/>
+            <path fill="#ffe08d" fill-rule="evenodd" d="M9 4h6v2h3v13h-2v2H8v-2H6V6h3z M8 9v3h8V9z M9 15h6v2H9z"/>
+          </svg>
+          <div>
+            <h2>拖鞋正义</h2>
+            <p class="english-name" lang="en">SOLE JUSTICE</p>
+          </div>
+          <span class="index" aria-hidden="true">12</span>
+        </div>
+        <p class="condition">用拖鞋发射器累计完成 10 次战斗击杀</p>
+        <p class="english-condition" lang="en">10 combat kills in slipper launcher mode</p>
+      </li>
+    </ol>
+    <section class="notes">
+      <h2>实际计数口径</h2>
+      <ul>
+      <li><strong>战斗击杀</strong>包括回合内的爆炸击杀。倒计时归零后的全场爆炸只计入成绩。拆弹模式无这组徽章进度。</li>
+      <li><strong>三连击</strong>的 1.25 秒从这一组的第一杀开始计时。<strong>一桶双响</strong>只看单只油桶的爆炸，连锁引爆的其他油桶各自计数。</li>
+      <li><strong>涨潮时刻</strong>用击杀发生时的玩家高度判定，门槛为关卡坐标 Y ≥ 2.55 米。</li>
+      <li><strong>节目停播</strong>和<strong>拆迁小队</strong>都在狂暴模式期间计数。节目停播需要打掉演播厅中带背景板标记的物件。</li>
+      <li><strong>屹立不倒</strong>在结算时判定。<strong>水花四溅</strong>和<strong>拖鞋正义</strong>按启用的模式累计，油桶或厕所爆炸造成的战斗击杀也算。</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
