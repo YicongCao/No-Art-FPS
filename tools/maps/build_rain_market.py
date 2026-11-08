@@ -17,7 +17,7 @@ P = {
     "salmon":"dd7558", "ice":("bedbfa",.4,.12), "light":("ffd798",.55,.85),
     "pink_light":("fc668f",.55,.65), "window":("e6be83",.55,.24), "sign":("ffe9bb",.55,.55),
 }
-a=ArenaKit("rain_market",P,{"sky":"263a67","ambient":"c0ceff","energy":.71,"sun":"aebff3","sun_energy":.44,"sun_rotation":[-38,-34,0]})
+a=ArenaKit("rain_market",P,{"sky":"263a67","ambient":"c0ceff","energy":.79,"sun":"aebff3","sun_energy":.44,"sun_rotation":[-38,-34,0]})
 street=a.kit("street",True)
 district=a.kit("district",True)
 canopy=a.kit("canopy",True)
@@ -55,6 +55,8 @@ for i in range(40):
 for x in (-17.65,-12.28):
     for z in (-17,-13,-8,-3,3,8,13):
         rail(decor,x,z,z+3.1,height)
+        a.layout["slabs"].append([[(x-.065,height(z)+1.09,z),(x+.065,height(z)+1.09,z),
+                                   (x+.065,height(z+3.1)+1.09,z+3.1),(x-.065,height(z+3.1)+1.09,z+3.1)],1.13])
     # Rail runs leave an opening at each market crossing.
     if x == -17.65:
         for z in (-13.9,-8.9,-3.9,2.1,7.1,12.1):
@@ -146,6 +148,9 @@ for i,(z0,z1) in enumerate([(7.2,17.9),(-3.3,4.9),(-15.7,-5.6)]):
             canopy.facet("Striped canopy valance",[(x,height(zs)+3.29,zs),(x,height(zs-.32)+3.29,zs-.32),
                          (x+side*.18,height(zs-.32)+2.62,zs-.32),(x+side*.18,height(zs)+2.62,zs)],
                          ("red","white","blue")[j%3])
+for i,(z0,z1) in enumerate([(13.6,17.9),(.1,4.85),(-15.65,-10.4)]):
+    canopy.facet("Central rain cover",[(-1.9,height(z0)+4.24,z0),(1.9,height(z0)+4.24,z0),
+                 (1.9,height(z1)+4.24,z1),(-1.9,height(z1)+4.24,z1)],"teal" if i%2 else "blue")
 for x in (-6.2,6.2):
     for z in (-12,-8,-1,3,9,13,16):
         y=height(z)
@@ -197,6 +202,12 @@ for j in range(9):
 for z in (-1.67,1.67):
     screen.box("Screen end post",(0,.99,z),(.15,1.98,.10),"green")
 a.prop("stall_screen",(10.1,height(8.2),8.2),(.20,2.05,3.4),name="ServiceShortcut",effect="ice",structural=True)
+for z in (5.71,10.69):
+    y=height(z)
+    a.solid(decor,"Adjacent market divider",(10.1,y+.63,z),(.22,1.26,1.50),"green")
+    for j in range(5):
+        decor.box("Painted divider stripe",(10.225,y+.97,z+(j-2)*.28),(.045,.31,.17),("red","white","blue")[j%3])
+    decor.box("Divider metal edging",(10.1,y+1.25,z),(.27,.075,1.50),"bamboo")
 
 crates=a.kit("crates")
 crates.box("Foam box",(0,.24,0),(.91,.48,.71),"white")
@@ -267,8 +278,8 @@ a.layout.update(
     barrels=[ground(x,z) for x,z in [(-3.9,8.0),(9.5,-9.6),(-8.1,-10.1)]],
     comedy=[8.7,height(20.4),20.4,0.0],
     cameras={
-        "slope-entry":[[0,2.15,22],[0,3.2,-2],64],
-        "fish-crossing":[[-3.5,2.43,17.6],[-9.6,3.15,8],62],
-        "service-frenzy":[[14.0,2.55,13.8],[8.6,3.08,3.0],66],
+        "slope-entry":[[.25,1.86,19.9],[.2,2.98,-2],68],
+        "fish-crossing":[[-9.45,2.13,16.9],[-11.7,2.64,9.4],68],
+        "service-frenzy":[[12.1,2.63,13.5],[8.0,2.82,4.1],72],
     })
 a.write()

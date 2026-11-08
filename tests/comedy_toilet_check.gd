@@ -32,7 +32,27 @@ func check() -> void:
 		return_to_title()
 		assert(not is_instance_valid(game.comedy_toilet))
 		game.menu_action("comedy" if i%2==0 else "roach")
-	print("TOILET_PASS: four clear placements, both toy modes, real shot, cover and 10 m boundary, no duplicates and reset")
+	for id in game.CONCEPT_SESSIONS:
+		await game.select_session(game.CONCEPT_SESSIONS[id],id)
+		assert(game.nav_ready)
+		for mode in ["comedy","roach"]:
+			game.menu_action(mode)
+			game.start_run()
+			var fixture: Node3D = game.comedy_toilet
+			assert(fixture and fixture.charge_bodies.size()==3)
+			await sync_bodies()
+			check_placement(fixture)
+			game.begin_running()
+			game.player.global_position = fixture.to_global(Vector3(-1.32,.05,2.65))
+			await sync_bodies()
+			var charge: StaticBody3D = fixture.charge_bodies[0]
+			aim(charge.global_position)
+			game.shoot()
+			assert(fixture.spent,"%s charge should detonate when shot in %s mode"%[id,mode])
+			return_to_title()
+			assert(not is_instance_valid(game.comedy_toilet))
+			game.menu_action(mode)
+	print("TOILET_PASS: seven clear placements, both toy modes on each new map, real shot, cover and 10 m boundary, no duplicates and reset")
 	game.queue_free()
 	await process_frame
 	if DisplayServer.get_name()=="headless":

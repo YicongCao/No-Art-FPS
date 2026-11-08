@@ -11,6 +11,11 @@ const FERRY_SESSION_PATH = "res://data/sessions/last_ferry.tres"
 const STUDIO_SESSION_PATH = "res://data/sessions/night_studio.tres"
 const SANDGATE_SESSION_PATH = "res://data/sessions/sandgate.tres"
 const OFFICE_SESSION_PATH = "res://data/sessions/bb_office.tres"
+const CONCEPT_SESSIONS = {
+	"rain_market":"res://data/sessions/rain_market.tres",
+	"baggage_below":"res://data/sessions/baggage_below.tres",
+	"snowline":"res://data/sessions/snowline.tres",
+}
 var session = DefaultSession
 var opening: Array[Dictionary] = []
 const Player = preload("res://scripts/player.gd")
@@ -798,8 +803,9 @@ func remove_comedy_toilet() -> void:
 
 func prepare_comedy_toilet() -> void:
 	remove_comedy_toilet()
-	if comedy_mode.is_empty() or not ComedyToilet.PLACEMENTS.has(arena.map_id):return
-	var site: Vector4 = ComedyToilet.PLACEMENTS[arena.map_id]
+	if comedy_mode.is_empty():return
+	var site: Vector4 = arena.comedy_site if "comedy_site" in arena else ComedyToilet.PLACEMENTS.get(arena.map_id,Vector4.ZERO)
+	if site==Vector4.ZERO:return
 	comedy_toilet = ComedyToilet.new()
 	comedy_toilet.name = "ComedyToilet"
 	comedy_toilet.game = self
@@ -980,6 +986,8 @@ func menu_action(action: String) -> void:
 			select_session(SANDGATE_SESSION_PATH,action)
 		"bb_office":
 			select_session(OFFICE_SESSION_PATH,action)
+		"rain_market", "baggage_below", "snowline":
+			select_session(CONCEPT_SESSIONS[action],action)
 		"comedy", "roach":
 			if state!="TITLE":return
 			comedy_mode = "" if comedy_mode==action else action
@@ -1765,6 +1773,7 @@ func settle_rules() -> void:
 
 func title_preview_key() -> String:
 	var path: String = session.resource_path
+	if path in CONCEPT_SESSIONS.values():return path
 	if path in [DefaultSession.resource_path,PARK_SESSION_PATH,FERRY_SESSION_PATH,STUDIO_SESSION_PATH,SANDGATE_SESSION_PATH,OFFICE_SESSION_PATH]:return path
 	return ""
 

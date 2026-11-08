@@ -15,7 +15,7 @@ P={
  "case_green":"40957c","light":("fff2ce",.45,.73),"signal":("fb6077",.5,.5),"cyan":("6feafc",.45,.55),
  "sea":("6ebadf",.65,.16),"hill":"587b8a","pavement":"a8a4a3",
 }
-a=ArenaKit("baggage_below",P,{"sky":"8cc5f2","ambient":"e6f0ff","energy":.86,"sun":"fff1cf","sun_energy":.45,"sun_rotation":[-44,30,0]})
+a=ArenaKit("baggage_below",P,{"sky":"8cc5f2","ambient":"e6f0ff","energy":.83,"sun":"fff1cf","sun_energy":.31,"sun_rotation":[-44,30,0]})
 floor=a.kit("terminal_floors",True)
 hall=a.kit("terminal_shell",True)
 machines=a.kit("sorter",True)
@@ -32,8 +32,9 @@ for x in (-4.5,4.5):
     floor.box("Arrivals guide line",(x,.019,17),(.12,.017,12),"yellow")
 for i in range(11):
     floor.box("Door threshold hazard mark",(-3.65+i*.73,.019,11.01),(.19,.019,1.0),"yellow",-.46)
-a.solid(hall,"Sorting hall ceiling",(0,8.22,-5),(44,.35,34),"navy")
-a.solid(hall,"Arrivals ceiling",(0,5.5,17),(44,.3,12.1),"navy")
+roof=a.kit("ceiling_and_beams",True)
+a.solid(roof,"Sorting hall ceiling",(0,8.22,-5),(44,.35,34),"navy")
+a.solid(roof,"Arrivals ceiling",(0,5.5,17),(44,.3,12.1),"navy")
 for x in (-22,22):
     a.solid(hall,"Sorting hall wall",(x,4.05,-5),(.36,8.1,34),"white")
     for z in (-18,-12,-6,0,6,10):
@@ -41,11 +42,11 @@ for x in (-22,22):
         hall.box("Impact bollard",(x-math.copysign(.73,x),.52,z),(.25,1.02,.21),"yellow")
 for z in (-18,-12,-6,0,6,10,15,21):
     y=7.92 if z<12 else 5.24
-    hall.box("Transverse ceiling girder",(0,y,z),(44,.45,.44),"blue")
+    roof.box("Transverse ceiling girder",(0,y,z),(44,.45,.44),"blue")
     for x in (-13,-6,2,10,17):
-        hall.box("Industrial LED strip",(x,y-.32,z),(2.65,.15,.3),"light")
+        roof.box("Industrial LED strip",(x,y-.32,z),(2.65,.15,.3),"light")
 for x in (-15.5,-8,8,15.5):
-    hall.box("Longitudinal overhead girder",(x,7.75,-4.7),(.42,.45,33.2),"blue")
+    roof.box("Longitudinal overhead girder",(x,7.75,-4.7),(.42,.45,33.2),"blue")
 
 # The outer windows retain the runway view while providing a solid boundary.
 for x in (-22,22):
@@ -63,8 +64,12 @@ for y in (.28,2.2,5.05):
 a.layout["glass"]=[[(x,2.7,17),(11.7,4.7),math.pi/2] for x in (-22,22)]
 a.layout["glass"].append([(0,2.7,22.9),(43.8,4.7),0])
 for x in (-13.05,13.05):
-    a.solid(hall,"Secure area divider",(x,2.68,11),(17.9,5.36,.46),"white")
-    hall.box("Turquoise public-side window",(x,2.9,11.25),(15.7,2.26,.10),"skyglass")
+    a.solid(hall,"Secure area lower wall",(x,.86,11),(17.9,1.72,.46),"white")
+    a.solid(hall,"Secure area upper wall",(x,4.73,11),(17.9,1.25,.46),"white")
+    a.layout["boxes"].append([(x,2.89,11),(17.9,2.34,.15),0])
+    a.layout["glass"].append([(x,2.89,11),(17.9,2.34),0])
+    for y in (1.70,4.06):
+        hall.box("Divider glazing frame",(x,y,11),(17.9,.11,.53),"blue")
     for dx in (-6,-3,0,3,6):
         hall.box("Window mullion",(x+dx,2.9,11.33),(.095,2.29,.08),"blue")
     hall.box("Sorting-side impact rail",(x,1.1,10.72),(16.7,.12,.15),"yellow")
@@ -127,6 +132,9 @@ for i,x in enumerate((-4.6,4.6)):
     for edge in (-1,1):
         machines.box("Opposing belt casing",(x+edge*1.70,.44,-1.3),(.25,.81,17.5),color)
         machines.box("Dark belt frame",(x+edge*1.70,.19,-1.3),(.31,.30,17.5),"blue")
+        a.solid(machines,"Low belt-side safety guide",(x+edge*1.77,.44,-1.3),(.16,.88,17.5),color)
+        for z0,z1 in ((-12.3,-10.05),(7.45,9.7)):
+            a.solid(machines,"Belt run-off safety guide",(x+edge*1.77,.44,(z0+z1)*.5),(.16,.88,z1-z0),color)
     for z in (-9,-6,-3,0,3,6):
         for dx in (-1.25,1.25):
             machines.box("Belt pedestal",(x+dx,.35,z),(.17,.71,.22),"steel")
@@ -187,7 +195,7 @@ case.box("Top suitcase carry handle",(0,.57,0),(.29,.081,.10),"black")
 case.box("Hanging baggage tag",(.28,.34,.385),(.17,.24,.032),"white",.22)
 for i in range(4):
     case.box("Tag barcode",(.22+i*.027,.33,.403),(.014,.08,.012),"navy")
-a.prop("suitcase",(-4.6,.82,4.5),(1.11,.6,.71),name="BurstCase",effect="luggage")
+a.prop("suitcase",(-3.95,.82,5.45),(1.11,.6,.71),name="BurstCase",effect="luggage")
 for x,y,z in [(4.6,.82,-4.3),(12.7,0,6.1),(-12.3,0,2),(-8.3,0,16),(6.9,0,18.5)]:
     a.prop("suitcase",(x,y,z),(1.11,.60,.71),effect="luggage")
 
@@ -300,7 +308,7 @@ a.layout.update(
  barrels=points([(-9.4,2),(8.5,-6),(17.5,9)]), comedy=(8.8,0,14.6,math.pi),
  cameras={
   "arrivals":[[9.8,1.73,21.2],[.1,1.8,10],66],
-  "catwalk":[[-12,4.74,-15.6],[2.1,1.27,2],68],
-  "sorting-frenzy":[[-.4,1.69,8.8],[-1.2,2.2,-10],69],
+  "catwalk":[[-5.7,4.78,-13.73],[.2,.21,3.2],70],
+  "sorting-frenzy":[[-1.45,1.87,8.05],[-1.2,1.63,-8],72],
  })
 a.write()

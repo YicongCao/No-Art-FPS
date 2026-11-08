@@ -9,6 +9,9 @@ const FERRY_THUMBNAIL = preload("res://assets/ui/maps/last-ferry.webp")
 const STUDIO_THUMBNAIL = preload("res://assets/ui/maps/night-studio.webp")
 const SANDGATE_THUMBNAIL = preload("res://assets/ui/maps/sandgate.webp")
 const OFFICE_THUMBNAIL = preload("res://assets/ui/maps/bb-office.webp")
+const RAIN_THUMBNAIL = preload("res://assets/ui/maps/rain_market.webp")
+const BAGGAGE_THUMBNAIL = preload("res://assets/ui/maps/baggage_below.webp")
+const SNOWLINE_THUMBNAIL = preload("res://assets/ui/maps/snowline.webp")
 const COMEDY_ICON = preload("res://assets/ui/settings/comedy.svg")
 const ROACH_ICON = preload("res://assets/ui/settings/roach.svg")
 const BadgeCatalog = preload("res://scripts/achievements.gd")
@@ -770,9 +773,11 @@ func rebuild_menu() -> void:
 		fire_button.button_up.connect(func():fire_button.scale = Vector2.ONE)
 		var gap = 10.0 if game.touch_mode else 12.0
 		var grid_room = bottom-gutters.w-64.0
+		var row_room = size.x-gutters.x-gutters.y-fire_button.size.x-32.0
 		var width = minf(176.0 if game.touch_mode else 216.0,(grid_room-2*gap)*16/27)
+		width = minf(width,(row_room-2*gap)/3.0)
 		var height = width*9/16
-		var corner = Vector2(size.x-gutters.y-2*width-gap,bottom-3*height-2*gap)
+		var corner = Vector2(size.x-gutters.y-3*width-2*gap,bottom-3*height-2*gap)
 		var maps = [
 			["MapYard",tr("Container Yard"),"arena",YARD_THUMBNAIL,"score_attack"],
 			["MapPark",tr("Sunset Park"),"amusement_park",PARK_THUMBNAIL,"amusement_park"],
@@ -780,12 +785,15 @@ func rebuild_menu() -> void:
 			["MapStudio",tr("Night Studio"),"night_studio",STUDIO_THUMBNAIL,"night_studio"],
 			["MapSandgate",tr("Sandgate"),"sandgate",SANDGATE_THUMBNAIL,"sandgate"],
 			["MapOffice",tr("BB Office"),"bb_office",OFFICE_THUMBNAIL,"bb_office"],
+			["MapRainMarket",tr("Hong Kong Rain Market"),"rain_market",RAIN_THUMBNAIL,"rain_market"],
+			["MapBaggage",tr("Baggage Below"),"baggage_below",BAGGAGE_THUMBNAIL,"baggage_below"],
+			["MapSnowline",tr("Snowline Observatory"),"snowline",SNOWLINE_THUMBNAIL,"snowline"],
 		]
 		var tab_order = [fire_button]
 		for i in range(maps.size()):
 			var item: Array = maps[i]
-			var column = i%2
-			var row = floori(i*.5)
+			var column = i%3
+			var row = floori(i/3.0)
 			var position = corner+Vector2(column*(width+gap),row*(height+gap))
 			tab_order.append(map_button(item[0],item[1],item[2],item[3],Rect2(position,Vector2(width,height)),
 				game.title_session_id==item[4],game.map_best_score(item[4])))

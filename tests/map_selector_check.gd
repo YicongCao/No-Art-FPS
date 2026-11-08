@@ -6,7 +6,7 @@ const FerrySession = preload("res://data/sessions/last_ferry.tres")
 const StudioSession = preload("res://data/sessions/night_studio.tres")
 const SandgateSession = preload("res://data/sessions/sandgate.tres")
 const OfficeSession = preload("res://data/sessions/bb_office.tres")
-const CARDS = ["MapYard","MapPark","MapFerry","MapStudio","MapSandgate","MapOffice"]
+const CARDS = ["MapYard","MapPark","MapFerry","MapStudio","MapSandgate","MapOffice","MapRainMarket","MapBaggage","MapSnowline"]
 var game: Node3D
 
 func _initialize() -> void:
@@ -23,17 +23,17 @@ func check() -> void:
 	game.hud.rebuild_menu()
 	assert(game.title_frame_ready and game.nav_ready and game.session==YardSession)
 	assert(game.hud.fire_button.text=="FIRE")
-	assert(game.hud.menu.get_children().filter(func(node):return node is Button).size()==9)
+	assert(game.hud.menu.get_children().filter(func(node):return node is Button).size()==12)
 	assert(not game.hud.menu.get_node("comedy").button_pressed)
 	assert(not game.hud.menu.get_node("roach").button_pressed)
 	var selected = game.hud.menu.get_node("MapYard/Selected")
 	assert(selected.get_theme_stylebox("panel").border_width_left==4)
 	assert_grid()
-	assert_card_records([0,0,0,0,0,0])
+	assert_card_records([0,0,0,0,0,0,0,0,0])
 	game.achievements.merge({"scores":{"score":13,"score_amusement_park_v1":7,
 		"score_last_ferry_v1":5,"score_night_studio_v1":9,"score_night_studio_v2":123,"score_sandgate_v1":6,"score_bb_office_v1":8}})
 	game.hud.rebuild_menu()
-	assert_card_records([13,7,5,123,6,8])
+	assert_card_records([13,7,5,123,6,8,0,0,0])
 	if DisplayServer.get_name()!="headless":await capture("map-medals-title")
 	var old_frame = game.hud.title_frame
 	var park_card = game.hud.menu.get_node("MapPark")
@@ -148,7 +148,7 @@ func check() -> void:
 	assert(game.state=="TITLE" and game.session==ParkSession)
 	game.hud.rebuild_menu()
 	assert(game.hud.menu.get_node("MapPark/Selected"))
-	assert_card_records([13,17,5,123,6,8])
+	assert_card_records([13,17,5,123,6,8,0,0,0])
 	game.start_run()
 	game.begin_running()
 	game.rules.kills = 99
@@ -184,7 +184,7 @@ func check() -> void:
 	assert(not game.rules.active and not game.player.enabled)
 	assert(game.enemies.get_child_count()==0 and game.effects.get_child_count()==0)
 	game.hud.rebuild_menu()
-	assert_card_records([13,17,5,123,6,8])
+	assert_card_records([13,17,5,123,6,8,0,0,0])
 	assert_grid()
 	var office_touch = game.hud.menu.get_node("MapOffice")
 	click(office_touch.get_global_rect().get_center())
@@ -200,7 +200,7 @@ func check() -> void:
 		if game.state=="RUNNING":break
 		await process_frame
 	assert(game.state=="RUNNING" and game.session==OfficeSession)
-	print("MAP_SELECTOR_PASS: six cards, staged selection, focus, rollback, individual records, return home and touch layout launch")
+	print("MAP_SELECTOR_PASS: nine cards, staged selection, focus, rollback, individual records, return home and touch layout launch")
 	game.pause_run()
 	game.menu_action("menu")
 	game.set_physics_process(false)
@@ -222,11 +222,12 @@ func assert_grid() -> void:
 		assert(game.hud.get_rect().encloses(rect) and rect.position.x>fire.end.x)
 		grid.append(rect)
 	for row in range(3):
-		var left = grid[row*2]
-		var right = grid[row*2+1]
-		assert(left.position.y==right.position.y and left.end.x<right.position.x)
-		assert(left.position.x==grid[0].position.x and right.position.x==grid[1].position.x)
-		if row>0:assert(left.position.y>grid[row*2-2].end.y)
+		for column in range(3):
+			var rect = grid[row*3+column]
+			assert(rect.position.x==grid[column].position.x)
+			assert(rect.position.y==grid[row*3].position.y)
+			if column>0:assert(rect.position.x>grid[row*3+column-1].end.x)
+			if row>0:assert(rect.position.y>grid[(row-1)*3+column].end.y)
 	assert(is_equal_approx(fire.end.y,grid[-1].end.y),"FIRE and the last map share a baseline")
 
 func assert_card_records(expected: Array) -> void:

@@ -3,6 +3,8 @@ extends "res://scripts/arena.gd"
 const Sweep = preload("res://scripts/maps/sweeping_light.gd")
 const CombatFX = preload("res://scripts/combat_fx.gd")
 const RAIN_SHADER = preload("res://assets/shaders/market_rain.gdshader")
+const PUDDLES_SHADER = preload("res://assets/shaders/market_puddles.gdshader")
+const RED_STRIP_SHADER = preload("res://assets/shaders/observatory_light_strip.gdshader")
 const BELT_SPEED = 1.05
 const IMPACTS = {
 	"ice": [[Vector3(.12,.092,.14),Color("bfe8ff")],[Vector3(.17,.11,.081),Color("fff1de")],[Vector3(.10,.062,.16),Color("83a7e8")]],
@@ -24,7 +26,10 @@ var frenzy_motion: Array[Vector3] = []
 var belt_lamps: Array[MeshInstance3D] = []
 var belts: Array[StaticBody3D] = []
 var rain: MultiMeshInstance3D
+var puddles: ShaderMaterial
+var deck_light: MeshInstance3D
 var dome: Node3D
+var shutter_lights: Node3D
 var belt_bags: Array[Node3D] = []
 
 func _ready() -> void:
@@ -36,7 +41,7 @@ func _ready() -> void:
 		var target = Vector3(entry[1][0],entry[1][1],entry[1][2])
 		var motion = Vector3(entry[6][0],entry[6][1],entry[6][2])
 		var light = Sweep.add_spot(self,"ArenaSpot",at,Color(entry[2]),entry[3],entry[4],entry[5],false)
-		light.look_at(to_global(target))
+		light.look_at(to_global(target),Vector3.BACK if absf(at.direction_to(target).y)>.99 else Vector3.UP)
 		if motion.is_zero_approx():
 			continue
 		if entry[7]:
@@ -60,11 +65,31 @@ func _ready() -> void:
 	for body in get_node("Belts").get_children():
 		belts.append(body)
 	dome = get_node_or_null("Moving/dome")
+	shutter_lights = get_node_or_null("Moving/shutter_lights")
 	if map_id=="rain_market":
 		add_rain()
+		puddles = ShaderMaterial.new()
+		puddles.shader = PUDDLES_SHADER
+		var film = horizontal_effect(Vector2(34.8,36.0),Vector3(0,1.888,0),puddles)
+		film.rotation.x = atan(3.7/36.0)
+	if is_instance_valid(dome):
+		var paint = ShaderMaterial.new()
+		paint.shader = RED_STRIP_SHADER
+		deck_light = horizontal_effect(Vector2(1.04,8.7),Vector3(16.05,2.434,-2.51),paint)
 	if not belts.is_empty():
 		add_belt_bags()
 	set_destroy_lighting(false)
+
+func horizontal_effect(size: Vector2, at: Vector3, paint: ShaderMaterial) -> MeshInstance3D:
+	var effect = MeshInstance3D.new()
+	var plane = PlaneMesh.new()
+	plane.size = size
+	effect.mesh = plane
+	effect.position = at
+	effect.material_override = paint
+	effect.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(effect)
+	return effect
 
 func add_rain() -> void:
 	var batch = MultiMesh.new()
@@ -112,8 +137,8 @@ func _process(_delta: float) -> void:
 	for i in range(belts.size()):
 		var track = belts[i].get_node("Surface") as MeshInstance3D
 		var paint = track.material_override as ShaderMaterial
-		var travel: float = fmod(elapsed*BELT_SPEED*belt_directions[i],17.5)
-		paint.set_shader_parameter("travel",travel)
+		var travel: float = elapsed*BELT_SPEED*belt_directions[i]
+		paint.set_shader_parameter("travel",fmod(travel,1.0/3.5))
 		for j in range(2):
 			var bag = belt_bags[i*2+j]
 			bag.position = belts[i].position+Vector3((j-.5)*1.55,.10, fposmod(travel+3.1+j*8.5,16.2)-8.1)
@@ -125,7 +150,15 @@ func set_destroy_lighting(active: bool) -> void:
 		light.visible = active
 	for lamp in belt_lamps:
 		lamp.visible = active
+	if puddles:
+		puddles.set_shader_parameter("frenzy",active)
+	if not belts.is_empty():
+		environment_override.ambient_light_energy = .63 if active else .83
+		game.sun.light_energy = .25 if active else sun_energy
 	if is_instance_valid(dome):
+		deck_light.visible = active
+		if is_instance_valid(shutter_lights):
+			shutter_lights.visible = active
 		dome.rotation.y = 0
 		# Each scene owns its environment resource. Reset it on every round.
 		environment_override.background_color = Color("263c76") if active else normal_sky
@@ -135,15 +168,20 @@ func set_destroy_lighting(active: bool) -> void:
 		pose_frenzy(sweep_elapsed())
 
 func pose_frenzy(elapsed: float) -> void:
+	var dome_sweep := sin(elapsed*.60)
 	if is_instance_valid(dome):
-		dome.rotation.y = sin(elapsed*.60)*.42
+		dome.rotation.y = 1.04+dome_sweep*.32
+		if is_instance_valid(shutter_lights):
+			shutter_lights.rotation.y = dome.rotation.y
+		deck_light.rotation.y = PI*.5+dome_sweep*.17
+		deck_light.position.z = -2.65+dome_sweep*.89
 	for i in range(frenzy_lights.size()):
 		var phase = elapsed*.87+i*1.64
 		var target = frenzy_targets[i]+frenzy_motion[i]*sin(phase)
 		var light = frenzy_lights[i]
 		if is_instance_valid(dome) and i==0:
-			target = frenzy_targets[i]+frenzy_motion[i]*(dome.rotation.y/.42)
-			light.position.x = frenzy_origins[i].x+dome.rotation.y*1.9
+			target = frenzy_targets[i]+frenzy_motion[i]*dome_sweep
+			light.position.x = frenzy_origins[i].x+dome_sweep*.78
 		light.look_at(to_global(target))
 		if map_id=="baggage_below" and i<belt_lamps.size():
 			var pulse = .5+.5*cos(elapsed*5.3-(i/2.0)*1.12)

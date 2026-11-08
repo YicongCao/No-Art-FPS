@@ -22,6 +22,7 @@ catwalk=a.kit("instrument_deck",True)
 yard=a.kit("snow_yard",True)
 ridge=a.kit("ridge",True)
 dome=a.kit("dome")
+dome_glow=a.kit("shutter_lights")
 CZ=-2.7
 R=11.55
 a.solid(terrain,"Compact snowy mountain pad",(0,-.44,0),(46,.87,48),"snow")
@@ -118,6 +119,7 @@ for i in range(n):
     circle_slab(building,"Drum trim ring",t0,t1,11.22,11.73,4.6,4.6,"blue",False,.22)
     circle_slab(building,"Purple telescope floor",t0,t1,.10,11.54,.02,.02,"purple",False,.12)
 building.rod("Telescope floor center",(0,-.04,CZ),(0,.024,CZ),.41,"plum",12)
+a.solid(building,"Insulated door header",(0,3.45,9.08),(3.7,.55,1.02),"cobalt")
 for x in (-1.77,1.77):
     a.solid(building,"Insulated south entry jamb",(x,1.46,9.18),(.29,2.93,1.06),"cobalt")
     building.box("Storm door sidelight",(x,1.78,9.66),(.19,1.40,.15),"glass")
@@ -189,7 +191,9 @@ for band in range(7):
             dome.rod("Blue shutter edge",p0,p1,.115,"blue",8)
             if band%2==0:
                 dome.beam("Observing slot fixture",p0,p1,.16,.14,"cream")
+            dome_glow.rod("Frenzy red shutter edge",p0,p1,.142,"red_light",8)
 a.moving("dome",(0,0,CZ))
+a.moving("shutter_lights",(0,0,CZ))
 
 telescope=a.kit("telescope",True)
 telescope.rod("Telescope concrete pedestal",(0,.03,CZ),(0,.80,CZ),1.76,"cream",12,1.52)
@@ -237,7 +241,7 @@ for x in (-.81,.81):
     snowcat.box("Roof floodlamp",(x,2.52,1.60),(.32,.13,.15),"light")
 for x in (-.52,.52):
     snowcat.box("Tie-down equipment case",(x,1.60,-1.25),(.78,.42,1.02),"yellow" if x<0 else "olive")
-a.prop("snowcat",(8.9,0,14.4),(3.53,2.53,5.53),-.32,effect="instrument")
+a.prop("snowcat",(7.8,0,13.7),(3.53,2.53,5.53),-.32,effect="instrument")
 
 a.solid(yard,"Blue maintenance hut",(-13.55,1.27,15.1),(5.36,2.55,3.9),"blue")
 yard.box("Heavy snow blanket on hut",(-13.55,2.61,15.1),(5.55,.25,4.05),"snow")
@@ -349,8 +353,8 @@ a.layout.update(
        +[(18.9,2.44,-4.25),(14.1,2.44,-3.1),(8.85,2.44,-3.2)],
  barrels=[g(-6.4,8.5),g(15.5,-14),g(-7.9,-5.8)],comedy=(13.7,0,15.8,0),
  cameras={
-  "snowcat-court":[[.4,1.74,20.2],[-.2,5.25,-1.9],66],
-  "telescope-ring":[[5.4,1.68,4.2],[.0,3.25,-2.7],71],
-  "weather-deck-frenzy":[[20.0,4.02,-.46],[9.3,4.5,-3.8],70],
+  "snowcat-court":[[-.75,1.76,20.1],[.45,4.1,1.0],78],
+  "telescope-ring":[[5.5,1.78,5.2],[.2,3.48,-2.3],74],
+  "weather-deck-frenzy":[[20.65,4.02,-1.63],[9.4,4.37,-2.9],75],
  })
 a.write()
