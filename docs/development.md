@@ -26,6 +26,8 @@ Pass `--headless` before the `--` separator for checks that do not need a render
 
 ## Maps and assets
 
+See the [map production workflow](../workflows/map-production.md) for Blender kits, navigation baking, fixed-view captures, and Web verification.
+
 [Sandgate](../scenes/maps/sandgate.tscn) is the desert score arena. See the [concept-to-game views](art/sandgate/concepts.md) for the build source and camera references.
 
 Edit the [yard](../scenes/maps/yard.tscn) and [Dust](../scenes/maps/dust_flavor.tscn) scenes in Godot. Rebake navigation after changing collision geometry. To preview Dust locally, press Ctrl + Shift + 9 on the title screen and select DEFUSE C4, or launch with `./tools/run.sh -- --mission`.
