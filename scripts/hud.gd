@@ -153,10 +153,9 @@ func draw_magazine() -> void:
 func draw_magazine_body(body: Rect2, count: int, shift: float, incoming: float, eject: bool = false) -> void:
 	var scale_factor = body.size.x/420.0
 	var toy_round: Texture2D
-	if eject:
-		if game.comedy_mode=="comedy":toy_round = WATER_ROUND
-		if game.comedy_mode=="roach":toy_round = SLIPPER_ROUND
-	# Both loading and gameplay render exactly the same shell and cartridge geometry.
+	match game.comedy_mode:
+		"comedy":toy_round = WATER_ROUND
+		"roach":toy_round = SLIPPER_ROUND
 	draw_rect(Rect2(body.position+Vector2(30,16)*scale_factor,Vector2(376,60)*scale_factor),INK.darkened(.35))
 	draw_set_transform(body.get_center(),PI*.5)
 	draw_texture_rect_region(MAGAZINE_ATLAS,Rect2(-Vector2(body.size.y,body.size.x)*.5,Vector2(body.size.y,body.size.x)),MAGAZINE_REGION)
