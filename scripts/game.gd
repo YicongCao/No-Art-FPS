@@ -17,6 +17,7 @@ const Hud = preload("res://scripts/hud.gd")
 const Rules = preload("res://scripts/run_rules.gd")
 const LoadingTransition = preload("res://scripts/loading_transition.gd")
 const CombatFX = preload("res://scripts/combat_fx.gd")
+const ComedyFX = preload("res://scripts/comedy_fx.gd")
 var arena: Node3D
 var sun: DirectionalLight3D
 var world_environment: WorldEnvironment
@@ -56,6 +57,7 @@ var since_damage = 0.0
 var respawn_time = 0.0
 var best = 0
 var reduced_motion = false
+var comedy_mode = false
 var bullets: Array[Dictionary] = []
 var ranged_aimers: Dictionary = {}
 var player_bullets: Array[Dictionary] = []
@@ -187,7 +189,7 @@ func _ready() -> void:
 	hud = Hud.new()
 	hud.game = self
 	layer.add_child(hud)
-	for key in ["shot","hit","kill","headshot","reload","hurt","tick","end","fuse","explosion","charge","cartridge_insert","magazine_latch"]:
+	for key in ["shot","hit","kill","headshot","reload","hurt","tick","end","fuse","explosion","charge","cartridge_insert","magazine_latch","comedy_plop"]:
 		sounds[key] = load("res://assets/audio/"+key+".wav")
 	for i in range(12):
 		var voice = AudioStreamPlayer.new()
@@ -645,6 +647,7 @@ func clear_round() -> void:
 
 func begin_running() -> void:
 	state = "RUNNING"
+	player.show_comedy_stains(comedy_mode)
 	music.stream = session.combat_music if session.combat_music else COMBAT_MUSIC
 	music.stream_paused = false
 	music.play()
@@ -805,6 +808,10 @@ func menu_action(action: String) -> void:
 			select_session(FERRY_SESSION_PATH,action)
 		"night_studio":
 			select_session(STUDIO_SESSION_PATH,action)
+		"comedy":
+			if state!="TITLE":return
+			comedy_mode = not comedy_mode
+			hud.sync_comedy_button()
 		"defuse":
 			if dust_unlocked:
 				select_session("res://data/sessions/defuse.tres","defuse_mission")
@@ -817,6 +824,7 @@ func menu_action(action: String) -> void:
 			if state != "RESULTS":return
 			state = "TITLE"
 			clear_round()
+			player.show_comedy_stains(false)
 			player.reset_position()
 		"motion":
 			if state != "PAUSED":return
@@ -1012,14 +1020,16 @@ func shoot() -> void:
 		target = blockage.position
 		result = {}
 	var shot_enemy = enemy_from_hit(result)
+	var variant = rules.shots-1 if comedy_mode else -1
 	if shot_enemy and shot_enemy.fast and origin.distance_to(shot_enemy.global_position)>Enemy.CLOSE_SHOT_RANGE:
 		shot_enemy.evade_shot(origin)
 		var projectile: Node3D
 		var flame: MeshInstance3D
-		if destroy_active:
+		if destroy_active or variant>=0:
 			projectile = Node3D.new()
-			flame = FlameBolt.new()
-			projectile.add_child(flame)
+			if destroy_active:
+				flame = FlameBolt.new()
+				projectile.add_child(flame)
 		else:
 			var ordinary = MeshInstance3D.new()
 			ordinary.mesh = spark_mesh
@@ -1028,13 +1038,19 @@ func shoot() -> void:
 			projectile = ordinary
 		effects.add_child(projectile)
 		projectile.global_position = origin
-		player_bullets.append({"node":projectile,"flame":flame,"velocity":origin.direction_to(target)*65,"life":1.4,"origin":origin,"muzzle":muzzle,"burning":destroy_active})
+		var pellet: Sprite3D
+		if variant>=0:
+			pellet = ComedyFX.pellet(variant)
+			projectile.add_child(pellet)
+			pellet.global_position = muzzle
+		player_bullets.append({"node":projectile,"flame":flame,"pellet":pellet,"velocity":origin.direction_to(target)*65,"life":1.4,"origin":origin,"muzzle":muzzle,"burning":destroy_active})
 	else:
 		if destroy_active:
 			var flame = FlameBolt.new()
 			effects.add_child(flame)
 			flame.fly(muzzle,target,player.camera)
-		else:trace(muzzle,target,Color("fff1b7"),.025,.045)
+		elif variant<0:trace(muzzle,target,Color("fff1b7"),.025,.045)
+		if variant>=0:ComedyFX.fly(effects,variant,muzzle,target)
 		resolve_shot(result,origin,target,destroy_active)
 	spark(muzzle,Color("ffe19a"),.1,.035)
 	if ammo==0:reload_weapon()
@@ -1096,15 +1112,17 @@ func update_player_bullets(delta: float) -> void:
 			player_bullets.remove_at(i)
 		else:
 			b.node.global_position = to
-			if b.flame:
+			if b.flame or b.pellet:
 				var travelled = b.origin.distance_to(to)
-				var tail_distance = maxf(0,travelled-FlameBolt.LENGTH)
 				# Draw the launch from the muzzle, then merge into the collision path.
 				var offset: Vector3 = b.muzzle-b.origin
-				var tail = b.origin+b.velocity.normalized()*tail_distance
-				tail += offset*maxf(0,1-tail_distance/Enemy.CLOSE_SHOT_RANGE)
 				var tip = to+offset*maxf(0,1-travelled/Enemy.CLOSE_SHOT_RANGE)
-				b.flame.set_segment(tail,tip,player.camera.global_position)
+				if b.flame:
+					var tail_distance = maxf(0,travelled-FlameBolt.LENGTH)
+					var tail = b.origin+b.velocity.normalized()*tail_distance
+					tail += offset*maxf(0,1-tail_distance/Enemy.CLOSE_SHOT_RANGE)
+					b.flame.set_segment(tail,tip,player.camera.global_position)
+				if b.pellet:b.pellet.global_position = tip
 
 func reload_weapon() -> void:
 	if objective_focus!=null:return
@@ -1128,7 +1146,12 @@ func on_kill(enemy: Node3D, headshot: bool, from_finale: bool = false) -> void:
 		hud.kill_group = kill_group_count
 		hud.kill_pop = .5
 		hud.multi_time = .65 if kill_group_count>=2 else 0.0
-		play_sound("headshot" if headshot else "kill",-7,minf(1.25,1+(kill_group_count-1)*.08))
+		var pitch = minf(1.25,1+(kill_group_count-1)*.08)
+		if comedy_mode and not from_finale:
+			var center: Vector3 = enemy.global_position+Vector3.UP*1.02
+			ComedyFX.kill(effects,center.move_toward(player.camera.global_position,.34),reduced_motion)
+			play_sound("comedy_plop",-7,pitch+(.15 if headshot else 0.0))
+		else:play_sound("headshot" if headshot else "kill",-7,pitch)
 
 func reserve_ranged_aim(enemy: Node3D) -> bool:
 	if ranged_aimers.size()+bullets.size()>=RANGED_ATTACK_LIMIT:return false

@@ -6,6 +6,7 @@ const YARD_THUMBNAIL = preload("res://assets/ui/maps/yard.webp")
 const PARK_THUMBNAIL = preload("res://assets/ui/maps/amusement-park.webp")
 const FERRY_THUMBNAIL = preload("res://assets/ui/maps/last-ferry.webp")
 const STUDIO_THUMBNAIL = preload("res://assets/ui/maps/night-studio.webp")
+const COMEDY_ICON = preload("res://assets/ui/settings/comedy.svg")
 const PAUSE_ICON = preload("res://assets/ui/settings/pause.svg")
 const AIM_ICON = preload("res://assets/ui/settings/aim.svg")
 const MOTION_ICON = preload("res://assets/ui/settings/motion.svg")
@@ -44,11 +45,13 @@ var motion_button: Button
 var body_shot_button: Button
 var music_slider: HSlider
 var fire_button: Button
+var comedy_button: Button
 var fire_progress: ProgressBar
 var title_frame: ImageTexture
 var title_previews: Dictionary = {}
 var title_gutter_ratios = Vector4.ZERO
 var web_title_layout_callback: JavaScriptObject
+var web_comedy_callback: JavaScriptObject
 var results_frame: ImageTexture
 var results_frame_pending = false
 var results_frame_ticket = 0
@@ -232,6 +235,8 @@ func _ready() -> void:
 		web_title_layout_callback = JavaScriptBridge.create_callback(update_web_title_layout)
 		var browser = JavaScriptBridge.get_interface("window")
 		browser.noArtTitleLayoutChanged = web_title_layout_callback
+		web_comedy_callback = JavaScriptBridge.create_callback(func(_args):game.menu_action("comedy"))
+		browser.noArtToggleComedy = web_comedy_callback
 		JavaScriptBridge.eval("window.noArtSyncTitleLayout?.()")
 	font = preload("res://assets/fonts/Rajdhani-Bold.ttf")
 	vignette = ColorRect.new()
@@ -412,11 +417,17 @@ func map_button(node_name: String, map_name: String, action: String, thumbnail: 
 	menu.add_child(card)
 	return card
 
+func sync_comedy_button() -> void:
+	if is_instance_valid(comedy_button):comedy_button.set_pressed_no_signal(game.comedy_mode)
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("window.noArtSetComedy?.(%s)"%str(game.comedy_mode))
+
 func rebuild_menu() -> void:
 	for child in menu.get_children():
 		menu.remove_child(child)
 		child.queue_free()
 	fire_progress = null
+	comedy_button = null
 	menu_state = game.state
 	menu_size = size
 	var c = size*.5
@@ -478,6 +489,20 @@ func rebuild_menu() -> void:
 			var position = corner+Vector2((i%2)*(width+gap),floori(i*.5)*(height+gap))
 			tab_order.append(map_button(item[0],item[1],item[2],item[3],Rect2(position,Vector2(width,height)),
 				game.title_session_id==item[4]))
+		if not OS.has_feature("web"):
+			comedy_button = menu_button("",Rect2(size.x-gutters.y-52,gutters.w,52,52),"comedy",false,"大便模式")
+			comedy_button.accessibility_name = "大便模式"
+			comedy_button.toggle_mode = true
+			comedy_button.icon = COMEDY_ICON
+			comedy_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			comedy_button.add_theme_constant_override("icon_max_width",32)
+			var style = StyleBoxFlat.new()
+			style.bg_color = Color("62412f")
+			style.border_color = GOLD
+			style.set_border_width_all(2)
+			comedy_button.add_theme_stylebox_override("pressed",style)
+			sync_comedy_button()
+			tab_order.append(comedy_button)
 		for i in range(tab_order.size()):
 			tab_order[i].focus_next = tab_order[i].get_path_to(tab_order[(i+1)%tab_order.size()])
 			tab_order[i].focus_previous = tab_order[i].get_path_to(tab_order[i-1])

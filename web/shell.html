@@ -56,6 +56,9 @@
     #stick span{position:absolute;left:38px;top:38px;width:40px;height:40px;border-radius:50%;background:#fff5d366}
     #title-tools{position:fixed;top:var(--title-top);right:var(--title-right);display:flex;gap:8px;z-index:7}
     #title-tools button{display:none;min-height:44px;padding:8px 14px;background:#173b30;color:#fff5d3;border:1px solid #fff5d366}
+    body[data-game=TITLE]:not(.mobile.portrait) #loading[hidden]~#title-tools #comedy-mode{display:grid;place-items:center;width:44px;padding:0}
+    #comedy-mode img{width:28px;height:28px;pointer-events:none}
+    #title-tools #comedy-mode[aria-pressed=true]{background:#62412f;border:2px solid #f2d084}
     body:not(.mobile.portrait):not(.fullscreen):is([data-game=TITLE],[data-game=PAUSED],[data-game=RESULTS]) #loading[hidden]~#title-tools #immersive{display:block}
     #immersive-note[hidden],body[data-game=RUNNING] #immersive-note,body[data-game=LOADING] #immersive-note{display:none}
     #immersive-note{position:fixed;z-index:21;left:10%;right:10%;bottom:12px;text-align:center;background:#243440e8;padding:12px;font-size:13px;color:#fff5d3}
@@ -134,6 +137,7 @@
   <div id="title-tools">
     <button id="gyro-open" aria-haspopup="dialog">体感瞄准</button>
     <button id="immersive" aria-label="进入沉浸全屏"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 4H4v5m11-5h5v5M4 15v5h5m11-5v5h-5"/></svg> 全屏</button>
+    <button id="comedy-mode" type="button" aria-label="大便模式" aria-pressed="false"><img src="comedy.svg" alt="" width="28" height="28"></button>
   </div>
   <div id="immersive-note" role="status" hidden></div>
   <div id="touch-ui" aria-label="触控操作">
@@ -233,6 +237,9 @@
       }
     };
     document.querySelector('#gyro-open').onclick=window.noArtOpenGyro;
+    const comedyButton=document.querySelector('#comedy-mode');
+    comedyButton.onclick=()=>window.noArtToggleComedy?.();
+    window.noArtSetComedy=enabled=>comedyButton.setAttribute('aria-pressed',String(enabled));
     const fingers=new Map(),ui=document.querySelector('#touch-ui'),knob=document.querySelector('#stick span');
     const controlInsetKey='no-art-control-inset';
     let savedControlInset=null;

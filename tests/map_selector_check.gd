@@ -18,7 +18,8 @@ func check() -> void:
 	game.qa_mode = true
 	assert(game.title_frame_ready and game.nav_ready and game.session==YardSession)
 	assert(game.hud.fire_button.text=="FIRE")
-	assert(game.hud.menu.get_child_count()==5)
+	assert(game.hud.menu.get_child_count()==6)
+	assert(not game.hud.menu.get_node("comedy").button_pressed)
 	var selected = game.hud.menu.get_node("MapYard/Selected")
 	assert(selected.get_theme_stylebox("panel").border_width_left==4)
 	var fire: Rect2 = game.hud.fire_button.get_rect()

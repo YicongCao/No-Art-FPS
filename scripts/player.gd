@@ -2,8 +2,10 @@ extends CharacterBody3D
 
 const WALK_SPEED = 7.0
 const SPRINT_SPEED = 10.5
+const ComedyFX = preload("res://scripts/comedy_fx.gd")
 var camera: Camera3D
 var gun: Node3D
+var comedy_stains: Node3D
 var enabled = true
 var pitch = 0.0
 var recoil = 0.0
@@ -56,6 +58,23 @@ func _ready() -> void:
 	outline.material_override = ink
 	camera.add_child(outline)
 	outline.position.z = -.1
+
+func show_comedy_stains(enabled_stains: bool) -> void:
+	if not comedy_stains and enabled_stains:
+		comedy_stains = Node3D.new()
+		comedy_stains.name = "ComedyStains"
+		gun.add_child(comedy_stains)
+		var receiver = ComedyFX.sprite(ComedyFX.SPLAT,.33)
+		receiver.position = Vector3(-.092,-.012,.07)
+		receiver.rotation.y = -PI*.5
+		receiver.scale.y = .64
+		comedy_stains.add_child(receiver)
+		var rail = ComedyFX.sprite(ComedyFX.SPLAT,.22)
+		rail.position = Vector3(.006,.190,-.01)
+		rail.rotation.x = -PI*.5
+		rail.scale.x = .69
+		comedy_stains.add_child(rail)
+	if comedy_stains:comedy_stains.visible = enabled_stains
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and enabled:

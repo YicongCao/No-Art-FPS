@@ -7,6 +7,7 @@ touch builds/.gdignore
 "$GODOT_BIN" --headless --path . --editor --import
 "$GODOT_BIN" --headless --path . --export-release Web builds/web/index.html
 cp web/icon.svg web/gyro.js web/gyro-setup.js web/title-background.webp builds/web/
+cp assets/ui/settings/comedy.svg builds/web/
 cp web/Rajdhani-Bold.woff2 builds/web/
 cp assets/fonts/OFL.txt builds/web/FONT-LICENSE.txt
 cp web/GODOT-LICENSE.txt web/GODOT-COPYRIGHT.txt builds/web/
