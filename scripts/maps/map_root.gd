@@ -70,6 +70,9 @@ func sweep_elapsed() -> float:
 	var phase_start: float = game.rules.duration-game.rules.destroy_duration
 	return elapsed+maxf(0.0,elapsed-phase_start)
 
+func prop_impact(_prop: Node3D, _point: Vector3, _normal: Vector3, _burning: bool) -> bool:
+	return false
+
 func cancel_interaction() -> void:
 	if game and game.objective_focus:game.objective_focus.cancel()
 

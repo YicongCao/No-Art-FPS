@@ -18,7 +18,8 @@ COLORS = {
     "tile": "B9AA9B", "red": "BF5859", "pink": "E48B84", "green": "48816F",
     "mint": "82B9A3", "dark_teal": "305963", "teal": "477B82", "leaf": "72A164",
     "card": "D8A86B", "paper": "FFF9E9", "screen": "92C4DF", "tally": "FF4D4B",
-    "carpet": "A9AFB4", "carpet_dark": "8799A3", "wood": "AB6C51", "timber": "E4A17C",
+    "carpet": "B2A7AC", "carpet_dark": "9C929F", "carpet_light": "C1B3B5", "carpet_seam": "827E90",
+    "display_glass": "3E5268", "laptop_glass": "A2C1DA", "wood": "AB6C51", "timber": "E4A17C",
     "screen_dark": "253950", "code": "76DCC3", "white": "F5F3E8",
     "orange": "F48A54", "coffee": "68412F", "facade": "788FA8", "glass_blue": "54809C",
     "lamp": "FFE8AC", "green_screen": "67BA78",
@@ -33,8 +34,14 @@ for name, hex_color in COLORS.items():
     shader = mat.node_tree.nodes["Principled BSDF"]
     shader.inputs["Base Color"].default_value = color
     shader.inputs["Roughness"].default_value = .87
+    if name in ("display_glass", "laptop_glass"):
+        shader.inputs["Metallic"].default_value = .22
+        shader.inputs["Roughness"].default_value = .24
     if name in ("screen_dark", "code", "mint", "blue", "screen"):
         shader.inputs["Roughness"].default_value = .33
+    if name in ("code", "screen"):
+        shader.inputs["Emission Color"].default_value = color
+        shader.inputs["Emission Strength"].default_value = .19
     if name in ("lamp", "tally", "cyan"):
         shader.inputs["Emission Color"].default_value = color
         shader.inputs["Emission Strength"].default_value = .6
@@ -135,7 +142,7 @@ def wall_between(item, label, left, right, z, color):
 
 shell = kit("architecture")
 solid(shell, "Floor slab", (0,-.20,0), (54,.4,42), "carpet")
-solid(shell, "Ceiling", (0,3.93,0), (54,.30,42), "white")
+solid(shell, "Ceiling", (0,3.93,0), (54,.30,42), "navy")
 for z in (-20.9,20.9):
     solid(shell,"Exterior wall",(0,1.8,z),(54,3.6,.22),"slate")
 for i in range(14):
@@ -150,12 +157,17 @@ for side in (-1,1):
     layout["glass"].append([[side*26.9,1.93,0],[42,3.57],math.pi/2])
     for z in (-17,-8,2,12,19):
         solid(shell,"Perimeter column",(side*26.45,1.92,z),(.78,3.84,.76),"navy")
-for x in range(-24,25,3):
-    shell.box("Carpet tile seam",(x,.002,0),(.014,.004,42),"carpet_dark")
-for z in range(-18,21,3):
-    shell.box("Carpet tile seam",(0,.003,z),(54,.004,.014),"carpet_dark")
-for x in (-22,22):
-    shell.box("Window walkway",(x,.008,-1.5),(3,.013,34),"carpet_dark")
+for col in range(18):
+    for row in range(14):
+        x, z = -25.5+col*3, -19.5+row*3
+        tint = ("carpet_dark","carpet","carpet_light")[(col*7+row*5+row//3)%3]
+        if abs(x)>19 and -14<z<13:
+            tint = "carpet_dark"
+        shell.box("Carpet tile",(x,.003,z),(2.988,.006,2.988),tint)
+for x in (-21,-14,-7,0,7,14,21):
+    shell.box("Suspended ceiling beam",(x,3.78,0),(.31,.24,42),"slate")
+for z in (-18,-12,-6,0,6,12,18):
+    shell.box("Cross ceiling beam",(0,3.78,z),(54,.22,.28),"slate")
 for x in (-21,-14,-7,0,7,14,21):
     for z in (-17,-11,-5,1,7,13,18):
         shell.box("Suspended linear light housing",(x,3.53,z),(3.7,.16,.18),"slate")
@@ -226,8 +238,10 @@ for x in (-17,0,17):
     solid(rooms,"Portal lintel",(x,3.39,-12.1),(span,.42,.22),"slate")
     for side in (-1,1):
         rooms.box("Portal lining",(x+side*span/2,1.64,-11.94),(.09,3.28,.12),"navy")
-rooms.box("Open meeting-room door",(1.99,1.57,-13.13),(.11,3.12,2.05),"teal")
+rooms.box("Open meeting-room door",(1.99,1.57,-13.13),(.11,3.12,2.05),"wood")
 layout["boxes"].append([[1.99,1.57,-13.13],[.11,3.12,2.05]])
+for z in (-13.8,-12.55):
+    rooms.box("Meeting door timber inset",(1.926,1.55,z),(.038,2.86,.54),"timber")
 rooms.box("Open door handle",(1.92,1.22,-13.9),(.13,.10,.25),"gold")
 rooms.box("Projection screen wall cassette",(-5.35,2.99,-16.85),(.19,.18,4.7),"ink")
 rooms.box("Pulldown projector screen",(-5.29,2.07,-16.85),(.08,1.7,4.55),"white")
@@ -255,6 +269,10 @@ phone.box("Acoustic booth canopy",(0,2.55,0),(1.83,.17,1.83),"navy")
 phone.box("Phone shelf",(0,1.09,-.56),(1.52,.09,.44),"ivory")
 phone.box("Handset",(-.45,1.19,-.59),(.25,.105,.18),"ink")
 phone.box("Phone booth lamp",(0,2.44,-.38),(.8,.048,.22),"lamp")
+phone.box("Acoustic booth stool",(0,.5,-.24),(.62,.16,.56),"orange")
+phone.rod("Stool stem",(0,.02,-.24),(0,.45,-.24),.065,"slate",8)
+for z in (-.85,.85):
+    phone.box("Door side trim",(.78,1.24,z),(.11,2.49,.075),"navy")
 for i,x in enumerate((-9,9)):
     instance("phone_booth",f"PhoneBooth{i}",(x,0,-14.14),(1.83,2.63,1.83))
     layout["glass"].append([[x+.44,1.24,-13.22],[.59,2.36],0])
@@ -263,6 +281,7 @@ chair = kit("chair")
 def seat(item,x,z,angle=0):
     item.box("Task chair seat",(x,.46,z),(.62,.13,.58),"slate",angle)
     item.box("Task chair back",(x-.25*math.sin(angle),.74,z-.25*math.cos(angle)),(.60,.52,.13),"dark_teal",angle)
+    item.box("Chair contrast headrest",(x-.25*math.sin(angle),1.006,z-.25*math.cos(angle)),(.59,.055,.14),"orange",angle)
     item.rod("Pedestal",(x,.06,z),(x,.43,z),.071,"ink",6)
     for a in range(5):
         a *= math.tau/5
@@ -302,7 +321,7 @@ def penguin(item,x,y,z,s):
 
 def screen(item,x,y,z,w,h,kind):
     item.box("Display bezel",(x,y,z),(w+.045,h+.045,.07),"ink")
-    item.box("Lit display",(x,y,z+.041),(w,h,.017),"screen_dark")
+    item.box("Lit display",(x,y,z+.041),(w,h,.017),"laptop_glass" if kind=="waterfall" else "display_glass")
     f=z+.054
     if kind=="code":
         for row in range(8):
@@ -414,7 +433,12 @@ pantry.box("Laminated countertop",(0,1,0),(4.8,.13,1.0),"ivory")
 for x in (-1.9,-1,-.1,.8,1.7):
     pantry.box("Cabinet pull",(x,.75,.5),(.24,.043,.067),"gold")
 pantry.box("Espresso machine",(-1.35,1.41,-.09),(1.13,.72,.67),"navy")
-pantry.box("Espresso brushed front",(-1.35,1.52,.263),(1.11,.32,.049),"slate")
+pantry.box("Espresso brew recess",(-1.35,1.23,.269),(.91,.31,.036),"ink")
+pantry.box("Espresso brushed front",(-1.35,1.52,.273),(1.11,.29,.05),"slate")
+pantry.box("Espresso silver lip",(-1.35,1.41,.309),(1.12,.06,.10),"carpet_dark")
+pantry.box("Espresso drip tray",(-1.35,1.09,.40),(1.13,.065,.31),"slate")
+for x in (-1.74,-.97):
+    pantry.box("Espresso controls",(x,1.58,.307),(.07,.079,.025),"gold")
 pantry.box("Espresso steam display",(-1.35,1.62,.293),(.40,.085,.02),"screen")
 for x in (-1.6,-1.12):
     pantry.rod("Coffee spout",(x,1.39,.28),(x,1.29,.39),.047,"ink",8)
@@ -441,6 +465,24 @@ for row,y in enumerate((.21,.72,1.23,1.73)):
         snacks.rod("Chip illustration",(x,y+.16,.17),(x,y+.16,.181),.069,"gold",6)
 instance("snack_rack","ChipRack",(-24.25,0,13.4),(2.92,2.05,.74),math.pi/2,impact="chips")
 instance("meeting_table","SnackTable",(-21.6,0,18.3),(3.56,1.1,4.55),math.pi/2,impact="paper")
+
+plant = kit("planter")
+plant.rod("Ceramic pot",(0,0,0),(0,.56,0),.26,"ivory",8,.35)
+plant.rod("Soil",(0,.554,0),(0,.572,0),.31,"coffee",8)
+for i in range(7):
+    a=i*math.tau/7
+    direction=Vector((math.cos(a),0,math.sin(a)))
+    tangent=Vector((-direction.z,0,direction.x))
+    start=Vector((0,.50,0))
+    elbow=Vector((0,.96+(i%3)*.06,0))+direction*.29
+    tip=Vector((0,1.08+(i%2)*.13,0))+direction*.54
+    plant.rod("Plant stem",start,elbow,.023,"green",5)
+    verts=[elbow-direction*.18,elbow+tangent*.13,tip,elbow-tangent*.13,elbow+Vector((0,.10,0))]
+    faces=[(j,(j+1)%4,4) for j in range(4)]
+    plant.mesh("Plant leaf",verts,faces+[tuple(reversed(face)) for face in faces],"leaf" if i%2 else "green")
+for i,(x,z) in enumerate(((-24.5,-12.3),(24.5,-12.3),(-25,7),(25,7),(-6.8,19.5),(6.8,19.5),
+                          (-11.0,-7.7),(3.0,4.1),(11.2,10.4))):
+    instance("planter",f"Planter{i}",(x,0,z),(.72,1.22,.72),impact="leaf")
 
 layout.update({
     "fixed": ["architecture","city","reception","rooms"],

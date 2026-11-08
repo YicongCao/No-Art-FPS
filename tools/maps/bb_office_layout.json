@@ -2543,6 +2543,159 @@
       "angle": 1.5707963267948966,
       "impact": "paper",
       "sections": []
+    },
+    {
+      "asset": "planter",
+      "name": "Planter0",
+      "at": [
+        -24.5,
+        0,
+        -12.3
+      ],
+      "bounds": [
+        0.72,
+        1.22,
+        0.72
+      ],
+      "angle": 0,
+      "impact": "leaf",
+      "sections": []
+    },
+    {
+      "asset": "planter",
+      "name": "Planter1",
+      "at": [
+        24.5,
+        0,
+        -12.3
+      ],
+      "bounds": [
+        0.72,
+        1.22,
+        0.72
+      ],
+      "angle": 0,
+      "impact": "leaf",
+      "sections": []
+    },
+    {
+      "asset": "planter",
+      "name": "Planter2",
+      "at": [
+        -25,
+        0,
+        7
+      ],
+      "bounds": [
+        0.72,
+        1.22,
+        0.72
+      ],
+      "angle": 0,
+      "impact": "leaf",
+      "sections": []
+    },
+    {
+      "asset": "planter",
+      "name": "Planter3",
+      "at": [
+        25,
+        0,
+        7
+      ],
+      "bounds": [
+        0.72,
+        1.22,
+        0.72
+      ],
+      "angle": 0,
+      "impact": "leaf",
+      "sections": []
+    },
+    {
+      "asset": "planter",
+      "name": "Planter4",
+      "at": [
+        -6.8,
+        0,
+        19.5
+      ],
+      "bounds": [
+        0.72,
+        1.22,
+        0.72
+      ],
+      "angle": 0,
+      "impact": "leaf",
+      "sections": []
+    },
+    {
+      "asset": "planter",
+      "name": "Planter5",
+      "at": [
+        6.8,
+        0,
+        19.5
+      ],
+      "bounds": [
+        0.72,
+        1.22,
+        0.72
+      ],
+      "angle": 0,
+      "impact": "leaf",
+      "sections": []
+    },
+    {
+      "asset": "planter",
+      "name": "Planter6",
+      "at": [
+        -11.0,
+        0,
+        -7.7
+      ],
+      "bounds": [
+        0.72,
+        1.22,
+        0.72
+      ],
+      "angle": 0,
+      "impact": "leaf",
+      "sections": []
+    },
+    {
+      "asset": "planter",
+      "name": "Planter7",
+      "at": [
+        3.0,
+        0,
+        4.1
+      ],
+      "bounds": [
+        0.72,
+        1.22,
+        0.72
+      ],
+      "angle": 0,
+      "impact": "leaf",
+      "sections": []
+    },
+    {
+      "asset": "planter",
+      "name": "Planter8",
+      "at": [
+        11.2,
+        0,
+        10.4
+      ],
+      "bounds": [
+        0.72,
+        1.22,
+        0.72
+      ],
+      "angle": 0,
+      "impact": "leaf",
+      "sections": []
     }
   ],
   "spots": [

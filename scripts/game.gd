@@ -10,6 +10,7 @@ const PARK_SESSION_PATH = "res://data/sessions/amusement_park.tres"
 const FERRY_SESSION_PATH = "res://data/sessions/last_ferry.tres"
 const STUDIO_SESSION_PATH = "res://data/sessions/night_studio.tres"
 const SANDGATE_SESSION_PATH = "res://data/sessions/sandgate.tres"
+const OFFICE_SESSION_PATH = "res://data/sessions/bb_office.tres"
 var session = DefaultSession
 var opening: Array[Dictionary] = []
 const Player = preload("res://scripts/player.gd")
@@ -57,6 +58,7 @@ const HEAL_RATE = 12.0
 const RESPAWN_DELAY = 2.0
 const RANGED_ATTACK_LIMIT = 3
 const SCENERY_TARGET_LAYER = 16
+const PROP_SHOT_LAYER = 32
 const SCENERY_BLAST_RADIUS = 5.0
 var ammo = MAGAZINE_SIZE
 var reload_time = 0.0
@@ -171,6 +173,9 @@ func _ready() -> void:
 		rules = session.make_rules()
 	elif "--sandgate" in OS.get_cmdline_user_args():
 		session = load(SANDGATE_SESSION_PATH)
+		rules = session.make_rules()
+	elif "--office" in OS.get_cmdline_user_args():
+		session = load(OFFICE_SESSION_PATH)
 		rules = session.make_rules()
 	title_session_id = session.session_id
 	var settlement = Settlement.new()
@@ -973,6 +978,8 @@ func menu_action(action: String) -> void:
 			select_session(STUDIO_SESSION_PATH,action)
 		"sandgate":
 			select_session(SANDGATE_SESSION_PATH,action)
+		"bb_office":
+			select_session(OFFICE_SESSION_PATH,action)
 		"comedy", "roach":
 			if state!="TITLE":return
 			comedy_mode = "" if comedy_mode==action else action
@@ -1227,7 +1234,8 @@ func enemy_from_hit(result: Dictionary) -> Node3D:
 	return collider if collider.has_method("take_hit") else null
 
 func shot_collision_mask(burning: bool) -> int:
-	return 1|4|8|SCENERY_TARGET_LAYER if burning else 1|4|8
+	var solid_targets = 1|4|8|PROP_SHOT_LAYER
+	return solid_targets|SCENERY_TARGET_LAYER if burning else solid_targets
 
 func resolve_shot(result: Dictionary, origin: Vector3, target: Vector3, burning: bool = false) -> void:
 	if state!="RUNNING" or not rules.active:return
@@ -1243,8 +1251,9 @@ func resolve_shot(result: Dictionary, origin: Vector3, target: Vector3, burning:
 		var barrel = enemy==null and collider.has_method("ignite")
 		if building and building.paper:
 			paper_impact(target,result.normal,building.world_bounds().position.y)
+		var material_impact: bool = building!=null and arena.prop_impact(building,target,result.normal,burning)
 		if burning and (building or barrel):
-			if not building or not building.paper:scenery_impact(target,result.normal)
+			if not material_impact and (not building or not building.paper):scenery_impact(target,result.normal)
 			if building:building.ignite_hit(target)
 		if barrel:
 			collider.shot_hit(burning)
@@ -1756,7 +1765,7 @@ func settle_rules() -> void:
 
 func title_preview_key() -> String:
 	var path: String = session.resource_path
-	if path in [DefaultSession.resource_path,PARK_SESSION_PATH,FERRY_SESSION_PATH,STUDIO_SESSION_PATH,SANDGATE_SESSION_PATH]:return path
+	if path in [DefaultSession.resource_path,PARK_SESSION_PATH,FERRY_SESSION_PATH,STUDIO_SESSION_PATH,SANDGATE_SESSION_PATH,OFFICE_SESSION_PATH]:return path
 	return ""
 
 func select_session(selection: Variant, highlighted_id: String = "") -> void:
