@@ -63,19 +63,30 @@ func check() -> void:
 		game.player.enabled = false
 		game.rules.elapsed = 44.99
 		game.arena._process(0)
+		var cargo_before := Vector3.ZERO
 		if id=="baggage_below":
 			assert(is_equal_approx(game.arena.belts[0].constant_linear_velocity.length(),1.05))
+			var display = game.arena.airport_display
+			assert(display.cargo_bags.size()==6)
+			assert(display.board_paint.get_shader_parameter("elapsed")==game.rules.elapsed)
+			cargo_before = display.cargo_bags[1].position
+			assert(display.lens_paints[0].albedo_color==display.OFF_COLOR)
 		game._physics_process(.01)
 		assert(game.destroy_active and is_equal_approx(game.rules.remaining(),15.0))
 		assert(game.arena.frenzy_lights.all(func(light):return light.visible))
 		var previous: Basis = game.arena.frenzy_lights[0].basis
+		if id=="baggage_below" and not game.reduced_motion:
+			assert(game.arena.frenzy_lights[0].light_energy>game.arena.frenzy_lights[1].light_energy)
+			game.rules.elapsed = 45.65
+			game.arena._process(0)
+			assert(game.arena.frenzy_lights[0].light_energy<game.arena.frenzy_lights[1].light_energy)
 		game.rules.elapsed = 47.0
 		game.arena._process(0)
 		assert(previous!=game.arena.frenzy_lights[0].basis)
 		if id=="baggage_below":
 			assert(game.arena.belts[0].constant_linear_velocity.z<0)
 			assert(is_equal_approx(game.arena.belts[1].constant_linear_velocity.z,1.9))
-			assert(game.arena.belt_lamps.size()==10 and game.arena.belt_lamps[0].visible)
+			assert(game.arena.airport_display.cargo_bags[1].position.distance_to(cargo_before)>1.0)
 			await check_player_carry()
 		if id=="snowline":
 			assert(game.arena.deck_light.visible and game.arena.star_chart.visible)
@@ -86,6 +97,7 @@ func check() -> void:
 		assert(held==game.arena.frenzy_lights[0].basis)
 		if id=="baggage_below":
 			assert(game.arena.belts.all(func(belt):return belt.constant_linear_velocity.is_zero_approx()))
+			assert(game.arena.airport_display.board_paint.get_shader_parameter("elapsed")==47.0)
 		game.menu_action("resume")
 		game.player.enabled = false
 		var prop = game.arena.get_node("Props/"+TARGETS[id])

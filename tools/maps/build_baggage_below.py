@@ -5,6 +5,7 @@ import sys
 
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from arena_kit import ArenaKit
+from airport_board import write_board
 
 P={
  "navy":"22314d","blue":"244d9c","cobalt":"325bbb","steel":"667687","black":"252a38",
@@ -36,7 +37,14 @@ roof=a.kit("ceiling_and_beams",True)
 a.solid(roof,"Sorting hall ceiling",(0,8.22,-5),(44,.35,34),"navy")
 a.solid(roof,"Arrivals ceiling",(0,5.5,17),(44,.3,12.1),"navy")
 for x in (-22,22):
-    a.solid(hall,"Sorting hall wall",(x,4.05,-5),(.36,8.1,34),"white")
+    # Keep the collision boundary while opening the view across the ramp.
+    a.layout["boxes"].append([(x,4.05,-5),(.36,8.1,34),0])
+    hall.box("Apron glazing concrete plinth",(x,.39,-5),(.36,.78,34),"white")
+    hall.box("Terminal upper spandrel",(x,6.96,-5),(.36,2.28,34),"white")
+    for y in (.82,2.64,5.78):
+        hall.box("Long glass framing rail",(x,y,-5),(.32,.14,34),"blue")
+    for z in range(-21,13,3):
+        hall.box("Apron glazing mullion",(x,3.29,z),(.24,4.98,.15),"blue")
     for z in (-18,-12,-6,0,6,10):
         hall.box("Blue structural column",(x-math.copysign(.42,x),4.05,z),(.61,8.1,.56),"blue")
         hall.box("Impact bollard",(x-math.copysign(.73,x),.52,z),(.25,1.02,.21),"yellow")
@@ -63,6 +71,7 @@ for y in (.28,2.2,5.05):
     hall.box("Front glazing transom",(0,y,22.91),(44,.18,.23),"blue")
 a.layout["glass"]=[[(x,2.7,17),(11.7,4.7),math.pi/2] for x in (-22,22)]
 a.layout["glass"].append([(0,2.7,22.9),(43.8,4.7),0])
+a.layout["glass"].extend([[(x,3.30,-5),(33.85,4.95),math.pi/2] for x in (-22,22)])
 for left,right in [(-22,-17.15),(-13.65,-4.10),(4.10,22)]:
     x=(left+right)*.5
     width=right-left
@@ -153,8 +162,11 @@ for i,x in enumerate((-4.6,4.6)):
     a.slope(machines,"Belt step-on ramp",x-1.59,x+1.59,7.45,9.7,.82,0,.19,"rubber")
     a.slope(machines,"Rear belt run-off",x-1.59,x+1.59,-12.3,-10.05,0,.82,.19,"rubber")
 for z in (-9,-5,-1,3,7):
-    for x,c in [(-6.37,"4eeafa"),(6.37,"ffbd55")]:
-        a.spot((x,1.11,z),(x+(-1.5 if x<0 else 1.5),0,z+.1),c,4.0,4.0,54,(0,0,.7))
+    for x in (-6.37,-2.83,2.83,6.37):
+        machines.box("Belt warning lens housing",(x,.925,z),(.23,.095,.68),"black")
+    for x,color in [(-6.37,"ff3553"),(6.37,"3d91ff")]:
+        direction=math.copysign(1,x)
+        a.spot((x,1.13,z),(x+direction*1.5,0,z+.1),color,3.4,4.0,54,(0,0,.7))
 
 # An elevated feeder carries bags while the stairs provide the playable ascent.
 machines.box("Inclined sorter top frame",(10.8,2.85,-15),(3.1,.34,2.1),"blue")
@@ -274,11 +286,15 @@ scale.rod("Scale display mount",(-.65,.34,-.50),(-.65,1.18,-.50),.059,"metal",8)
 scale.box("Scale display housing",(-.65,1.18,-.47),(.37,.23,.15),"navy")
 scale.box("Scale display window",(-.65,1.19,-.38),(.28,.13,.035),"cyan")
 a.prop("cargo_scale",(-19.6,0,8.7),(1.83,1.30,1.42),effect="metal")
-machines.box("Split-flap flight board",(13.1,3.68,11.34),(6.75,1.38,.14),"black")
-for i in range(21):
-    for row in range(4):
-        machines.box("Flip-board cells",(10.01+i*.30,3.21+row*.31,11.43),(.267,.244,.04),
-                     "yellow" if (i*7+row*3)%13<4 else "navy")
+a.layout["flight_boards"]=[]
+for z,angle in [(11.58,0),(10.40,math.pi)]:
+    direction=math.cos(angle)
+    machines.box("Split-flap board cabinet",(12.7,3.72,z),(12.1,3.04,.27),"black")
+    for y in (2.2,5.24):
+        machines.box("Brushed flight-board trim",(12.7,y,z), (12.18,.092,.33),"metal")
+    for x in (6.68,18.72):
+        machines.box("Board end frame",(x,3.72,z),(.09,3.02,.31),"steel")
+    a.layout["flight_boards"].append([[12.7,3.72,z+direction*.145],11.77,2.88,angle])
 
 for x,z in [(-11,-8),(11,-5),(-13,6),(1,-10),(12,8)]:
     machines.rod("Reflective cone",(x,.06,z),(x,.69,z),.235,"orange",8,.043)
@@ -310,10 +326,133 @@ for z in (-37,39):
     for i in range(9):
         apron.rod("Airfield light tower",(x,i*.83,z),(x,(i+1)*.83,z),.27,"red" if i%2==0 else "white",8)
     apron.rod("Airport beacon",(x,7.47,z),(x,7.84,z),.40,"signal",9)
-apron.rod("Aircraft fuselage",(31,1.93,34),(49,2.05,34),1.3,"white",10,.87)
-apron.rod("Aircraft nose",(31,1.93,34),(27.6,1.9,34),1.3,"white",10,.30)
-apron.box("Nose cockpit strip",(30.3,2.53,32.94),(2.4,.30,.09),"navy",-.1)
-apron.facet("Aircraft tail fin",[(46,2.6,34),(48.7,5.9,34),(51,5.8,34),(49,2.6,34)],"blue")
+terminal=a.kit("gate_terminal",True)
+terminal.box("Remote passenger terminal podium",(0,.50,-38),(103,1.70,12),"concrete")
+terminal.box("Passenger terminal glazed facade",(0,3.90,-37.05),(103,5.18,10),"navy")
+terminal.box("Floating terminal roof",(0,6.86,-36.6),(105,.55,13.4),"white")
+terminal.box("Blue roof fascia",(0,6.51,-29.95),(104,.30,.24),"blue")
+for i in range(34):
+    x=-49.5+i*3
+    terminal.box("Warm terminal curtain wall",(x,3.87,-31.97),(2.82,4.65,.18),
+                 ("skyglass","glass","light","glass")[i%4])
+    for y in (2.05,4.12,5.81):
+        terminal.box("Terminal facade transom",(x,y,-31.85),(2.88,.14,.11),"blue")
+    terminal.box("Curtain wall mullion",(x-1.45,3.86,-31.85),(.15,4.83,.18),"white")
+
+a.layout["cargo_belts"]=[]
+for side in (-1,1):
+    x=side*36
+    offset=3.8 if side==1 else -2.5
+    livery="teal" if side==1 else "orange"
+    gear_x=x+side*.99
+    nose=18.5+offset
+    tail=-13+offset
+    terminal.box("Passenger concourse pier",(side*48,4.25,-11+offset),(7.7,3.91,41),"white")
+    terminal.box("Pier roof cap",(side*48,6.30,-11+offset),(8.2,.23,41),"blue")
+    for j in range(10):
+        z=-27+j*3.75+offset
+        terminal.box("Pier gate window",(side*44.09,4.75,z),(.12,1.84,3.49),"glass")
+        terminal.box("Pier window top rail",(side*44.0,5.70,z),(.16,.08,3.58),"blue")
+    # The near-side pier and bridge keep the connection visible from the hall.
+    gate_z=-7.65+offset
+    pier_z=(-32+gate_z-4.1)*.5
+    pier_length=gate_z-4.1+32
+    terminal.box("Remote terminal boarding pier",(side*26.45,4.48,pier_z),(3.65,3.19,pier_length),"white")
+    terminal.box("Boarding pier blue roof",(side*26.45,6.12,pier_z),(3.82,.25,pier_length),"blue")
+    for i in range(round(pier_length/2.8)):
+        z=-30.5+i*2.8
+        terminal.box("Boarding pier tinted window",(side*24.59,4.71,z),(.10,1.41,2.58),"skyglass")
+        terminal.box("Pier window lower trim",(side*24.54,3.96,z),(.14,.12,2.68),"blue")
+    terminal.beam("Jet bridge articulated shell",(side*27.0,4.36,gate_z-5.26),
+                  (side*33.92,3.93,gate_z),2.40,2.55,"white")
+    terminal.beam("Jet bridge glass ribbon",(side*26.28,4.64,gate_z-4.27),
+                  (side*33.17,4.21,gate_z+.97),.12,.99,"skyglass")
+    for i in range(5):
+        t=(i+.5)/5
+        terminal.box("Jet bridge ribbon mullion",(side*(26.28+6.89*t),4.64-.43*t,gate_z-4.27+5.24*t),
+                     (.09,1.01,.14),"blue")
+    terminal.box("Accordion gate collar",(side*34.02,3.80,gate_z),(.64,2.29,2.29),"rubber")
+    for i in range(4):
+        terminal.box("Jet bridge bellows rib",(side*(33.78+i*.16),3.81,gate_z),(.065,2.34,2.36),"steel")
+    terminal.rod("Bridge support column",(side*30.2,-.28,gate_z-2.79),
+                 (side*30.2,3.03,gate_z-2.79),.25,"steel",10)
+    terminal.box("Bridge ground bogie",(side*30.2,.17,gate_z-2.79),(1.65,.45,1.0),"blue")
+    for dz in (-.59,.59):
+        terminal.rod("Bridge support tire",(side*29.66,.15,gate_z-2.79+dz),
+                     (side*30.71,.15,gate_z-2.79+dz),.29,"black",10)
+
+    # Low-poly short-haul jets, with cargo hatches facing the playable windows.
+    aircraft=apron
+    aircraft.rod("Airliner fuselage",(x,2.80,tail+2.3),(x,2.80,nose-3.8),1.79,"white",14)
+    aircraft.rod("Airliner radome",(x,2.80,nose-3.8),(x,2.45,nose),1.79,"white",14,.34)
+    aircraft.rod("Airliner rear taper",(x,2.80,tail+2.3),(x,3.16,tail),1.79,"white",14,.27)
+    for dx in (-1,1):
+        cabin_x=x+dx*1.668
+        aircraft.box("Airline painted cheatline",(cabin_x,2.63,offset+.9),(.16,.27,25.7),livery)
+        for j in range(17):
+            z=offset-8.5+j*1.29
+            aircraft.box("Airline cabin window",(cabin_x,3.23,z),(.165,.38,.53),"navy")
+            aircraft.box("Cabin window highlight",(cabin_x+dx*.088,3.34,z),(.018,.10,.42),"glass")
+        for dz in (-7.65,12.0):
+            z=offset+dz
+            aircraft.box("Passenger door edge",(x+dx*1.73,3.01,z),(.11,1.39,.95),"steel")
+            aircraft.box("Passenger door paint",(x+dx*1.80,3.02,z),(.041,1.23,.78),"white")
+            aircraft.box("Passenger door handle",(x+dx*1.83,2.88,z+.23),(.035,.06,.20),"navy")
+        aircraft.facet("Cockpit windscreens",[(x+dx*.67,3.22,nose-1.53),(x+dx*.19,3.28,nose-1.49),
+                       (x+dx*.27,3.73,nose-2.43),(x+dx*.97,3.57,nose-2.60)],"navy")
+        wing=[(x+dx*.88,1.97,offset+4.2),(x+dx*9.55,2.48,offset-4.6),
+              (x+dx*10.23,2.56,offset-6.1),(x+dx*2.1,1.94,offset-2.0)]
+        aircraft.slab("Swept aluminium wing",wing if dx==1 else wing[::-1],.17,"white")
+        aircraft.facet("Painted winglet",[(x+dx*9.46,2.43,offset-4.62),(x+dx*10.23,2.53,offset-6.1),
+                       (x+dx*10.67,3.39,offset-6.27),(x+dx*10.14,3.22,offset-5.23)],livery)
+        engine_x=x+dx*4.14
+        aircraft.rod("Low bypass nacelle",(engine_x,1.50,offset-.55),(engine_x,1.50,offset+3.65),.93,"white",14,1.02)
+        aircraft.rod("Dark turbine intake",(engine_x,1.50,offset+3.66),(engine_x,1.50,offset+3.71),.80,"black",14)
+        aircraft.rod("Turbine spinner",(engine_x,1.50,offset+3.72),(engine_x,1.50,offset+3.9),.23,"steel",10,.08)
+        tailplane=[(x,3.25,tail+2.7),(x+dx*4.45,3.52,tail+.1),(x+dx*4.49,3.52,tail-1.2),(x,3.28,tail+.6)]
+        aircraft.slab("Horizontal tail stabilizer",tailplane if dx==1 else tailplane[::-1],.12,"white")
+    aircraft.facet("Airline vertical tail fin",[(x,3.8,tail+4.6),(x,7.22,tail+.38),
+                   (x,7.20,tail-1.26),(x,3.38,tail-.92)],livery)
+    aircraft.facet("Tail flash",[(x-side*.016,4.45,tail+2.88),(x-side*.016,5.37,tail+.57),
+                   (x-side*.016,5.29,tail-.56),(x-side*.016,4.26,tail+1.50)],"white")
+    for axle_x,z in [(x,nose-4.7),(gear_x,offset-.55),(x-side*.99,offset-.55)]:
+        aircraft.rod("Landing gear strut",(axle_x,.36,z),(axle_x,1.69,z),.10,"steel",8)
+        for dx in (-.20,.20):
+            aircraft.rod("Landing gear tire",(axle_x+dx-.13,.15,z),(axle_x+dx+.13,.15,z),.38,"black",12)
+
+    # A powered belt loader runs down from the open cargo hold into a dolly.
+    z=offset+7.2
+    hx=x-side*1.74
+    lx=x-side*8.64
+    aircraft.box("Open cargo hatch",(hx,2.31,z),(.11,1.0,1.98),"black")
+    aircraft.box("Raised cargo hatch lid",(hx-side*.23,2.97,z),(.62,.14,2.03),"white")
+    aircraft.box("Cargo hold threshold",(hx-side*.12,1.84,z),(.34,.12,1.88),"metal")
+    aircraft.beam("Belt loader rubber deck",(hx,1.92,z),(lx,.56,z),1.38,.18,"rubber")
+    for dz in (-.73,.73):
+        aircraft.beam("Safety yellow loader railing",(hx,2.05,z+dz),(lx,.69,z+dz),.13,.16,"yellow")
+    for j in range(19):
+        t=(j+.5)/19
+        tx=hx+(lx-hx)*t
+        ty=1.95+(0.59-1.95)*t
+        aircraft.box("Loader belt slat",(tx,ty,z),(.075,.041,1.33),"slat")
+    aircraft.box("Belt loader motor housing",(lx+side*1.85,.30,z),(2.6,.62,1.53),"blue")
+    aircraft.beam("Loader hydraulic lift",(lx+side*2.18,.43,z),(hx-side*1.6,1.58,z),.19,.20,"metal")
+    for dx in (.82,2.86):
+        for dz in (-.76,.76):
+            wheel_x=lx+side*dx
+            aircraft.rod("Loader wheel",(wheel_x,.18,z+dz-.10),(wheel_x,.18,z+dz+.10),.29,"black",10)
+    aircraft.box("Cargo dolly bed",(lx-side*1.24,.35,z),(2.56,.29,1.75),"steel")
+    for dz in (-.91,.91):
+        aircraft.box("Dolly side rail",(lx-side*1.24,.65,z+dz),(2.58,.22,.10),"blue")
+    for dx in (-.73,.73):
+        for dz in (-.84,.84):
+            xx=lx-side*1.24+dx
+            aircraft.rod("Dolly rubber wheel",(xx,.02,z+dz-.10),(xx,.02,z+dz+.10),.23,"black",10)
+    a.layout["cargo_belts"].append([[hx,2.02,z],[lx,.66,z],[lx-side*1.95,.51,z]])
+    for zz in (offset-10,offset+9):
+        apron.box("Apron stand guide stripe",(x,-.283,zz),(.14,.035,12.6),"yellow")
+    for j in range(13):
+        apron.box("Apron safety boundary dash",(side*24.3,-.282,-23+j*3.6),(.16,.039,1.98),"white")
 for x,z in [(-12,-27),(7,32)]:
     apron.box("Apron utility vehicle",(x,.7,z),(2.7,1.4,1.23),"white")
     apron.box("Apron windshield",(x+.69,1.34,z+.11),(.71,.34,1.15),"navy")
@@ -334,7 +473,13 @@ a.layout.update(
  barrels=points([(-9.4,2),(8.5,-6),(17.5,9)]), comedy=(8.8,0,14.6,math.pi),
  cameras={
   "arrivals":[[9.8,1.73,21.2],[.1,1.8,10],66],
+  "flight-board":[[11.95,2.34,18.1],[12.7,3.72,11.5],68],
+  "flight-board-flip":[[11.95,2.34,18.1],[12.7,3.72,11.5],68,6.42],
+  "east-gate":[[19.55,1.72,15.8],[34.0,2.55,6.3],72],
+  "west-gate":[[-17.25,4.73,-5.55],[-34.0,3.04,-8.8],73],
   "catwalk":[[-5.7,4.78,-13.73],[.2,.21,3.2],70],
-  "sorting-frenzy":[[-1.45,1.87,8.05],[-1.2,1.63,-8],72],
+  "sorting-frenzy":[[-1.45,1.87,8.05],[-1.2,1.63,-8],72,45.32],
+  "sorting-blue-frenzy":[[-1.45,1.87,8.05],[-1.2,1.63,-8],72,45.89],
  })
 a.write()
+write_board()

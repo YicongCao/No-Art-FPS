@@ -19,6 +19,7 @@ func capture() -> void:
 			break
 	assert(game.nav_ready and game.title_frame_ready)
 	game.qa_mode = true
+	game.reduced_motion = false
 	game.set_physics_process(false)
 	game.player.set_process_unhandled_input(false)
 	camera = Camera3D.new()
@@ -52,8 +53,8 @@ func capture() -> void:
 			camera.global_position = vec(shot[0])
 			camera.look_at(vec(shot[1]))
 			camera.fov = shot[2]
+			game.rules.elapsed = shot[3] if shot.size()>3 else (47.0 if key.ends_with("frenzy") else 0.0)
 			if key.ends_with("frenzy"):
-				game.rules.elapsed = 47.0
 				game.set_destroy_active(true)
 				var targets = {"service-frenzy":"ServiceShortcut","sorting-frenzy":"BurstCase","telescope-frenzy":"StormHatch"}
 				if targets.has(key):

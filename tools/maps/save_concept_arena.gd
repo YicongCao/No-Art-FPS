@@ -119,6 +119,8 @@ func build() -> void:
 	arena.environment_override = environment
 	arena.spot_specs = layout.spots
 	arena.awning_specs = layout.get("awnings",[])
+	if key=="baggage_below":
+		arena.airport_layout = {"flight_boards":layout.flight_boards,"cargo_belts":layout.cargo_belts}
 	arena.comedy_site = Vector4(layout.comedy[0],layout.comedy[1],layout.comedy[2],layout.comedy[3])
 	var fixed = add(arena,Node3D.new(),"Architecture")
 	for asset in layout.fixed:

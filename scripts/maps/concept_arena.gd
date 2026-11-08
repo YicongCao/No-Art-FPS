@@ -1,6 +1,7 @@
 extends "res://scripts/arena.gd"
 
 const Sweep = preload("res://scripts/maps/sweeping_light.gd")
+const AirportDisplay = preload("res://scripts/maps/airport_display.gd")
 const CombatFX = preload("res://scripts/combat_fx.gd")
 const RAIN_SHADER = preload("res://assets/shaders/market_rain.gdshader")
 const AWNING_SHADER = preload("res://assets/shaders/market_awning.gdshader")
@@ -21,6 +22,7 @@ const IMPACTS = {
 @export var route_paths: Array[NodePath] = []
 @export var spot_specs: Array = []
 @export var awning_specs: Array = []
+@export var airport_layout: Dictionary = {}
 @export var belt_directions: Array[int] = []
 @export var comedy_site: Vector4
 @export var normal_sky: Color
@@ -28,7 +30,7 @@ var frenzy_lights: Array[SpotLight3D] = []
 var frenzy_origins: Array[Vector3] = []
 var frenzy_targets: Array[Vector3] = []
 var frenzy_motion: Array[Vector3] = []
-var belt_lamps: Array[MeshInstance3D] = []
+var airport_display: AirportDisplay
 var belts: Array[StaticBody3D] = []
 var rain: MultiMeshInstance3D
 var puddles: ShaderMaterial
@@ -60,18 +62,6 @@ func _ready() -> void:
 		frenzy_origins.append(at)
 		frenzy_targets.append(target)
 		frenzy_motion.append(motion)
-		if map_id=="baggage_below" and at.y<2.0:
-			var lamp = MeshInstance3D.new()
-			var lens = BoxMesh.new()
-			lens.size = Vector3(.18,.085,.92)
-			lamp.mesh = lens
-			var paint = StandardMaterial3D.new()
-			paint.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-			paint.albedo_color = light.light_color
-			lamp.material_override = paint
-			lamp.position = Vector3(signf(at.x)*2.84,.92,at.z)
-			add_child(lamp)
-			belt_lamps.append(lamp)
 	for body in get_node("Belts").get_children():
 		belts.append(body)
 	dome = get_node_or_null("Moving/dome")
@@ -110,6 +100,11 @@ func _ready() -> void:
 		star_chart = horizontal_effect(Vector2(13.3,13.3),dome.position+Vector3.UP*.039,chart_paint)
 	if not belts.is_empty():
 		add_belt_bags()
+	if map_id=="baggage_below":
+		airport_display = AirportDisplay.new()
+		airport_display.name = "AirportDisplay"
+		add_child(airport_display)
+		airport_display.setup(airport_layout,belts)
 	set_destroy_lighting(false)
 
 func horizontal_effect(size: Vector2, at: Vector3, paint: ShaderMaterial) -> MeshInstance3D:
@@ -212,14 +207,19 @@ func _process(delta: float) -> void:
 		for j in range(2):
 			var bag = belt_bags[i*2+j]
 			bag.position = belts[i].position+Vector3((j-.5)*1.55,.10,fposmod(travel+3.1+j*8.5,16.2)-8.1)
+	if airport_display:
+		if game.state=="TITLE":
+			airport_display.idle_seconds += delta
+		var display_seconds = airport_display.idle_seconds if game.state=="TITLE" else elapsed
+		airport_display.pose(display_seconds,game.reduced_motion)
 	if active and game.destroy_active:
 		pose_frenzy(sweep_elapsed())
 
 func set_destroy_lighting(active: bool) -> void:
 	for light in frenzy_lights:
 		light.visible = active
-	for lamp in belt_lamps:
-		lamp.visible = active
+	if airport_display and not active:
+		airport_display.warning_lights(false,0.0,false)
 	if puddles:
 		puddles.set_shader_parameter("frenzy",active)
 		pipe_spray.visible = active and service_shortcut.collapsed
@@ -241,6 +241,10 @@ func set_destroy_lighting(active: bool) -> void:
 
 func pose_frenzy(elapsed: float) -> void:
 	var dome_sweep := sin(elapsed*.60)
+	var warning = Vector2.ZERO
+	if airport_display:
+		var frenzy_seconds: float = game.rules.elapsed-(game.rules.duration-game.rules.destroy_duration)
+		warning = airport_display.warning_lights(true,maxf(0.0,frenzy_seconds),game.reduced_motion)
 	if is_instance_valid(dome):
 		dome.rotation.y = 1.04+dome_sweep*.32
 		if is_instance_valid(shutter_lights):
@@ -256,13 +260,8 @@ func pose_frenzy(elapsed: float) -> void:
 			target = frenzy_targets[i]+frenzy_motion[i]*dome_sweep
 			light.position.x = frenzy_origins[i].x+dome_sweep*.78
 		light.look_at(to_global(target))
-		if map_id=="baggage_below" and i<belt_lamps.size():
-			var lane = i%2
-			var station = floori(i/2.0)
-			var pulse = .5+.5*cos(elapsed*5.3-station*1.12*belt_directions[lane])
-			light.light_energy = .25+4.3*pulse*pulse
-			var lamp_paint = belt_lamps[i].material_override as StandardMaterial3D
-			lamp_paint.albedo_color = Color("253143").lerp(light.light_color,.25+.75*pulse)
+		if airport_display and frenzy_origins[i].y<2.0:
+			light.light_energy = 4.1*(warning.x if frenzy_origins[i].x<0 else warning.y)
 
 func prop_impact(prop: Node3D, point: Vector3, normal: Vector3, _burning: bool) -> bool:
 	if not "impact_kind" in prop or prop.impact_kind.is_empty():
