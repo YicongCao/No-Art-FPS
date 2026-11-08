@@ -97,6 +97,12 @@ func build() -> void:
 		var shape = ConvexPolygonShape3D.new()
 		shape.points = vertices
 		collider(collision,shape,Vector3.ZERO)
+	for points in layout.rail_barriers:
+		var vertices = PackedVector3Array()
+		for point in points:vertices.append(vec(point))
+		var shape = ConvexPolygonShape3D.new()
+		shape.points = vertices
+		collider(collision,shape,Vector3.ZERO)
 	var props = add(arena,Node3D.new(),"Props")
 	for item in layout.props:place_prop(props,item)
 	for i in range(layout.barrels.size()):

@@ -50,6 +50,10 @@ func check() -> void:
 		var point: Vector3 = game.arena.get_node(routes[i]).global_position
 		assert(await walk_to(point),"Player could not walk to Sandgate tour marker %d"%i)
 	assert(await walk_to(start))
+	await check_guardrails()
+	game.player.position = start
+	game.player.velocity = Vector3.ZERO
+	await physics_frame
 	game.touch_mode = false
 	print("SANDGATE_WALK_PASS: A Long, pit, A ramp, Short, Mid Doors, B exit, B Window and both tunnel ends")
 
@@ -114,6 +118,31 @@ func check() -> void:
 	game.queue_free()
 	await process_frame
 	quit()
+
+func check_guardrails() -> void:
+	for edge in [
+		[Vector3(10.8,2.45,-9.1),Vector2.DOWN,Vector3(10.8,2.4,-8.06)],
+		[Vector3(8.0,2.45,-6.5),Vector2.RIGHT,Vector3(9.48,2.4,-6.5)],
+		[Vector3(7.1,2.45,-11.6),Vector2.UP,Vector3(7.1,2.4,-12.93)],
+		[Vector3(7.4,1.30,-.2),Vector2.LEFT,Vector3(5.61,1.2,-.2)],
+	]:
+		var at: Vector3 = edge[0]
+		var move: Vector2 = edge[1]
+		var barrier: Vector3 = edge[2]
+		game.player.position = at
+		game.player.velocity = Vector3.ZERO
+		game.player.touch_move = move
+		for _tick in range(40):await physics_frame
+		var offset: Vector3 = game.player.position-barrier
+		assert(absf(offset.y)<.30 and Vector2(offset.x,offset.z).dot(move)<-.12)
+		assert(Vector2(offset.x,offset.z).length()<.65,"Player reaches the guardrail before stopping")
+	game.player.position = Vector3(8.3,2.45,-10.55)
+	game.player.velocity = Vector3.ZERO
+	game.player.touch_move = Vector2.RIGHT
+	for _tick in range(38):await physics_frame
+	assert(game.player.position.x>12.0 and game.player.position.y>2.35,"A Short connects to A without a jump")
+	game.player.touch_move = Vector2.ZERO
+	print("SANDGATE_RAILS_PASS: four upper edges stop walking input, A Short stays connected")
 
 func walk_to(goal: Vector3) -> bool:
 	var nav = game.arena.nav.get_navigation_map()

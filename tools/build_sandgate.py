@@ -33,7 +33,7 @@ for name, hex_color in PALETTE.items():
     shader.inputs["Specular IOR Level"].default_value = 0
     MATERIALS[name] = material
 
-layout = {"zones": [], "boxes": [], "ramps": [], "props": []}
+layout = {"zones": [], "boxes": [], "ramps": [], "rail_barriers": [], "props": []}
 collection = None
 
 
@@ -92,6 +92,31 @@ def ramp(label, x0, x1, z0, z1, y0, y1, color="sand", steps=0):
         prism(label,points,(0,-.28,0),color)
     layout["ramps"].append(points)
 
+def guardrail(start, end, base=0):
+    height = 1.22
+    dx, dz = end[0]-start[0], end[2]-start[2]
+    length = math.hypot(dx,dz)
+    normal = (-dz/length,0,dx/length)
+    angle = math.atan2(-dz,dx)
+
+    def span(bottom, top, width):
+        offset = tuple(axis*width/2 for axis in normal)
+        points = [(point[0]-offset[0],point[1]+level,point[2]-offset[2])
+                  for point,level in [(start,bottom),(end,bottom),(end,top),(start,top)]]
+        return points, tuple(axis*width for axis in normal)
+
+    for bottom,top,color in [(max(base+.13,.43),max(base+.22,.52),"iron"),(1.12,height,"teal")]:
+        points,offset = span(bottom,top,.14)
+        prism("Guardrail beam",points,offset,color)
+    posts = max(1,math.ceil(length/1.7))
+    for i in range(posts+1):
+        x,y,z = [a+(b-a)*i/posts for a,b in zip(start,end)]
+        box("Guardrail post",x,y+(height+base)/2,z,.16,height-base,.17,"iron",angle=angle)
+        box("Guardrail post cap",x,y+height-.045,z,.19,.09,.20,"teal",angle=angle)
+    # Continuous guard collision follows the slope, including the gaps between posts.
+    points,offset = span(-.05,height,.17)
+    layout["rail_barriers"].append(points+[tuple(a+b for a,b in zip(point,offset)) for point in points])
+
 
 def facade(label, x, z, w, d, h, color="pale", base=None, floor=0, solid=True):
     box(label,x,floor+h/2,z,w,h,d,color,solid)
@@ -147,6 +172,26 @@ def cactus(x,z,y=0):
     for side,h in [(-1,.86),(1,1.11)]:
         box("Cactus elbow",x+side*.28,y+h,z,.49,.23,.22,"leaf_light")
         lathe("Cactus arm",x+side*.49,y+h,z,[(.12,0),(.13,.46),(.08,.54)],"leaf",7)
+
+def potted_agave(x,y,z,scale=1,rotation=0):
+    lathe("Agave terracotta pot",x,y,z,[(.23*scale,0),(.29*scale,.28*scale),
+          (.32*scale,.31*scale),(.32*scale,.37*scale),(.25*scale,.37*scale)],
+          "clay",9)
+    lathe("Agave soil",x,y,z,[(.24*scale,.34*scale),(.24*scale,.36*scale)],"wood",9)
+    for i in range(7):
+        angle = i*math.tau/7+rotation
+        vx,vz = math.cos(angle),math.sin(angle)
+        reach = (.43 if i%2==0 else .33)*scale
+        spread = .11*scale
+        root = (x,y+.35*scale,z)
+        left = (x+vx*reach*.53-vz*spread,y+.55*scale,z+vz*reach*.53+vx*spread)
+        right = (x+vx*reach*.53+vz*spread,y+.55*scale,z+vz*reach*.53-vx*spread)
+        ridge = (x+vx*reach*.51,y+.62*scale,z+vz*reach*.51)
+        tip = (x+vx*reach,y+(.78 if i%2==0 else .90)*scale,z+vz*reach)
+        prism("Agave bright leaf",[root,left,ridge],(0,-.014,0),"leaf_light")
+        prism("Agave bright tip",[left,tip,ridge],(0,-.014,0),"leaf_light")
+        prism("Agave shaded leaf",[root,ridge,right],(0,-.014,0),"leaf")
+        prism("Agave shaded tip",[right,ridge,tip],(0,-.014,0),"leaf")
 
 
 def arch(label,x,z,y,r=1.75,spring=2.12,thick=.42,depth=.62,side=1.55,solid=True,angle=0):
@@ -267,7 +312,6 @@ box("South pit coping",19.25,.23,12.93,6.47,.46,.32,"cap",True)
 box("Pit rim at outer edge",22.5,.18,9.8,.27,.36,6.4,"cap",True)
 slab("Raised A square",9.7,23.8,-17.7,-8.0,2.4,"pale",2.4)
 ramp("A Long ramp",12.1,22.8,-8,-2.0,2.4,0,"sand")
-box("A platform parapet",10.0,2.79,-12.15,.32,.78,7.6,"cap",True)
 box("A side ramp wall",11.83,.58,-5.23,.40,1.16,5.45,"plaster",True)
 slab("A Short landing",5.6,9.7,-13.0,-8.3,2.4,"pale",2.4)
 slab("A Short elevated lane",5.6,9.55,-8.3,-2.8,2.4,"pale",2.4)
@@ -279,6 +323,19 @@ prism("Short stair teal cheek",[(5.51,0,2.39),(5.51,0,-2.79),(5.51,2.4,-2.79)],(
 prism("Short stair rising coping",[(5.45,.21,2.39),(5.76,.21,2.39),(5.76,2.61,-2.79),(5.45,2.61,-2.79)],(0,-.18,0),"cap")
 for z,top in [(.85,.72),(-.85,1.5),(-2.51,2.28)]:
     box("Short stair stone post",5.52,top+.28,z,.33,.56,.34,"cap",True)
+# Keep the level A Short connection and the mouths of both ramps open.
+guardrail((9.78,2.4,-17.48),(9.78,2.4,-13.0))
+guardrail((9.78,2.4,-8.32),(9.78,2.4,-8.06))
+guardrail((9.78,2.4,-8.06),(12.13,2.4,-8.06))
+guardrail((22.77,2.4,-8.06),(23.77,2.4,-8.06))
+guardrail((23.72,2.4,-17.53),(23.72,2.4,-16.42))
+guardrail((12.13,2.4,-8.06),(12.13,0,-2.04))
+guardrail((22.77,2.4,-8.06),(22.77,0,-2.04))
+guardrail((5.61,2.4,-12.93),(9.78,2.4,-12.93))
+guardrail((5.61,2.4,-12.93),(5.61,2.4,-2.78),base=.70)
+guardrail((9.48,2.4,-8.33),(9.48,2.4,-2.78))
+guardrail((5.61,2.4,-2.78),(5.61,0,2.39))
+guardrail((9.48,2.4,-2.78),(9.48,0,2.39))
 # Perimeter collider is also the navigation boundary.
 for x,z,w,d in [(-24.4,0,.8,40),(24.4,0,.8,40),(0,-20.4,48,.8),(0,20.4,48,.8)]:
     layout["boxes"].append([[x,2.8,z],[w,6,d],0])
@@ -311,7 +368,9 @@ for x in [17.32,18.50,19.68]:
     box("Lookout slit",x,7.41,-16.98,.32,.80,.065,"wood")
 pot(20.1,-14.8,.75,2.4)
 cactus(11.05,-15.65,2.4)
-box("A wall ledge",11.9,2.79,-10.4,.3,.78,4.15,"cap",True)
+potted_agave(10.45,2.4,-16.96,1.15)
+potted_agave(22.30,2.4,-9.0,.94,.48)
+box("A wall ledge",11.9,2.79,-9.15,.3,.78,1.65,"cap",True)
 # Small buttresses articulate the long elevations without obstructing the lane.
 for z in [4.95,8.45,11.95]:
     box("Market corbel",11.94,4.6,z,.5,.24,.26,"wood")
@@ -351,6 +410,8 @@ for x in [-5.1,-1.55,2.0]:
 for x in [-6.2,-2.8,.75,4.2]:
     box("Arcade coping brace",x,4.46,-15.83,.27,.21,.44,"wood")
 cactus(5.05,3.03)
+potted_agave(5.93,2.4,-12.29,1.04,.36)
+potted_agave(5.94,2.4,-4.28,.81)
 pot(-2.73,3.83,.74)
 pot(-3.02,4.4,.53)
 
@@ -389,6 +450,7 @@ shutter(-13.42,3.03,.77,math.pi)
 cactus(-10.0,-9.20)
 pot(-10.61,-9.35,1.1)
 pot(-21.71,-8.87,.91)
+potted_agave(-13.30,0,-9.91,1.07,.3)
 box("B display plinth",-17.40,.44,-9.10,3.19,.88,2.48,"pale",True)
 lathe("Ochre tower",-20.3,0,-15.15,[(1.38,0),(1.38,6.98),(1.54,7.07),(1.54,7.41)],"gold",10)
 lathe("Faceted tower dome",-20.3,7.41,-15.15,[(1.55,0),(1.53,.45),(1.22,.98),(.62,1.34),(.12,1.43)],"cap",10)
