@@ -1,5 +1,6 @@
 extends Control
 
+const FRENZY_FONT_ZH = preload("res://assets/fonts/GlowSansSC-Frenzy.otf")
 const SKULL_ICON = preload("res://assets/ui/skull.svg")
 const DAMAGE_IMPACT = preload("res://assets/ui/damage-impact.svg")
 const AIM_WARNING = preload("res://assets/ui/aim-warning.svg")
@@ -351,7 +352,7 @@ func _ready() -> void:
 		browser.noArtToggleComedy = web_comedy_callback
 		JavaScriptBridge.eval("window.noArtSyncTitleLayout?.()")
 	font = preload("res://assets/fonts/Rajdhani-Bold.ttf")
-	font.fallbacks = [preload("res://assets/fonts/NotoSansSC-UI.otf")]
+	font.fallbacks = [preload("res://assets/fonts/GlowSansSC-UI.otf")]
 	theme = Theme.new()
 	theme.default_font = font
 	vignette = ColorRect.new()
@@ -1038,19 +1039,21 @@ func draw_destroy_notice(center: Vector2) -> void:
 	var opacity = smoothstep(0,.22,destroy_time)
 	var settle = smoothstep(0,.12,DESTROY_NOTICE_DURATION-destroy_time)
 	var scale_factor = 1.0 if game.reduced_motion else lerpf(1.08,1,settle)
-	var words = tr("DESTROY ALL").split(" ")
+	var notice = tr("DESTROY ALL")
+	var notice_font: Font = font if notice=="DESTROY ALL" else FRENZY_FONT_ZH
+	var words = notice.split(" ")
 	var widths: Array[float] = []
 	var gap = text_size*.2
 	var width = gap*(words.size()-1)
 	for word in words:
-		var extent = font.get_string_size(word,HORIZONTAL_ALIGNMENT_LEFT,-1,text_size).x
+		var extent = notice_font.get_string_size(word,HORIZONTAL_ALIGNMENT_LEFT,-1,text_size).x
 		widths.append(extent)
 		width += extent
 	var baseline = Vector2(-width*.5,text_size*.32)
 	draw_set_transform(center-Vector2(0,96),0,Vector2.ONE*scale_factor)
 	for i in range(words.size()):
-		draw_string_outline(font,baseline,words[i],HORIZONTAL_ALIGNMENT_LEFT,-1,text_size,3,Color(INK,.85*opacity))
-		draw_string(font,baseline,words[i],HORIZONTAL_ALIGNMENT_LEFT,-1,text_size,Color(WHITE if i==0 else Color("ffb557"),opacity))
+		draw_string_outline(notice_font,baseline,words[i],HORIZONTAL_ALIGNMENT_LEFT,-1,text_size,3,Color(INK,.85*opacity))
+		draw_string(notice_font,baseline,words[i],HORIZONTAL_ALIGNMENT_LEFT,-1,text_size,Color(WHITE if i==0 else Color("ffb557"),opacity))
 		baseline.x += widths[i]+gap
 	draw_set_transform(Vector2.ZERO)
 

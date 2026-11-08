@@ -163,7 +163,7 @@ func check() -> void:
 	if DisplayServer.get_name()!="headless":await capture("pause-home-touch")
 	var language = game.hud.menu.get_node("language")
 	assert(language.text=="Language: Chinese")
-	var cjk = preload("res://assets/fonts/NotoSansSC-UI.otf")
+	var cjk: Font = game.hud.font.fallbacks[0]
 	for character in "返回首页语言：英文":
 		assert(cjk.has_char(character.unicode_at(0)))
 	click(language.get_global_rect().get_center())

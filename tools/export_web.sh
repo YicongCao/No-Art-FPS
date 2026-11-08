@@ -9,15 +9,15 @@ touch builds/.gdignore
 cp web/icon.svg web/locale.js web/gyro.js web/gyro-setup.js web/title-background.webp builds/web/
 cp assets/ui/settings/comedy.svg assets/ui/settings/roach.svg builds/web/
 cp assets/ui/frag-grenade.svg assets/ui/stink-bomb.svg assets/ui/roach-bomb.svg builds/web/
-cp web/Rajdhani-Bold.woff2 builds/web/
+cp web/Rajdhani-Bold.woff2 web/GlowSansSC-UI.woff2 builds/web/
 cp assets/fonts/OFL.txt builds/web/FONT-LICENSE.txt
-cp assets/fonts/NotoSansCJK-OFL.txt builds/web/Noto-CJK-LICENSE.txt
+cp assets/fonts/GlowSans-OFL.txt builds/web/GlowSans-LICENSE.txt
 cp web/GODOT-LICENSE.txt web/GODOT-COPYRIGHT.txt builds/web/
 cp tools/vendor/LICENSE-dust2.txt builds/web/DUST-LICENSE.txt
 # The custom shell uses our SVG, not Godot's generated splash/icon.
 python3 - <<'PY'
 from pathlib import Path
-for name in ('index.png', 'index.png.import', 'icon.svg.import'):
+for name in ('index.png', 'index.png.import', 'icon.svg.import', 'Noto-CJK-LICENSE.txt'):
     (Path('builds/web') / name).unlink(missing_ok=True)
 PY
 python3 tools/verify_web.py
