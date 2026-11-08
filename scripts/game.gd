@@ -1202,7 +1202,7 @@ func shoot() -> void:
 	var shot_enemy = enemy_from_hit(result)
 	var toy = not comedy_mode.is_empty()
 	var water = comedy_mode=="comedy"
-	if shot_enemy and shot_enemy.fast and origin.distance_to(shot_enemy.global_position)>Enemy.CLOSE_SHOT_RANGE:
+	if shot_enemy and result.collider==shot_enemy and shot_enemy.fast and origin.distance_to(shot_enemy.global_position)>Enemy.CLOSE_SHOT_RANGE:
 		shot_enemy.evade_shot(origin)
 		var projectile: Node3D
 		var flame: MeshInstance3D
@@ -1270,14 +1270,14 @@ func resolve_shot(result: Dictionary, origin: Vector3, target: Vector3, burning:
 			collider.shot_hit(burning)
 			hud.hit = .12
 		elif enemy!=null:
-			if not burning and enemy.fast and origin.distance_to(enemy.global_position)>Enemy.CLOSE_SHOT_RANGE:
+			var is_head = collider is Area3D
+			if not is_head and not burning and enemy.fast and origin.distance_to(enemy.global_position)>Enemy.CLOSE_SHOT_RANGE:
 				enemy.evade_shot(origin)
 				spark(target,Color("fff1b7"),.11,.1)
 				return
 			rules.hits += 1
 			hud.hit = .12
 			play_sound("hit",-14)
-			var is_head = collider is Area3D
 			enemy.take_hit(is_head,burning or (touch_mode and touch_body_one_shot))
 			if is_head:spark(target,Color("f2d084"),.07,.12)
 			else:spark(target,Color("ed9957"),.12,.16)

@@ -14,7 +14,8 @@ func _ready() -> void:
 	var enemy = game.spawn_enemy(Vector3(18,0,-7),true)
 	enemy.attack = 999
 	await get_tree().physics_frame
-	aim(enemy.position+Vector3.UP*1.7)
+	await get_tree().physics_frame
+	aim(enemy.position+Vector3.UP*.9)
 	game.shoot()
 	assert(enemy.rush_state=="DODGE" and enemy.health==3 and game.player_bullets.size()==1)
 	var start = enemy.position
@@ -31,15 +32,24 @@ func _ready() -> void:
 		get_viewport().get_texture().get_image().save_png("res://artifacts/melee-dodge.png")
 	await get_tree().create_timer(.2).timeout
 	assert(enemy.health==3 and game.rules.kills==0)
-	game.player.position = enemy.position+Vector3(0,0,5)
-	await get_tree().physics_frame
+	assert(game.player.camera.global_position.distance_to(enemy.global_position)>enemy.CLOSE_SHOT_RANGE)
+	var shots_in_flight: int = game.player_bullets.size()
 	aim(enemy.position+Vector3.UP*1.7)
 	game.fire_time = 0
 	game.shoot()
-	assert(enemy.dead and game.rules.kills==1,"Close shot kills the knife enemy")
+	assert(enemy.dead and game.rules.kills==1 and game.rules.headshots==1)
+	assert(game.player_bullets.size()==shots_in_flight,"A distant headshot resolves immediately")
+	var close_enemy = game.spawn_enemy(game.player.position+Vector3(0,0,-5),true)
+	close_enemy.set_physics_process(false)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	aim(close_enemy.position+Vector3.UP*1.7)
+	game.fire_time = 0
+	game.shoot()
+	assert(close_enemy.dead and game.rules.kills==2 and game.rules.headshots==2)
 	game.start_run()
 	assert(game.player_bullets.is_empty())
-	print("DODGE_CHECK_PASS: real shot, physical sidestep, pause, far miss, close headshot, reset")
+	print("DODGE_CHECK_PASS: real shot, body sidestep, pause, far and close headshots, reset")
 	game.state = "RESULTS"
 	game.clear_round()
 	await get_tree().create_timer(.3).timeout
