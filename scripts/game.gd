@@ -18,6 +18,9 @@ const Rules = preload("res://scripts/run_rules.gd")
 const LoadingTransition = preload("res://scripts/loading_transition.gd")
 const CombatFX = preload("res://scripts/combat_fx.gd")
 const ComedyFX = preload("res://scripts/comedy_fx.gd")
+const AchievementProgress = preload("res://scripts/achievements.gd")
+var achievements = AchievementProgress.new()
+var progress_save_pending = false
 var arena: Node3D
 var sun: DirectionalLight3D
 var world_environment: WorldEnvironment
@@ -189,6 +192,8 @@ func _ready() -> void:
 	hud = Hud.new()
 	hud.game = self
 	layer.add_child(hud)
+	achievements.unlocked.connect(hud.queue_badge_toast)
+	achievements.changed.connect(queue_progress_save)
 	for key in ["shot","hit","kill","headshot","reload","hurt","tick","end","fuse","explosion","charge","cartridge_insert","magazine_latch","comedy_plop","roach_buzz","water_shot","slipper_shot"]:
 		sounds[key] = load("res://assets/audio/"+key+".wav")
 	for i in range(12):
@@ -262,18 +267,47 @@ func score_record_key() -> String:
 	return "score_%s_v%d"%[session.session_id,session.layout_version]
 
 func load_session_record(cfg: ConfigFile) -> void:
-	best = int(cfg.get_value(score_record_key(),"best",0))
+	var key = score_record_key()
+	best = maxi(int(cfg.get_value(key,"best",0)),achievements.scores.get(key,0))
 	best_mission = float(cfg.get_value(mission_record_key(),"fastest",0.0))
 
 func load_record() -> void:
 	if qa_mode:return
 	var cfg = ConfigFile.new()
-	if cfg.load("user://record.cfg") == OK:
-		load_session_record(cfg)
+	var has_legacy = cfg.load("user://record.cfg")==OK
+	if has_legacy:
+		for key in cfg.get_sections():
+			if key=="score" or key.begins_with("score_"):achievements.merge_score(key,cfg.get_value(key,"best",0))
+		achievements.merge({"achievements":cfg.get_value("achievements","progress",{})})
 		player.sensitivity = clampf(float(cfg.get_value("settings","sensitivity",.0022)),.0006,.006)
 		reduced_motion = bool(cfg.get_value("settings","reduced_motion",false))
 		music_volume = clampf(float(cfg.get_value("settings","music_volume",.7)),0,1)
 		touch_body_one_shot = bool(cfg.get_value("settings","touch_body_one_shot",false))
+	if OS.has_feature("web"):
+		achievements.merge(JSON.parse_string(str(JavaScriptBridge.eval("window.noArtReadProgress?.()"))))
+		if not achievements.counts.is_empty() or not achievements.scores.is_empty():queue_progress_save()
+	load_session_record(cfg)
+
+func queue_progress_save() -> void:
+	if qa_mode or progress_save_pending:return
+	progress_save_pending = true
+	flush_progress.call_deferred()
+
+func flush_progress() -> void:
+	progress_save_pending = false
+	if qa_mode:return
+	if OS.has_feature("web"):
+		var json = JSON.stringify(achievements.snapshot())
+		var raw: Variant = JavaScriptBridge.eval("window.noArtWriteProgress?.(%s)"%json)
+		var stored = JSON.parse_string(raw) if raw is String and not raw.is_empty() else null
+		if stored is Dictionary:
+			achievements.merge(stored)
+			best = maxi(best,achievements.scores.get(score_record_key(),0))
+			return
+	var cfg = ConfigFile.new()
+	cfg.load("user://record.cfg")
+	cfg.set_value("achievements","progress",achievements.counts)
+	cfg.save("user://record.cfg")
 
 func spawn_opening_actor(index: int) -> Node3D:
 	var actor = spawn_enemy(opening[index].position,opening[index].fast)
@@ -352,7 +386,12 @@ func save_record() -> void:
 	var cfg = ConfigFile.new()
 	cfg.load("user://record.cfg")
 	if rules.mission:cfg.set_value(mission_record_key(),"fastest",best_mission)
-	else:cfg.set_value(score_record_key(),"best",best)
+	else:
+		var key = score_record_key()
+		cfg.set_value(key,"best",maxi(best,int(cfg.get_value(key,"best",0))))
+		if best>achievements.scores.get(key,0):
+			achievements.merge_score(key,best)
+			if OS.has_feature("web"):queue_progress_save()
 	cfg.set_value("settings","sensitivity",player.sensitivity)
 	cfg.set_value("settings","reduced_motion",reduced_motion)
 	cfg.set_value("settings","music_volume",music_volume)
@@ -376,6 +415,8 @@ func reset_run_state() -> void:
 	rng.seed = 61105
 	rules.start()
 	rules.active = false
+	achievements.start_round()
+	hud.reset_badge_toasts()
 	destroy_active = false
 	finale_active = false
 	hud.destroy_time = 0
@@ -684,6 +725,7 @@ func finish_run() -> void:
 	else:
 		new_record = rules.kills > best
 		best = maxi(best,rules.kills)
+		achievements.finish_round(rules.elapsed>=rules.duration,rules.deaths)
 	save_record()
 	pending_spawn.clear()
 	bullets.clear()
@@ -1149,6 +1191,8 @@ func on_kill(enemy: Node3D, headshot: bool, from_finale: bool = false) -> void:
 			kill_group_start = rules.elapsed
 			kill_group_count = 0
 		kill_group_count += 1
+		if not from_finale and not rules.mission:
+			achievements.combat_kill(session.session_id,headshot,kill_group_count,destroy_active,player.global_position.y,comedy_mode)
 		hud.kill_group = kill_group_count
 		hud.kill_pop = .5
 		hud.multi_time = .65 if kill_group_count>=2 else 0.0
@@ -1360,6 +1404,11 @@ func scenery_blast(center: Vector3, excluded: Array[RID]) -> void:
 	blast_damage_enemies(center,SCENERY_BLAST_RADIUS,excluded)
 	blast_ring(center,SCENERY_BLAST_RADIUS)
 
+func on_structure_destroyed(structure: Node3D) -> void:
+	if not rules.active or rules.mission or not destroy_active:return
+	achievements.increment("wreck")
+	if session.session_id=="night_studio" and not structure.scenery:achievements.advance("studio",1)
+
 func barrel_blast(center: Vector3, radius: float, source: StaticBody3D) -> void:
 	if state!="RUNNING":return
 	if finale_active:
@@ -1367,7 +1416,11 @@ func barrel_blast(center: Vector3, radius: float, source: StaticBody3D) -> void:
 		return
 	if not rules.active:return
 	play_world_sound("explosion",center,-5)
+	var before = rules.kills
 	blast_damage_enemies(center,radius,[source.get_rid()])
+	if not rules.mission:
+		achievements.advance("barrel",rules.kills-before)
+		if destroy_active and source.destroy_hits>=2:achievements.increment("wreck")
 	var player_target = player.global_position+Vector3.UP
 	var player_distance = center.distance_to(player_target)
 	if player_distance<=radius and blast_clear(center,player_target,[source.get_rid()]):

@@ -244,6 +244,33 @@
     window.noArtSetComedy=selected=>{
       for(const [mode,button] of Object.entries(comedyButtons))button.setAttribute('aria-pressed',String(mode===selected));
     };
+    const progressKey='no-art-progress-v1';
+    function readProgress(){
+      try{
+        const data=JSON.parse(window.localStorage.getItem(progressKey));
+        return data&&typeof data==='object'&&!Array.isArray(data)?data:{};
+      }catch{return {};}
+    }
+    window.noArtReadProgress=()=>JSON.stringify(readProgress());
+    window.noArtWriteProgress=next=>{
+      try{
+        const saved=readProgress(),merged={};
+        for(const group of ['achievements','scores']){
+          const values=merged[group]=Object.create(null);
+          for(const entries of [saved[group],next[group]]){
+            if(!entries||typeof entries!=='object'||Array.isArray(entries))continue;
+            for(const [key,value] of Object.entries(entries)){
+              if(/^[a-z][a-z0-9_]*$/.test(key)&&Number.isSafeInteger(value)&&value>0){
+                values[key]=Math.max(values[key]??0,value);
+              }
+            }
+          }
+        }
+        const json=JSON.stringify(merged);
+        window.localStorage.setItem(progressKey,json);
+        return json;
+      }catch{return '';}
+    };
     const fingers=new Map(),ui=document.querySelector('#touch-ui'),knob=document.querySelector('#stick span');
     const controlInsetKey='no-art-control-inset';
     let savedControlInset=null;

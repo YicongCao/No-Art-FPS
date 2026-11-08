@@ -61,6 +61,7 @@ func check() -> void:
 	shoot_at(backdrop)
 	for _tick in range(40):await physics_frame
 	assert(flat.collapsed)
+	assert(game.achievements.unlocked_badge("studio") and game.achievements.counts.wreck==2)
 	var from = Vector3(0,1.35,-5.6)
 	var to = Vector3(0,1.35,-10.05)
 	var shortcut = PhysicsRayQueryParameters3D.create(from,to,1)

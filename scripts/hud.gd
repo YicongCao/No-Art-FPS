@@ -8,6 +8,14 @@ const FERRY_THUMBNAIL = preload("res://assets/ui/maps/last-ferry.webp")
 const STUDIO_THUMBNAIL = preload("res://assets/ui/maps/night-studio.webp")
 const COMEDY_ICON = preload("res://assets/ui/settings/comedy.svg")
 const ROACH_ICON = preload("res://assets/ui/settings/roach.svg")
+const BadgeCatalog = preload("res://scripts/achievements.gd")
+const TITLE_WORDS = ["NO","ART","FPS"]
+const BADGE_ANCHORS = [
+	[Vector2(.04,-.74),Vector2(.63,-.76),Vector2(1.10,-.56),Vector2(1.16,-.14)],
+	[Vector2(.05,-.69),Vector2(.54,-.74),Vector2(1.08,-.58),Vector2(1.16,-.14)],
+	[Vector2(.02,-.69),Vector2(.64,-.74),Vector2(1.07,-.55),Vector2(1.17,-.13)],
+]
+const BADGE_TOAST_DURATION = 1.8
 const PAUSE_ICON = preload("res://assets/ui/settings/pause.svg")
 const AIM_ICON = preload("res://assets/ui/settings/aim.svg")
 const MOTION_ICON = preload("res://assets/ui/settings/motion.svg")
@@ -47,6 +55,8 @@ var body_shot_button: Button
 var music_slider: HSlider
 var fire_button: Button
 var comedy_buttons: Dictionary = {}
+var badge_toasts: Array[String] = []
+var badge_toast_time = 0.0
 var fire_progress: ProgressBar
 var title_frame: ImageTexture
 var title_previews: Dictionary = {}
@@ -247,6 +257,19 @@ func title_gutters() -> Vector4:
 	if title_gutter_ratios==Vector4.ZERO:return Vector4.ONE*(40.0 if game.touch_mode else 56.0)
 	return title_gutter_ratios*Vector4(size.x,size.x,size.y,size.y)
 
+func title_word_position(row: int, gutters: Vector4) -> Vector2:
+	var baseline = maxf(116,gutters.w+90) if game.touch_mode else maxf(220,gutters.w+144)
+	return Vector2(gutters.x,baseline+row*(100 if game.touch_mode else 150))
+
+func queue_badge_toast(id: String) -> void:
+	if game.state!="RUNNING":return
+	if badge_toasts.is_empty():badge_toast_time = BADGE_TOAST_DURATION
+	badge_toasts.append(id)
+
+func reset_badge_toasts() -> void:
+	badge_toasts.clear()
+	badge_toast_time = 0
+
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -308,6 +331,11 @@ func _process(delta: float) -> void:
 	if game and game.state == "PAUSED":delta = 0
 	if game and game.state=="RUNNING":go_time = maxf(0,go_time-delta)
 	if game and game.state=="RUNNING":destroy_time = maxf(0,destroy_time-delta)
+	if game and game.state=="RUNNING" and not badge_toasts.is_empty():
+		badge_toast_time -= delta
+		if badge_toast_time<=0:
+			badge_toasts.pop_front()
+			badge_toast_time = BADGE_TOAST_DURATION
 	feed_shift = maxf(0,feed_shift-delta)
 	for i in range(ejections.size()):ejections[i] += delta
 	ejections = ejections.filter(func(age):return age<EJECTION_TIME)
@@ -443,6 +471,40 @@ func sync_comedy_buttons() -> void:
 	if OS.has_feature("web"):
 		JavaScriptBridge.eval("window.noArtSetComedy?.(%s)"%JSON.stringify(game.comedy_mode))
 
+func badge_display(id: String, center: Vector2, extent: float, tilt: float = 0) -> void:
+	var badge: Array = BadgeCatalog.BADGES[id]
+	var icon = TextureRect.new()
+	icon.name = "Badge_"+id
+	icon.texture = badge[3]
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.size = Vector2.ONE*extent
+	icon.position = center-icon.size*.5
+	icon.pivot_offset = icon.size*.5
+	icon.rotation = tilt
+	icon.tooltip_text = "%s\n%s"%[badge[0],badge[1]]
+	icon.accessibility_name = icon.tooltip_text
+	menu.add_child(icon)
+
+func title_badges(gutters: Vector4) -> void:
+	var ids = BadgeCatalog.BADGES.keys()
+	var text_size = 106 if game.touch_mode else 160
+	var extent = 34.0 if game.touch_mode else 46.0
+	for i in range(ids.size()):
+		if not game.achievements.unlocked_badge(ids[i]):continue
+		var row = floori(i*.25)
+		var anchor: Vector2 = BADGE_ANCHORS[row][i%4]
+		var width = font.get_string_size(TITLE_WORDS[row],HORIZONTAL_ALIGNMENT_LEFT,-1,text_size).x
+		var center = title_word_position(row,gutters)+anchor*Vector2(width,text_size)
+		center.x = maxf(center.x,gutters.x+extent*.46)
+		badge_display(ids[i],center,extent,deg_to_rad([-9.0,7.0,10.0,-6.0][i%4]))
+
+func results_badges(center: Vector2) -> void:
+	var ids: Array[String] = game.achievements.run_unlocks
+	var left = center.x-(ids.size()-1)*18.0
+	for i in range(ids.size()):badge_display(ids[i],Vector2(left+i*36.0,center.y+84),34)
+
 func rebuild_menu() -> void:
 	for child in menu.get_children():
 		menu.remove_child(child)
@@ -535,6 +597,7 @@ func rebuild_menu() -> void:
 		if game.dust_unlocked:
 			menu_button("SCORE ATTACK",Rect2(c.x-130,c.y-75,260,62),"arena",game.title_session_id=="score_attack")
 			menu_button("DEFUSE C4",Rect2(c.x-130,c.y+5,260,62),"defuse",game.title_session_id=="defuse_mission")
+		title_badges(gutters)
 
 	elif menu_state == "RESULTS":
 		if game.rules.mission:
@@ -543,6 +606,7 @@ func rebuild_menu() -> void:
 		else:
 			results_button(RETRY_ICON,Rect2(c.x-174,c.y+106,160,88),"retry",true,"重试 · Enter")
 			results_button(HOME_ICON,Rect2(c.x+14,c.y+106,160,88),"menu",false,"返回标题 · Esc")
+			results_badges(c)
 	elif menu_state == "PAUSED":
 		touch_inset_available = game.touch_mode and OS.has_feature("web") and bool(JavaScriptBridge.eval("window.noArtHasControlInset?.()"))
 		var card = pause_card()
@@ -740,6 +804,18 @@ func draw_destroy_notice(center: Vector2) -> void:
 		baseline.x += widths[i]+gap
 	draw_set_transform(Vector2.ZERO)
 
+func draw_badge_toast() -> void:
+	if badge_toasts.is_empty():return
+	var badge: Array = BadgeCatalog.BADGES[badge_toasts[0]]
+	var alpha = smoothstep(0,.24,badge_toast_time)*(1-smoothstep(1.62,BADGE_TOAST_DURATION,badge_toast_time))
+	var width = font.get_string_size(badge[0],HORIZONTAL_ALIGNMENT_LEFT,-1,24).x+66
+	var pos = Vector2(size.x-38-width,91)
+	if not game.reduced_motion:pos.x += 12*(1-alpha)
+	draw_rect(Rect2(pos,Vector2(width,46)),Color(INK,.92*alpha))
+	draw_rect(Rect2(pos,Vector2(3,46)),Color(GOLD,alpha))
+	draw_texture_rect(badge[3],Rect2(pos+Vector2(9,7),Vector2(32,32)),false,Color(WHITE,alpha))
+	label(badge[0],pos+Vector2(49,31),24,Color(WHITE,alpha))
+
 func _draw() -> void:
 	if game == null:return
 	var c = size*.5
@@ -751,12 +827,9 @@ func _draw() -> void:
 		draw_magazine_body(loading_magazine_rect(),count,16*incoming,incoming)
 		return
 	if state == "TITLE":
-		var words = ["NO","ART","FPS"]
 		var gutters = title_gutters()
-		var baseline = maxf(116,gutters.w+90) if game.touch_mode else maxf(220,gutters.w+144)
-		for i in range(words.size()):
-			var pos = Vector2(gutters.x,baseline+i*(100 if game.touch_mode else 150))
-			draw_string(font,pos,words[i],HORIZONTAL_ALIGNMENT_LEFT,-1,106 if game.touch_mode else 160,Color.WHITE)
+		for i in range(TITLE_WORDS.size()):
+			draw_string(font,title_word_position(i,gutters),TITLE_WORDS[i],HORIZONTAL_ALIGNMENT_LEFT,-1,106 if game.touch_mode else 160,Color.WHITE)
 		return
 	if state == "RESULTS":
 		if results_frame_pending:
@@ -792,6 +865,7 @@ func _draw() -> void:
 		var opacity = smoothstep(0,.65,go_time)
 		label("GO",c+Vector2(0,22),70,Color(WHITE,opacity),true)
 	if state=="RUNNING" and destroy_time>0:draw_destroy_notice(c)
+	if state=="RUNNING":draw_badge_toast()
 	draw_damage_impact()
 	if game.rules.mission:
 		draw_mission_radar()

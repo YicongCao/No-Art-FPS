@@ -38,6 +38,18 @@ runInNewContext(readFileSync(new URL('../web/gyro.js',import.meta.url),'utf8'),c
 runInNewContext(readFileSync(new URL('../web/gyro-setup.js',import.meta.url),'utf8').replace('export function setupGyroPanel','function setupGyroPanel'),context);
 context.loadModule=async path=>path.endsWith('gyro-setup.js')?{setupGyroPanel:context.setupGyroPanel}:{};
 runInNewContext(source.replaceAll('import(', 'loadModule('),context);
+const progressKey='no-art-progress-v1';
+stored.set(progressKey,'{malformed');
+assert.deepEqual(JSON.parse(window.noArtReadProgress()),{});
+window.noArtWriteProgress({achievements:{headshot:7},scores:{score:19,score_last_ferry_v1:32}});
+window.noArtWriteProgress({achievements:{headshot:5,first:1,bad:-3},scores:{score:11,score_amusement_park_v1:27}});
+assert.deepEqual(JSON.parse(window.noArtReadProgress()),{
+  achievements:{headshot:7,first:1},scores:{score:19,score_last_ferry_v1:32,score_amusement_park_v1:27}
+});
+const writeStorage=window.localStorage.setItem;
+window.localStorage.setItem=()=>{throw Error('storage unavailable');};
+assert.equal(window.noArtWriteProgress({achievements:{first:1}}),'');
+window.localStorage.setItem=writeStorage;
 const ui=get('#touch-ui');
 assert.equal(window.noArtHasControlInset(),false);
 assert.equal(ui.style['--control-inset'],'0px');

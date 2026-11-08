@@ -61,6 +61,7 @@ func _physics_process(delta: float) -> void:
 func collapse(show_effects: bool = true) -> void:
 	if game==null or collapsed or game.state!="RUNNING" or not (game.rules.active or game.finale_active):return
 	collapsed = true
+	if hits>=2:game.on_structure_destroyed(self)
 	# Remove both visible geometry and collision; respawns/restarts retain sources.
 	for part in parts:
 		if part is Node3D:part.hide()
