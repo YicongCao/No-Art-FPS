@@ -7,17 +7,17 @@ sys.path.insert(0,str(Path(__file__).resolve().parent))
 from arena_kit import ArenaKit
 
 P = {
-    "road": ("4f526b",.31,0), "asphalt": ("666d86",.38,0), "concrete":"a09ab0",
+    "road": ("3b415d",.31,0), "asphalt": ("515973",.38,0), "concrete":"a09ab0",
     "tile":"d7bb9c", "grout":"626a76", "teal":"247b83", "mint":"6db1a6", "green":"256052",
     "navy":"233753", "steel":"526887", "white":"f3e6df", "metal":("8fa5b7",.30,0),
     "ink":"192638", "pink":"c88096", "lilac":"a59abd", "warm":"daa386",
-    "turq":"259d9f", "blue":"4161bb", "canvas":"5367cb", "gold":"f3c452",
+    "turq":"279eb2", "blue":"3159bb", "canvas":"4778cc", "gold":"f3c452",
     "bamboo":"dca062", "rope":"f0cc93", "red":"d44d58", "orange":"e98334",
     "yellow":"ffdc70", "leaf":"8ab658", "fruit":"ecad43", "fish":"a6bfcc",
     "salmon":"dd7558", "ice":("bedbfa",.4,.12), "light":("ffd798",.55,.85),
     "pink_light":("fc668f",.55,.65), "window":("e6be83",.55,.24), "sign":("ffe9bb",.55,.55),
 }
-a=ArenaKit("rain_market",P,{"sky":"263a67","ambient":"c0ceff","energy":.79,"sun":"aebff3","sun_energy":.44,"sun_rotation":[-38,-34,0]})
+a=ArenaKit("rain_market",P,{"sky":"263a67","ambient":"c0ceff","energy":.76,"sun":"aebff3","sun_energy":.36,"sun_rotation":[-38,-34,0]})
 street=a.kit("street",True)
 district=a.kit("district",True)
 canopy=a.kit("canopy",True)
@@ -28,8 +28,14 @@ def height(z):
     return max(0,min(3.7,(18-z)*3.7/36))
 
 
+def terrace_height(z):
+    rise = min(1, max(0, (18-z)/8), max(0, (z+18)/10))
+    return height(z)+2.05*rise
+
+
 def ground(x,z):
-    return (x,round(height(z)+.06,3),z)
+    y = terrace_height(z) if abs(x)>=18 else height(z)
+    return (x,round(y+.06,3),z)
 
 
 def rail(kit,x,z0,z1,base, color="green"):
@@ -46,21 +52,58 @@ def rail(kit,x,z0,z1,base, color="green"):
 for left,right,color in [(-18,-12,"grout"),(-12,11,"road"),(11,18,"asphalt")]:
     a.slope(street,"Hill",left,right,-18,18,3.7,0,.7,color)
 for z,base in [(21.5,0),(-21.5,3.7)]:
-    a.solid(street,"End landing",(0,base-.33,z),(36,.66,7),"asphalt")
-for i in range(40):
-    z=18-(i+.5)*.9
-    y=height(z)+.045
-    street.box("Ceramic stair tread",(-15,y-.08,z),(5.55,.16,.895),"tile")
-    street.box("Stair nosing",(-15,y+.004,z+.42),(5.55,.034,.045),"grout")
-for x in (-17.65,-12.28):
-    for z,length in [(-17,3.1),(-13,3.1),(-8,3.1),(-2,3.1),(4.0,3.1),(9.5,2.6),(14.9,2.1)]:
-        rail(decor,x,z,z+length,height)
-        a.layout["slabs"].append([[(x-.065,height(z)+1.09,z),(x+.065,height(z)+1.09,z),
-                                   (x+.065,height(z+length)+1.09,z+length),(x-.065,height(z+length)+1.09,z+length)],1.13])
-    # Rail runs leave an opening at each market crossing.
-    if x == -17.65:
-        for z in (-13.9,-8.9,-3.9,2.1,7.1,12.1):
-            rail(decor,x,z,z+1.1,height)
+    a.solid(street,"End landing",(0,base-.33,z),(46,.66,7),"asphalt")
+# Raised frontage on both sides. The cross stairs reach the two galleries at
+# staggered points so the player can flank without returning to the entrances.
+crossings = {-1: (-5.7,-2.1), 1: (3.0,6.6)}
+for side in (-1,1):
+    low,high=sorted((side*18,side*23))
+    for z0,z1 in [(-18,-8),(-8,10),(10,18)]:
+        a.slope(street,"Raised shopfront walkway",low,high,z0,z1,
+                terrace_height(z0),terrace_height(z1),.68,"grout")
+    for z0,z1 in [(-18,-8),(10,18)]:
+        count=round((z1-z0)/.43)
+        step=(z1-z0)/count
+        for i in range(count):
+            z=z0+(i+.5)*step
+            y=terrace_height(z)+.05
+            street.box("Concrete stair tread",(side*20.5,y-.11,z),(4.93,.22,step-.015),"concrete")
+            street.box("Yellow stair nosing",(side*20.5,y+.012,z+step*(.43 if z>0 else -.43)),(4.91,.021,.037),"gold")
+    z0,z1=crossings[side]
+    rail_breaks=sorted((-18,-14,-8,-2,4,10,14,18,z0,z1))
+    for rear,front in zip(rail_breaks,rail_breaks[1:]):
+        if z0 < (rear+front)*.5 < z1:
+            continue
+        x=side*18
+        a.slab(street,"Tiled gallery retaining wall",
+               [(x-.105,terrace_height(front),front),(x+.105,terrace_height(front),front),
+                (x+.105,terrace_height(rear),rear),(x-.105,terrace_height(rear),rear)],2.17,"teal")
+        rail(decor,x,rear,front,terrace_height)
+        a.layout["slabs"].append([[(x-.07,terrace_height(front)+1.1,front),
+                                   (x+.07,terrace_height(front)+1.1,front),
+                                   (x+.07,terrace_height(rear)+1.1,rear),
+                                   (x-.07,terrace_height(rear)+1.1,rear)],1.11])
+    x0,x1=sorted((side*13.05,side*18.02))
+    def stair_height(x,z):
+        return height(z)+2.05*(abs(x)-13.05)/4.97
+    a.slab(street,"Cross-stair collision",
+           [(x0,stair_height(x0,z1),z1),(x1,stair_height(x1,z1),z1),
+            (x1,stair_height(x1,z0),z0),(x0,stair_height(x0,z0),z0)],.42,"grout")
+    for i in range(12):
+        x=side*(13.05+(i+.5)*4.97/12)
+        street.beam("Cross-stair concrete tread",(x,stair_height(x,z0)-.035,z0),
+                    (x,stair_height(x,z1)-.035,z1),.41,.17,"tile")
+        x-=side*.16
+        street.beam("Cross-stair yellow nosing",(x,stair_height(x,z0)+.103,z0),
+                    (x,stair_height(x,z1)+.103,z1),.046,.026,"gold")
+    for z in (z0,z1):
+        a.layout["slabs"].append([[(x0,stair_height(x0,z)+1.05,z+.056),(x1,stair_height(x1,z)+1.05,z+.056),
+                                   (x1,stair_height(x1,z)+1.05,z-.056),(x0,stair_height(x0,z)+1.05,z-.056)],1.07])
+        for offset in (.28,1.04):
+            decor.beam("Cross-stair handrail",(x0,stair_height(x0,z)+offset,z),
+                       (x1,stair_height(x1,z)+offset,z),.102,.108,"green")
+        for x in (side*13.25,side*15.65,side*17.89):
+            decor.box("Cross-stair rail post",(x,stair_height(x,z)+.54,z),(.12,1.08,.12),"green")
 for z in (-15,-10,0,10,15):
     a.solid(street,"Service guard",(17.5,height(z)+.55,z),(.13,1.1,1.3),"gold")
 for x in (-10.2,10.2,16.65):
@@ -68,6 +111,12 @@ for x in (-10.2,10.2,16.65):
         street.box("Drainage grate",(x,height(z)+.022,z),(.30,.035,.94),"ink")
         for j in range(5):
             street.box("Drainage grate bar",(x,height(z)+.047,z+(j-2)*.16),(.31,.025,.024),"metal")
+for i in range(-19,20):
+    x=i*.43
+    street.box("Entrance yellow tactile tile",(x,.016,18.3),(.416,.028,.59),"gold")
+    for dx in (-.105,.105):
+        for dz in (-.16,.16):
+            street.box("Raised tactile stud",(x+dx,.037,18.3+dz),(.087,.018,.087),"yellow")
 for z in (-12,-3,6,14):
     street.beam("Transverse drain",(-10,height(z)+.025,z),(10,height(z)+.025,z),.29,.032,"ink")
     for x in range(-9,10):
@@ -77,12 +126,17 @@ for x in (-13,13):
     for i in range(12):
         street.box("Vertical picket",(x-3.8+i*.69,.53,23),(.075,1.05,.14),"mint")
 # End facades and rails prevent jumps outside the route.
-a.solid(street,"Foot boundary",(0,1.1,24.85),(36,2.2,.3),"navy")
-a.solid(street,"Upper landing edge",(0,4.15,-24.8),(36,.90,.35),"green")
+a.solid(street,"Foot boundary",(0,1.1,24.85),(46,2.2,.3),"navy")
+a.solid(street,"Upper curb",(0,3.79,-24.85),(46,.18,.31),"green")
+# Invisible street boundary preserves the view toward the stop.
+a.layout["boxes"].append([(0,5.15,-24.90),(46,2.91,.24),0])
+street.box("Bus lane beyond the market",(0,3.57,-27.2),(46,.26,4.7),"asphalt")
+for x in range(-19,20,4):
+    street.box("Bus lane road marking",(x,3.714,-28.9),(2.35,.022,.12),"gold")
 
 for row,z in enumerate((-21,-15,-9,-3,3,9,15,21)):
-    y=height(z)
-    for x,side in [(-18.35,1),(18.35,-1)]:
+    y=terrace_height(z)
+    for x,side in [(-23.35,1),(23.35,-1)]:
         tone=("pink","lilac","warm")[row%3] if side==1 else ("lilac","steel","concrete")[row%3]
         a.solid(district,"Tong lau wall" if side==1 else "Service façade",(x,y+4.9,z),(.70,10.6,6.02),tone)
         front=x+side*.38
@@ -102,10 +156,23 @@ for row,z in enumerate((-21,-15,-9,-3,3,9,15,21)):
             district.box("Window air conditioner",(front+side*.27,yy-.74,z+.20),(.61,.51,.83),"metal")
             for t in range(5):
                 district.box("Air conditioner grille",(front+side*.60,yy-.91+t*.075,z+.20),(.025,.027,.64),"steel")
+        for dz in (-1.70,1.53):
+            yy=y+2.67
+            district.box("Window AC metal cage",(front+side*.27,yy,z+dz),(.56,.56,.79),"steel")
+            district.box("Window AC ivory housing",(front+side*.41,yy,z+dz),(.34,.48,.71),"white")
+            district.box("Window AC dark intake",(front+side*.593,yy,z+dz),(.038,.34,.56),"ink")
+            for j in range(6):
+                district.box("Window AC intake louvre",(front+side*.625,yy+(j-2.5)*.054,z+dz),(.036,.017,.58),"metal")
+            for dz_bracket in (-.26,.26):
+                district.beam("Triangular AC mounting bracket",(front,yy-.63,z+dz+dz_bracket),
+                              (front+side*.51,yy-.29,z+dz+dz_bracket),.064,.062,"steel")
         district.box("Shopfront frame",(front+side*.07,y+1.46,z),(.16,2.95,3.48),"green")
-        if side == -1:
+        if side == -1 or row%3==0:
             for j in range(18):
                 district.box("Roller shutter slat",(front+side*.18,y+.24+j*.148,z),(.085,.133,3.12),("steel","metal")[j%2])
+            district.box("Shutter barrel housing",(front+side*.29,y+2.91,z),(.31,.28,3.42),"navy")
+            district.box("Shutter bottom rail",(front+side*.24,y+.17,z),(.15,.092,3.18),"navy")
+            district.box("Shutter latch",(front+side*.35,y+.60,z-.75),(.12,.11,.21),"gold")
         else:
             district.box("Recessed green door",(front+side*.15,y+1.40,z),(.075,2.76,1.22),"green")
             district.box("Frosted shop pane",(front+side*.15,y+1.67,z+1.09),(.075,1.60,.81),"window")
@@ -121,36 +188,48 @@ for i in range(16):
             if (j+i+int(dx))%4==0:
                 district.box("Lit apartment window",(x+dx,1+j*1.3,-28.75-(i%3)*2),(.42,.43,.05),"window")
 
-# Alternating tarps leave gaps over the cross lanes and let the rainy sky through.
-for i,(z0,z1) in enumerate([(7.2,17.9),(-3.3,4.9),(-15.7,-5.6)]):
+# Blue roof on peaked steel rafters with woven raincloth hung from the bamboo.
+a.layout["awnings"]=[]
+roof_spans=[(6.7,16.95),(-4.4,5.4),(-17.4,-5.5)]
+for i,(z0,z1) in enumerate(roof_spans):
+    count=round((z1-z0)/3)
+    for j in range(count+1):
+        z=z0+(z1-z0)*j/count
+        y=height(z)
+        for side in (-1,1):
+            x=side*8.95
+            canopy.beam("Peaked blue roof steel rafter",(x,y+3.41,z),(0,y+4.82,z),.135,.17,"navy")
+            if j%2==0:
+                canopy.rod("Roof support upright",(x,y,z),(x,y+3.48,z),.075,"bamboo")
+                for dy in (-.09,0,.09):
+                    canopy.rod("Rope binding",(x,y+3.32+dy,z-.106),(x,y+3.32+dy,z+.106),.083,"rope",8)
     for side in (-1,1):
-        x=side*8.8
-        inner=side*1.8
-        for z in (z0,z1):
+        for j in range(5):
+            x0,x1=(side*8.95*n/5 for n in (j,j+1))
+            y0,y1=(4.86-1.42*abs(x)/8.95 for x in (x0,x1))
+            canopy.facet("Blue rain roof panel",[(x0,height(z0)+y0,z0),(x1,height(z0)+y1,z0),
+                         (x1,height(z1)+y1,z1),(x0,height(z1)+y0,z1)],
+                         ("blue","canvas","blue","turq","canvas")[(i+j)%5])
+            canopy.beam("Longitudinal roof seam",(x0,height(z0)+y0-.08,z0),
+                        (x0,height(z1)+y0-.08,z1),.074,.083,"navy")
+        for z in (z1-.12,z0+.25):
             y=height(z)
-            canopy.rod("Tied bamboo upright",(x,y,z),(x,y+3.3,z),.083,"bamboo")
-            canopy.rod("High canopy spine",(inner,y+1.9,z),(inner,y+4.22,z),.078,"green")
-            canopy.rod("Roof rafter",(x,y+3.25,z),(inner,y+4.23,z),.082,"bamboo")
-            for dy in (-.08,0,.08):
-                canopy.rod("Rope binding",(x,y+3.25+dy,z-.102),(x,y+3.25+dy,z+.102),.085,"rope",6)
-        for j in range(4):
-            f0,f1=j/4,(j+1)/4
-            left=x+(inner-x)*f0
-            right=x+(inner-x)*f1
-            y0=3.29+f0*.92
-            y1=3.29+f1*.92
-            canopy.facet("Tarpaulin color panel",[(left,height(z0)+y0,z0),(right,height(z0)+y1,z0),
-                         (right,height(z1)+y1,z1),(left,height(z1)+y0,z1)],
-                         ("turq","teal","canvas","blue")[(i+j+(side+1))%4])
-        canopy.rod("Awning edge",(x,height(z0)+3.29,z0),(x,height(z1)+3.29,z1),.083,"bamboo")
-        for j in range(7):
-            zs=z1-j*.32
-            canopy.facet("Striped canopy valance",[(x,height(zs)+3.29,zs),(x,height(zs-.32)+3.29,zs-.32),
-                         (x+side*.18,height(zs-.32)+2.62,zs-.32),(x+side*.18,height(zs)+2.62,zs)],
-                         ("red","white","blue")[j%3])
-for i,(z0,z1) in enumerate([(13.6,17.9),(.1,4.85),(-15.65,-10.4)]):
-    canopy.facet("Central rain cover",[(-1.9,height(z0)+4.24,z0),(1.9,height(z0)+4.24,z0),
-                 (1.9,height(z1)+4.24,z1),(-1.9,height(z1)+4.24,z1)],"teal" if i%2 else "blue")
+            x=side*7.34
+            canopy.rod("Tarpaulin bamboo header",(x-1.56,y+3.32,z),(x+1.56,y+3.32,z),.056,"bamboo")
+            a.layout["awnings"].append([[x,y+3.32,z],3.0,.83,0])
+        z=z1-1.48
+        x=side*8.92
+        y=height(z)
+        canopy.beam("Side tarpaulin bamboo header",(x,y+3.33,z-1.18),
+                    (x,y+3.33,z+1.18),.075,.075,"bamboo")
+        a.layout["awnings"].append([[x,y+3.33,z],2.28,.75,side*math.pi/2])
+for z in (-15,-10,-5,0,5,10,15):
+    y=height(z)
+    canopy.rod("Central lamp suspension",(0,y+3.81,z),(0,y+4.8,z),.031,"ink",8)
+    canopy.box("Warm fluorescent housing",(0,y+3.82,z),(1.42,.19,.49),"gold")
+    canopy.box("Yellow fluorescent diffuser",(0,y+3.71,z),(1.31,.09,.40),"light")
+    if z in (-15,-5,5,15):
+        a.spot((0,y+3.64,z),(0,y,z),"ffd075",3.05,8.3,48)
 for x in (-6.2,6.2):
     for z in (-12,-8,-1,3,9,13,16):
         y=height(z)
@@ -229,8 +308,8 @@ crates.box("Orange fish crate",(.72,.24,.11),(.56,.47,.64),"orange")
 for j in range(6):
     crates.box("Crate recess",(.515+j*.079,.28,.438),(.045,.25,.026),"red")
 crates.box("Crate rim",(.72,.48,.11),(.6,.08,.68),"gold")
-for x,z in [(-8.5,16),(-8.5,12),(-8.5,-6),(8.4,15),(8.5,-5),(14,5),(-2,-17),(2,8)]:
-    a.prop("crates",(x,height(z),z),(1.5,.53,.86),effect="ice")
+for x,z in [(-8.5,16),(-8.5,12),(-8.5,-6),(8.4,15),(8.5,-5),(14,5),(-2,-17),(2,8),(-19.15,6.1),(-21.8,-10.8),(19.1,-.9),(21.6,12.4)]:
+    a.prop("crates",(x,ground(x,z)[1]-.06,z),(1.5,.53,.86),effect="ice")
 
 streetprops=a.kit("small_props",True)
 for x,z in [(9.3,16),(9.5,12),(-8.9,-13),(15.8,-11),(14.6,14.8),(-8.9,7.0)]:
@@ -239,17 +318,29 @@ for x,z in [(9.3,16),(9.5,12),(-8.9,-13),(15.8,-11),(14.6,14.8),(-8.9,7.0)]:
     for i in range(5):
         streetprops.box("Nylon woven stripe",(x+(i-2)*.115,y+.28,z),(.073,.54,.427),("red","blue")[i%2])
     streetprops.rod("Bag handle",(x-.22,y+.54,z),(x+.22,y+.54,z),.041,"blue",6)
-    for dx in (-.18,.18):
-        for dz in (-.20,.20):
-            streetprops.box("Stacked plastic stool leg",(x+dx,y+.24,z+.76+dz),(.09,.48,.10),"red")
-    streetprops.box("Stacked plastic stool seat",(x,y+.48,z+.76),(.49,.10,.51),"red")
-for x,z in [(15.2,11.7),(15.8,-15)]:
-    y=height(z)
-    for dz in (-.24,.24):
-        streetprops.rod("Handcart wheel",(x-.15,y+.18,z+dz),(x+.12,y+.18,z+dz),.151,"ink")
-        streetprops.rod("Handcart handle side",(x,y+.18,z+dz),(x+.19,y+1.1,z+dz),.035,"blue")
-    streetprops.rod("Handcart top handle",(x+.19,y+1.1,z-.24),(x+.19,y+1.1,z+.24),.036,"blue")
-    streetprops.box("Folded toe plate",(x+.25,y+.22,z),(.39,.09,.58),"metal")
+stool=a.kit("market_stool")
+for dx in (-1,1):
+    for dz in (-1,1):
+        stool.beam("Flared stool leg",(dx*.255,.02,dz*.255),(dx*.199,.435,dz*.196),.101,.093,"red")
+    stool.box("Molded stool apron",(dx*.226,.389,0),(.065,.119,.42),"red")
+    stool.box("Seat surround",(dx*.158,.465,0),(.16,.086,.45),"red")
+    stool.box("Seat surround",(0,.465,dx*.154),(.16,.086,.142),"red")
+for x,z in [(7.88,16.2),(8.61,16.0),(7.9,8.2),(-8.25,15.3),(7.8,-17.3),(21.72,-1.8)]:
+    a.prop("market_stool",(x,ground(x,z)[1]-.06,z),(.54,.51,.54),angle=.19,effect="produce")
+cart=a.kit("shutter_trolley")
+cart.box("Blue trolley deck",(0,.20,0),(.83,.10,1.06),"blue")
+for x in (-.29,.29):
+    for z in (-.36,.36):
+        cart.rod("Rubber caster",(x-.071,.103,z),(x+.071,.103,z),.102,"ink",10)
+    cart.rod("Pusher tube",(x,.22,-.42),(x,1.13,-.50),.036,"blue")
+cart.rod("Pusher handle",(-.30,1.12,-.50),(.30,1.12,-.50),.042,"blue")
+for i in range(3):
+    y=.35+i*.28
+    cart.box("Stacked foam cooler",(0,y,0),(.72,.268,.66),"white")
+    cart.box("Foam cooler tape",(0,y-.051,0),(.725,.053,.667),"red")
+    cart.box("Foam cooler lid",(0,y+.127,0),(.745,.038,.68),"white")
+for x,z in [(22.0,9.35),(21.9,-5.94),(-22.0,2.6)]:
+    a.prop("shutter_trolley",(x,terrace_height(z),z),(.89,1.18,1.11),angle=.24,effect="ice")
 
 wash=a.kit("fish_wash")
 wash.box("Fish wash porcelain basin",(0,.94,0),(1.52,.23,.77),"white")
@@ -279,14 +370,55 @@ a.sign("FishShop","fish-shop",(-6.05,height(15.8)+2.91,15.9),(2.34,.68))
 canopy.box("Fish sign housing",(-6.05,height(15.8)+2.91,15.82),(2.5,.78,.12),"red")
 
 bus=a.kit("minibus",True)
-bus.box("Red-roof public light bus",(0,4.93,-23.7),(6.5,2.06,2.06),"white")
-bus.box("Red minibus roof",(0,5.97,-23.7),(6.57,.28,2.10),"red")
-bus.box("Red body stripe",(0,4.35,-22.66),(6.43,.22,.07),"red")
-for i in range(5):
-    bus.box("Bus passenger windows",(-2.54+i*1.18,5.33,-22.65),(1.04,.73,.055),"navy")
-for x in (-2.13,2.14):
-    bus.rod("Bus tire",(x,4.11,-22.86),(x,4.11,-22.49),.41,"ink",12)
-    bus.rod("Bus wheel hub",(x,4.11,-22.48),(x,4.11,-22.45),.22,"metal",10)
+bx,by,bz=2.25,3.7,-27.04
+def bus_box(label,at,size,color):
+    bus.box(label,(bx+at[0],by+at[1],bz+at[2]),size,color)
+
+bus_box("Minibus undercarriage",(0,.54,0),(5.91,.41,1.83),"ink")
+bus_box("Cream minibus lower body",(.04,1.00,0),(6.5,1.06,2.09),"white")
+bus_box("Minibus upper body",(-.23,1.88,0),(5.83,.81,2.04),"white")
+bus_box("Red public light bus roof",(-.16,2.34,0),(6.02,.24,2.11),"red")
+bus_box("Red rounded roof cap",(-.16,2.48,0),(5.75,.095,1.89),"red")
+bus_box("Cab forward fascia",(3.30,1.12,0),(.23,.62,2.01),"white")
+bus_box("Dark windscreen",(2.72,1.94,0),(.091,.66,1.82),"navy")
+bus_box("Route display housing",(2.774,2.22,0),(.071,.15,1.18),"ink")
+bus_box("Amber route display",(2.82,2.22,0),(.025,.096,.94),"light")
+for s in (-1,1):
+    bus_box("Window belt stripe",(0,1.48,s*1.058),(6.41,.16,.071),"red")
+    for i in range(6):
+        x=-2.68+i*.96
+        bus_box("Passenger window gasket",(x,1.92,s*1.035),(.865,.69,.052),"ink")
+        bus_box("Blue passenger glazing",(x,1.94,s*1.068),(.80,.57,.023),"steel")
+        bus_box("Window reflection",(x,2.17,s*1.086),(.70,.048,.017),"fish")
+    bus_box("Sliding minibus door outline",(1.60,1.05,s*1.071),(.021,.81,.019),"ink")
+    bus_box("Minibus door handle",(1.68,1.30,s*1.089),(.19,.046,.035),"ink")
+    bus_box("Side mirror arm",(2.56,1.94,s*1.14),(.16,.061,.25),"steel")
+    bus_box("Side mirror",(2.61,1.97,s*1.28),(.13,.245,.107),"ink")
+    bus_box("Bus headlamp",(3.43,1.09,s*.71),(.039,.22,.39),"light")
+    bus_box("Bus red tail lamp",(-3.24,1.05,s*.78),(.041,.24,.26),"red")
+    for x in (-2.09,2.04):
+        bus.rod("Recessed wheel arch",(bx+x,by+.46,bz+s*1.05),(bx+x,by+.46,bz+s*1.08),.465,"ink",12)
+        bus.rod("Rubber tire",(bx+x,by+.43,bz+s*.79),(bx+x,by+.43,bz+s*1.115),.405,"ink",14)
+        bus.rod("Steel wheel cap",(bx+x,by+.43,bz+s*1.12),(bx+x,by+.43,bz+s*1.145),.234,"metal",12)
+bus_box("Front bumper",(3.42,.71,0),(.22,.22,2.10),"ink")
+bus_box("Front grille",(3.45,1.08,0),(.066,.23,.83),"ink")
+for y in (1.015,1.081,1.147):
+    bus_box("Front grille chrome slat",(3.49,y,0),(.025,.017,.78),"metal")
+
+x,z=-2.47,-24.04
+a.solid(decor,"Minibus stop post",(x,4.98,z),(.09,2.54,.09),"red")
+decor.rod("Circular minibus stop sign",(x,6.07,z),(x,6.07,z+.08),.39,"red",24)
+a.sign("MinibusStop","minibus-stop",(x,6.07,z+.085),(.75,.75))
+decor.box("Timetable mount",(x,5.18,z+.075),(.45,.57,.095),"navy")
+for j in range(6):
+    decor.box("Minibus timetable rule",(x,5.02+j*.064,z+.133),(.34,.018,.013),"white")
+for x,z in [(-4.48,-22.55),(4.17,-22.72),(-14.45,-20.8),(14.85,-20.7)]:
+    a.layout["boxes"].append([(x,4.145,z),(1.52,.89,.15),0])
+    for side in (-1,1):
+        xx=x+side*.68
+        decor.rod("Yellow bicycle barrier leg",(xx,3.7,z),(xx,4.42,z),.064,"gold",8)
+        decor.rod("Yellow bicycle barrier elbow",(xx,4.42,z),(x+side*.55,4.55,z),.064,"gold",8)
+    decor.rod("Yellow bicycle barrier top",(x-.55,4.55,z),(x+.55,4.55,z),.064,"gold",8)
 
 for x,z,color in [(-6.2,12,"ffb974"),(6.2,12,"f286a0"),(-6.2,2,"ffc280"),(6.2,-5,"ffb974"),(-6.2,-12,"ffa56f")]:
     y=height(z)
@@ -296,16 +428,22 @@ for x,z,color in [(-9.2,10,"40c3ff"),(9.6,11,"fe51be"),(8.2,-8,"fd6fbe"),(-9.4,-
     a.spot((x,y+3.1,z),(x,y,z-1),color,5.4,12.0,41,(1.9,0,1.5))
 a.layout.update(
     start=ground(0,19), heading=0,
-    opening=[ground(x,z) for x,z in [(-1,12),(13,14),(-15,14),(2,3),(-15,-9),(13,-9),(2,-10),(-2,10)]],
-    spawns=[ground(x,z) for x,z in [(-15,19),(-15,8),(-15,-4),(-15,-14),(15,18),(15,7),(15,-5),(15,-15),
+    opening=[ground(x,z) for x,z in [(-1,12),(13,14),(-15,14),(2,3),(-20.25,-8),(20.35,-8),(2,-10),(-2,10)]],
+    spawns=[ground(x,z) for x,z in [(-20.4,19),(-20.1,8),(-20.35,-4),(-20.6,-14),(20.15,18),(20.15,7),(20.5,-5),(20.25,-15),
                                                   (0,-20),(-3,17),(1,1),(-2,-10),(3,11),(9,-9)]],
-    respawns=[ground(x,z) for x,z in [(0,19),(-15,12),(14,17),(2,7),(-15,-6),(14,-12),(0,-18)]],
-    route=[ground(x,z) for x,z in [(-15,2),(-15,-17),(0,-19),(15,-13),(15,6),(15,19),(0,2),(0,-9),(-10,2.55),(-15,2.55),(-10,13.45),(-15,13.45)]],
+    respawns=[ground(x,z) for x,z in [(0,19),(-20.45,12),(20.2,17),(2,7),(-20.2,-6),(20.4,-12),(0,-18)]],
+    route=[ground(x,z) for x,z in [(-20.5,18.9),(-20.5,10),(-20.5,-3.9),(-12.0,-3.9),(-20.5,-3.9),(-20.5,-18.9),
+                                    (0,-19.5),(20.5,-18.9),(20.5,-8),(20.5,4.8),(12.3,4.8),(20.5,4.8),
+                                    (20.5,18.9),(0,19),(0,2),(0,-9),(-10,2.55),(-15,2.55),(-10,13.45),(-15,13.45)]],
     barrels=[ground(x,z) for x,z in [(-3.9,8.0),(9.5,-9.6),(-8.1,-10.1)]],
     comedy=[8.7,height(20.4),20.4,0.0],
     cameras={
-        "slope-entry":[[.25,1.86,19.9],[.2,2.98,-2],68],
-        "fish-crossing":[[-9.45,2.13,16.9],[-11.7,2.64,9.4],68],
+        "slope-entry":[[.1,2.29,22.15],[.22,2.56,-2],78],
+        "fish-crossing":[[-19.2,2.67,19.68],[-13.25,2.87,10.45],80],
+        "upper-crossing":[[-20.55,6.05,-3.88],[-9.6,2.7,-3.74],72],
+        "shutter-lane":[[19.25,2.69,17.64],[22.02,4.06,9.50],69],
+        "minibus-stop":[[-5.3,5.65,-20.15],[1.18,5.07,-26.9],70],
+        "wet-aisle":[[.40,1.45,16.12],[.38,1.47,1.9],73],
         "service-frenzy":[[12.1,2.63,13.5],[8.0,2.82,4.1],72],
     })
 a.write()

@@ -50,6 +50,9 @@ func check() -> void:
 			var ends: Array = SHORTCUTS[id]
 			intact_distance = route_length(ends[0],ends[1])
 			assert(is_finite(intact_distance) and intact_distance>ends[0].distance_to(ends[1])+3.0)
+		if id=="rain_market":
+			assert(route_length(Vector3(-20.5,4.36,-3.9),Vector3(-12,2.31,-3.9))<10.0)
+			assert(route_length(Vector3(20.5,3.47,4.8),Vector3(12.3,1.42,4.8))<10.0)
 		if id=="baggage_below":
 			assert(route_length(Vector3(-15.4,.06,13),Vector3(-15.4,.06,9))<4.5)
 		assert(game.arena.frenzy_lights.all(func(light):return not light.visible))

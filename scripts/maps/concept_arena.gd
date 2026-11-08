@@ -3,6 +3,7 @@ extends "res://scripts/arena.gd"
 const Sweep = preload("res://scripts/maps/sweeping_light.gd")
 const CombatFX = preload("res://scripts/combat_fx.gd")
 const RAIN_SHADER = preload("res://assets/shaders/market_rain.gdshader")
+const AWNING_SHADER = preload("res://assets/shaders/market_awning.gdshader")
 const PUDDLES_SHADER = preload("res://assets/shaders/market_puddles.gdshader")
 const RED_STRIP_SHADER = preload("res://assets/shaders/observatory_light_strip.gdshader")
 const PIPE_SPRAY_SHADER = preload("res://assets/shaders/market_pipe_spray.gdshader")
@@ -19,6 +20,7 @@ const IMPACTS = {
 
 @export var route_paths: Array[NodePath] = []
 @export var spot_specs: Array = []
+@export var awning_specs: Array = []
 @export var belt_directions: Array[int] = []
 @export var comedy_site: Vector4
 @export var normal_sky: Color
@@ -30,6 +32,8 @@ var belt_lamps: Array[MeshInstance3D] = []
 var belts: Array[StaticBody3D] = []
 var rain: MultiMeshInstance3D
 var puddles: ShaderMaterial
+var awning_paint: ShaderMaterial
+var wind_phase: float = 0.0
 var service_shortcut: Node3D
 var pipe_spray: MeshInstance3D
 var star_chart: MeshInstance3D
@@ -76,8 +80,16 @@ func _ready() -> void:
 		add_rain()
 		puddles = ShaderMaterial.new()
 		puddles.shader = PUDDLES_SHADER
-		var film = horizontal_effect(Vector2(34.8,36.0),Vector3(0,1.888,0),puddles)
-		film.rotation.x = atan(3.7/36.0)
+		add_wet_film(0,36.0,-18,18,3.7,0)
+		add_wet_film(0,46.0,-25,-18,3.7,3.7)
+		add_wet_film(0,46.0,18,25,0,0)
+		for x in [-20.5,20.5]:
+			var upper_y = 3.7*26/36+2.05
+			var lower_y = 3.7*8/36+2.05
+			add_wet_film(x,4.82,-18,-8,3.7,upper_y)
+			add_wet_film(x,4.82,-8,10,upper_y,lower_y)
+			add_wet_film(x,4.82,10,18,lower_y,0)
+		add_awnings()
 		service_shortcut = get_node("Props/ServiceShortcut")
 		pipe_spray = MeshInstance3D.new()
 		var spray_mesh = QuadMesh.new()
@@ -111,6 +123,33 @@ func horizontal_effect(size: Vector2, at: Vector3, paint: ShaderMaterial) -> Mes
 	add_child(effect)
 	return effect
 
+func add_wet_film(x: float, width: float, rear: float, front: float, high_y: float, low_y: float) -> void:
+	var length = front-rear
+	var drop = high_y-low_y
+	var film = horizontal_effect(Vector2(width,Vector2(length,drop).length()),
+		Vector3(x,(high_y+low_y)*.5+.028,(front+rear)*.5),puddles)
+	film.rotation.x = atan2(drop,length)
+
+func add_awnings() -> void:
+	awning_paint = ShaderMaterial.new()
+	awning_paint.shader = AWNING_SHADER
+	var fabric = PlaneMesh.new()
+	fabric.orientation = PlaneMesh.FACE_Z
+	fabric.size = Vector2.ONE
+	fabric.subdivide_width = 31
+	fabric.subdivide_depth = 11
+	for entry in awning_specs:
+		var cloth = MeshInstance3D.new()
+		cloth.name = "WindblownTarpaulin"
+		cloth.mesh = fabric
+		cloth.material_override = awning_paint
+		cloth.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		cloth.extra_cull_margin = .46
+		cloth.scale = Vector3(entry[1],entry[2],1.0)
+		cloth.position = Vector3(entry[0][0],entry[0][1]-entry[2]*.5,entry[0][2])
+		cloth.rotation.y = entry[3]
+		add_child(cloth)
+
 func add_rain() -> void:
 	var batch = MultiMesh.new()
 	batch.transform_format = MultiMesh.TRANSFORM_3D
@@ -124,10 +163,10 @@ func add_rain() -> void:
 	for i in range(batch.instance_count):
 		var z = random.randf_range(-23,23)
 		var y = random.randf_range(5.2,10.3)+clampf((18-z)*.103,0,3.7)
-		var at = Vector3(random.randf_range(-17.6,17.6),y,z)
+		var at = Vector3(random.randf_range(-22.7,22.7),y,z)
 		batch.set_instance_transform(i,Transform3D(Basis(Vector3.FORWARD,-.11),at))
 		batch.set_instance_custom_data(i,Color(random.randf(),0,0,1))
-	batch.custom_aabb = AABB(Vector3(-19,-3,-25),Vector3(38,18,50))
+	batch.custom_aabb = AABB(Vector3(-24,-3,-25),Vector3(48,18,50))
 	rain = MultiMeshInstance3D.new()
 	rain.multimesh = batch
 	rain.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -144,12 +183,18 @@ func add_belt_bags() -> void:
 		add_child(bag)
 		belt_bags.append(bag)
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if game==null:
 		return
 	var active: bool = game.state=="RUNNING" and game.rules.active and not game.finale_active
 	if is_instance_valid(rain):
 		rain.visible = not game.reduced_motion
+		if active or game.state=="TITLE":
+			var gust_speed = 4.9 if game.destroy_active else 2.7
+			wind_phase = fposmod(wind_phase+delta*gust_speed,TAU*2.0)
+		var phase = 0.0 if game.reduced_motion else wind_phase
+		awning_paint.set_shader_parameter("wind_phase",phase)
+		puddles.set_shader_parameter("ripple_phase",phase)
 	var elapsed: float = game.rules.elapsed
 	if pipe_spray:
 		pipe_spray.visible = game.destroy_active and service_shortcut.collapsed
