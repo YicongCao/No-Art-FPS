@@ -13,9 +13,9 @@
 3. <img src="../../assets/ui/achievements/triple.svg" width="24" height="24" alt="三连击徽章"> **三连击 · TRIPLE TAP**
    - 在 1.25 秒内完成 3 次击杀
    - 3 kills within 1.25 seconds
-4. <img src="../../assets/ui/achievements/barrel.svg" width="24" height="24" alt="一桶双响徽章"> **一桶双响 · BARREL DEAL**
-   - 用同一个油桶击杀 2 名敌人
-   - 2 kills from a single oil barrel
+4. <img src="../../assets/ui/achievements/barrel.svg" width="24" height="24" alt="一桶搞定徽章"> **一桶搞定 · BARREL DEAL**
+   - 用油桶爆炸击杀 1 名敌人
+   - Kill an enemy with an oil barrel explosion
 5. <img src="../../assets/ui/achievements/yard.svg" width="24" height="24" alt="货场值班徽章"> **货场值班 · YARD SHIFT**
    - 在一局货场中完成 12 次战斗击杀
    - 12 combat kills in one yard round
@@ -44,7 +44,7 @@
 ## 实际计数口径
 
 - **战斗击杀**包括回合内的爆炸击杀。倒计时归零后的全场爆炸只计入成绩。拆弹模式无这组徽章进度。
-- **三连击**的 1.25 秒从这一组的第一杀开始计时。**一桶双响**只看单只油桶的爆炸，连锁引爆的其他油桶各自计数。
+- **三连击**的 1.25 秒从这一组的第一杀开始计时。**一桶搞定**在油桶爆炸击杀一名敌人时解锁，连锁引爆的油桶也算。
 - **涨潮时刻**用击杀发生时的玩家高度判定，门槛为关卡坐标 Y ≥ 2.55 米。
 - **节目停播**和**拆迁小队**都在狂暴模式期间计数。节目停播需要打掉演播厅中带背景板标记的物件。
 - **屹立不倒**在结算时判定。**水花四溅**和**拖鞋正义**按启用的模式累计，油桶或厕所爆炸造成的战斗击杀也算。

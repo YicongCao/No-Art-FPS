@@ -7,7 +7,7 @@ const BADGES = {
 	"first": ["FIRST BLOOD","First combat kill",1,preload("res://assets/ui/achievements/first.svg")],
 	"headshot": ["PINPOINT","12 headshots across rounds",12,preload("res://assets/ui/achievements/headshot.svg")],
 	"triple": ["TRIPLE TAP","3 kills within 1.25 seconds",3,preload("res://assets/ui/achievements/triple.svg")],
-	"barrel": ["BARREL DEAL","2 kills from a single oil barrel",2,preload("res://assets/ui/achievements/barrel.svg")],
+	"barrel": ["BARREL DEAL","Kill an enemy with an oil barrel explosion",1,preload("res://assets/ui/achievements/barrel.svg")],
 	"yard": ["YARD SHIFT","12 combat kills in one yard round",12,preload("res://assets/ui/achievements/yard.svg")],
 	"park": ["LAST RIDE","5 kills in one park DESTROY ALL phase",5,preload("res://assets/ui/achievements/park.svg")],
 	"ferry": ["HIGH TIDE","3 kills from high ground on the ferry in one round",3,preload("res://assets/ui/achievements/ferry.svg")],

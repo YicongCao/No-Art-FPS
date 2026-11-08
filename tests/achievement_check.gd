@@ -23,6 +23,7 @@ func check() -> void:
 	game.clear_round()
 	game.set_physics_process(false)
 	game.player.enabled = false
+	game.player.set_process_unhandled_input(false)
 	game.player.position = Vector3(18,.05,14)
 	var foe = game.spawn_enemy(Vector3(18,0,9),false)
 	foe.set_physics_process(false)
@@ -37,13 +38,14 @@ func check() -> void:
 	assert(game.achievements.run_unlocks==["first"] and game.hud.badge_toasts==["first"])
 	for _tick in range(15):await physics_frame
 	await capture("achievement-toast")
-	for x in [17,19]:
-		var target = game.spawn_enemy(Vector3(x,0,12),false)
+	for i in range(2):
+		var target = game.spawn_enemy(Vector3(17+2*i,0,12),false)
 		target.set_physics_process(false)
-	await physics_frame
-	await physics_frame
-	game.barrel_blast(Vector3(18,1,12),5,game.arena.barrels[0])
-	assert(game.achievements.unlocked_badge("barrel") and game.achievements.unlocked_badge("triple"))
+		await physics_frame
+		await physics_frame
+		game.barrel_blast(Vector3(18,1,12),5,game.arena.barrels[i])
+		assert(target.dead and game.achievements.unlocked_badge("barrel"))
+		assert(game.achievements.unlocked_badge("triple")==(i==1))
 	game.rules.elapsed = game.rules.duration
 	game.rules.active = false
 	var final_foe = game.spawn_enemy(Vector3(16,0,10),false)
@@ -170,9 +172,14 @@ func check_catalog() -> void:
 	for height in [0.05,2.2,2.64,2.64,2.64]:
 		progress.combat_kill("last_ferry",false,1,false,height,"")
 	assert(progress.unlocked_badge("ferry") and progress.counts.ferry==3)
-	progress.advance("barrel",1)
+	progress.advance("barrel",0)
 	assert(not progress.unlocked_badge("barrel"))
-	progress.advance("barrel",2)
+	progress.advance("barrel",1)
+	assert(progress.unlocked_badge("barrel"))
+	var legacy = Progress.new()
+	legacy.merge({"achievements":{"barrel":2}})
+	assert(legacy.counts.barrel==1 and legacy.unlocked_badge("barrel"))
+	assert(legacy.run_unlocks.is_empty())
 	progress.advance("studio",1)
 	for i in range(8):progress.increment("wreck")
 	assert(unlocks.size()==12 and progress.counts.size()==12)
