@@ -321,6 +321,18 @@ func show_title_frame(texture: ImageTexture, tints: PackedStringArray) -> void:
 	if not tints.is_empty():
 		JavaScriptBridge.eval("window.noArtSetSky?.('#%s','#%s')"%[tints[0],tints[1]])
 
+func save_web_title_preview(map_id: String) -> void:
+	var encoded := ""
+	if title_frame:
+		var preview := title_frame.get_image()
+		if preview and not preview.is_empty():
+			var scale := minf(1.0,minf(1200.0/preview.get_width(),810.0/preview.get_height()))
+			if scale<1.0:
+				preview.resize(maxi(1,roundi(preview.get_width()*scale)),
+					maxi(1,roundi(preview.get_height()*scale)),Image.INTERPOLATE_LANCZOS)
+			encoded = Marshalls.raw_to_base64(preview.save_webp_to_buffer(true,.78))
+	JavaScriptBridge.get_interface("window").noArtRememberTitle(map_id,encoded)
+
 func update_web_title_layout(args: Array) -> void:
 	if menu_state=="PAUSED" and args.size()>4 and touch_inset_available!=bool(args[4]):
 		menu_size = Vector2.ZERO

@@ -12,6 +12,7 @@ func capture() -> void:
 	root.size = Vector2i(3240,1080)
 	root.content_scale_size = root.size
 	var game = load("res://scenes/main.tscn").instantiate()
+	game.remember_title_selection = false
 	root.add_child(game)
 	for frame in range(900):
 		await process_frame

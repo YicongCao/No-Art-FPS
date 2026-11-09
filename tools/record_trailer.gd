@@ -15,6 +15,7 @@ func run() -> void:
 	root.content_scale_size = OUTPUT_SIZE
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
 	var game = load("res://scenes/main.tscn").instantiate()
+	game.remember_title_selection = false
 	root.add_child(game)
 	for _frame in range(360):
 		if game.title_frame_ready:

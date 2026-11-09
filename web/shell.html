@@ -152,6 +152,25 @@
     </div>
     <noscript class="loader-noscript">请启用 JavaScript 后再试玩。</noscript>
   </div>
+  <script>
+    const titleSelectionKey='no-art-fps.title.v1';
+    const titleMapIds=new Set(['score_attack','amusement_park','last_ferry','night_studio','sandgate','bb_office','rain_market','baggage_below','snowline']);
+    const titleImageLimit=320000;
+    const initialTitle=(()=>{
+      try{
+        const stored=JSON.parse(window.localStorage.getItem(titleSelectionKey));
+        if(titleMapIds.has(stored?.id))return stored;
+      }catch{}
+      return {};
+    })();
+    window.noArtReadTitleSelection=()=>initialTitle.id||'';
+    const cachedTitleImage=initialTitle.image;
+    if(typeof cachedTitleImage==='string'&&cachedTitleImage.length<=titleImageLimit&&/^UklGR[A-Za-z0-9+/]+=*$/.test(cachedTitleImage)){
+      const background=document.querySelector('#loader-background');
+      background.addEventListener('error',()=>background.setAttribute('href','title-background.webp'),{once:true});
+      background.setAttribute('href','data:image/webp;base64,'+cachedTitleImage);
+    }
+  </script>
   <canvas id="canvas" tabindex="0" aria-label="No-Art-FPS 游戏画面" data-i18n-aria-label></canvas>
   <div id="sky-edge" aria-hidden="true"></div><div id="title-safe-area" aria-hidden="true"></div>
   <div id="help" hidden><span class="desktop-controls" data-i18n>WASD 移动 · Shift 冲刺 · 鼠标瞄准 · 左键开火 · G 投雷 · Esc 暂停</span><span class="mobile-warning" data-i18n>左侧移动 · 右侧瞄准</span></div>
@@ -438,7 +457,9 @@
     let ready=false,failed=false,downloaded=0;
     const reducedMotion=matchMedia('(prefers-reduced-motion:reduce)');
     const themeColor=document.querySelector('meta[name="theme-color"]');
-    let menuSky='#29395a',liveSky='#5b7fc8',destroySky='';
+    const isSkyColor=value=>typeof value==='string'&&/^#[\da-f]{6}$/i.test(value);
+    let menuSky=isSkyColor(initialTitle.menuSky)?initialTitle.menuSky:'#29395a';
+    let liveSky=isSkyColor(initialTitle.liveSky)?initialTitle.liveSky:'#5b7fc8',destroySky='';
     window.noArtUpdateSky=()=>{
       const tint=['RUNNING','CAPTURING','PAUSED','RESULTS'].includes(document.body.dataset.game)?(destroySky||liveSky):menuSky;
       document.documentElement.style.setProperty('--sky-tint',tint);
@@ -446,6 +467,19 @@
     };
     window.noArtSetSky=(menu,live)=>{menuSky=menu;liveSky=live;window.noArtUpdateSky();};
     window.noArtSetDestroySky=tint=>{destroySky=tint;window.noArtUpdateSky();};
+    window.noArtRememberTitle=(id,image)=>{
+      if(!titleMapIds.has(id))return;
+      const selection={id,menuSky,liveSky};
+      try{
+        if(image&&image.length<=titleImageLimit){
+          window.localStorage.setItem(titleSelectionKey,JSON.stringify({...selection,image}));
+          return;
+        }
+      }catch{}
+      try{window.localStorage.setItem(titleSelectionKey,JSON.stringify(selection));}catch{}
+    };
+    document.querySelector('#loader-sky').setAttribute('fill',liveSky);
+    window.noArtUpdateSky();
     const safeArea=document.querySelector('#title-safe-area');
     function layoutLoader(){
       document.documentElement.style.setProperty('--visible-height',`${window.visualViewport?.height||innerHeight}px`);

@@ -16,6 +16,7 @@ func check() -> void:
 	var weapon = "slipper_launcher" if roach else "water_blaster"
 	var bolt = "SlipperBolt" if roach else "WaterBolt"
 	game = load("res://scenes/main.tscn").instantiate()
+	game.remember_title_selection = false
 	root.add_child(game)
 	for _frame in range(900):
 		await process_frame

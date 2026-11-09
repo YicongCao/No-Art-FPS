@@ -14,6 +14,7 @@ func _initialize() -> void:
 
 func check() -> void:
 	game = load("res://scenes/main.tscn").instantiate()
+	game.remember_title_selection = false
 	root.add_child(game)
 	for _frame in range(900):
 		await process_frame

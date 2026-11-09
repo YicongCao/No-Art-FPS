@@ -11,6 +11,14 @@ const FERRY_SESSION_PATH = "res://data/sessions/last_ferry.tres"
 const STUDIO_SESSION_PATH = "res://data/sessions/night_studio.tres"
 const SANDGATE_SESSION_PATH = "res://data/sessions/sandgate.tres"
 const OFFICE_SESSION_PATH = "res://data/sessions/bb_office.tres"
+const TITLE_SESSIONS = {
+	"score_attack":"res://data/sessions/score_attack.tres",
+	"amusement_park":PARK_SESSION_PATH,
+	"last_ferry":FERRY_SESSION_PATH,
+	"night_studio":STUDIO_SESSION_PATH,
+	"sandgate":SANDGATE_SESSION_PATH,
+	"bb_office":OFFICE_SESSION_PATH,
+}
 const CONCEPT_SESSIONS = {
 	"rain_market":"res://data/sessions/rain_market.tres",
 	"baggage_below":"res://data/sessions/baggage_below.tres",
@@ -111,6 +119,7 @@ var destroy_effects_warmed = false
 var enemy_model: PackedScene
 var title_frame_ready = false
 var title_session_id = DefaultSession.session_id
+var remember_title_selection = true
 var destroy_active = false
 var finale_active = false
 var finale_elapsed = 0.0
@@ -168,6 +177,7 @@ func _ready() -> void:
 	TranslationServer.add_translation(preload("res://data/ui_text.zh.translation"))
 	TranslationServer.set_locale(initial_language())
 	rng.seed = 61105
+	var restored_session := false
 	if "--mission" in OS.get_cmdline_user_args():
 		session = load("res://data/sessions/defuse.tres")
 		rules = session.make_rules()
@@ -186,6 +196,14 @@ func _ready() -> void:
 	elif "--office" in OS.get_cmdline_user_args():
 		session = load(OFFICE_SESSION_PATH)
 		rules = session.make_rules()
+	elif remember_title_selection and not qa_mode and "--capture" not in OS.get_cmdline_user_args():
+		var remembered_path := title_session_path(read_title_selection())
+		if not remembered_path.is_empty() and remembered_path!=DefaultSession.resource_path:
+			var remembered = load(remembered_path)
+			if remembered and remembered.map_scene:
+				session = remembered
+				rules = session.make_rules()
+				restored_session = true
 	title_session_id = session.session_id
 	var settlement = Settlement.new()
 	settlement.game = self
@@ -254,8 +272,12 @@ func _ready() -> void:
 	set_music_volume(music_volume)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	nav_ready = await wait_for_map_navigation()
+	if not nav_ready and restored_session:await select_session(DefaultSession)
 	if not nav_ready:push_error("Navigation map failed to synchronize or targets are unreachable")
-	await capture_opening_frame()
+	if not title_frame_ready:await capture_opening_frame()
+	if OS.has_feature("web"):
+		await RenderingServer.frame_post_draw
+		JavaScriptBridge.eval("window.noArtReady?.()")
 	if "--capture" in OS.get_cmdline_user_args():
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png("res://artifacts/title.png")
@@ -458,9 +480,6 @@ func capture_opening_frame() -> void:
 		hud.set_title_frame(get_viewport().get_texture().get_image(),title_preview_key())
 	title_frame_ready = true
 	hud.show()
-	if OS.has_feature("web") and not switching_session:
-		await RenderingServer.frame_post_draw
-		JavaScriptBridge.eval("window.noArtReady && window.noArtReady()")
 
 func capture_map_preview() -> Image:
 	# The visible viewport keeps its old title frame while the new camera renders.
@@ -1789,11 +1808,31 @@ func settle_rules() -> void:
 	if objective_focus and rules.completed.has(objective_focus.objective_id):objective_focus.mark_defused()
 	if not rules.active:finish_run()
 
+func title_session_path(id: String) -> String:
+	return TITLE_SESSIONS.get(id,CONCEPT_SESSIONS.get(id,""))
+
+func read_title_selection() -> String:
+	if OS.has_feature("web"):
+		var saved: Variant = JavaScriptBridge.eval("window.noArtReadTitleSelection?.()")
+		return saved if saved is String else ""
+	var cfg = ConfigFile.new()
+	if cfg.load("user://record.cfg")!=OK:return ""
+	var saved: Variant = cfg.get_value("settings","title_session","")
+	return saved if saved is String else ""
+
+func save_title_selection() -> void:
+	if not remember_title_selection or qa_mode or title_preview_key().is_empty():return
+	if OS.has_feature("web"):
+		hud.save_web_title_preview(session.session_id)
+	else:
+		var cfg = ConfigFile.new()
+		cfg.load("user://record.cfg")
+		cfg.set_value("settings","title_session",session.session_id)
+		cfg.save("user://record.cfg")
+
 func title_preview_key() -> String:
-	var path: String = session.resource_path
-	if path in CONCEPT_SESSIONS.values():return path
-	if path in [DefaultSession.resource_path,PARK_SESSION_PATH,FERRY_SESSION_PATH,STUDIO_SESSION_PATH,SANDGATE_SESSION_PATH,OFFICE_SESSION_PATH]:return path
-	return ""
+	var path := title_session_path(session.session_id)
+	return path if path==session.resource_path else ""
 
 func select_session(selection: Variant, highlighted_id: String = "") -> void:
 	if state!="TITLE" or switching_session or not selection:return
@@ -1867,6 +1906,7 @@ func select_session(selection: Variant, highlighted_id: String = "") -> void:
 		nav_ready = await wait_for_map_navigation(failed_iteration)
 		title_frame_ready = nav_ready
 	finish_session_switch(focus_name)
+	if session==resource and nav_ready and title_frame_ready:save_title_selection()
 
 func finish_session_switch(focus_name: StringName) -> void:
 	title_session_id = session.session_id

@@ -10,6 +10,7 @@ func _initialize() -> void:
 
 func check() -> void:
 	game = load("res://scenes/main.tscn").instantiate()
+	game.remember_title_selection = false
 	root.add_child(game)
 	while not game.title_frame_ready:await process_frame
 	game.qa_mode = true
