@@ -9,19 +9,19 @@ A colorful low-poly FPS built with Godot and Blender. Score as many kills as you
     <td colspan="3"><a href="artifacts/readme/studio-frenzy.png"><img src="artifacts/readme/studio-frenzy.png" width="100%" alt="Night Studio in DESTROY ALL mode, with neon spotlights sweeping the stage"></a></td>
   </tr>
   <tr>
-    <td width="33%"><a href="artifacts/readme/title.png"><img src="artifacts/readme/title.png" width="100%" alt="No-Art-FPS title screen with the three map selections"></a></td>
-    <td width="33%"><a href="artifacts/readme/yard-containers.png"><img src="artifacts/readme/yard-containers.png" width="100%" alt="Container Yard forklift and graffiti with an approaching rusher"></a></td>
-    <td width="33%"><a href="artifacts/readme/yard-terrace.png"><img src="artifacts/readme/yard-terrace.png" width="100%" alt="Container Yard pool terrace on the upper level"></a></td>
+    <td width="33%"><a href="artifacts/readme/v0.3.0/container-yard.png"><img src="artifacts/readme/v0.3.0/container-yard.png" width="100%" alt="Container Yard forklift, stacked shipping containers, and graffiti"></a></td>
+    <td width="33%"><a href="artifacts/readme/v0.3.0/sunset-park.png"><img src="artifacts/readme/v0.3.0/sunset-park.png" width="100%" alt="Sunset Park carousel with the blue roller coaster behind it"></a></td>
+    <td width="33%"><a href="artifacts/readme/v0.3.0/last-ferry.png"><img src="artifacts/readme/v0.3.0/last-ferry.png" width="100%" alt="Last Ferry foredeck with the mast and night harbor skyline"></a></td>
   </tr>
   <tr>
-    <td width="33%"><a href="artifacts/readme/yard-warehouse.png"><img src="artifacts/readme/yard-warehouse.png" width="100%" alt="A shot down the warehouse aisle between stacks of crates"></a></td>
-    <td width="33%"><a href="artifacts/readme/park-carousel.png"><img src="artifacts/readme/park-carousel.png" width="100%" alt="Sunset Amusement Park carousel plaza with two enemies"></a></td>
-    <td width="33%"><a href="artifacts/readme/park-skate-bowl.png"><img src="artifacts/readme/park-skate-bowl.png" width="100%" alt="The blue skate bowl below the roller coaster at sunset"></a></td>
+    <td width="33%"><a href="artifacts/readme/v0.3.0/night-studio.png"><img src="artifacts/readme/v0.3.0/night-studio.png" width="100%" alt="Night Studio broadcast camera and stage beneath the spotlight rig"></a></td>
+    <td width="33%"><a href="artifacts/readme/v0.3.0/sandgate.png"><img src="artifacts/readme/v0.3.0/sandgate.png" width="100%" alt="Sandgate market street facing the arched double doors"></a></td>
+    <td width="33%"><a href="artifacts/readme/v0.3.0/bb-office.png"><img src="artifacts/readme/v0.3.0/bb-office.png" width="100%" alt="BB Office cubicles, desk screens, and exposed ceiling pipes"></a></td>
   </tr>
   <tr>
-    <td width="33%"><a href="artifacts/readme/park-coaster-station.png"><img src="artifacts/readme/park-coaster-station.png" width="100%" alt="Roller coaster tracks and the sunset park from the station platform"></a></td>
-    <td width="33%"><a href="artifacts/readme/ferry-deck.png"><img src="artifacts/readme/ferry-deck.png" width="100%" alt="Last Ferry main deck with the mast, moon and distant lighthouse"></a></td>
-    <td width="33%"><a href="artifacts/readme/ferry-catwalk.png"><img src="artifacts/readme/ferry-catwalk.png" width="100%" alt="A fire round from the Last Ferry catwalk overlooking the night harbor"></a></td>
+    <td width="33%"><a href="artifacts/readme/v0.3.0/hong-kong-rain-market.png"><img src="artifacts/readme/v0.3.0/hong-kong-rain-market.png" width="100%" alt="Hong Kong Rain Market fish stalls under striped awnings and blue roofing"></a></td>
+    <td width="33%"><a href="artifacts/readme/v0.3.0/baggage-below.png"><img src="artifacts/readme/v0.3.0/baggage-below.png" width="100%" alt="Baggage Below arrivals carousel beside the split-flap flight board"></a></td>
+    <td width="33%"><a href="artifacts/readme/v0.3.0/snowline-observatory.png"><img src="artifacts/readme/v0.3.0/snowline-observatory.png" width="100%" alt="Snowline Observatory dome and falling snow"></a></td>
   </tr>
 </table>
 
@@ -31,4 +31,4 @@ A colorful low-poly FPS built with Godot and Blender. Score as many kills as you
 
 Open `project.godot` in Godot 4.7.2 and press **F5**, or run `./tools/run.sh` with Godot on your PATH.
 
-**Controls** · WASD to move, hold Shift to sprint, mouse to aim, left click to fire, Space to jump, R to reload, Esc to pause. The browser version also supports landscape touch controls.
+**Controls** · WASD to move, hold Shift to sprint, mouse to aim, left click to fire, Space to jump, R to reload, G to throw a grenade, Esc to pause. The browser version also supports landscape touch controls.
