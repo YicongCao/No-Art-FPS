@@ -23,6 +23,9 @@
 [ext_resource type="Script" path="res://scripts/explosive_barrel.gd" id="21_h4vuw"]
 [ext_resource type="PackedScene" path="res://assets/models/rain_market/live_fish_tank.glb" id="13_u7x2o"]
 [ext_resource type="PackedScene" path="res://assets/models/rain_market/fish_prep_station.glb" id="14_mf38s"]
+[ext_resource type="PackedScene" path="res://assets/models/rain_market/street_neon.glb" id="StreetNeon"]
+[ext_resource type="PackedScene" path="res://assets/models/rain_market/minibus_storefront.glb" id="MinibusStorefront"]
+[ext_resource type="PackedScene" path="res://assets/models/rain_market/neon_fish.glb" id="NeonFish"]
 
 [sub_resource type="Environment" id="Environment_1kyhj"]
 resource_local_to_scene = true
@@ -474,6 +477,10 @@ respawn_paths = Array[NodePath]([NodePath("Markers/Respawn0"), NodePath("Markers
 [node name="small_props" type="Node3D" parent="Architecture" unique_id=902116234 instance=ExtResource("6_6dks4")]
 
 [node name="minibus" type="Node3D" parent="Architecture" unique_id=186106775 instance=ExtResource("7_7im2y")]
+
+[node name="street_neon" type="Node3D" parent="Architecture" unique_id=1977511692 instance=ExtResource("StreetNeon")]
+
+[node name="minibus_storefront" type="Node3D" parent="Architecture" unique_id=1613923133 instance=ExtResource("MinibusStorefront")]
 
 [node name="Body6" type="StaticBody3D" parent="Architecture" unique_id=964758170]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.33, 21.5)
@@ -1722,6 +1729,9 @@ collision_mask = 0
 shape = SubResource("BoxShape3D_pidab")
 
 [node name="Moving" type="Node3D" parent="." unique_id=1281007388]
+
+[node name="neon_fish" type="Node3D" parent="Moving" unique_id=1986886102 instance=ExtResource("NeonFish")]
+transform = Transform3D(0.5816831, 0, -0.8134155, 0, 1, 0, 0.8134155, 0, 0.5816831, 21.848032, 8.887777, 9.996935)
 
 [node name="minibus_door" type="Node3D" parent="Moving" unique_id=135492814 instance=ExtResource("20_01udu")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.38, 4.98, -25.94)

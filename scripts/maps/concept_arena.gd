@@ -7,6 +7,7 @@ const SNOW_SHADER = preload("res://assets/shaders/observatory_snow.gdshader")
 const RAIN_SHADER = preload("res://assets/shaders/market_rain.gdshader")
 const AWNING_SHADER = preload("res://assets/shaders/market_awning.gdshader")
 const PUDDLES_SHADER = preload("res://assets/shaders/market_puddles.gdshader")
+const NEON_FISH_SHADER = preload("res://assets/shaders/market_neon_fish.gdshader")
 const RED_STRIP_SHADER = preload("res://assets/shaders/observatory_light_strip.gdshader")
 const PIPE_SPRAY_SHADER = preload("res://assets/shaders/market_pipe_spray.gdshader")
 const STAR_CHART_SHADER = preload("res://assets/shaders/observatory_star_chart.gdshader")
@@ -49,6 +50,7 @@ var snow: MultiMeshInstance3D
 var snow_paint: ShaderMaterial
 var snow_elapsed: float = 0.0
 var puddles: ShaderMaterial
+var neon_fish_paint: ShaderMaterial
 var awning_paint: ShaderMaterial
 var wind_phase: float = 0.0
 var service_shortcut: Node3D
@@ -87,6 +89,11 @@ func _ready() -> void:
 	shutter_lights = get_node_or_null("Moving/shutter_lights")
 	if map_id=="rain_market":
 		setup_minibus()
+		var fish: Node3D = get_node("Moving/neon_fish")
+		neon_fish_paint = ShaderMaterial.new()
+		neon_fish_paint.shader = NEON_FISH_SHADER
+		for mesh: MeshInstance3D in fish.find_children("*","MeshInstance3D",true,false):
+			mesh.material_override = neon_fish_paint
 		add_rain()
 		puddles = ShaderMaterial.new()
 		puddles.shader = PUDDLES_SHADER
@@ -328,6 +335,7 @@ func set_destroy_lighting(active: bool) -> void:
 	if puddles:
 		puddles.set_shader_parameter("frenzy",active)
 		pipe_spray.visible = active and service_shortcut.collapsed
+		if not active:neon_fish_paint.set_shader_parameter("progress",1.0)
 	if not belts.is_empty():
 		environment_override.ambient_light_energy = .63 if active else .83
 		game.sun.light_energy = .25 if active else sun_energy
@@ -351,6 +359,9 @@ func pose_shutters(openness: float) -> void:
 
 func pose_frenzy(elapsed: float) -> void:
 	var dome_sweep := sin(elapsed*.60)
+	if neon_fish_paint:
+		var seconds: float = game.rules.elapsed-(game.rules.duration-game.rules.destroy_duration)
+		neon_fish_paint.set_shader_parameter("progress",1.0 if game.reduced_motion else clampf(seconds/.85,0.0,1.0))
 	var warning = Vector2.ZERO
 	if airport_display:
 		var frenzy_seconds: float = game.round_music_position()-(game.rules.duration-game.rules.destroy_duration)

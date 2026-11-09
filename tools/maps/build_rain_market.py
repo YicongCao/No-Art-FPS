@@ -5,6 +5,7 @@ import sys
 
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from arena_kit import ArenaKit
+from rain_market_neon import build_fish, build_storefront, sign
 
 P = {
     "road": ("3b415d",.31,0), "asphalt": ("515973",.38,0), "concrete":"a09ab0",
@@ -16,6 +17,9 @@ P = {
     "yellow":"ffdc70", "leaf":"8ab658", "fruit":"ecad43", "fish":"a6bfcc",
     "salmon":"dd7558", "ice":("bedbfa",.4,.12), "light":("ffd798",.55,.85),
     "pink_light":("fc668f",.55,.65), "window":("e6be83",.55,.24), "sign":("ffe9bb",.55,.55),
+    "neon_case":"242d45", "neon_red":("ff5b5a",.40,.78), "neon_cream":("ffe3aa",.45,.55),
+    "neon_mint":("79f3c9",.42,.75), "neon_amber":("f8bf63",.45,.62),
+    "neon_blue":("9bd7ff",.43,.52), "restaurant_red":"b33d46", "restaurant_gold":("ffd464",.48,.65),
 }
 a=ArenaKit("rain_market",P,{"sky":"263a67","ambient":"c0ceff","energy":.76,"sun":"aebff3","sun_energy":.36,"sun_rotation":[-38,-34,0]})
 street=a.kit("street",True)
@@ -197,11 +201,43 @@ for row,z in enumerate((-21,-15,-9,-3,3,9,15,21)):
 for i in range(16):
     x=-32+i*4.3
     y=7+((i*13)%8)*.65
-    district.box("Distant tenement",(x,y*.5,-31-(i%3)*2),(4.25,y,4.4),("navy","steel","blue")[i%3])
+    rear_z=-34.6 if abs(x+3.65)<6.7 else -31-(i%3)*2
+    district.box("Distant tenement",(x,y*.5,rear_z),(4.25,y,4.4),("navy","steel","blue")[i%3])
     for j in range(int(y//1.3)):
         for dx in (-1.12,.19,1.33):
             if (j+i+int(dx))%4==0:
-                district.box("Lit apartment window",(x+dx,1+j*1.3,-28.75-(i%3)*2),(.42,.43,.05),"window")
+                district.box("Lit apartment window",(x+dx,1+j*1.3,rear_z+2.25),(.42,.43,.05),"window")
+
+neon=a.kit("street_neon",True)
+left_z=11.2
+left_y=terrace_height(left_z)+4.82
+sign(neon,"深記海鮮",(-21.75,left_y,left_z),0,(1.56,4.45),"neon_red","neon_cream",vertical=True)
+for y in (left_y+1.70,left_y-1.66):
+    neon.beam("Seafood sign wall arm",(-22.98,y,left_z),(-21.15,y,left_z),.11,.13,"steel")
+    neon.beam("Triangular wall brace",(-22.98,y-.48,left_z),(-21.93,y,left_z),.076,.085,"steel")
+    neon.box("Seafood sign anchor plate",(-22.97,y,left_z),(.10,.27,.27),"navy")
+sign(neon,"潮記茶餐廳",(-22.58,terrace_height(1.4)+4.02,1.4),math.pi/2,
+     (4.4,.99),"neon_amber","restaurant_red")
+
+ice_angle=-.95
+ice_y=terrace_height(8.0)+5.81
+ice_center=(20.42,ice_y,8.0)
+fish_at=sign(neon,"海旁冰廠",ice_center,ice_angle,(7.35,1.76),"neon_mint","neon_cream",fish=True)
+for u in (-2.56,0,2.56):
+    x=ice_center[0]+math.cos(ice_angle)*u
+    z=ice_center[2]-math.sin(ice_angle)*u
+    neon.beam("Iceworks sign tie-back",(x,ice_y+.53,z),(22.99,ice_y+.53,z),.11,.12,"steel")
+    neon.beam("Iceworks sign bracket",(x,ice_y-.56,z),(22.99,ice_y-.91,z),.11,.12,"steel")
+fish_neon=a.kit("neon_fish")
+build_fish(fish_neon)
+a.moving("neon_fish",fish_at,ice_angle)
+sign(neon,"鮮魚批發",(22.55,terrace_height(-3)+3.53,-3),-math.pi/2,
+     (3.86,.87),"neon_cream","neon_blue")
+sign(neon,"通宵供冰",(21.82,terrace_height(-20)+4.22,-20),0,
+     (1.25,3.28),"neon_blue","neon_cream",vertical=True)
+for y in (terrace_height(-20)+3.06,terrace_height(-20)+5.38):
+    neon.beam("Supply sign wall bracket",(21.82,y,-20),(22.99,y,-20),.094,.105,"steel")
+build_storefront(a.kit("minibus_storefront",True),-3.65,-30.75)
 
 # Blue roof on peaked steel rafters with woven raincloth hung from the bamboo.
 a.layout["awnings"]=[]

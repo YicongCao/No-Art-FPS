@@ -16,6 +16,8 @@
     "district",
     "canopy",
     "street_detail",
+    "street_neon",
+    "minibus_storefront",
     "small_props",
     "minibus"
   ],
@@ -2661,6 +2663,15 @@
   ],
   "belts": [],
   "moving": [
+    [
+      "neon_fish",
+      [
+        21.848031984633835,
+        8.887777777777778,
+        9.996935064257913
+      ],
+      -0.95
+    ],
     [
       "minibus_door",
       [

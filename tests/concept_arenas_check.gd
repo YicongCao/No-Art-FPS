@@ -80,6 +80,8 @@ func check() -> void:
 		assert(game.destroy_active and is_equal_approx(game.rules.remaining(),15.0))
 		assert(game.arena.frenzy_lights.all(func(light):return light.visible))
 		var previous: Basis = game.arena.frenzy_lights[0].basis
+		if id=="rain_market":
+			check_neon_sweep()
 		if id=="baggage_below" and not game.reduced_motion:
 			assert(game.arena.frenzy_lights[0].light_energy>game.arena.frenzy_lights[1].light_energy)
 			game.rules.elapsed = 45.65
@@ -160,6 +162,19 @@ func check() -> void:
 	while Time.get_ticks_msec()<deadline:
 		await process_frame
 	quit()
+
+func check_neon_sweep() -> void:
+	var paint: ShaderMaterial = game.arena.neon_fish_paint
+	var reduced: bool = game.reduced_motion
+	assert(is_equal_approx(paint.get_shader_parameter("progress"),1.0 if reduced else 0.0))
+	game.rules.elapsed = 45.425
+	game.reduced_motion = false
+	game.arena._process(0)
+	assert(is_equal_approx(paint.get_shader_parameter("progress"),.5))
+	game.rules.elapsed = 46.0
+	game.arena._process(0)
+	assert(is_equal_approx(paint.get_shader_parameter("progress"),1.0))
+	game.reduced_motion = reduced
 
 func route_length(from: Vector3, to: Vector3) -> float:
 	var nav_map = game.arena.nav.get_navigation_map()
