@@ -29,6 +29,6 @@ A colorful low-poly FPS built with Godot and Blender. Score as many kills as you
 
 ## Play locally
 
-Open `project.godot` in Godot 4.7.2 and press **F5**, or run `./tools/run.sh` with Godot on your PATH.
+Open `project.godot` in Godot 4.7.2 and press **F5**, or run `./tools/run.sh` with Godot on your PATH. On macOS, you can also run `./Play\ No-Art-FPS.command`; it also finds Godot in `/Applications/Godot.app`. Both launchers refresh local asset imports before starting, including after a `git pull`.
 
 **Controls** · WASD to move, hold Shift to sprint, mouse to aim, left click to fire, Space to jump, R to reload, G to throw a grenade, Esc to pause. The browser version also supports landscape touch controls.

@@ -2,6 +2,8 @@
 
 Run the commands below from the repository root. Use Godot 4.7.2 for the game and Python 3 for the QA runner. The browser input checks use Node.js, and the asset generators use Blender 5.2.2 LTS and Python 3.
 
+`./tools/run.sh` and the macOS `./Play\ No-Art-FPS.command` import assets before launching. The `.godot/` directory is a generated local cache excluded from Git; pulling new assets does not create their imported audio, textures or models. If you start Godot directly after pulling, run `godot --headless --path . --editor --import` first, or open the project in the editor. Missing `res://.godot/imported/` files can cause later preload and class-member errors even when the source assets are present. Set `GODOT_BIN` to use a specific Godot executable; launcher arguments are forwarded only to the game process.
+
 ## Quick checks
 
 ```sh
