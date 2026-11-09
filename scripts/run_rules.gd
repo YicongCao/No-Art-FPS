@@ -33,11 +33,8 @@ func tick(delta: float) -> void:
 		elapsed = duration
 		active = false
 
-func record_kill(id: int, headshot: bool, from_finale: bool = false) -> bool:
-	if defeated.has(id):return false
-	if from_finale:
-		if active or elapsed<duration or finale_duration<=0:return false
-	elif not active or elapsed>=duration:return false
+func record_kill(id: int, headshot: bool) -> bool:
+	if not active or elapsed>=duration or defeated.has(id):return false
 	defeated[id] = true
 	kills += 1
 	if headshot:headshots += 1

@@ -19,7 +19,7 @@ func _ready() -> void:
 	await get_tree().create_timer(.65).timeout
 	game._physics_process(game.rules.finale_duration)
 	await results_ready()
-	assert(game.new_record and game.rules.kills==26 and game.best==26)
+	assert(game.new_record and game.rules.kills==18 and game.best==18)
 	assert_results_buttons()
 	await capture("finale-results")
 	game.rules.kills = 123

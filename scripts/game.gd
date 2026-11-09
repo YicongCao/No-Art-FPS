@@ -876,17 +876,21 @@ func finish_run() -> void:
 	if rules.mission:
 		new_record = rules.result_value()>0 and (best_mission<=0 or rules.result_value()<best_mission)
 		if new_record:best_mission = rules.result_value()
-	else:
-		new_record = rules.kills > best
-		best = maxi(best,rules.kills)
-		achievements.finish_round(rules.elapsed>=rules.duration,rules.deaths)
-	save_record()
+		save_record()
+	elif not finale_active:
+		settle_score_attack()
 	pending_spawn.clear()
 	bullets.clear()
 	player_bullets.clear()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	play_sound("end",-7)
 	hud.capture_results_frame()
+
+func settle_score_attack() -> void:
+	new_record = rules.kills > best
+	best = maxi(best,rules.kills)
+	achievements.finish_round(rules.elapsed>=rules.duration,rules.deaths)
+	save_record()
 
 func freeze_world() -> void:
 	# Freeze node callbacks and existing tweens, including dead actors and recoil.
@@ -911,6 +915,7 @@ func restore_frozen_world() -> void:
 func start_finale() -> void:
 	if finale_active or state!="RUNNING" or rules.active or rules.remaining()>0 or rules.finale_duration<=0:return
 	finale_active = true
+	settle_score_attack()
 	clear_grenades()
 	finale_elapsed = 0
 	music.stop()
@@ -919,7 +924,7 @@ func start_finale() -> void:
 	pending_spawn.clear()
 	hud.time_pulse = 1
 	collecting_finale_fx = OS.has_feature("web")
-	# Only the round-ending blast awards kills after the combat clock closes.
+	# Clear surviving actors for the finale after the score has been settled.
 	for enemy in live_enemies():
 		finale_explosion(enemy.global_position+Vector3.UP,1.2,Color("243440"))
 		enemy.take_damage(3,false,true)
@@ -1478,20 +1483,20 @@ func play_magazine_feed_sounds(previous: float, current: float, full_count: int)
 	if previous<full_count and current>=full_count:
 		play_sound("magazine_latch",-9)
 
-func on_kill(enemy: Node3D, headshot: bool, from_finale: bool = false) -> void:
-	if rules.record_kill(enemy.get_instance_id(),headshot,from_finale):
+func on_kill(enemy: Node3D, headshot: bool) -> void:
+	if rules.record_kill(enemy.get_instance_id(),headshot):
 		if rules.elapsed-kill_group_start>MULTIKILL_WINDOW:
 			kill_group_start = rules.elapsed
 			kill_group_count = 0
 		kill_group_count += 1
-		if not from_finale and not rules.mission:
+		if not rules.mission:
 			achievements.combat_kill(session.session_id,headshot,kill_group_count,destroy_active,player.global_position.y,comedy_mode)
 		hud.kill_group = kill_group_count
 		hud.kill_pop = .5
 		hud.multi_time = .65 if kill_group_count>=2 else 0.0
 		if toilet_blast_active:return
 		var pitch = minf(1.25,1+(kill_group_count-1)*.08)
-		if not comedy_mode.is_empty() and not from_finale:
+		if not comedy_mode.is_empty():
 			var center: Vector3 = enemy.global_position+Vector3.UP*(1.78 if comedy_mode=="roach" else 1.02)
 			ComedyFX.kill(effects,center.move_toward(player.camera.global_position,.34),comedy_mode,reduced_motion)
 			play_sound("roach_buzz" if comedy_mode=="roach" else "comedy_plop",-7,pitch+(.15 if headshot else 0.0))

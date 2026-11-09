@@ -368,7 +368,7 @@ func take_damage(amount: int, is_head: bool = false, from_finale: bool = false) 
 		collision_layer = 0
 		collision_mask = 0
 		head_area.collision_layer = 0
-		game.on_kill(self,is_head,from_finale)
+		if not from_finale:game.on_kill(self,is_head)
 
 func start_slash() -> void:
 	rush_state = "WINDUP"
