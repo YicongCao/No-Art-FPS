@@ -4,6 +4,7 @@ const RADIUS = 7.5
 var game: Node
 var visual: Node3D
 var paint: StandardMaterial3D
+var experimental_paint: ShaderMaterial
 var fuse = -1.0
 var spent = false
 var destroy_hits = 0
@@ -42,7 +43,7 @@ func reset() -> void:
 	collision_layer = 1
 	visual.show()
 	visual.scale = Vector3.ONE
-	paint.albedo_color = Color("c34c35")
+	set_paint_color(Color("c34c35"))
 
 func ignite(delay: float = .65) -> void:
 	if game==null or spent or game.state!="RUNNING" or not game.rules.active:return
@@ -61,9 +62,13 @@ func shot_hit(burning: bool) -> void:
 func _physics_process(delta: float) -> void:
 	if game==null or game.state!="RUNNING" or not game.rules.active or spent or fuse<0:return
 	fuse -= delta
-	paint.albedo_color = Color("fff1b7") if int(fuse*18)%2==0 else Color("e84723")
+	set_paint_color(Color("fff1b7") if int(fuse*18)%2==0 else Color("e84723"))
 	visual.scale = Vector3.ONE*(1.0+.05*sin(fuse*40))
 	if fuse<=0:explode()
+
+func set_paint_color(color: Color) -> void:
+	paint.albedo_color = color
+	if experimental_paint:experimental_paint.set_shader_parameter("base_color",color)
 
 func explode() -> void:
 	if game==null or spent or game.state!="RUNNING" or not (game.rules.active or game.finale_active):return

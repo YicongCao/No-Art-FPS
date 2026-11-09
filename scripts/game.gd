@@ -839,6 +839,8 @@ func prepare_comedy_toilet() -> void:
 	comedy_toilet.position = Vector3(site.x,site.y,site.z)
 	comedy_toilet.rotation.y = site.w
 	arena.add_child(comedy_toilet)
+	if arena.map_id=="amusement_park" and park_experimental_textures:
+		arena.texture_preview.apply_prop(comedy_toilet)
 
 func begin_running() -> void:
 	state = "RUNNING"

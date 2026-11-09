@@ -5,6 +5,9 @@ const VIEWS = [
 	["promenade",Vector3(-9.5,.05,17.9),Vector3(-.4,1.9,1.0)],
 	["skate",Vector3(-18.0,.05,9.2),Vector3(-20.5,-.25,-1.5)],
 	["station",Vector3(25.3,2.25,5.3),Vector3(24.7,2.85,-5.5)],
+	["train",Vector3(24.4,2.25,5.2),Vector3(20.9,2.65,1.8),.08],
+	["carousel",Vector3(3.25,.05,6.0),Vector3(.2,2.05,.5)],
+	["kiosks",Vector3(-16.0,.05,19.5),Vector3(-21.0,1.5,13.0)],
 ]
 var game: Node3D
 
@@ -38,23 +41,39 @@ func check() -> void:
 	await game.set_park_experimental_textures(true)
 	var preview = game.arena.texture_preview
 	assert(game.title_preview_key()!=baseline_key)
-	assert(preview.meshes.size()==12 and preview.paints.size()>=16)
+	var scenery: Array = game.arena.find_children("*","MeshInstance3D",true,false)
+	scenery = scenery.filter(func(node):return not game.arena.disco_ball.is_ancestor_of(node))
+	assert(preview.meshes.size()==scenery.size(),"Every authored mesh should be textured")
+	assert(game.arena.disco_paint.get_shader_parameter("pixel_finish"))
 	for entry in preview.meshes:
-		assert(entry.node.mesh==entry.uv_mesh and entry.original_mesh!=entry.uv_mesh)
-		assert(entry.original_mesh.get_aabb().is_equal_approx(entry.uv_mesh.get_aabb()))
-		for index in range(entry.uv_mesh.get_surface_count()):
-			assert(entry.uv_mesh.surface_get_format(index)&Mesh.ARRAY_FORMAT_TEX_UV)
+		for index in range(entry.node.mesh.get_surface_count()):
+			assert(entry.node.get_active_material(index) is ShaderMaterial)
+	var barrel: Node3D = game.arena.barrels[0]
+	assert(barrel.experimental_paint and game.arena.barrels[1].experimental_paint!=barrel.experimental_paint)
+	barrel.set_paint_color(Color("fff1b7"))
+	assert(barrel.experimental_paint.get_shader_parameter("base_color")==barrel.paint.albedo_color)
+	barrel.reset()
+	assert(barrel.experimental_paint.get_shader_parameter("base_color")==Color("c34c35"))
+	game.comedy_mode = "comedy"
+	game.prepare_comedy_toilet()
+	assert(is_instance_valid(game.comedy_toilet))
+	for node in game.comedy_toilet.find_children("*","MeshInstance3D",true,false):
+		for index in range(node.mesh.get_surface_count()):
+			assert(node.get_active_material(index) is ShaderMaterial)
+	game.remove_comedy_toilet()
+	game.comedy_mode = ""
 	await game.set_park_experimental_textures(false)
 	assert(game.title_preview_key()==baseline_key and not game.hud.fire_button.disabled)
+	assert(not barrel.experimental_paint and not game.arena.disco_paint.get_shader_parameter("pixel_finish"))
 	if DisplayServer.get_name()!="headless":
 		assert(game.hud.title_frame==original)
 	for entry in preview.meshes:
-		assert(entry.node.mesh==entry.original_mesh)
-		for index in range(entry.overrides.size()):
-			assert(entry.node.get_surface_override_material(index)==entry.overrides[index])
+		assert(entry.node.material_override==entry.override)
+		for index in range(entry.original.size()):
+			assert(entry.node.get_surface_override_material(index)==entry.original[index])
 	if DisplayServer.get_name()!="headless":
 		await capture_views()
-	print("PARK_TEXTURE_EXPERIMENT_PASS: default off, right click menu, 12 UV meshes, title cache, full restore and capture")
+	print("PARK_TEXTURE_EXPERIMENT_PASS: ",preview.meshes.size()," scenery meshes, disco, fuse, comedy props, title cache and full restore")
 	game.music.stop()
 	var settle_at := Time.get_ticks_msec()+450
 	while Time.get_ticks_msec()<settle_at:await process_frame
@@ -68,11 +87,11 @@ func capture_views() -> void:
 	game.begin_running()
 	game.player.enabled = false
 	game.player.set_process_unhandled_input(false)
-	game.rules.elapsed = 12.0
 	game.hud.go_time = 0
 	game.enemies.hide()
 	for enemy in game.live_enemies():enemy.set_physics_process(false)
 	for view in VIEWS:
+		game.rules.elapsed = view[3] if view.size()>3 else 12.0
 		game.player.position = view[1]
 		var eye: Vector3 = game.player.camera.global_position
 		var forward: Vector3 = eye.direction_to(view[2])

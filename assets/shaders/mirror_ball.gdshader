@@ -1,5 +1,8 @@
 shader_type spatial;
 
+uniform bool pixel_finish = false;
+uniform sampler2D pixel_tile : filter_nearest_mipmap, repeat_enable;
+
 void fragment() {
 	vec2 grid = UV * vec2(28.0, 14.0);
 	vec2 tile = floor(grid);
@@ -11,4 +14,10 @@ void fragment() {
 	ROUGHNESS = mix(0.62, 0.24, seam);
 	METALLIC = seam * 0.65;
 	EMISSION = silver * seam * pow(facet, 4.0) * 0.42;
+	if (pixel_finish) {
+		float polish = texture(pixel_tile, UV * vec2(4.0, 2.0)).r;
+		ALBEDO *= mix(0.76, 1.24, polish);
+		ROUGHNESS = mix(0.62, mix(0.32, 0.16, polish), seam);
+		SPECULAR = mix(0.5, 0.8, seam);
+	}
 }

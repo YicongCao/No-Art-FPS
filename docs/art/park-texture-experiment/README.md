@@ -7,10 +7,13 @@
 | 步道与旋转木马 | ![原版步道](comparison/promenade-original.png) | ![贴图步道](comparison/promenade-pixel.png) |
 | 滑板碗池 | ![原版碗池](comparison/skate-original.png) | ![贴图碗池](comparison/skate-pixel.png) |
 | 过山车站台 | ![原版站台](comparison/station-original.png) | ![贴图站台](comparison/station-pixel.png) |
+| 过山车车厢 | ![原版车厢](comparison/train-original.png) | ![贴图车厢](comparison/train-pixel.png) |
+| 木马漆面 | ![原版木马](comparison/carousel-original.png) | ![贴图木马](comparison/carousel-pixel.png) |
+| 棕榈与摊位 | ![原版摊位](comparison/kiosks-original.png) | ![贴图摊位](comparison/kiosks-pixel.png) |
 
-实验覆盖地面及 11 个构件实例：入口、滑板场、一座四分之一坡、斜坡、木马顶棚、木马转盘、站台地板、站台屋顶、一座摊位、一张长椅和一只花坛。原来的色板继续作为底色。
+实验覆盖地图里 369 个景物网格和独立着色的镜球，包括所有重复构件。大便或蟑螂模式下生成的便携厕所和柱状炸药也会使用对应贴图。原色板仍用作底色。金属、木马漆面和瓷砖有更低的粗糙度，布、土、砖和植物保持较弱的高光。
 
-[图集](imagegen-atlas.png)由内置 imagegen 一次生成，共九种材质。切成独立可平铺的像素纹理，Blender 从原 GLB 派生带 UV 的实验网格。可用 [纹理处理脚本](../../../tools/maps/build_park_texture_tiles.py) 和 [UV 构建脚本](../../../tools/maps/build_park_texture_uv.py) 复现。
+[原始图集](imagegen-atlas.png)和[补充图集](imagegen-atlas-scenery.png)由内置 imagegen 生成。两张图集通过[纹理处理脚本](../../../tools/maps/build_park_texture_tiles.py)切成 18 张平铺纹理。像素材质按模型局部坐标投影 UV，与车厢和木马一起运动。原 GLB 供两种画风共用。
 
 实机对照用 Godot 固定机位拍摄。运行 `godot --resolution 1280x720 --script tests/park_texture_experiment_check.gd` 可重新拍摄，并验证关闭开关后恢复到同机位原图。
 

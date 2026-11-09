@@ -2,6 +2,7 @@ extends "res://scripts/arena.gd"
 
 const SweepingLight = preload("res://scripts/maps/sweeping_light.gd")
 const MIRROR_TILES = preload("res://assets/shaders/mirror_ball.gdshader")
+const PIXEL_MIRROR = preload("res://assets/textures/park_experiment/brushed_steel.png")
 const TexturePreview = preload("res://scripts/maps/park_texture_preview.gd")
 const CAROUSEL_TURN_RATE = -TAU/13.33
 const DISCO_TURN_RATE = TAU/5.2+CAROUSEL_TURN_RATE
@@ -18,6 +19,7 @@ var carousel: Node3D
 var horses: Array[Node3D] = []
 var cars: Array[PathFollow3D] = []
 var disco_ball: Node3D
+var disco_paint: ShaderMaterial
 var disco_spots: Array[SpotLight3D] = []
 var disco_rest_pitch := 0.0
 var texture_preview: TexturePreview
@@ -34,6 +36,8 @@ func _ready() -> void:
 func set_experimental_textures(enabled: bool) -> void:
 	if enabled and not texture_preview:texture_preview = TexturePreview.new()
 	if texture_preview:texture_preview.set_enabled(self,enabled)
+	if enabled:disco_paint.set_shader_parameter("pixel_tile",PIXEL_MIRROR)
+	disco_paint.set_shader_parameter("pixel_finish",enabled)
 
 func _process(_delta: float) -> void:
 	if game and game.state=="RUNNING" and game.rules.active and not game.finale_active:
@@ -53,11 +57,11 @@ func add_disco_ball() -> void:
 	mesh.height = 1.16
 	mesh.radial_segments = 24
 	mesh.rings = 12
-	var paint = ShaderMaterial.new()
-	paint.shader = MIRROR_TILES
+	disco_paint = ShaderMaterial.new()
+	disco_paint.shader = MIRROR_TILES
 	var globe = MeshInstance3D.new()
 	globe.mesh = mesh
-	globe.material_override = paint
+	globe.material_override = disco_paint
 	disco_ball.add_child(globe)
 	for i in range(2):
 		var sign_x = 1.0 if i==0 else -1.0
