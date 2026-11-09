@@ -6,6 +6,7 @@ import sys
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from arena_kit import ArenaKit
 from airport_board import write_board
+from airport_wayfinding import write_wayfinding
 
 P={
  "navy":"22314d","blue":"244d9c","cobalt":"325bbb","steel":"667687","black":"252a38",
@@ -48,11 +49,13 @@ for x in (-22,22):
     for z in (-18,-12,-6,0,6,10):
         hall.box("Blue structural column",(x-math.copysign(.42,x),4.05,z),(.61,8.1,.56),"blue")
         hall.box("Impact bollard",(x-math.copysign(.73,x),.52,z),(.25,1.02,.21),"yellow")
+a.layout["ceiling_lamps"]=[]
 for z in (-18,-12,-6,0,6,10,15,21):
     y=7.92 if z<12 else 5.24
     roof.box("Transverse ceiling girder",(0,y,z),(44,.45,.44),"blue")
     for x in (-13,-6,2,10,17):
-        roof.box("Industrial LED strip",(x,y-.32,z),(2.65,.15,.3),"light")
+        roof.box("Industrial LED strip housing",(x,y-.29,z),(2.72,.15,.34),"black")
+        a.layout["ceiling_lamps"].append((x,y-.378,z))
 for x in (-15.5,-8,8,15.5):
     roof.box("Longitudinal overhead girder",(x,7.75,-4.7),(.42,.45,33.2),"blue")
 
@@ -111,6 +114,10 @@ a.layout["boxes"].append([(0,2.63,-21.85),(13,5.2,.18),0])
 for x in (-6.47,6.47):
     for i in range(7):
         hall.box("Dock hazard stripe",(x,.42+i*.68,-21.54),(.27,.43,.08),"yellow",.24)
+hall.box("Wayfinding sign housing",(0,5.98,-16.4),(11.80,1.81,.19),"navy")
+for x in (-4.64,4.64):
+    hall.box("Wayfinding suspension rod",(x,7.27,-16.4),(.11,1.42,.11),"metal")
+a.sign("DockWayfinding","airport-wayfinding",(0,5.98,-16.51),(11.68,1.70),math.pi)
 for x in (-19,19):
     for z in (-18,-8,2):
         hall.box("Steel service door",(x,1.31,z),(1.42,2.62,.27),"teal")
@@ -224,9 +231,12 @@ for z in (1,-2,-5):
         machines.box("Strip-curtain translucent panel",(21.72,y,z),(.07,.42,1.05),"skyglass")
     machines.box("Red chute status",(21.70,1.79,z),(.13,.12,1.14),"signal")
     a.layout["boxes"].append([(20.8,.78,z),(2.24,1.55,1.29),0])
+a.layout["gate_beacons"]=[]
 for x,z in [(-13,-4),(-13,5),(12.1,6)]:
     machines.box("Infrared arch header",(x,2.02,z),(1.6,.18,.20),"black")
     machines.box("Infrared arch light",(x,1.92,z),(1.40,.05,.13),"signal")
+    machines.rod("Red rotating alarm base",(x,2.11,z),(x,2.19,z),.165,"black",10)
+    a.layout["gate_beacons"].append((x,2.19,z))
     for dx in (-.78,.78):
         machines.box("Sensor gate post",(x+dx,1.01,z),(.17,2.02,.19),"steel")
         a.layout["boxes"].append([(x+dx,1.01,z),(.19,2.02,.21),0])
@@ -501,7 +511,7 @@ a.layout.update(
                 (8.0,-11),(-8.4,-18),(8.4,-18),(19,-14)])+[(0,3.18,-15),(-16,3.18,-8)],
  respawns=points([(3.3,14),(-10,15),(8,8),(-9,-4),(7.3,-12),(-8,-19)])+[(4,3.18,-15)],
  route=points([(0,13),(-15.4,13),(-15.4,9),(0,2),(-16,3.5),(16,3.5),(-10,-17),(10,-18),(-11,16),(10,16)])+[(0,3.18,-15),(-16,3.18,-8),(16,3.18,-9)],
- barrels=points([(-9.4,2),(8.5,-6),(17.5,9)]), comedy=(8.8,0,14.6,math.pi),
+ barrels=points([(-9.4,2),(8.5,-6),(17.5,9)])+[(-4.6,.82,-3.3),(4.6,.82,2.2)], comedy=(8.8,0,14.6,math.pi),
  cameras={
   "arrivals":[[9.8,1.73,21.2],[.1,1.8,10],66],
   "flight-board":[[11.95,2.34,18.1],[12.7,3.72,11.5],68],
@@ -509,8 +519,11 @@ a.layout.update(
   "east-gate":[[19.55,1.72,15.8],[34.0,2.55,6.3],72],
   "west-gate":[[-17.25,4.73,-5.55],[-34.0,3.04,-8.8],73],
   "catwalk":[[-5.7,4.78,-13.73],[.2,.21,3.2],70],
+  "dock-wayfinding":[[.1,4.70,-21.22],[0,5.93,-16.38],88],
+  "checkpoint-frenzy":[[-10.80,1.72,7.8],[-13.0,2.3,4.7],72,47.1],
   "sorting-frenzy":[[-1.45,1.87,8.05],[-1.2,1.63,-8],72,45.32],
   "sorting-blue-frenzy":[[-1.45,1.87,8.05],[-1.2,1.63,-8],72,45.89],
  })
 a.write()
 write_board()
+write_wayfinding()

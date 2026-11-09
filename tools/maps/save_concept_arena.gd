@@ -122,7 +122,10 @@ func build() -> void:
 	arena.neon_lamp_specs = layout.get("neon_lamps",[])
 	arena.harbour_ferry_specs = layout.get("harbour_ferries",[])
 	if key=="baggage_below":
-		arena.airport_layout = {"flight_boards":layout.flight_boards,"cargo_belts":layout.cargo_belts}
+		arena.airport_layout = {
+			"flight_boards":layout.flight_boards,"cargo_belts":layout.cargo_belts,
+			"ceiling_lamps":layout.ceiling_lamps,"gate_beacons":layout.gate_beacons,
+		}
 	arena.comedy_site = Vector4(layout.comedy[0],layout.comedy[1],layout.comedy[2],layout.comedy[3])
 	var fixed = add(arena,Node3D.new(),"Architecture")
 	for asset in layout.fixed:
@@ -136,6 +139,10 @@ func build() -> void:
 		paint.albedo_texture = load(SIGN_FOLDER+entry[1]+".svg")
 		paint.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 		paint.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+		if entry[1]=="airport-wayfinding":
+			# Draw the print after the comic edges so the small glyphs stay legible.
+			paint.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			paint.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
 		quad(fixed,entry[0],vec(entry[2]),entry[3],entry[4],paint)
 	var glass_paint = StandardMaterial3D.new()
 	glass_paint.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA

@@ -97,6 +97,7 @@ func check() -> void:
 			assert(is_equal_approx(game.arena.belts[1].constant_linear_velocity.z,1.9))
 			assert(game.arena.airport_display.cargo_bags[1].position.distance_to(cargo_before)>1.0)
 			await check_player_carry()
+			check_airport_power()
 		if id=="snowline":
 			assert(game.arena.deck_light.visible and game.arena.star_chart.visible)
 			assert(is_zero_approx(game.arena.dome.rotation.y))
@@ -151,6 +152,12 @@ func check() -> void:
 			print("SHORTCUT_PASS ",id," ",snappedf(intact_distance,.1)," m -> ",snappedf(opened_distance,.1)," m")
 		game.start_run()
 		assert(not prop.collapsed and game.arena.frenzy_lights.all(func(light):return not light.visible))
+		if id=="baggage_below":
+			var power = game.arena.airport_power
+			if DisplayServer.get_name()!="headless":
+				assert(power.ceiling.get_instance_color(0).r>.8 and power.ceiling.get_instance_color(1).r>.8)
+			assert(power.faulty_fixtures.is_empty() and power.alarms.all(func(light):return not light.visible))
+			assert(game.arena.barrels.all(func(barrel):return not barrel.spent))
 		assert(not game.destroy_active and not game.comedy_toilet)
 		if id=="snowline":
 			assert(is_zero_approx(game.arena.shutter_left.rotation.y))
@@ -267,3 +274,34 @@ func check_player_carry() -> void:
 		var advance: float = (game.player.position.z-before)*game.arena.belt_directions[i]
 		assert(advance>.25,"Standing player did not ride belt %d (%s)"%[i,advance])
 	game.player.enabled = false
+
+func check_airport_power() -> void:
+	var power = game.arena.airport_power
+	assert(power.ceiling.instance_count==40 and power.dead_fixtures.size()==20)
+	assert(power.faulty_fixtures.size()==5 and power.faulty_fixtures.all(func(i):return i not in power.dead_fixtures))
+	if DisplayServer.get_name()!="headless":
+		assert(power.dead_fixtures.all(func(i):return power.ceiling.get_instance_color(i).r<.3))
+	assert(power.alarms.size()==3 and power.alarms.all(func(light):return light.visible and light.has_node("Shaft")))
+	var reduced: bool = game.reduced_motion
+	var elapsed: float = game.rules.elapsed
+	game.reduced_motion = false
+	var yaw: float = power.alarms[0].rotation.y
+	power.next_spark = 0
+	game.rules.elapsed += .25
+	game.arena._process(0)
+	assert(not is_equal_approx(power.alarms[0].rotation.y,yaw))
+	assert(game.effects.get_children().any(func(fx):return str(fx.name).begins_with("AirportElectricalSparks")))
+	game.pause_run()
+	yaw = power.alarms[0].rotation.y
+	game.arena._process(.2)
+	assert(is_equal_approx(power.alarms[0].rotation.y,yaw))
+	game.menu_action("resume")
+	game.player.enabled = false
+	game.rules.elapsed = elapsed
+	game.reduced_motion = reduced
+	var belt_barrels: Array = game.arena.barrels.filter(func(barrel):return is_equal_approx(barrel.position.y,.82))
+	assert(belt_barrels.size()==2 and belt_barrels[0].position.x<0 and belt_barrels[1].position.x>0)
+	belt_barrels[0].shot_hit(true)
+	assert(not belt_barrels[0].spent)
+	belt_barrels[0].shot_hit(true)
+	assert(belt_barrels[0].spent and belt_barrels[0].collision_layer==0)

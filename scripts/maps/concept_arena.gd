@@ -2,6 +2,7 @@ extends "res://scripts/arena.gd"
 
 const Sweep = preload("res://scripts/maps/sweeping_light.gd")
 const AirportDisplay = preload("res://scripts/maps/airport_display.gd")
+const AirportPower = preload("res://scripts/maps/airport_power.gd")
 const CombatFX = preload("res://scripts/combat_fx.gd")
 const SNOW_SHADER = preload("res://assets/shaders/observatory_snow.gdshader")
 const RAIN_SHADER = preload("res://assets/shaders/market_rain.gdshader")
@@ -41,6 +42,7 @@ var frenzy_origins: Array[Vector3] = []
 var frenzy_targets: Array[Vector3] = []
 var frenzy_motion: Array[Vector3] = []
 var airport_display: AirportDisplay
+var airport_power: AirportPower
 var belts: Array[StaticBody3D] = []
 var rain: MultiMeshInstance3D
 var minibus_entry: Marker3D
@@ -142,6 +144,11 @@ func _ready() -> void:
 		airport_display.name = "AirportDisplay"
 		add_child(airport_display)
 		airport_display.setup(airport_layout,belts)
+		airport_power = AirportPower.new()
+		airport_power.name = "AirportPower"
+		airport_power.game = game
+		add_child(airport_power)
+		airport_power.setup(airport_layout)
 	set_destroy_lighting(false)
 
 func setup_market_ambience() -> void:
@@ -370,7 +377,7 @@ func _process(delta: float) -> void:
 		paint.set_shader_parameter("travel",fmod(travel,1.0/3.5))
 		for j in range(2):
 			var bag = belt_bags[i*2+j]
-			bag.position = belts[i].position+Vector3((j-.5)*1.55,.10,fposmod(travel+3.1+j*8.5,16.2)-8.1)
+			bag.position = belts[i].position+Vector3((j-.5)*1.91,.10,fposmod(travel+3.1+j*8.5,16.2)-8.1)
 	if airport_display:
 		if game.state=="TITLE":
 			airport_display.idle_seconds += delta
@@ -384,12 +391,14 @@ func set_destroy_lighting(active: bool) -> void:
 		light.visible = active
 	if airport_display and not active:
 		airport_display.warning_lights(false,0.0,false)
+	if airport_power:
+		airport_power.set_frenzy(active)
 	if puddles:
 		puddles.set_shader_parameter("frenzy",active)
 		pipe_spray.visible = active and service_shortcut.collapsed
 		if not active:neon_fish_paint.set_shader_parameter("progress",1.0)
 	if not belts.is_empty():
-		environment_override.ambient_light_energy = .63 if active else .83
+		environment_override.ambient_light_energy = .43 if active else .83
 		game.sun.light_energy = .25 if active else sun_energy
 	if is_instance_valid(dome):
 		deck_light.visible = active
@@ -418,6 +427,8 @@ func pose_frenzy(elapsed: float) -> void:
 	if airport_display:
 		var frenzy_seconds: float = game.round_music_position()-(game.rules.duration-game.rules.destroy_duration)
 		warning = airport_display.warning_lights(true,frenzy_seconds,game.reduced_motion)
+		var power_seconds: float = game.rules.elapsed-(game.rules.duration-game.rules.destroy_duration)
+		airport_power.pose(power_seconds,game.reduced_motion)
 	if is_instance_valid(dome):
 		const SHUTTER_OPEN_SECONDS = 2.2
 		var phase_start: float = game.rules.duration-game.rules.destroy_duration
