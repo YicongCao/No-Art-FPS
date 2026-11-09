@@ -44,6 +44,7 @@ const GRENADE_ICONS = {
 }
 # Visible vertical fraction of each SVG with its safety pin in place.
 const GRENADE_ART_HEIGHT = {"":.84,"comedy":.90,"roach":.87}
+const GRENADE_KEY_G = preload("res://assets/ui/grenade-key-g.svg")
 const GRENADE_PIN = preload("res://assets/ui/grenade-pin.svg")
 const GRENADE_EJECT_DURATION = .13
 var game: Node
@@ -168,6 +169,11 @@ func grenade_stock_rect(index: int) -> Rect2:
 	var top = magazine.position.y-extent-8 if game.touch_mode else round.position.y
 	return Rect2(Vector2(left+index*(extent+8),top),Vector2.ONE*extent)
 
+func draw_grenade_icon(icon: Texture2D, extent: float, tint: Color = Color.WHITE) -> void:
+	var rect = Rect2(Vector2.ONE*(-extent*.5),Vector2.ONE*extent)
+	draw_texture_rect(icon,rect,false,tint)
+	if not game.touch_mode:draw_texture_rect(GRENADE_KEY_G,rect,false,tint)
+
 func draw_grenade_stock() -> void:
 	if game.rules.mission:return
 	var stock: int = game.grenade_stock
@@ -185,7 +191,7 @@ func draw_grenade_stock() -> void:
 		var extent = slot.size.x/art_height
 		var body_center = center+Vector2(-4,2)*pull*motion
 		draw_set_transform(body_center,-.18*pull*motion)
-		draw_texture_rect(icon,Rect2(Vector2.ONE*(-extent*.5),Vector2.ONE*extent),false)
+		draw_grenade_icon(icon,extent)
 		draw_set_transform(Vector2.ZERO)
 		var pin_size = Vector2(.40,.267)*extent
 		var pin = body_center+Vector2(.18,-.31)*extent+Vector2(23,-20)*pull*motion
@@ -202,7 +208,7 @@ func draw_grenade_stock() -> void:
 		if not game.reduced_motion:
 			draw_line(center+Vector2(-23,9),center+Vector2(-11,5),Color(GOLD,alpha),2,true)
 		draw_set_transform(center,.18+.8*t*motion)
-		draw_texture_rect(icon,Rect2(Vector2.ONE*(-extent*.5),Vector2.ONE*extent),false,Color(Color.WHITE,alpha))
+		draw_grenade_icon(icon,extent,Color(Color.WHITE,alpha))
 		draw_set_transform(Vector2.ZERO)
 
 func draw_round(region: Rect2, center: Vector2, extent: Vector2, angle: float = -PI*.5, alpha: float = 1.0, scale_factor: float = MAGAZINE_SCALE) -> void:
