@@ -6,6 +6,7 @@ const FerrySession = preload("res://data/sessions/last_ferry.tres")
 const StudioSession = preload("res://data/sessions/night_studio.tres")
 const SandgateSession = preload("res://data/sessions/sandgate.tres")
 const OfficeSession = preload("res://data/sessions/bb_office.tres")
+const HogwartsSession = preload("res://data/sessions/hogwarts.tres")
 const CARDS = ["MapYard","MapPark","MapFerry","MapStudio","MapSandgate","MapOffice","MapRainMarket","MapBaggage","MapSnowline"]
 var game: Node3D
 
@@ -24,10 +25,11 @@ func check() -> void:
 	game.hud.rebuild_menu()
 	assert(game.title_frame_ready and game.nav_ready and game.session==YardSession)
 	assert(game.hud.fire_button.text=="FIRE")
-	assert(game.hud.menu.get_children().filter(func(node):return node is Button).size()==12)
+	assert(game.hud.map_grid.get_child_count()==10)
+	assert(game.hud.menu.get_children().filter(func(node):return node is Button).size()==3)
 	assert(not game.hud.menu.get_node("comedy").button_pressed)
 	assert(not game.hud.menu.get_node("roach").button_pressed)
-	var selected = game.hud.menu.get_node("MapYard/Selected")
+	var selected = game.hud.map_grid.get_node("MapYard/Selected")
 	assert(selected.get_theme_stylebox("panel").border_width_left==4)
 	assert_grid()
 	assert_card_records([0,0,0,0,0,0,0,0,0])
@@ -37,7 +39,7 @@ func check() -> void:
 	assert_card_records([13,7,5,123,6,8,0,0,0])
 	if DisplayServer.get_name()!="headless":await capture("map-medals-title")
 	var old_frame = game.hud.title_frame
-	var park_card = game.hud.menu.get_node("MapPark")
+	var park_card = game.hud.map_grid.get_node("MapPark")
 	assert(park_card.text.is_empty() and not park_card.accessibility_name.is_empty())
 	park_card.grab_focus()
 	var enter = InputEventKey.new()
@@ -46,7 +48,7 @@ func check() -> void:
 	game._unhandled_input(enter)
 	assert(game.switching_session and game.hud.fire_button.disabled)
 	assert(is_zero_approx(game.hud.fire_progress.value))
-	assert(game.hud.menu.has_node("MapPark/Selected") and not game.hud.menu.has_node("MapYard/Selected"))
+	assert(game.hud.map_grid.has_node("MapPark/Selected") and not game.hud.map_grid.has_node("MapYard/Selected"))
 	assert(game.session==YardSession and game.hud.title_frame==old_frame)
 	game.menu_action("play")
 	assert(game.state=="TITLE")
@@ -58,8 +60,8 @@ func check() -> void:
 	assert(game.session==ParkSession and game.nav_ready and game.title_frame_ready)
 	assert(not game.hud.fire_button.disabled and game.hud.fire_progress==null)
 	assert(game.title_session_id=="amusement_park")
-	assert(game.hud.menu.get_node("MapPark/Selected"))
-	assert(game.hud.menu.get_node("MapPark").has_focus())
+	assert(game.hud.map_grid.get_node("MapPark/Selected"))
+	assert(game.hud.map_grid.get_node("MapPark").has_focus())
 	assert(game.world_environment.environment==game.arena.environment_override)
 	if DisplayServer.get_name()!="headless":
 		assert(game.hud.title_frame!=old_frame and game.hud.title_frame.get_image().get_size()==Vector2i(root.get_texture().get_size()))
@@ -73,49 +75,49 @@ func check() -> void:
 	records.set_value("score_night_studio_v1","best",9)
 	game.load_session_record(records)
 	assert(game.best==7)
-	var ferry_card = game.hud.menu.get_node("MapFerry")
+	var ferry_card = game.hud.map_grid.get_node("MapFerry")
 	assert(ferry_card.text.is_empty() and not ferry_card.accessibility_name.is_empty())
 	ferry_card.grab_focus()
 	game._unhandled_input(enter)
 	await wait_for_switch()
 	assert(game.nav_ready and game.session==FerrySession and game.title_session_id=="last_ferry")
-	assert(game.hud.menu.get_node("MapFerry/Selected") and game.hud.menu.get_node("MapFerry").has_focus())
+	assert(game.hud.map_grid.get_node("MapFerry/Selected") and game.hud.map_grid.get_node("MapFerry").has_focus())
 	assert(game.world_environment.environment==game.arena.environment_override)
 	game.load_session_record(records)
 	assert(game.best==5)
 	if DisplayServer.get_name()!="headless":await capture("ferry-title")
-	var studio_card = game.hud.menu.get_node("MapStudio")
+	var studio_card = game.hud.map_grid.get_node("MapStudio")
 	assert(studio_card.text.is_empty() and not studio_card.accessibility_name.is_empty())
 	studio_card.grab_focus()
 	game._unhandled_input(enter)
-	assert(game.hud.menu.has_node("MapStudio/Selected") and game.hud.fire_button.disabled)
+	assert(game.hud.map_grid.has_node("MapStudio/Selected") and game.hud.fire_button.disabled)
 	await wait_for_switch()
 	assert(game.nav_ready and game.session==StudioSession and game.title_session_id=="night_studio")
-	assert(game.hud.menu.get_node("MapStudio").has_focus() and not game.hud.fire_button.disabled)
+	assert(game.hud.map_grid.get_node("MapStudio").has_focus() and not game.hud.fire_button.disabled)
 	game.load_session_record(records)
 	assert(game.best==9)
 	if DisplayServer.get_name()!="headless":await capture("studio-title-selector")
-	var sandgate_card = game.hud.menu.get_node("MapSandgate")
+	var sandgate_card = game.hud.map_grid.get_node("MapSandgate")
 	sandgate_card.grab_focus()
 	game._unhandled_input(enter)
-	assert(game.hud.menu.has_node("MapSandgate/Selected") and game.hud.fire_button.disabled)
+	assert(game.hud.map_grid.has_node("MapSandgate/Selected") and game.hud.fire_button.disabled)
 	await wait_for_switch()
 	assert(game.session==SandgateSession and game.nav_ready and game.title_frame_ready)
 	assert(not game.rules.mission and game.score_record_key()=="score_sandgate_v1" and game.best==6)
-	assert(game.hud.menu.get_node("MapSandgate").has_focus() and not game.hud.fire_button.disabled)
+	assert(game.hud.map_grid.get_node("MapSandgate").has_focus() and not game.hud.fire_button.disabled)
 	if DisplayServer.get_name()!="headless":await capture("sandgate-title-selector")
-	var office_card = game.hud.menu.get_node("MapOffice")
+	var office_card = game.hud.map_grid.get_node("MapOffice")
 	office_card.grab_focus()
 	game._unhandled_input(enter)
-	assert(game.hud.menu.has_node("MapOffice/Selected") and game.hud.fire_button.disabled)
+	assert(game.hud.map_grid.has_node("MapOffice/Selected") and game.hud.fire_button.disabled)
 	await wait_for_switch()
 	assert(game.session==OfficeSession and game.nav_ready and game.best==8)
-	assert(game.score_record_key()=="score_bb_office_v1" and game.hud.menu.get_node("MapOffice").has_focus())
+	assert(game.score_record_key()=="score_bb_office_v1" and game.hud.map_grid.get_node("MapOffice").has_focus())
 	if DisplayServer.get_name()!="headless":await capture("bb-office-title-selector")
 
 	await game.select_session(YardSession)
 	assert(game.nav_ready and game.world_environment.environment==game.daylight_environment)
-	assert(game.title_session_id=="score_attack" and game.hud.menu.get_node("MapYard/Selected"))
+	assert(game.title_session_id=="score_attack" and game.hud.map_grid.get_node("MapYard/Selected"))
 	game.load_session_record(records)
 	assert(game.best==13)
 	if DisplayServer.get_name()!="headless":await capture("yard-title-selector")
@@ -131,11 +133,11 @@ func check() -> void:
 	var yard = game.arena
 	old_frame = game.hud.title_frame
 	game.select_session(invalid)
-	assert(game.hud.menu.has_node("MapPark/Selected"))
+	assert(game.hud.map_grid.has_node("MapPark/Selected"))
 	await wait_for_switch()
 	assert(game.session==YardSession and game.arena==yard)
 	assert(game.nav_ready and game.title_frame_ready and game.hud.title_frame==old_frame)
-	assert(game.hud.menu.has_node("MapYard/Selected") and not game.hud.menu.has_node("MapPark/Selected"))
+	assert(game.hud.map_grid.has_node("MapYard/Selected") and not game.hud.map_grid.has_node("MapPark/Selected"))
 	assert(game.best==13 and not game.hud.fire_button.disabled)
 	await game.select_session(ParkSession)
 	assert(game.nav_ready and game.title_session_id=="amusement_park")
@@ -148,7 +150,7 @@ func check() -> void:
 	game.menu_action("menu")
 	assert(game.state=="TITLE" and game.session==ParkSession)
 	game.hud.rebuild_menu()
-	assert(game.hud.menu.get_node("MapPark/Selected"))
+	assert(game.hud.map_grid.get_node("MapPark/Selected"))
 	assert_card_records([13,17,5,123,6,8,0,0,0])
 	game.start_run()
 	game.begin_running()
@@ -187,9 +189,9 @@ func check() -> void:
 	game.hud.rebuild_menu()
 	assert_card_records([13,17,5,123,6,8,0,0,0])
 	assert_grid()
-	var office_touch = game.hud.menu.get_node("MapOffice")
+	var office_touch = game.hud.map_grid.get_node("MapOffice")
 	click(office_touch.get_global_rect().get_center())
-	assert(game.hud.menu.has_node("MapOffice/Selected") and game.hud.fire_button.disabled)
+	assert(game.hud.map_grid.has_node("MapOffice/Selected") and game.hud.fire_button.disabled)
 	await wait_for_switch()
 	assert(game.session==OfficeSession and game.nav_ready and not game.hud.fire_button.disabled)
 	if DisplayServer.get_name()!="headless":await capture("bb-office-title-touch")
@@ -201,7 +203,38 @@ func check() -> void:
 		if game.state=="RUNNING":break
 		await process_frame
 	assert(game.state=="RUNNING" and game.session==OfficeSession)
-	print("MAP_SELECTOR_PASS: nine cards, staged selection, focus, rollback, individual records, return home and touch layout launch")
+	game.pause_run()
+	game.menu_action("menu")
+	game.hud.rebuild_menu()
+	await process_frame
+	var scroller: ScrollContainer = game.hud.map_scroll
+	var secret: Button = game.hud.map_grid.get_node("MapHogwarts")
+	assert(not scroller.get_global_rect().intersects(secret.get_global_rect()))
+	for _step in range(6):
+		var wheel := InputEventMouseButton.new()
+		wheel.position = scroller.get_global_rect().get_center()
+		wheel.button_index = MOUSE_BUTTON_WHEEL_DOWN
+		wheel.pressed = true
+		wheel.factor = 1.0
+		root.push_input(wheel,true)
+		wheel.pressed = false
+		root.push_input(wheel,true)
+		await process_frame
+	assert(scroller.get_global_rect().encloses(secret.get_global_rect().grow(-1.0)))
+	click(secret.get_global_rect().get_center())
+	assert(game.hud.map_grid.has_node("MapHogwarts/Selected") and game.hud.fire_button.disabled)
+	await wait_for_switch()
+	await process_frame
+	assert(game.session==HogwartsSession and game.nav_ready and game.score_record_key()=="score_hogwarts_v1")
+	secret = game.hud.map_grid.get_node("MapHogwarts")
+	assert(game.hud.map_scroll.get_global_rect().has_point(secret.get_global_rect().get_center()))
+	assert(not game.hud.fire_button.disabled)
+	click(game.hud.fire_button.get_global_rect().get_center())
+	for _frame in range(900):
+		if game.state=="RUNNING":break
+		await process_frame
+	assert(game.state=="RUNNING" and game.session==HogwartsSession)
+	print("MAP_SELECTOR_PASS: nine visible cards, wheel reveals Hogwarts, staged selection, focus, rollback, records, and FIRE")
 	game.pause_run()
 	game.menu_action("menu")
 	game.set_physics_process(false)
@@ -216,10 +249,10 @@ func check() -> void:
 	quit()
 
 func assert_grid() -> void:
-	var fire: Rect2 = game.hud.fire_button.get_rect()
+	var fire: Rect2 = game.hud.fire_button.get_global_rect()
 	var grid: Array[Rect2] = []
 	for card in CARDS:
-		var rect: Rect2 = game.hud.menu.get_node(card).get_rect()
+		var rect: Rect2 = game.hud.map_grid.get_node(card).get_global_rect()
 		assert(game.hud.get_rect().encloses(rect) and rect.position.x>fire.end.x)
 		grid.append(rect)
 	for row in range(3):
@@ -229,11 +262,13 @@ func assert_grid() -> void:
 			assert(rect.position.y==grid[row*3].position.y)
 			if column>0:assert(rect.position.x>grid[row*3+column-1].end.x)
 			if row>0:assert(rect.position.y>grid[(row-1)*3+column].end.y)
-	assert(is_equal_approx(fire.end.y,grid[-1].end.y),"FIRE and the last map share a baseline")
+	assert(is_equal_approx(fire.end.y,grid[-1].end.y),"FIRE and the last visible row share a baseline")
+	var secret = game.hud.map_grid.get_node("MapHogwarts")
+	assert(not game.hud.map_scroll.get_global_rect().intersects(secret.get_global_rect()))
 
 func assert_card_records(expected: Array) -> void:
 	for i in range(CARDS.size()):
-		var card = game.hud.menu.get_node(CARDS[i])
+		var card = game.hud.map_grid.get_node(CARDS[i])
 		var panel = card.get_node("Record")
 		assert(panel.find_child("Score",true,false).text==str(expected[i]))
 		assert(panel.mouse_filter==Control.MOUSE_FILTER_IGNORE)
@@ -241,6 +276,9 @@ func assert_card_records(expected: Array) -> void:
 		assert(is_equal_approx(panel.position.x+panel.size.x*panel.scale.x,card.size.x-8))
 
 func click(center: Vector2) -> void:
+	var motion := InputEventMouseMotion.new()
+	motion.position = center
+	root.push_input(motion,true)
 	for pressed in [true,false]:
 		var event = InputEventMouseButton.new()
 		event.position = center

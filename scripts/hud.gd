@@ -13,6 +13,7 @@ const OFFICE_THUMBNAIL = preload("res://assets/ui/maps/bb-office.webp")
 const RAIN_THUMBNAIL = preload("res://assets/ui/maps/rain_market.webp")
 const BAGGAGE_THUMBNAIL = preload("res://assets/ui/maps/baggage_below.webp")
 const SNOWLINE_THUMBNAIL = preload("res://assets/ui/maps/snowline.webp")
+const HOGWARTS_THUMBNAIL = preload("res://assets/ui/maps/hogwarts.webp")
 const COMEDY_ICON = preload("res://assets/ui/settings/comedy.svg")
 const ROACH_ICON = preload("res://assets/ui/settings/roach.svg")
 const BadgeCatalog = preload("res://scripts/achievements.gd")
@@ -93,6 +94,13 @@ var web_comedy_callback: JavaScriptObject
 var results_frame: ImageTexture
 var results_frame_pending = false
 var results_frame_ticket = 0
+var map_scroll: ScrollContainer
+var map_grid: Control
+var map_scroll_offset := 0
+var map_touch_index := -1
+var map_touch_origin := Vector2.ZERO
+var map_touch_scroll := 0
+var map_touch_dragged := false
 const TOP_HUD_SCALE = 1.5
 const TITLE_SHADE_OPACITY = .55
 const FIRE_PURPLE = Color("754c87")
@@ -555,7 +563,7 @@ func map_button(node_name: String, map_name: String, action: String, thumbnail: 
 		card.add_child(outline)
 		outline.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	card.pressed.connect(func():game.menu_action(action))
-	menu.add_child(card)
+	map_grid.add_child(card)
 	map_record(card,best_kills)
 	return card
 
@@ -653,6 +661,7 @@ func title_badges(gutters: Vector4) -> void:
 			update_badge_detail())
 
 func _input(event: InputEvent) -> void:
+	if menu_state=="TITLE" and handle_map_touch(event):return
 	if menu_state!="TITLE" or not is_instance_valid(selected_badge):return
 	var pointer_down = (event is InputEventScreenTouch and event.pressed) or (
 		event is InputEventMouseButton and event.pressed and event.button_index==MOUSE_BUTTON_LEFT)
@@ -661,6 +670,38 @@ func _input(event: InputEvent) -> void:
 		if button.get_global_rect().has_point(event.position):return
 	selected_badge = null
 	update_badge_detail()
+
+func handle_map_touch(event: InputEvent) -> bool:
+	if not game.touch_mode or not is_instance_valid(map_scroll):return false
+	var visible_grid := map_scroll.get_global_rect()
+	if (event is InputEventMouseButton and event.device==InputEvent.DEVICE_ID_EMULATION
+			and event.button_index==MOUSE_BUTTON_LEFT and visible_grid.has_point(event.position)):
+		get_viewport().set_input_as_handled()
+		return true
+	if event is InputEventScreenTouch:
+		if event.pressed and map_touch_index<0 and visible_grid.has_point(event.position):
+			map_touch_index = event.index
+			map_touch_origin = event.position
+			map_touch_scroll = map_scroll.scroll_vertical
+			map_touch_dragged = false
+		elif not event.pressed and event.index==map_touch_index:
+			map_touch_index = -1
+			if not event.canceled and not map_touch_dragged and visible_grid.has_point(event.position):
+				for card: Button in map_grid.get_children():
+					if not card.disabled and card.get_global_rect().has_point(event.position):
+						card.grab_focus()
+						card.pressed.emit()
+						break
+			get_viewport().set_input_as_handled()
+			return true
+		if event.index!=map_touch_index:return false
+	elif event is InputEventScreenDrag and event.index==map_touch_index:
+		var offset: Vector2 = event.position-map_touch_origin
+		if absf(offset.y)>=12.0:map_touch_dragged = true
+		if map_touch_dragged:map_scroll.scroll_vertical = map_touch_scroll-roundi(offset.y)
+	else:return false
+	get_viewport().set_input_as_handled()
+	return true
 
 func update_badge_detail() -> void:
 	if is_instance_valid(badge_detail):
@@ -736,6 +777,11 @@ func results_badges(center: Vector2) -> void:
 		row.add_child(copy)
 
 func rebuild_menu() -> void:
+	map_touch_index = -1
+	if is_instance_valid(map_scroll):
+		map_scroll_offset = map_scroll.scroll_vertical
+	map_scroll = null
+	map_grid = null
 	title_badge_buttons.clear()
 	hovered_badge = null
 	selected_badge = null
@@ -796,7 +842,23 @@ func rebuild_menu() -> void:
 		var width = minf(176.0 if game.touch_mode else 216.0,(grid_room-2*gap)*16/27)
 		width = minf(width,(row_room-2*gap)/3.0)
 		var height = width*9/16
-		var corner = Vector2(size.x-gutters.y-3*width-2*gap,bottom-3*height-2*gap)
+		var viewport_extent = Vector2(3*width+2*gap,3*height+2*gap)
+		var corner = Vector2(size.x-gutters.y,bottom)-viewport_extent
+		map_scroll = ScrollContainer.new()
+		map_scroll.name = "MapScroll"
+		map_scroll.position = corner
+		map_scroll.size = viewport_extent
+		map_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		map_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
+		map_scroll.scroll_deadzone = 12
+		map_scroll.follow_focus = true
+		menu.add_child(map_scroll)
+		map_grid = Control.new()
+		map_grid.name = "MapGrid"
+		map_grid.mouse_filter = Control.MOUSE_FILTER_PASS
+		map_grid.custom_minimum_size = Vector2(viewport_extent.x,4*height+3*gap)
+		map_scroll.add_child(map_grid)
+		map_scroll.set_deferred("scroll_vertical",map_scroll_offset)
 		var maps = [
 			["MapYard",tr("Container Yard"),"arena",YARD_THUMBNAIL,"score_attack"],
 			["MapPark",tr("Sunset Park"),"amusement_park",PARK_THUMBNAIL,"amusement_park"],
@@ -807,13 +869,14 @@ func rebuild_menu() -> void:
 			["MapRainMarket",tr("Hong Kong Rain Market"),"rain_market",RAIN_THUMBNAIL,"rain_market"],
 			["MapBaggage",tr("Baggage Below"),"baggage_below",BAGGAGE_THUMBNAIL,"baggage_below"],
 			["MapSnowline",tr("Snowline Observatory"),"snowline",SNOWLINE_THUMBNAIL,"snowline"],
+			["MapHogwarts",tr("Hogwarts"),"hogwarts",HOGWARTS_THUMBNAIL,"hogwarts"],
 		]
 		var tab_order = [fire_button]
 		for i in range(maps.size()):
 			var item: Array = maps[i]
 			var column = i%3
 			var row = floori(i/3.0)
-			var position = corner+Vector2(column*(width+gap),row*(height+gap))
+			var position = Vector2(column*(width+gap),row*(height+gap))
 			tab_order.append(map_button(item[0],item[1],item[2],item[3],Rect2(position,Vector2(width,height)),
 				game.title_session_id==item[4],game.map_best_score(item[4])))
 		if not OS.has_feature("web"):

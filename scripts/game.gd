@@ -11,6 +11,7 @@ const FERRY_SESSION_PATH = "res://data/sessions/last_ferry.tres"
 const STUDIO_SESSION_PATH = "res://data/sessions/night_studio.tres"
 const SANDGATE_SESSION_PATH = "res://data/sessions/sandgate.tres"
 const OFFICE_SESSION_PATH = "res://data/sessions/bb_office.tres"
+const HOGWARTS_SESSION_PATH = "res://data/sessions/hogwarts.tres"
 const TITLE_SESSIONS = {
 	"score_attack":"res://data/sessions/score_attack.tres",
 	"amusement_park":PARK_SESSION_PATH,
@@ -18,6 +19,7 @@ const TITLE_SESSIONS = {
 	"night_studio":STUDIO_SESSION_PATH,
 	"sandgate":SANDGATE_SESSION_PATH,
 	"bb_office":OFFICE_SESSION_PATH,
+	"hogwarts":HOGWARTS_SESSION_PATH,
 }
 const CONCEPT_SESSIONS = {
 	"rain_market":"res://data/sessions/rain_market.tres",
@@ -992,7 +994,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif state == "RESULTS":menu_action("menu")
 	elif event.is_action_pressed("restart") and state in ["TITLE","RESULTS","PAUSED"]:
 		var focused = get_viewport().gui_get_focus_owner()
-		if state=="TITLE" and focused is Button and focused.get_parent()==hud.menu and focused!=hud.fire_button:
+		if state=="TITLE" and focused is Button and hud.menu.is_ancestor_of(focused) and focused!=hud.fire_button:
 			if not focused.disabled:focused.pressed.emit()
 			get_viewport().set_input_as_handled()
 		else:request_run()
@@ -1019,6 +1021,8 @@ func menu_action(action: String) -> void:
 			select_session(SANDGATE_SESSION_PATH,action)
 		"bb_office":
 			select_session(OFFICE_SESSION_PATH,action)
+		"hogwarts":
+			select_session(HOGWARTS_SESSION_PATH,action)
 		"rain_market", "baggage_below", "snowline":
 			select_session(CONCEPT_SESSIONS[action],action)
 		"comedy", "roach":
@@ -1855,13 +1859,13 @@ func select_session(selection: Variant, highlighted_id: String = "") -> void:
 	var old_session = session
 	var old_rules = rules
 	var focused = get_viewport().gui_get_focus_owner()
-	var focus_name: StringName = focused.name if focused and focused.get_parent()==hud.menu else &""
+	var focus_path: NodePath = hud.menu.get_path_to(focused) if focused and hud.menu.is_ancestor_of(focused) else NodePath()
 	hud.rebuild_menu()
 	await loading_frame()
 	var resource: Resource = selection if selection is Resource else load(selection)
 	if not resource:
 		title_frame_ready = previous_frame_ready
-		finish_session_switch(focus_name)
+		finish_session_switch(focus_path)
 		return
 	map_switch_progress = .35
 	await loading_frame()
@@ -1910,16 +1914,16 @@ func select_session(selection: Variant, highlighted_id: String = "") -> void:
 		player.reset_position()
 		nav_ready = await wait_for_map_navigation(failed_iteration)
 		title_frame_ready = nav_ready
-	finish_session_switch(focus_name)
+	finish_session_switch(focus_path)
 	if session==resource and nav_ready and title_frame_ready:save_title_selection()
 
-func finish_session_switch(focus_name: StringName) -> void:
+func finish_session_switch(focus_path: NodePath) -> void:
 	title_session_id = session.session_id
 	switching_session = false
 	map_switch_progress = 0.0
 	hud.rebuild_menu()
-	if focus_name!=&"":
-		var button = hud.menu.get_node_or_null(NodePath(String(focus_name)))
+	if not focus_path.is_empty():
+		var button = hud.menu.get_node_or_null(focus_path)
 		if button:button.grab_focus()
 
 func wait_for_map_navigation(previous_iteration: int = 0) -> bool:
