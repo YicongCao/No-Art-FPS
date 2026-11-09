@@ -119,6 +119,8 @@ func build() -> void:
 	arena.environment_override = environment
 	arena.spot_specs = layout.spots
 	arena.awning_specs = layout.get("awnings",[])
+	arena.neon_lamp_specs = layout.get("neon_lamps",[])
+	arena.harbour_ferry_specs = layout.get("harbour_ferries",[])
 	if key=="baggage_below":
 		arena.airport_layout = {"flight_boards":layout.flight_boards,"cargo_belts":layout.cargo_belts}
 	arena.comedy_site = Vector4(layout.comedy[0],layout.comedy[1],layout.comedy[2],layout.comedy[3])

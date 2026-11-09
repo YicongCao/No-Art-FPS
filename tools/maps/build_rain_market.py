@@ -6,6 +6,7 @@ import sys
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from arena_kit import ArenaKit
 from rain_market_neon import build_fish, build_storefront, sign
+from rain_market_waterfront import build_harbour, build_restaurant_row
 
 P = {
     "road": ("3b415d",.31,0), "asphalt": ("515973",.38,0), "concrete":"a09ab0",
@@ -20,6 +21,8 @@ P = {
     "neon_case":"242d45", "neon_red":("ff5b5a",.40,.78), "neon_cream":("ffe3aa",.45,.55),
     "neon_mint":("79f3c9",.42,.75), "neon_amber":("f8bf63",.45,.62),
     "neon_blue":("9bd7ff",.43,.52), "restaurant_red":"b33d46", "restaurant_gold":("ffd464",.48,.65),
+    "sea":"1b3357", "ship_hull":"223d55", "ship_deck":"c1d8d8",
+    "ship_window":("ffce91",.54,.80), "strip_green":"2b9971", "strip_orange":"ed9955",
 }
 a=ArenaKit("rain_market",P,{"sky":"263a67","ambient":"c0ceff","energy":.76,"sun":"aebff3","sun_energy":.36,"sun_rotation":[-38,-34,0]})
 street=a.kit("street",True)
@@ -129,8 +132,9 @@ for x in (-13,13):
     a.solid(street,"Lower stair railing",(x,.53,23),(8,1.05,.12),"green")
     for i in range(12):
         street.box("Vertical picket",(x-3.8+i*.69,.53,23),(.075,1.05,.14),"mint")
-# End facades and rails prevent jumps outside the route.
-a.solid(street,"Foot boundary",(0,1.1,24.85),(46,2.2,.3),"navy")
+# The seafront rail leaves a clear view of the water while keeping the old edge.
+a.layout["boxes"].append([(0,1.25,24.85),(46,2.5,.3),0])
+build_harbour(a)
 # The upper landing now connects to the minibus stop.
 for x in (-15,15):
     street.box("Upper curb", (x,3.74,-24.85),(16,.08,.31),"green")
@@ -201,7 +205,7 @@ for row,z in enumerate((-21,-15,-9,-3,3,9,15,21)):
 for i in range(16):
     x=-32+i*4.3
     y=7+((i*13)%8)*.65
-    rear_z=-34.6 if abs(x+3.65)<6.7 else -31-(i%3)*2
+    rear_z=-44.5-(i%3)*1.1 if -27<x<10 else -31-(i%3)*2
     district.box("Distant tenement",(x,y*.5,rear_z),(4.25,y,4.4),("navy","steel","blue")[i%3])
     for j in range(int(y//1.3)):
         for dx in (-1.12,.19,1.33):
@@ -238,6 +242,11 @@ sign(neon,"通宵供冰",(21.82,terrace_height(-20)+4.22,-20),0,
 for y in (terrace_height(-20)+3.06,terrace_height(-20)+5.38):
     neon.beam("Supply sign wall bracket",(21.82,y,-20),(22.99,y,-20),.094,.105,"steel")
 build_storefront(a.kit("minibus_storefront",True),-3.65,-30.75)
+build_restaurant_row(a)
+a.layout["neon_lamps"] = [
+    [(-21.0,left_y-.35,left_z),"ff6663",0.0],
+    [(19.98,ice_y-.48,8.0),"82f3cd",2.1],
+]
 
 # Blue roof on peaked steel rafters with woven raincloth hung from the bamboo.
 a.layout["awnings"]=[]
@@ -560,6 +569,9 @@ a.layout.update(
         "upper-crossing":[[-20.55,6.05,-3.88],[-9.6,2.7,-3.74],72],
         "shutter-lane":[[19.25,2.69,17.64],[22.02,4.06,9.50],69],
         "minibus-stop":[[-5.3,5.65,-20.15],[1.18,5.07,-26.9],70],
+        "drive-through":[[-11.3,5.50,-25.40],[-9.2,5.35,-33.1],72],
+        "late-night-shops":[[-13.8,5.55,-24.60],[-17.0,5.83,-32.4],71],
+        "harbour":[[.25,1.74,21.65],[.25,.86,52.0],70],
         "wet-aisle":[[.40,1.45,16.12],[.38,1.47,1.9],73],
         "service-frenzy":[[12.1,2.63,13.5],[8.0,2.82,4.1],72],
     })

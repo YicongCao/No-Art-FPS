@@ -8,6 +8,7 @@ const RAIN_SHADER = preload("res://assets/shaders/market_rain.gdshader")
 const AWNING_SHADER = preload("res://assets/shaders/market_awning.gdshader")
 const PUDDLES_SHADER = preload("res://assets/shaders/market_puddles.gdshader")
 const NEON_FISH_SHADER = preload("res://assets/shaders/market_neon_fish.gdshader")
+const HARBOUR_SHADER = preload("res://assets/shaders/market_harbour.gdshader")
 const RED_STRIP_SHADER = preload("res://assets/shaders/observatory_light_strip.gdshader")
 const PIPE_SPRAY_SHADER = preload("res://assets/shaders/market_pipe_spray.gdshader")
 const STAR_CHART_SHADER = preload("res://assets/shaders/observatory_star_chart.gdshader")
@@ -29,6 +30,8 @@ const IMPACTS = {
 @export var minibus_rally_paths: Array[NodePath] = []
 @export var spot_specs: Array = []
 @export var awning_specs: Array = []
+@export var neon_lamp_specs: Array = []
+@export var harbour_ferry_specs: Array = []
 @export var airport_layout: Dictionary = {}
 @export var belt_directions: Array[int] = []
 @export var comedy_site: Vector4
@@ -51,6 +54,11 @@ var snow_paint: ShaderMaterial
 var snow_elapsed: float = 0.0
 var puddles: ShaderMaterial
 var neon_fish_paint: ShaderMaterial
+var neon_tubes: Array[StandardMaterial3D] = []
+var neon_lamps: Array[OmniLight3D] = []
+var harbour_paint: ShaderMaterial
+var harbour_ferries: Array[Node3D] = []
+var harbour_title_time := 0.0
 var awning_paint: ShaderMaterial
 var wind_phase: float = 0.0
 var service_shortcut: Node3D
@@ -89,6 +97,7 @@ func _ready() -> void:
 	shutter_lights = get_node_or_null("Moving/shutter_lights")
 	if map_id=="rain_market":
 		setup_minibus()
+		setup_market_ambience()
 		var fish: Node3D = get_node("Moving/neon_fish")
 		neon_fish_paint = ShaderMaterial.new()
 		neon_fish_paint.shader = NEON_FISH_SHADER
@@ -134,6 +143,45 @@ func _ready() -> void:
 		add_child(airport_display)
 		airport_display.setup(airport_layout,belts)
 	set_destroy_lighting(false)
+
+func setup_market_ambience() -> void:
+	for mesh: MeshInstance3D in get_node("Architecture/street_neon").find_children("*","MeshInstance3D",true,false):
+		for surface in range(mesh.mesh.get_surface_count()):
+			var material := mesh.mesh.surface_get_material(surface) as StandardMaterial3D
+			if material and material.emission_enabled:
+				var tube := material.duplicate() as StandardMaterial3D
+				mesh.set_surface_override_material(surface,tube)
+				neon_tubes.append(tube)
+	for entry in neon_lamp_specs:
+		var lamp := OmniLight3D.new()
+		lamp.position = Vector3(entry[0][0],entry[0][1],entry[0][2])
+		lamp.light_color = Color(entry[1])
+		lamp.omni_range = 5.4
+		lamp.omni_attenuation = 1.25
+		lamp.shadow_enabled = false
+		add_child(lamp)
+		neon_lamps.append(lamp)
+	harbour_paint = ShaderMaterial.new()
+	harbour_paint.shader = HARBOUR_SHADER
+	for mesh: MeshInstance3D in get_node("Architecture/harbour_water").find_children("*","MeshInstance3D",true,false):
+		mesh.material_override = harbour_paint
+		mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	for entry in harbour_ferry_specs:
+		harbour_ferries.append(get_node("Moving/"+entry[0]))
+
+func pose_market_ambience(seconds: float) -> void:
+	var neon_time := seconds if not game.reduced_motion else 1.5
+	for i in range(neon_tubes.size()):
+		var brightness := 0.5 + 0.5 * sin(neon_time*1.11 + i*.81)
+		neon_tubes[i].emission_energy_multiplier = lerpf(.18,1.48,brightness)
+	for i in range(neon_lamps.size()):
+		var brightness := 0.5 + 0.5 * sin(neon_time*1.11 + neon_lamp_specs[i][2])
+		neon_lamps[i].light_energy = lerpf(.26,1.75,brightness)
+	neon_fish_paint.set_shader_parameter("brightness",.73 + .27*sin(neon_time*1.11+2.1))
+	harbour_paint.set_shader_parameter("elapsed",seconds if not game.reduced_motion else 0.0)
+	for i in range(harbour_ferries.size()):
+		var spec: Array = harbour_ferry_specs[i]
+		harbour_ferries[i].position.x = fposmod(spec[1]+seconds*spec[2]+94.0,188.0)-94.0
 
 func horizontal_effect(size: Vector2, at: Vector3, paint: ShaderMaterial) -> MeshInstance3D:
 	var effect = MeshInstance3D.new()
@@ -301,6 +349,10 @@ func _process(delta: float) -> void:
 		awning_paint.set_shader_parameter("wind_phase",phase)
 		puddles.set_shader_parameter("ripple_phase",phase)
 	var elapsed: float = game.rules.elapsed
+	if harbour_paint:
+		if game.state=="TITLE":harbour_title_time += delta
+		if active or game.state=="TITLE":
+			pose_market_ambience(harbour_title_time if game.state=="TITLE" else elapsed)
 	if minibus_door and active:
 		pose_minibus(smoothstep(MINIBUS_START-MINIBUS_DOOR_OPEN_TIME,MINIBUS_START-.05,elapsed))
 	if pipe_spray:

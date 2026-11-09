@@ -64,6 +64,8 @@ func check() -> void:
 		game.rules.elapsed = 44.99
 		game.arena._process(0)
 		var cargo_before := Vector3.ZERO
+		if id=="rain_market":
+			check_market_ambience()
 		if id=="baggage_below":
 			assert(is_equal_approx(game.arena.belts[0].constant_linear_velocity.length(),1.05))
 			var display = game.arena.airport_display
@@ -175,6 +177,37 @@ func check_neon_sweep() -> void:
 	game.arena._process(0)
 	assert(is_equal_approx(paint.get_shader_parameter("progress"),1.0))
 	game.reduced_motion = reduced
+
+func check_market_ambience() -> void:
+	var arena = game.arena
+	assert(arena.neon_tubes.size()>=4 and arena.neon_lamps.size()==2)
+	assert(arena.harbour_ferries.size()==2)
+	var excluded: Array[RID] = []
+	assert(not game.blast_clear(Vector3(0,1.7,24),Vector3(0,1.7,26),excluded),"The quay retains the arena boundary")
+	var elapsed: float = game.rules.elapsed
+	var reduced: bool = game.reduced_motion
+	game.reduced_motion = false
+	game.rules.elapsed = 1.0
+	arena._process(0)
+	var tube: float = arena.neon_tubes[0].emission_energy_multiplier
+	var lamp: float = arena.neon_lamps[0].light_energy
+	var front: float = arena.harbour_ferries[0].position.x
+	var rear: float = arena.harbour_ferries[1].position.x
+	game.rules.elapsed = 4.0
+	arena._process(0)
+	assert(arena.neon_tubes[0].emission_energy_multiplier<tube and arena.neon_lamps[0].light_energy<lamp)
+	assert(arena.harbour_ferries[0].position.x>front and arena.harbour_ferries[1].position.x<rear)
+	game.pause_run()
+	front = arena.harbour_ferries[0].position.x
+	game.rules.elapsed = 7.0
+	arena._process(.2)
+	assert(arena.harbour_ferries[0].position.x==front)
+	assert(arena.harbour_paint.get_shader_parameter("elapsed")==4.0)
+	game.menu_action("resume")
+	game.player.enabled = false
+	game.reduced_motion = reduced
+	game.rules.elapsed = elapsed
+	arena._process(0)
 
 func route_length(from: Vector3, to: Vector3) -> float:
 	var nav_map = game.arena.nav.get_navigation_map()
