@@ -26,6 +26,7 @@ const BADGE_ANCHORS = [
 ]
 const EXTRA_BADGE_ANCHORS = [Vector2(.15,-.08),Vector2(.53,-.30),Vector2(1.50,-.12),Vector2(.14,-.10)]
 const BADGE_TOAST_DURATION = 1.8
+const MAP_HOLD_MS = 540
 const PAUSE_ICON = preload("res://assets/ui/settings/pause.svg")
 const AIM_ICON = preload("res://assets/ui/settings/aim.svg")
 const MOTION_ICON = preload("res://assets/ui/settings/motion.svg")
@@ -688,7 +689,7 @@ func park_card_at(point: Vector2) -> bool:
 func handle_park_options(event: InputEvent) -> bool:
 	if event is InputEventMouseButton and event.pressed and event.button_index==MOUSE_BUTTON_RIGHT:
 		if not game.switching_session and park_card_at(event.position):
-			open_park_options(event.position)
+			if game.park_experiment_unlocked:open_park_options(event.position)
 			get_viewport().set_input_as_handled()
 			return true
 	if not is_instance_valid(park_options):return false
@@ -703,8 +704,8 @@ func handle_park_options(event: InputEvent) -> bool:
 	return false
 
 func update_map_hold() -> void:
-	if map_touch_index<0 or map_touch_dragged or map_touch_opened_options or game.switching_session:return
-	if Time.get_ticks_msec()-map_touch_started_at>=540 and park_card_at(map_touch_origin):
+	if not game.park_experiment_unlocked or map_touch_index<0 or map_touch_dragged or map_touch_opened_options or game.switching_session:return
+	if Time.get_ticks_msec()-map_touch_started_at>=MAP_HOLD_MS and park_card_at(map_touch_origin):
 		map_touch_opened_options = true
 		open_park_options(map_touch_origin)
 
@@ -759,8 +760,10 @@ func handle_map_touch(event: InputEvent) -> bool:
 			map_touch_started_at = Time.get_ticks_msec()
 			map_touch_opened_options = false
 		elif not event.pressed and event.index==map_touch_index:
+			if not event.canceled:update_map_hold()
 			map_touch_index = -1
-			if not event.canceled and not map_touch_dragged and not map_touch_opened_options and visible_grid.has_point(event.position):
+			var tapped := Time.get_ticks_msec()-map_touch_started_at<MAP_HOLD_MS and not map_touch_dragged
+			if not event.canceled and tapped and visible_grid.has_point(event.position):
 				for card: Button in map_grid.get_children():
 					if not card.disabled and card.get_global_rect().has_point(event.position):
 						card.grab_focus()

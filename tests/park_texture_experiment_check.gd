@@ -31,6 +31,30 @@ func check() -> void:
 	press.pressed = true
 	press.position = card.get_global_rect().get_center()
 	root.push_input(press,true)
+	assert(not is_instance_valid(game.hud.park_options))
+	await game.set_park_experimental_textures(true)
+	assert(not game.park_experimental_textures)
+	game.touch_mode = true
+	hold_card(press.position)
+	assert(not is_instance_valid(game.hud.park_options) and game.session.session_id=="score_attack")
+	game.touch_mode = false
+	type_code("xyzzy")
+	assert(not game.park_experiment_unlocked)
+	key(KEY_0,48,true)
+	root.push_input(press,true)
+	assert(not is_instance_valid(game.hud.park_options))
+	type_code("xyxxyzzy")
+	assert(not game.park_experiment_unlocked)
+	key(KEY_0,48,true)
+	key(KEY_CTRL,0)
+	type_code("xyzzy")
+	assert(game.park_experiment_unlocked)
+	game.touch_mode = true
+	hold_card(press.position)
+	assert(is_instance_valid(game.hud.park_options) and game.session.session_id=="score_attack")
+	game.hud.close_park_options()
+	game.touch_mode = false
+	root.push_input(press,true)
 	assert(is_instance_valid(game.hud.park_options) and game.session.session_id=="score_attack")
 	var toggle: CheckButton = game.hud.park_options.get_node("ExperimentalTextures")
 	assert(not toggle.button_pressed)
@@ -73,13 +97,34 @@ func check() -> void:
 			assert(entry.node.get_surface_override_material(index)==entry.original[index])
 	if DisplayServer.get_name()!="headless":
 		await capture_views()
-	print("PARK_TEXTURE_EXPERIMENT_PASS: ",preview.meshes.size()," scenery meshes, disco, fuse, comedy props, title cache and full restore")
+	print("PARK_TEXTURE_EXPERIMENT_PASS: shortcut, right-click and long-press gating, ",preview.meshes.size()," scenery meshes and full restore")
 	game.music.stop()
 	var settle_at := Time.get_ticks_msec()+450
 	while Time.get_ticks_msec()<settle_at:await process_frame
 	game.queue_free()
 	await process_frame
 	quit()
+
+func key(code: Key, character: int, control := false) -> void:
+	var event := InputEventKey.new()
+	event.pressed = true
+	event.keycode = code
+	event.unicode = character
+	event.ctrl_pressed = control
+	root.push_input(event,true)
+
+func type_code(text: String) -> void:
+	for index in range(text.length()):
+		key(text.to_upper().unicode_at(index) as Key,text.unicode_at(index))
+
+func hold_card(at: Vector2) -> void:
+	var event := InputEventScreenTouch.new()
+	event.position = at
+	event.pressed = true
+	root.push_input(event,true)
+	game.hud.map_touch_started_at -= game.hud.MAP_HOLD_MS
+	event.pressed = false
+	root.push_input(event,true)
 
 func capture_views() -> void:
 	DirAccess.make_dir_recursive_absolute(OUTPUT)

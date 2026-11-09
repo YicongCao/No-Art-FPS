@@ -7,6 +7,7 @@ const FINALE_FX_CELL_SIZE = 16.0
 
 const DefaultSession = preload("res://data/sessions/score_attack.tres")
 const PARK_SESSION_PATH = "res://data/sessions/amusement_park.tres"
+const PARK_UNLOCK_CODE = "xyzzy"
 const FERRY_SESSION_PATH = "res://data/sessions/last_ferry.tres"
 const STUDIO_SESSION_PATH = "res://data/sessions/night_studio.tres"
 const SANDGATE_SESSION_PATH = "res://data/sessions/sandgate.tres"
@@ -147,6 +148,9 @@ var web_ui_state = ""
 var web_render_tier = 0
 var switching_session = false
 var park_experimental_textures := false
+var park_experiment_unlocked := false
+var park_unlock_index := -1
+var web_park_unlock_callback: JavaScriptObject
 var map_switch_progress = 0.0
 var dust_unlocked = false
 var objective_focus: Node3D
@@ -168,6 +172,8 @@ func _ready() -> void:
 		Engine.max_fps = 60
 		get_viewport().msaa_3d = Viewport.MSAA_2X
 		touch_mode = bool(JavaScriptBridge.eval("Boolean(window.noArtMobile)"))
+		web_park_unlock_callback = JavaScriptBridge.create_callback(func(_args):begin_park_unlock())
+		JavaScriptBridge.get_interface("window").noArtBeginParkUnlock = web_park_unlock_callback
 	spark_mesh.radial_segments = 6
 	spark_mesh.rings = 3
 	trace_mesh.size = Vector3.ONE
@@ -589,6 +595,7 @@ func reset_run_state() -> void:
 
 func request_run() -> void:
 	if switching_session or not title_frame_ready or state not in ["TITLE","RESULTS","PAUSED"]:return
+	park_unlock_index = -1
 	load_ticket += 1
 	restore_frozen_world()
 	hud.reset_results_frame()
@@ -989,6 +996,27 @@ func pause_run() -> void:
 	state = "PAUSED"
 	player.enabled = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+func begin_park_unlock() -> void:
+	if state=="TITLE" and not park_experiment_unlocked:park_unlock_index = 0
+
+func _input(event: InputEvent) -> void:
+	if state!="TITLE" or park_experiment_unlocked or not event is InputEventKey or not event.pressed or event.echo:return
+	# On Web the queued Ctrl event can arrive after the shortcut callback.
+	if event.keycode in [KEY_CTRL,KEY_ALT,KEY_SHIFT,KEY_META]:return
+	if event.ctrl_pressed and not event.shift_pressed and not event.alt_pressed and not event.meta_pressed and event.keycode in [KEY_0,KEY_KP_0]:
+		begin_park_unlock()
+	elif park_unlock_index>=0:
+		if event.ctrl_pressed or event.alt_pressed or event.meta_pressed or event.unicode!=PARK_UNLOCK_CODE.unicode_at(park_unlock_index):
+			park_unlock_index = -1
+			return
+		park_unlock_index += 1
+		if park_unlock_index==PARK_UNLOCK_CODE.length():
+			park_experiment_unlocked = true
+			park_unlock_index = -1
+	else:
+		return
+	get_viewport().set_input_as_handled()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if state=="TITLE" and not dust_unlocked and event is InputEventKey:
@@ -1874,7 +1902,7 @@ func title_preview_key() -> String:
 	return path+"#pixel" if path==PARK_SESSION_PATH and park_experimental_textures else path
 
 func set_park_experimental_textures(enabled: bool) -> void:
-	if state!="TITLE" or switching_session or enabled==park_experimental_textures:return
+	if not park_experiment_unlocked or state!="TITLE" or switching_session or enabled==park_experimental_textures:return
 	park_experimental_textures = enabled
 	if session.session_id!="amusement_park":return
 	switching_session = true
