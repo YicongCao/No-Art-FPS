@@ -867,6 +867,7 @@ func begin_running() -> void:
 	play_sound("tick",-10)
 
 func finish_run() -> void:
+	player.reset_aim()
 	clear_grenades()
 	if rules.mission and rules.outcome=="TIMEOUT" and state!="RESULTS":
 		for objective in arena.objectives:
@@ -920,6 +921,7 @@ func restore_frozen_world() -> void:
 func start_finale() -> void:
 	if finale_active or state!="RUNNING" or rules.active or rules.remaining()>0 or rules.finale_duration<=0:return
 	finale_active = true
+	player.reset_aim()
 	settle_score_attack()
 	clear_grenades()
 	finale_elapsed = 0
@@ -973,6 +975,7 @@ func _notification(what: int) -> void:
 		pause_run()
 
 func pause_run() -> void:
+	player.reset_aim()
 	arena.cancel_interaction()
 	touch_interact = false
 	previous_state = state
@@ -1073,8 +1076,9 @@ func _physics_process(delta: float) -> void:
 					pause_run()
 				elif rules.active:
 					var touch_sensitivity = player.sensitivity*TOUCH_LOOK_GAIN
-					player.rotate_y(-float(packet.dx)*touch_sensitivity+float(packet.get("gyroYaw",0.0)))
-					player.pitch = clampf(player.pitch-float(packet.dy)*touch_sensitivity+float(packet.get("gyroPitch",0.0)),-1.35,1.35)
+					player.turn(-float(packet.dx)*touch_sensitivity+float(packet.get("gyroYaw",0.0)),
+						-float(packet.dy)*touch_sensitivity+float(packet.get("gyroPitch",0.0)))
+					if bool(packet.get("aim",false)):player.set_aim_requested(not player.aim_requested)
 					player.touch_jump = bool(packet.jump)
 					if bool(packet.reload):reload_weapon()
 					grenade_pressed = bool(packet.get("grenade",false))
@@ -1325,6 +1329,7 @@ func resolve_shot(result: Dictionary, origin: Vector3, target: Vector3, burning:
 func request_grenade() -> void:
 	if state!="RUNNING" or not rules.active or rules.mission or respawn_time>0 or not player.enabled:return
 	if grenade_stock<=0 or grenade_cooldown>0:return
+	player.set_aim_requested(false)
 	grenade_throw_time = GRENADE_WINDUP
 	grenade_cooldown = GRENADE_INTERVAL
 	player.prepare_grenade(comedy_mode)
@@ -1578,6 +1583,7 @@ func damage_player(amount: float = 34.0, source: Variant = null) -> void:
 	play_sound("hurt",-8)
 	if objective_focus:objective_focus.cancel()
 	if health<=0:
+		player.reset_aim()
 		grenade_throw_time = 0
 		rules.deaths += 1
 		rules.report_death()

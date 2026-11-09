@@ -2,6 +2,11 @@ extends CharacterBody3D
 
 const WALK_SPEED = 7.0
 const SPRINT_SPEED = 10.5
+const AIM_SPEED = WALK_SPEED * .8
+const HIP_FOV = 63.0
+const AIM_ZOOM = 1.33
+const HIP_HALF_TAN = tan(deg_to_rad(HIP_FOV * .5))
+const AIM_GUN_ORIGIN = Vector3(0,-.31,-.86)
 const ComedyFX = preload("res://scripts/comedy_fx.gd")
 const Grenade = preload("res://scripts/grenade.gd")
 var camera: Camera3D
@@ -18,6 +23,8 @@ var bob = 0.0
 var sprinting = false
 var sprint_blend = 0.0
 var crosshair_offset = Vector2.ZERO
+var aim_requested := false
+var aim_blend := 0.0
 var gun_origin = Vector3(.25,-.32,-.66)
 var sensitivity = .0022
 var game: Node
@@ -38,7 +45,7 @@ func _ready() -> void:
 	add_child(body_shape)
 	camera = Camera3D.new()
 	camera.position.y = 1.65
-	camera.fov = 63
+	camera.fov = HIP_FOV
 	camera.near = .035
 	add_child(camera)
 	gun = Node3D.new()
@@ -114,9 +121,38 @@ func animate_grenade_throw() -> void:
 	gun.position.y -= .19*(swing-follow)*reach
 
 func _unhandled_input(event: InputEvent) -> void:
+	if game and event.is_action("aim") and not game.touch_mode and Input.mouse_mode==Input.MOUSE_MODE_CAPTURED:
+		set_aim_requested(event.is_pressed())
+		get_viewport().set_input_as_handled()
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and enabled:
-		rotate_y(-event.relative.x*sensitivity)
-		pitch = clampf(pitch-event.relative.y*sensitivity,-1.35,1.35)
+		turn(-event.relative.x*sensitivity,-event.relative.y*sensitivity)
+
+func set_aim_requested(active: bool) -> void:
+	if active and (not enabled or game.state!="RUNNING" or not game.rules.active or game.grenade_throw_time>0):return
+	if active==aim_requested:return
+	aim_requested = active
+	if game.touch_mode and OS.has_feature("web"):
+		JavaScriptBridge.eval("window.noArtSetAim(%s)"%("true" if active else "false"))
+
+func reset_aim() -> void:
+	set_aim_requested(false)
+	aim_blend = 0.0
+	camera.fov = HIP_FOV
+
+func aim_zoom() -> float:
+	return lerpf(1.0,AIM_ZOOM,smoothstep(0.0,1.0,aim_blend))
+
+func turn(yaw: float, pitch_delta: float) -> void:
+	var zoom := aim_zoom()
+	rotate_y(yaw/zoom)
+	pitch = clampf(pitch+pitch_delta/zoom,-1.35,1.35)
+
+func update_aim(delta: float) -> void:
+	var target := 1.0 if aim_requested and enabled and game.reload_time<=0 and game.objective_focus==null else 0.0
+	var next := target if game.reduced_motion else move_toward(aim_blend,target,delta/(.12 if target>0.0 else .10))
+	if next==aim_blend:return
+	aim_blend = next
+	camera.fov = rad_to_deg(2.0*atan(HIP_HALF_TAN/aim_zoom()))
 
 func _physics_process(delta: float) -> void:
 	if not enabled:return
@@ -124,7 +160,8 @@ func _physics_process(delta: float) -> void:
 	var input = Input.get_vector("left","right","forward","back") if keyboard else Vector2.ZERO
 	if game and game.touch_mode:input = touch_move
 	var wants_sprint = keyboard and input.length_squared()>0 and Input.is_action_pressed("sprint")
-	var speed = SPRINT_SPEED if wants_sprint else WALK_SPEED
+	if wants_sprint:set_aim_requested(false)
+	var speed = SPRINT_SPEED if wants_sprint else lerpf(WALK_SPEED,AIM_SPEED,aim_blend)
 	var direction = basis*Vector3(input.x,0,input.y)
 	velocity.x = move_toward(velocity.x,direction.x*speed,35*delta)
 	velocity.z = move_toward(velocity.z,direction.z*speed,35*delta)
@@ -146,6 +183,7 @@ func _physics_process(delta: float) -> void:
 			game.settle_rules()
 
 func _process(delta: float) -> void:
+	if game:update_aim(delta)
 	recoil = move_toward(recoil,0,delta*6)
 	var speed = Vector2(velocity.x,velocity.z).length()
 	bob += delta*minf(speed,SPRINT_SPEED)*1.4
@@ -155,10 +193,13 @@ func _process(delta: float) -> void:
 		movement = 0
 		sprint_blend = 0
 	var stride = Vector2(sin(bob),cos(bob*2))
-	var sprint_sway = stride*sprint_blend
+	var sprint_sway = stride*sprint_blend*(1.0-aim_blend)
 	crosshair_offset = Vector2(sprint_sway.x*14,-sprint_sway.y*9)
 	camera.rotation.x = pitch+recoil*.018
-	gun.position = gun_origin+Vector3(stride.x*.008,stride.y*.007,0)*movement+Vector3(sprint_sway.x*.046,sprint_sway.y*.025,recoil*.06)
+	var aim_pose := smoothstep(0.0,1.0,aim_blend)
+	gun.position = gun_origin.lerp(AIM_GUN_ORIGIN,aim_pose)
+	gun.position += Vector3(stride.x*.008,stride.y*.007,0)*movement*lerpf(1.0,.24,aim_pose)
+	gun.position += Vector3(sprint_sway.x*.046,sprint_sway.y*.025,recoil*.06)
 	gun.rotation.x = recoil*.04+sprint_sway.y*.035
 	gun.rotation.z = -sprint_sway.x*.10
 	if game and game.reload_time>0:
@@ -171,6 +212,7 @@ func reset_position() -> void:
 	teleport_to(game.arena.player_start())
 
 func teleport_to(pose: Transform3D) -> void:
+	reset_aim()
 	global_transform = pose
 	velocity = Vector3.ZERO
 	sprinting = false

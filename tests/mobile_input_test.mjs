@@ -18,7 +18,7 @@ class Element {
 }
 const elements=new Map();
 const get=s=>{if(!elements.has(s))elements.set(s,new Element());return elements.get(s);};
-for(const id of ['fire','interact','jump','reload','grenade','pause'])get('#'+id).id=id;
+for(const id of ['fire','aim','interact','jump','reload','grenade','pause'])get('#'+id).id=id;
 const document=new Element();
 document.body=new Element();document.documentElement=new Element();document.hidden=false;
 document.querySelector=get;document.getElementById=id=>get('#'+id);
@@ -97,6 +97,21 @@ for(const id of [8,9]){
   assert.equal(read().fire,false);
 }
 pointer('lostpointercapture',1,130,260);assert.equal(read().x,0);
+const aim=get('#aim');
+pointer('pointerdown',18,710,199,aim);
+pointer('pointerdown',19,780,300,get('#fire'));
+pointer('pointermove',19,792,304);
+p=read();assert.equal(p.aim,true);assert.equal(p.fire,true);assert.equal(p.dx,12);
+assert.equal(read().aim,false);
+pointer('pointerup',18,710,199);assert.equal(read().fire,true);
+pointer('pointerup',19,792,304);
+window.noArtSetAim(true);assert.equal(aim['aria-pressed'],'true');
+window.noArtSetAim(false);assert.equal(aim['aria-pressed'],'false');
+aim.onclick({detail:1});assert.equal(read().aim,false);
+aim.onclick({detail:0});assert.equal(read().aim,true);
+pointer('pointerdown',20,710,199,aim);
+window.emit('blur');p=read();assert.equal(p.aim,false);assert.equal(p.pause,true);
+window.emit('focus');
 for(const action of ['jump','reload','pause']){pointer('pointerdown',5,700,200,get('#'+action));assert.equal(read()[action],true);assert.equal(read()[action],false);pointer('pointerup',5,700,200);}
 window.noArtSetGrenades(3,'roach');
 assert.equal(get('#grenade').dataset.stock,'3');

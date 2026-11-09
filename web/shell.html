@@ -54,6 +54,10 @@
     #interact{display:none;right:calc(134px + var(--control-inset));bottom:calc(114px + var(--control-inset));width:90px;border-radius:8px}body[data-mode=defuse] #interact{display:block}
     #jump{right:calc(max(134px,env(safe-area-inset-right) + 110px) + var(--control-inset));bottom:calc(28px + var(--control-inset))}
     #reload{right:calc(max(32px,env(safe-area-inset-right)) + var(--control-inset));bottom:calc(154px + var(--control-inset))}
+    #aim{width:48px;height:48px;right:calc(max(110px,env(safe-area-inset-right) + 78px) + var(--control-inset));bottom:calc(max(167px,env(safe-area-inset-bottom) + 123px) + var(--control-inset))}
+    #aim .touch-action-icon{width:30px;height:30px}
+    #aim[aria-pressed=true]{background:#e9ba50;border-color:#f2d084;color:#17242f}
+    #aim[aria-pressed=true] .accent{fill:currentColor}
     #grenade{display:grid;place-items:center;right:calc(max(134px,env(safe-area-inset-right) + 110px) + var(--control-inset));bottom:calc(max(102px,env(safe-area-inset-bottom) + 62px) + var(--control-inset))}
     body[data-mode=defuse] #grenade{display:none}
     #grenade img{width:30px;height:30px;pointer-events:none}
@@ -173,7 +177,7 @@
   </script>
   <canvas id="canvas" tabindex="0" aria-label="No-Art-FPS 游戏画面" data-i18n-aria-label></canvas>
   <div id="sky-edge" aria-hidden="true"></div><div id="title-safe-area" aria-hidden="true"></div>
-  <div id="help" hidden><span class="desktop-controls" data-i18n>WASD 移动 · Shift 冲刺 · 鼠标瞄准 · 左键开火 · G 投雷 · Esc 暂停</span><span class="mobile-warning" data-i18n>左侧移动 · 右侧瞄准</span></div>
+  <div id="help" hidden><span class="desktop-controls" data-i18n>WASD 移动 · Shift 冲刺 · 右键开镜 · 左键开火 · G 投雷 · Esc 暂停</span><span class="mobile-warning" data-i18n>左侧移动 · 右侧瞄准</span></div>
 
   <div id="rotate"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="28" y="13" width="44" height="74" rx="7" transform="rotate(30 50 50)"/><path d="M8 48a42 42 0 0 1 70-30m0-12v12H65M92 52a42 42 0 0 1-70 30m0 12V82h13"/></svg><p class="rotate-game" data-i18n>横过来，准备开火</p><p class="rotate-gyro" data-i18n>请横握设备校准</p><small data-i18n>左手移动，右手瞄准</small><button id="rotate-full" data-i18n>横屏全屏</button></div>
   <div id="title-tools">
@@ -200,6 +204,10 @@
     <button class="touch-button" id="reload" aria-label="换弹" data-i18n-aria-label><svg class="touch-action-icon" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
       <path class="accent" d="M25.1 7.4 28 5l1.2 8.5-8.4-2.1 2.3-2A10.2 10.2 0 1 0 26 15l3-.5A13.2 13.2 0 1 1 25.1 7.4Z"/>
       <path fill-rule="evenodd" d="M12.8 8.7 22 11.9l-4 11.5-3.1.4-5.8-2 3.7-13.1zm1 3.3-.6 1.8 5.7 2 .6-1.8zm-1.2 3.7-.6 1.8 5.7 2 .6-1.8z"/>
+    </svg></button>
+    <button class="touch-button" id="aim" aria-label="开镜瞄准" aria-pressed="false" data-i18n-aria-label><svg class="touch-action-icon" viewBox="0 0 32 32" aria-hidden="true" focusable="false" shape-rendering="crispEdges">
+      <path d="M3 15h7v2H3zm19 0h7v2h-7zM15 22h2v7h-2z"/>
+      <path class="accent" d="M14 14h4v4h-4z"/>
     </svg></button>
     <button class="touch-button" id="grenade" aria-label="碎片雷" aria-disabled="true" data-stock="0">
       <img id="grenade-icon" src="frag-grenade.svg" alt="">
@@ -299,7 +307,7 @@
       try{window.sessionStorage.setItem(toolbarTipKey,'1');}catch{}
     };
     window.visualViewport?.addEventListener('resize',syncToolbarTip);
-    const touch={x:0,y:0,dx:0,dy:0,fire:false,interact:false,jump:false,reload:false,grenade:false,pause:false,blocked:false};
+    const touch={x:0,y:0,dx:0,dy:0,fire:false,aim:false,interact:false,jump:false,reload:false,grenade:false,pause:false,blocked:false};
     let pauseRequested=false,focused=true;
     let gyroSetup=null;
     function syncGyro(alive=true){
@@ -362,6 +370,9 @@
       }catch{return '';}
     };
     const fingers=new Map(),ui=document.querySelector('#touch-ui'),knob=document.querySelector('#stick span');
+    const aimButton=document.querySelector('#aim');
+    window.noArtSetAim=active=>aimButton.setAttribute('aria-pressed',String(active));
+    aimButton.onclick=e=>{if(e.detail===0)touch.aim=true;};
     const grenadeButton=document.querySelector('#grenade'),grenadeIcon=document.querySelector('#grenade-icon');
     window.noArtSetGrenades=(count,mode)=>{
       const [name,src]=mode==='comedy'?['便便雷','stink-bomb.svg']:mode==='roach'?['蟑螂雷','roach-bomb.svg']:['碎片雷','frag-grenade.svg'];
@@ -386,7 +397,7 @@
       syncControlInset();
       try{window.localStorage.setItem(controlInsetKey,String(savedControlInset));}catch{}
     };
-    function clearTouch(){gyroSetup?.gyro.reset();fingers.clear();Object.assign(touch,{x:0,y:0,dx:0,dy:0,fire:false,interact:false,jump:false,reload:false,grenade:false,pause:false});knob.style.transform='';document.querySelectorAll('.held').forEach(e=>e.classList.remove('held'));}
+    function clearTouch(){gyroSetup?.gyro.reset();fingers.clear();Object.assign(touch,{x:0,y:0,dx:0,dy:0,fire:false,aim:false,interact:false,jump:false,reload:false,grenade:false,pause:false});knob.style.transform='';document.querySelectorAll('.held').forEach(e=>e.classList.remove('held'));}
     function syncScreenLayout(){const portrait=!isLandscape();document.body.classList.toggle('portrait',portrait);touch.blocked=portrait||document.hidden;syncControlInset();if(portrait){clearTouch();pauseRequested=true;}syncGyro();syncToolbarTip();}
     document.body.classList.toggle('mobile',window.noArtMobile);syncScreenLayout();window.addEventListener('resize',()=>{clearTouch();syncScreenLayout();});window.addEventListener('orientationchange',()=>{clearTouch();syncScreenLayout();});screen.orientation?.addEventListener?.('change',()=>{clearTouch();syncScreenLayout();});
     document.addEventListener('visibilitychange',()=>{clearTouch();syncScreenLayout();if(document.hidden)pauseRequested=true;});window.addEventListener('blur',()=>{focused=false;clearTouch();if(document.body.dataset.game==='RUNNING')pauseRequested=true;syncGyro();});window.addEventListener('focus',()=>{focused=true;syncGyro();});
@@ -396,7 +407,7 @@
       syncGyro(alive);
       const motion=gyroSetup?.practicing?null:gyroSetup?.gyro.read();
       const result=JSON.stringify({...touch,...motion,pause:touch.pause||pauseRequested});
-      pauseRequested=false;touch.dx=touch.dy=0;touch.jump=touch.reload=touch.grenade=touch.pause=false;
+      pauseRequested=false;touch.dx=touch.dy=0;touch.aim=touch.jump=touch.reload=touch.grenade=touch.pause=false;
       return result;
     };
     ui.addEventListener('contextmenu',e=>e.preventDefault());

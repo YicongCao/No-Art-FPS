@@ -1265,6 +1265,12 @@ func _draw() -> void:
 		if hit>0:
 			var col = GOLD if kill_pop>0 else WHITE
 			for a in [Vector2(-1,-1),Vector2(1,-1),Vector2(-1,1),Vector2(1,1)]:draw_line(aim_center+a*7,aim_center+a*12,col,2)
+		elif game.player.aim_blend>=.5:
+			for a in [Vector2.LEFT,Vector2.RIGHT,Vector2.DOWN]:
+				draw_line(aim_center+a*8,aim_center+a*16,INK,4)
+				draw_line(aim_center+a*9,aim_center+a*15,WHITE,2)
+			draw_rect(Rect2(aim_center-Vector2(3,3),Vector2(6,6)),INK)
+			draw_rect(Rect2(aim_center-Vector2(2,2),Vector2(4,4)),GOLD)
 		else:
 			draw_circle(aim_center,2,INK)
 			draw_circle(aim_center,1,WHITE)
