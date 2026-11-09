@@ -125,6 +125,7 @@ func check_guardrails() -> void:
 		[Vector3(8.0,2.45,-6.5),Vector2.RIGHT,Vector3(9.48,2.4,-6.5)],
 		[Vector3(7.1,2.45,-11.6),Vector2.UP,Vector3(7.1,2.4,-12.93)],
 		[Vector3(7.4,1.30,-.2),Vector2.LEFT,Vector3(5.61,1.2,-.2)],
+		[Vector3(8.75,2.45,-15),Vector2.LEFT,Vector3(7.74,2.4,-15)],
 	]:
 		var at: Vector3 = edge[0]
 		var move: Vector2 = edge[1]
@@ -142,7 +143,7 @@ func check_guardrails() -> void:
 	for _tick in range(38):await physics_frame
 	assert(game.player.position.x>12.0 and game.player.position.y>2.35,"A Short connects to A without a jump")
 	game.player.touch_move = Vector2.ZERO
-	print("SANDGATE_RAILS_PASS: four upper edges stop walking input, A Short stays connected")
+	print("SANDGATE_RAILS_PASS: upper edges and lookout stop walking input, A Short stays connected")
 
 func walk_to(goal: Vector3) -> bool:
 	var nav = game.arena.nav.get_navigation_map()

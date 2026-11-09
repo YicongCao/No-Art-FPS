@@ -29,6 +29,8 @@
 [ext_resource type="Script" path="res://scripts/explosive_barrel.gd" id="27_il150"]
 [ext_resource type="PackedScene" path="res://assets/models/bb_office/partition_low.glb" id="18_ee8d0"]
 [ext_resource type="PackedScene" path="res://assets/models/bb_office/partition_storage.glb" id="19_en7jq"]
+[ext_resource type="PackedScene" path="res://assets/models/bb_office/programmer_lunch.glb" id="20_edvhx"]
+[ext_resource type="PackedScene" path="res://assets/models/bb_office/project_manager_lunch.glb" id="21_33dah"]
 
 [sub_resource type="Environment" id="Environment_04nuh"]
 background_mode = 1
@@ -1850,7 +1852,7 @@ palette = Color(0.2784314, 0.48235294, 0.50980395, 1)
 scenery = true
 metadata/office_impact = "keys"
 
-[node name="Model" type="Node3D" parent="Props/Programmer02L" unique_id=1539781821 instance=ExtResource("14_0qsdn")]
+[node name="Model" type="Node3D" parent="Props/Programmer02L" unique_id=1539781821 instance=ExtResource("20_edvhx")]
 
 [node name="Body1" type="StaticBody3D" parent="Props/Programmer02L" unique_id=1532100790]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.47, 0)
@@ -2037,7 +2039,7 @@ scenery = true
 paper = true
 metadata/office_impact = "paper"
 
-[node name="Model" type="Node3D" parent="Props/PM10L" unique_id=1395342077 instance=ExtResource("15_w12ss")]
+[node name="Model" type="Node3D" parent="Props/PM10L" unique_id=1395342077 instance=ExtResource("21_33dah")]
 
 [node name="Body1" type="StaticBody3D" parent="Props/PM10L" unique_id=293972982]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.47, 0)
@@ -2827,7 +2829,7 @@ palette = Color(0.2784314, 0.48235294, 0.50980395, 1)
 scenery = true
 metadata/office_impact = "keys"
 
-[node name="Model" type="Node3D" parent="Props/Programmer21R" unique_id=1708205310 instance=ExtResource("14_0qsdn")]
+[node name="Model" type="Node3D" parent="Props/Programmer21R" unique_id=1708205310 instance=ExtResource("20_edvhx")]
 
 [node name="Body1" type="StaticBody3D" parent="Props/Programmer21R" unique_id=917175368]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.47, 0)
@@ -3571,7 +3573,7 @@ scenery = true
 paper = true
 metadata/office_impact = "paper"
 
-[node name="Model" type="Node3D" parent="Props/PM32R" unique_id=1914493299 instance=ExtResource("15_w12ss")]
+[node name="Model" type="Node3D" parent="Props/PM32R" unique_id=1914493299 instance=ExtResource("21_33dah")]
 
 [node name="Body1" type="StaticBody3D" parent="Props/PM32R" unique_id=1956245336]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.47, 0)

@@ -1175,7 +1175,7 @@
       ]
     },
     {
-      "asset": "programmer",
+      "asset": "programmer_lunch",
       "name": "Programmer02L",
       "at": [
         12.75,
@@ -1415,7 +1415,7 @@
       ]
     },
     {
-      "asset": "project_manager",
+      "asset": "project_manager_lunch",
       "name": "PM10L",
       "at": [
         -15.25,
@@ -2416,7 +2416,7 @@
       ]
     },
     {
-      "asset": "programmer",
+      "asset": "programmer_lunch",
       "name": "Programmer21R",
       "at": [
         1.25,
@@ -3350,7 +3350,7 @@
       ]
     },
     {
-      "asset": "project_manager",
+      "asset": "project_manager_lunch",
       "name": "PM32R",
       "at": [
         15.25,

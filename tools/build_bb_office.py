@@ -456,14 +456,41 @@ pm.box("Meeting notebook",(-.51,.946,.28),(.27,.047,.22),"lilac",.23)
 pm.box("Notebook page block",(-.51,.968,.28),(.25,.022,.20),"paper",.23)
 pm.box("Employee badge",(-.76,.941,-.14),(.125,.013,.20),"screen",.42)
 pm.rod("Employee badge lanyard",(-.76,.946,-.21),(-.51,.95,-.30),.014,"blue",6)
-programmer.box("Takeaway lunch bag",(-.82,1.025,-.30),(.22,.215,.16),"card")
-programmer.box("Folded takeaway bag top",(-.82,1.146,-.30),(.217,.043,.089),"ivory")
 programmer.rod("Headphone stand",(.86,.92,.27),(.86,1.14,.27),.034,"slate",8)
 for dx in (-.082,.082):
     programmer.rod("Headphone ear cup",(.86+dx,1.05,.27),(.86+dx,1.11,.27),.048,"ink",8)
 programmer.rod("Padded headset band",(.78,1.137,.27),(.94,1.137,.27),.027,"ink",7)
 executive.box("Tablet kickstand",(.26,1.018,-.19),(.42,.17,.16),"slate")
 screen(executive,.26,1.205,-.07,.69,.47,"revenue")
+
+def lunch_variant(station):
+    item=kit(station.name+"_lunch")
+    item.parts.extend(station.parts)
+    for obj in station.collection.objects:
+        item.collection.objects.link(obj.copy())
+    x,y,z=-.82,.92,-.29
+    item.box("Kraft takeaway bag",(x,y+.176,z),(.31,.35,.225),"card")
+    item.box("Folded paper gusset",(x,y+.351,z),(.31,.065,.16),"ivory")
+    item.box("Red printed bag panel",(x,y+.155,z+.114),(.246,.15,.013),"red")
+    for offset in (-.045,.045):
+        arc=[(x+offset+.045*math.cos(i*math.pi/8),
+              y+.120+.071*math.sin(i*math.pi/8),z+.124) for i in range(9)]
+        for start,end in zip(arc,arc[1:]):
+            item.rod("Gold arch print",start,end,.008,"gold",5)
+    x,z=.60,.29
+    item.box("Opened burger wrapper",(x,y+.008,z),(.41,.016,.31),"paper",.17)
+    item.rod("Toasted bottom bun",(x,y+.016,z),(x,y+.054,z),.112,"amber",10,.137)
+    item.rod("Beef patty",(x,y+.055,z),(x,y+.080,z),.130,"coffee",10)
+    item.box("Cheese corner",(x,y+.081,z),(.196,.015,.196),"gold",.34)
+    item.rod("Lettuce layer",(x,y+.087,z),(x,y+.102,z),.135,"leaf",10)
+    item.rod("Burger bun dome",(x,y+.103,z),(x,y+.159,z),.135,"amber",12,.090)
+    for dx,dz in ((-.045,.02),(.008,-.044),(.049,.033),(-.013,.051),(.036,-.018)):
+        item.box("Sesame seed",(x+dx,y+.162,z+dz),(.020,.009,.008),"ivory",dx*12)
+    return item.name
+
+lunch_assets={item.name:lunch_variant(item) for item in (programmer,pm)}
+programmer.box("Takeaway lunch bag",(-.82,1.025,-.30),(.22,.215,.16),"card")
+programmer.box("Folded takeaway bag top",(-.82,1.146,-.30),(.217,.043,.089),"ivory")
 
 partition_assets=("partition","partition_low","partition_storage")
 partition_wings=((1.02,1.18,.13),(.74,.88,.13),(.65,1.30,.42))
@@ -527,7 +554,9 @@ for row,z in enumerate((-8,-2,4,10)):
         for side in (-1,1):
             pos=x+side*1.25
             station="project_manager" if (row+col+side)%3==0 else "programmer"
-            instance(station,("PM" if station=="project_manager" else "Programmer")+pod+("L" if side<0 else "R"),
+            meal=(row,col,side) in ((0,2,-1),(1,0,-1),(2,1,1),(3,2,1))
+            station_model=lunch_assets[station] if meal else station
+            instance(station_model,("PM" if station=="project_manager" else "Programmer")+pod+("L" if side<0 else "R"),
                      (pos,0,z+.63),(2.39,.94,.95),impact="keys" if station=="programmer" else "paper",
                      sections=[[[0,1.2,-.22],[2.02,.54,.16]],[[0,.52,.85],[.60,1.0,.68]]])
             back_station="project_manager" if (row+col+side+1)%3==0 else "programmer"

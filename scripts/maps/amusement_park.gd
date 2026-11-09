@@ -6,6 +6,8 @@ const CAROUSEL_TURN_RATE = -TAU/13.33
 const DISCO_TURN_RATE = TAU/5.2+CAROUSEL_TURN_RATE
 const DISCO_COLORS = [Color("ff8bc8"),Color("9ee9ff")]
 const NEON_COLORS = [Color("ff39b8"),Color("6bff70")]
+const DISCO_REST_RANGE = 6.6
+const DISCO_FRENZY_RANGE = 32.0
 
 @export var carousel_path: NodePath
 @export var horse_paths: Array[NodePath] = []
@@ -16,6 +18,7 @@ var horses: Array[Node3D] = []
 var cars: Array[PathFollow3D] = []
 var disco_ball: Node3D
 var disco_spots: Array[SpotLight3D] = []
+var disco_rest_pitch := 0.0
 
 func _ready() -> void:
 	super._ready()
@@ -52,19 +55,32 @@ func add_disco_ball() -> void:
 	for i in range(2):
 		var sign_x = 1.0 if i==0 else -1.0
 		var spot = SweepingLight.add_spot(disco_ball,"Reflection%d"%i,
-			Vector3(sign_x*.54,-.16,0),DISCO_COLORS[i],4.0,6.6,14.0,false)
+			Vector3(sign_x*.54,-.16,0),DISCO_COLORS[i],4.0,DISCO_REST_RANGE,14.0,false)
 		spot.look_at(disco_ball.to_global(Vector3(sign_x*4.0,-2.8,.7)))
+		disco_rest_pitch = spot.rotation.x
 		SweepingLight.add_shaft(spot,4.8,.055,10.0,.27)
 		disco_spots.append(spot)
 
 func set_destroy_lighting(active: bool) -> void:
 	var colors = NEON_COLORS if active else DISCO_COLORS
 	for i in range(disco_spots.size()):
-		SweepingLight.set_tint(disco_spots[i],colors[i])
+		var spot := disco_spots[i]
+		SweepingLight.set_tint(spot,colors[i])
+		spot.spot_range = DISCO_FRENZY_RANGE if active else DISCO_REST_RANGE
+		spot.spot_angle = 9.0 if active else 14.0
+		spot.light_energy = 7.0 if active else 4.0
+		SweepingLight.resize_shaft(spot,DISCO_FRENZY_RANGE if active else 4.8,
+			6.8 if active else 10.0,.22 if active else .27)
+		if not active:spot.rotation.x = disco_rest_pitch
 
 func pose_rides(elapsed: float, light_elapsed: float) -> void:
 	carousel.rotation.y = elapsed*CAROUSEL_TURN_RATE
 	disco_ball.rotation.y = .45+light_elapsed*DISCO_TURN_RATE-carousel.rotation.y
+	if game and game.destroy_active:
+		var phase_start: float = game.rules.duration-game.rules.destroy_duration
+		var raise_beam := smoothstep(0.0,1.15,elapsed-phase_start)
+		for spot in disco_spots:
+			spot.rotation.x = lerpf(disco_rest_pitch,-.11,raise_beam)
 	for i in range(horses.size()):
 		horses[i].position.y = sin(elapsed*TAU/1.8+i*TAU/horses.size())*.17
 	var length = cars[0].get_parent().curve.get_baked_length()

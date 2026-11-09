@@ -16,6 +16,7 @@
 [ext_resource type="PackedScene" path="res://assets/models/baggage_below/cargo_scale.glb" id="14_8v4h2"]
 [ext_resource type="Shader" path="res://assets/shaders/baggage_belt.gdshader" id="15_yp1rj"]
 [ext_resource type="Script" path="res://scripts/explosive_barrel.gd" id="16_32qpt"]
+[ext_resource type="Texture2D" path="res://assets/art/arena_signs/reclaim-12.svg" id="9_kak6c"]
 
 [sub_resource type="Environment" id="Environment_spelh"]
 resource_local_to_scene = true
@@ -355,6 +356,26 @@ geometry_source_geometry_mode = 1
 geometry_source_group_name = &"baggage_below_navigation"
 agent_height = 1.75
 filter_baking_aabb = AABB(-24, -0.52, -25, 48, 8.38, 51)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_03wwu"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+shading_mode = 0
+albedo_texture = ExtResource("9_kak6c")
+
+[sub_resource type="QuadMesh" id="QuadMesh_xgcvi_detail1"]
+size = Vector2(2.89, 0.65)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ncmqn"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+shading_mode = 0
+albedo_texture = ExtResource("9_kak6c")
+
+[sub_resource type="QuadMesh" id="QuadMesh_ytukq_detail1"]
+size = Vector2(2.89, 0.65)
 
 [node name="BaggageBelow" type="Node3D" unique_id=104681442 groups=["baggage_below_navigation"]]
 script = ExtResource("1_8qxp8")
@@ -887,49 +908,61 @@ material_override = SubResource("StandardMaterial3D_pvnb1")
 cast_shadow = 0
 mesh = SubResource("QuadMesh_dgqdc")
 
-[node name="ApronGlass78" type="MeshInstance3D" parent="Architecture" unique_id=798341024]
+[node name="Reclaim12Rear" type="MeshInstance3D" parent="Architecture" unique_id=1285464057]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 4.28, 17.515)
+material_override = SubResource("StandardMaterial3D_03wwu")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_xgcvi_detail1")
+
+[node name="Reclaim12Front" type="MeshInstance3D" parent="Architecture" unique_id=778953999]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.28, 17.685)
+material_override = SubResource("StandardMaterial3D_ncmqn")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_ytukq_detail1")
+
+[node name="ApronGlass80" type="MeshInstance3D" parent="Architecture" unique_id=2134854330]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -22, 2.7, 17)
 material_override = SubResource("StandardMaterial3D_ig37d")
 cast_shadow = 0
 mesh = SubResource("QuadMesh_yuknj")
 
-[node name="ApronGlass79" type="MeshInstance3D" parent="Architecture" unique_id=1849203239]
+[node name="ApronGlass81" type="MeshInstance3D" parent="Architecture" unique_id=888785226]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 22, 2.7, 17)
 material_override = SubResource("StandardMaterial3D_ig37d")
 cast_shadow = 0
 mesh = SubResource("QuadMesh_03wwu")
 
-[node name="ApronGlass80" type="MeshInstance3D" parent="Architecture" unique_id=2134854330]
+[node name="ApronGlass82" type="MeshInstance3D" parent="Architecture" unique_id=2081014378]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.7, 22.9)
 material_override = SubResource("StandardMaterial3D_ig37d")
 cast_shadow = 0
 mesh = SubResource("QuadMesh_xgcvi")
 
-[node name="ApronGlass81" type="MeshInstance3D" parent="Architecture" unique_id=888785226]
+[node name="ApronGlass83" type="MeshInstance3D" parent="Architecture" unique_id=1642094202]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -22, 3.3, -5)
 material_override = SubResource("StandardMaterial3D_ig37d")
 cast_shadow = 0
 mesh = SubResource("QuadMesh_ncmqn")
 
-[node name="ApronGlass82" type="MeshInstance3D" parent="Architecture" unique_id=2081014378]
+[node name="ApronGlass84" type="MeshInstance3D" parent="Architecture" unique_id=393810164]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 22, 3.3, -5)
 material_override = SubResource("StandardMaterial3D_ig37d")
 cast_shadow = 0
 mesh = SubResource("QuadMesh_ytukq")
 
-[node name="ApronGlass83" type="MeshInstance3D" parent="Architecture" unique_id=1642094202]
+[node name="ApronGlass85" type="MeshInstance3D" parent="Architecture" unique_id=388617056]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.575, 2.89, 11)
 material_override = SubResource("StandardMaterial3D_ig37d")
 cast_shadow = 0
 mesh = SubResource("QuadMesh_lw7pl")
 
-[node name="ApronGlass84" type="MeshInstance3D" parent="Architecture" unique_id=393810164]
+[node name="ApronGlass86" type="MeshInstance3D" parent="Architecture" unique_id=2093009293]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.875, 2.89, 11)
 material_override = SubResource("StandardMaterial3D_ig37d")
 cast_shadow = 0
 mesh = SubResource("QuadMesh_qdfmf")
 
-[node name="ApronGlass85" type="MeshInstance3D" parent="Architecture" unique_id=388617056]
+[node name="ApronGlass87" type="MeshInstance3D" parent="Architecture" unique_id=1847760971]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.05, 2.89, 11)
 material_override = SubResource("StandardMaterial3D_ig37d")
 cast_shadow = 0

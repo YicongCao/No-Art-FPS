@@ -270,6 +270,13 @@ for x,z in [(-18,-.2),(-18,-4.0),(-18,-7.7),(18,6.2),(18,-9.5),(11,-16.5)]:
     a.prop("baggage_cart",(x,0,z),(1.79,1.06,2.41),effect="metal")
 
 # A rounded stainless reclaim carousel, with a walkable perimeter on all sides.
+for x in (-1.06,1.06):
+    machines.rod("Reclaim sign ceiling hanger",(x,4.54,17.6),(x,5.38,17.6),.038,"steel",8)
+    machines.box("Reclaim sign ceiling plate",(x,5.337,17.6),(.21,.084,.21),"blue")
+machines.box("Double-sided reclaim sign housing",(0,4.28,17.6),(2.94,.70,.16),"black")
+for side in (-1,1):
+    a.sign("Reclaim12Front" if side==1 else "Reclaim12Rear","reclaim-12",
+           (0,4.28,17.6+side*.085),(2.89,.65),0 if side==1 else math.pi)
 cx,cz=0,17.6
 for i in range(32):
     t0,t1=i*math.tau/32,(i+1)*math.tau/32

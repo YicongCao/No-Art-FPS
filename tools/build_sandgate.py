@@ -332,6 +332,7 @@ box("Pit coping",16.02,.20,9.65,.34,.40,6.8,"cap",True)
 box("South pit coping",19.25,.23,12.93,6.47,.46,.32,"cap",True)
 box("Pit rim at outer edge",22.5,.18,9.8,.27,.36,6.4,"cap",True)
 slab("Raised A square",9.7,23.8,-17.7,-8.0,2.4,"pale",2.4)
+slab("Walk-out A lookout",7.65,9.7,-16.45,-13.55,2.4,"stone",.38)
 ramp("A Long ramp",12.1,22.8,-8,-2.0,2.4,0,"sand")
 box("A side ramp wall",11.83,.58,-5.23,.40,1.16,5.45,"plaster",True)
 slab("A Short landing",5.6,9.7,-13.0,-8.3,2.4,"pale",2.4)
@@ -345,7 +346,18 @@ prism("Short stair rising coping",[(5.45,.21,2.39),(5.76,.21,2.39),(5.76,2.61,-2
 for z,top in [(.85,.72),(-.85,1.5),(-2.51,2.28)]:
     box("Short stair stone post",5.52,top+.28,z,.33,.56,.34,"cap",True)
 # Keep the level A Short connection and the mouths of both ramps open.
-guardrail((9.78,2.4,-17.48),(9.78,2.4,-13.0))
+guardrail((9.78,2.4,-17.48),(9.78,2.4,-16.45))
+guardrail((9.78,2.4,-13.55),(9.78,2.4,-13.0))
+guardrail((9.78,2.4,-16.45),(7.74,2.4,-16.45),base=.58)
+guardrail((7.74,2.4,-16.45),(7.74,2.4,-13.55),base=.58)
+guardrail((7.74,2.4,-13.55),(9.78,2.4,-13.55),base=.58)
+box("Lookout west stone sill",7.74,2.69,-15,.23,.58,2.90,"stone",True)
+for z in (-16.35,-13.65):
+    box("Lookout side stone sill",8.74,2.69,z,2.10,.58,.23,"stone",True)
+    box("Lookout corner pier",7.78,3.07,z,.37,1.34,.38,"plaster")
+    box("Lookout pier cap",7.78,3.77,z,.44,.14,.44,"cap")
+    prism("Stone cantilever corbel",
+          [(7.96,2.05,z),(9.84,2.05,z),(9.84,1.10,z)],(0,0,.28),"shade")
 guardrail((9.78,2.4,-8.32),(9.78,2.4,-8.06))
 guardrail((9.78,2.4,-8.06),(12.13,2.4,-8.06))
 guardrail((22.77,2.4,-8.06),(23.77,2.4,-8.06))
@@ -380,6 +392,14 @@ for z in [8.35,11.15]:
     shutter(23.07,.44,z,-math.pi/2)
 facade("A ramp backdrop",23.4,-10.0,1.05,13,7.5,"plaster",None)
 facade("A high court rear",16.68,-17.68,14.8,.60,4.42,"pale","red",floor=2.4)
+for x,width,depth in [(10.85,.85,.51),(12.90,.60,.73),(15.16,.91,.56),(20.23,.74,.55),(22.45,.89,.77)]:
+    z=-17.40+depth*.43
+    box("High court projecting masonry pier",x,4.51,z,width,4.22,depth,"plaster",True)
+    box("Pier battered sandstone foot",x,2.67,z+.08,width+.15,.54,depth+.15,"stone",True)
+    box("Pier carved cap",x,6.65,z,width+.16,.19,depth+.10,"cap")
+for x in (11.90,14.02,21.36):
+    arch_recess(x,4.70,-17.35,0,.37,.88)
+    box("High court deep stone ledge",x,4.27,-17.11,.97,.13,.51,"cap")
 arch("A lookout",17.7,-16.98,2.4,r=1.24,spring=1.91,side=1.25,solid=False)
 for x in [10.1,11.6,13.1,22.1]:
     box("A parapet merlon",x,6.98,-17.6,.55,.38,.65,"cap")
@@ -536,7 +556,7 @@ layout["spawns"] = [
 layout["respawns"] = [[15.83,0,17.7],[14.28,0,7.54],[7.11,2.4,-11.02],
                       [1.80,0,8.82],[-17.1,0,-4.42],[-17.22,0,10.04],[-5.18,0,-11.95]]
 layout["barrels"] = [[13.22,0,4.34],[3.14,0,3.80],[-14.35,0,-5.38],[-20.56,0,-5.70]]
-layout["routes"] = [[15.77,0,14.06],[17.34,-1.35,9.07],[18.2,2.4,-11.35],[7.2,2.4,-6.8],
+layout["routes"] = [[15.77,0,14.06],[17.34,-1.35,9.07],[18.2,2.4,-11.35],[8.78,2.4,-15.0],[7.2,2.4,-6.8],
                     [7.31,0,2.8],[0.0,0,1.56],[-4.9,0,-5.36],[-12.05,0,-4.98],
                     [-19.85,0,-7.0],[-17.7,0,4.5],[-17.42,0,10.2]]
 layout["clouds"] = [[-31,10,-31],[-7,8,-33],[14,8,-33],[32,13,-29],[39,15,28]]

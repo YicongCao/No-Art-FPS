@@ -45,3 +45,13 @@ static func set_tint(light: SpotLight3D, tint: Color) -> void:
 	if shaft:
 		var paint = shaft.material_override as ShaderMaterial
 		paint.set_shader_parameter("tint",tint)
+
+static func resize_shaft(light: SpotLight3D, length: float, spread: float, density: float) -> void:
+	var shaft: MeshInstance3D = light.get_node("Shaft")
+	var cone: CylinderMesh = shaft.mesh
+	cone.height = length
+	cone.bottom_radius = cone.top_radius+length*tan(deg_to_rad(spread))
+	shaft.position.z = -length*.5
+	var paint: ShaderMaterial = shaft.material_override
+	paint.set_shader_parameter("shaft_length",length)
+	paint.set_shader_parameter("density",density)

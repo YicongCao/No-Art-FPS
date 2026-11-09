@@ -76,6 +76,13 @@ func check_map(map_id: String) -> void:
 	game.rules.elapsed = 47.0
 	arena._process(0)
 	assert(is_equal_approx(arena.sweep_elapsed(),49.0))
+	if map_id=="amusement_park":
+		for light in lights:
+			var shaft: MeshInstance3D = light.get_node("Shaft")
+			var forward := -light.global_basis.z.normalized()
+			var ground_distance := light.global_position.y / -forward.y
+			assert(ground_distance>25.0 and ground_distance<light.spot_range)
+			assert(shaft.mesh.height>=ground_distance)
 	await capture(map_id,"frenzy")
 
 	var held: Array[Basis] = []
@@ -97,6 +104,10 @@ func check_map(map_id: String) -> void:
 func assert_reset(lights: Array[SpotLight3D], colors: Array[Color], environment: Environment) -> void:
 	assert(not game.destroy_active and game.world_environment.environment==environment)
 	for i in range(lights.size()):assert(lights[i].light_color.is_equal_approx(colors[i]))
+	if game.arena.map_id=="amusement_park":
+		for light in lights:
+			assert(is_equal_approx(light.spot_range,6.6))
+			assert(is_equal_approx(light.get_node("Shaft").mesh.height,4.8))
 	if game.arena.map_id=="last_ferry":assert(not game.arena.port_searchlight.visible)
 
 func place_camera(map_id: String) -> void:
