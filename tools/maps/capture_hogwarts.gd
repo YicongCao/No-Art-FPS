@@ -35,6 +35,14 @@ func capture() -> void:
 	game.add_child(camera)
 	camera.make_current()
 	DirAccess.make_dir_recursive_absolute(OUTPUT)
+	if "--thumbnail" in OS.get_cmdline_user_args():
+		camera.global_position = Vector3(-24.7,9.2,27.3)
+		camera.look_at(Vector3(4.0,10.85,-18))
+		camera.fov = 34.5
+		game.rules.elapsed = 1.15
+		await shot("thumbnail")
+		quit()
+		return
 	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
 	camera.size = 83
 	camera.global_position = Vector3(5,106,83)
