@@ -450,14 +450,16 @@
     // Touch grants user activation on release. Some engines grant it only at touchend.
     const gameCanvas=document.querySelector('#canvas');
     window.addEventListener('keydown',event=>{
-      if(document.body.dataset.game!=='TITLE'||!document.querySelector('#gyro-panel').hidden||
-        !event.ctrlKey||event.shiftKey||event.altKey||event.metaKey||!['Digit0','Numpad0'].includes(event.code))return;
+      if(document.body.dataset.game!=='TITLE'||!document.querySelector('#gyro-panel').hidden)return;
+      const shortcut=event.ctrlKey&&!event.shiftKey&&!event.altKey&&!event.metaKey&&['Digit0','Numpad0'].includes(event.code);
+      if(!event.repeat&&!['Control','Shift','Alt','Meta'].includes(event.key)){
+        const character=!event.ctrlKey&&!event.altKey&&!event.metaKey&&event.key.length===1?event.key.codePointAt(0):0;
+        window.noArtParkUnlockKey?.(shortcut,character);
+      }
+      if(!shortcut)return;
       event.preventDefault();
       event.stopPropagation();
-      if(!event.repeat){
-        window.noArtBeginParkUnlock?.();
-        gameCanvas.focus({preventScroll:true});
-      }
+      if(!event.repeat)gameCanvas.focus({preventScroll:true});
     },true);
     gameCanvas.addEventListener('pointerup',tryImmersive,{capture:true});
     gameCanvas.addEventListener('touchend',tryImmersive,{capture:true});

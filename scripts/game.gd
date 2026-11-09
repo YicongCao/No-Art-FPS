@@ -172,8 +172,9 @@ func _ready() -> void:
 		Engine.max_fps = 60
 		get_viewport().msaa_3d = Viewport.MSAA_2X
 		touch_mode = bool(JavaScriptBridge.eval("Boolean(window.noArtMobile)"))
-		web_park_unlock_callback = JavaScriptBridge.create_callback(func(_args):begin_park_unlock())
-		JavaScriptBridge.get_interface("window").noArtBeginParkUnlock = web_park_unlock_callback
+		web_park_unlock_callback = JavaScriptBridge.create_callback(func(args):
+			if args.size()==2:handle_park_unlock_key(bool(args[0]),int(args[1])))
+		JavaScriptBridge.get_interface("window").noArtParkUnlockKey = web_park_unlock_callback
 	spark_mesh.radial_segments = 6
 	spark_mesh.rings = 3
 	trace_mesh.size = Vector3.ONE
@@ -997,26 +998,27 @@ func pause_run() -> void:
 	player.enabled = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
-func begin_park_unlock() -> void:
-	if state=="TITLE" and not park_experiment_unlocked:park_unlock_index = 0
+func handle_park_unlock_key(shortcut: bool, character: int) -> bool:
+	if state!="TITLE" or park_experiment_unlocked:return false
+	if shortcut:
+		park_unlock_index = 0
+		return true
+	if park_unlock_index<0:return false
+	if character!=PARK_UNLOCK_CODE.unicode_at(park_unlock_index):
+		park_unlock_index = -1
+		return false
+	park_unlock_index += 1
+	if park_unlock_index==PARK_UNLOCK_CODE.length():
+		park_experiment_unlocked = true
+		park_unlock_index = -1
+	return true
 
 func _input(event: InputEvent) -> void:
-	if state!="TITLE" or park_experiment_unlocked or not event is InputEventKey or not event.pressed or event.echo:return
-	# On Web the queued Ctrl event can arrive after the shortcut callback.
+	if OS.has_feature("web") or not event is InputEventKey or not event.pressed or event.echo:return
 	if event.keycode in [KEY_CTRL,KEY_ALT,KEY_SHIFT,KEY_META]:return
-	if event.ctrl_pressed and not event.shift_pressed and not event.alt_pressed and not event.meta_pressed and event.keycode in [KEY_0,KEY_KP_0]:
-		begin_park_unlock()
-	elif park_unlock_index>=0:
-		if event.ctrl_pressed or event.alt_pressed or event.meta_pressed or event.unicode!=PARK_UNLOCK_CODE.unicode_at(park_unlock_index):
-			park_unlock_index = -1
-			return
-		park_unlock_index += 1
-		if park_unlock_index==PARK_UNLOCK_CODE.length():
-			park_experiment_unlocked = true
-			park_unlock_index = -1
-	else:
-		return
-	get_viewport().set_input_as_handled()
+	var shortcut: bool = event.ctrl_pressed and not event.shift_pressed and not event.alt_pressed and not event.meta_pressed and event.keycode in [KEY_0,KEY_KP_0]
+	var character: int = 0 if event.ctrl_pressed or event.alt_pressed or event.meta_pressed else event.unicode
+	if handle_park_unlock_key(shortcut,character):get_viewport().set_input_as_handled()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if state=="TITLE" and not dust_unlocked and event is InputEventKey:
