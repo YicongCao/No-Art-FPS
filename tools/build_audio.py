@@ -133,6 +133,20 @@ def enemy_raise():
     return sample
 
 
+def heartbeat(t):
+    sound = 0.0
+    for offset, strength, frequency in ((0.0, 1.0, 83), (.145, .67, 105)):
+        age = t - offset
+        if age < 0:
+            continue
+        phase = math.tau * (frequency * age - 74 * age * age)
+        pulse = math.sin(phase) + .34 * math.sin(2 * phase) + .12 * math.sin(3 * phase)
+        attack = min(1.0, age / .013)
+        sound += strength * pulse * attack * math.exp(-age * 31)
+    tail = min(1.0, (.34 - t) / .028)
+    return math.tanh(sound * 1.35) * tail
+
+
 write('shot',.16,rifle_shot())
 write('hit',.07,lambda t:(math.sin(2*math.pi*850*t)*.5+random.uniform(-1,1)*.2)*math.exp(-t*55))
 write('kill',.20,lambda t:math.sin(2*math.pi*(850*t+1800*t*t))*.4*math.exp(-t*18))
@@ -152,4 +166,5 @@ write('water_shot',.13,water_shot)
 write('slipper_shot',.11,slipper_shot)
 write('roach_grenade',.24,roach_grenade())
 write('enemy_raise',.17,enemy_raise())
-print('Nineteen original WAV effects generated')
+write('heartbeat',.34,heartbeat)
+print('Twenty original WAV effects generated')

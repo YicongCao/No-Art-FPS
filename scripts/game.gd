@@ -70,6 +70,7 @@ const DESTROY_MUSIC = preload("res://assets/music/destroy.ogg")
 const MAX_HEALTH = 150.0
 const HEAL_DELAY = 5.0
 const HEAL_RATE = 12.0
+const HEARTBEAT_THRESHOLD = MAX_HEALTH * .30
 const RESPAWN_DELAY = 2.0
 const DESTROY_RESPAWN_DELAY = 1.25
 const RANGED_ATTACK_LIMIT = 3
@@ -99,6 +100,8 @@ var player_bullets: Array[Dictionary] = []
 var sounds: Dictionary = {}
 var audio_voices: Array[AudioStreamPlayer] = []
 var web_rifle: AudioStreamPlayer
+var heartbeat: AudioStreamPlayer
+var heartbeat_delay := 0.0
 var audio_index = 0
 var spark_mesh = SphereMesh.new()
 var trace_mesh = BoxMesh.new()
@@ -268,6 +271,9 @@ func _ready() -> void:
 		web_rifle.playback_type = AudioServer.PLAYBACK_TYPE_SAMPLE
 		web_rifle.max_polyphony = 4
 		add_child(web_rifle)
+	heartbeat = AudioStreamPlayer.new()
+	heartbeat.stream = preload("res://assets/audio/heartbeat.wav")
+	add_child(heartbeat)
 	music = AudioStreamPlayer.new()
 	music.stream = COMBAT_MUSIC
 	add_child(music)
@@ -763,6 +769,7 @@ func cancel_loading() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func _process(delta: float) -> void:
+	update_heartbeat(delta)
 	if OS.has_feature("web") and web_ui_state!=state:
 		web_ui_state = state
 		JavaScriptBridge.eval("window.noArtState("+JSON.stringify(state)+")")
@@ -1707,6 +1714,18 @@ func play_sound(key: String, volume: float = -10, pitch: float = 1) -> void:
 	voice.volume_db = volume
 	voice.pitch_scale = pitch
 	voice.play()
+
+func update_heartbeat(delta: float) -> void:
+	if state!="RUNNING" or not rules.active or respawn_time>0 or health<=0 or health>HEARTBEAT_THRESHOLD:
+		if heartbeat.playing:heartbeat.stop()
+		heartbeat_delay = 0.0
+		return
+	heartbeat_delay -= delta
+	if heartbeat_delay>0:return
+	var severity: float = 1.0-health/HEARTBEAT_THRESHOLD
+	heartbeat.volume_db = lerpf(-15.0,-9.0,severity)
+	heartbeat.play()
+	heartbeat_delay = lerpf(.76,.46,severity)
 
 func round_music_position() -> float:
 	if qa_mode or not music.playing:return rules.elapsed
