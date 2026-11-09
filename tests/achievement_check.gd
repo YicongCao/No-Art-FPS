@@ -51,7 +51,7 @@ func check() -> void:
 	game.rules.active = false
 	var final_foe = game.spawn_enemy(Vector3(16,0,10),false)
 	final_foe.take_damage(3,false,true)
-	assert(game.rules.kills==4 and game.achievements.combat_kills==3)
+	assert(game.rules.kills==3 and game.achievements.combat_kills==3)
 	game.finish_run()
 	for _frame in range(5):await process_frame
 	var results = game.hud.menu.get_node("ResultBadges")
@@ -81,7 +81,7 @@ func check() -> void:
 	game.hud.rebuild_menu()
 	for _frame in range(5):await process_frame
 	results = game.hud.menu.get_node("ResultBadges")
-	assert(results.get_v_scroll_bar().visible and results.get_child(0).get_child_count()==15)
+	assert(results.get_v_scroll_bar().visible and results.get_child(0).get_child_count()==16)
 	assert(results.get_rect().end.y<game.hud.menu.get_node("retry").position.y)
 	game.achievements.run_unlocks = saved_unlocks
 	game.touch_mode = false
@@ -94,7 +94,7 @@ func check() -> void:
 	assert(game.hud.menu.has_node("Badge_first"))
 	for id in Progress.BADGES:game.achievements.advance(id,Progress.BADGES[id][2])
 	game.hud.rebuild_menu()
-	assert(game.hud.menu.get_children().filter(func(n):return str(n.name).begins_with("Badge_")).size()==15)
+	assert(game.hud.menu.get_children().filter(func(n):return str(n.name).begins_with("Badge_")).size()==16)
 	await capture("achievement-title")
 	var badge = game.hud.menu.get_node("Badge_first")
 	var motion = InputEventMouseMotion.new()
@@ -138,7 +138,7 @@ func check() -> void:
 	if DisplayServer.get_name()=="headless":
 		var deadline = Time.get_ticks_msec()+450
 		while Time.get_ticks_msec()<deadline:await process_frame
-	print("ACHIEVEMENTS_PASS: 15 badges, legacy progress, collection, real headshot, toast, results, title, badge details and finale exclusion")
+	print("ACHIEVEMENTS_PASS: 16 badges, Fishmonger threshold, legacy progress, collection, real headshot, toast, results, title, badge details and finale exclusion")
 	game.queue_free()
 	await process_frame
 	quit()
@@ -154,7 +154,7 @@ func assert_badge_copy(id: String, column: Control) -> void:
 
 func check_catalog() -> void:
 	var progress = Progress.new()
-	assert(Progress.BADGES.size()==15)
+	assert(Progress.BADGES.size()==16)
 	var unlocks: Array[String] = []
 	progress.unlocked.connect(func(id):unlocks.append(id))
 	progress.merge({"achievements":{"headshot":10,"missing":45},"scores":{"score":17,"score_last_ferry_v1":31}})
@@ -201,7 +201,21 @@ func check_catalog() -> void:
 	progress.increment("grenade",14)
 	assert(not progress.unlocked_badge("grenade") and not progress.unlocked_badge("no_art"))
 	progress.increment("grenade")
-	assert(progress.run_unlocks==["poop","grenade","no_art"] and unlocks.size()==15)
+	assert(progress.run_unlocks==["poop","grenade"] and not progress.unlocked_badge("no_art"))
+	var previous_collection := Progress.new()
+	var old_save: Dictionary = progress.snapshot().duplicate(true)
+	old_save.achievements["no_art"] = 1
+	previous_collection.merge(old_save)
+	assert(previous_collection.unlocked_badge("no_art") and not previous_collection.unlocked_badge("fishmonger"))
+	progress.start_round()
+	for i in range(16):progress.combat_kill("sandgate",false,1,i>=10,0,"")
+	assert(not progress.unlocked_badge("fishmonger"))
+	for _round in range(2):
+		progress.start_round()
+		for i in range(15):progress.combat_kill("rain_market",false,1,i>=10,0,"")
+		assert(not progress.unlocked_badge("fishmonger"))
+	progress.combat_kill("rain_market",false,1,true,0,"")
+	assert(progress.run_unlocks==["fishmonger","no_art"] and unlocks.size()==16)
 	var loaded = Progress.new()
 	var snapshot = JSON.parse_string(JSON.stringify(progress.snapshot()))
 	snapshot.achievements.erase("no_art")

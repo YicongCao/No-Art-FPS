@@ -20,6 +20,7 @@ const BADGES = {
 	"poop": ["POOP PATROL","15 combat kills in Poop Mode",15,preload("res://assets/ui/achievements/poop.svg")],
 	"grenade": ["PIN PULLER","15 kills with grenades across rounds",15,preload("res://assets/ui/achievements/grenade.svg")],
 	COLLECTION_BADGE: ["NO ART","Unlock every other badge",1,preload("res://assets/ui/achievements/no_art.svg")],
+	"fishmonger": ["FISHMONGER","16 kills in one Hong Kong Fish Market round",16,preload("res://assets/ui/achievements/fishmonger.svg")],
 }
 var counts: Dictionary = {}
 var scores: Dictionary = {}
@@ -70,6 +71,7 @@ func combat_kill(map: String, headshot: bool, streak: int, destroy_phase: bool, 
 	advance("triple",streak)
 	match map:
 		"score_attack":advance("yard",combat_kills)
+		"rain_market":advance("fishmonger",combat_kills)
 		"amusement_park":
 			if destroy_phase:
 				park_destroy_kills += 1
@@ -102,6 +104,11 @@ func merge(snapshot_data: Variant) -> void:
 				if progress>counts.get(id,0):counts[id] = progress
 		# Older saves stored up to ten kills from the same mode under "water".
 		if counts.get("water",0)>counts.get("poop",0):counts["poop"] = counts["water"]
+		# Keep a collection badge earned before Fishmonger was added.
+		if loaded.get(COLLECTION_BADGE,0)==1 and BADGES.keys().all(func(id):
+			return id in [COLLECTION_BADGE,"fishmonger"] or unlocked_badge(id)
+		):
+			counts[COLLECTION_BADGE] = 1
 		check_collection(false)
 	loaded = snapshot_data.get("scores")
 	if loaded is Dictionary:
