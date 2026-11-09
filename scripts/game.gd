@@ -143,6 +143,7 @@ var grenade_cooldown = 0.0
 var web_ui_state = ""
 var web_render_tier = 0
 var switching_session = false
+var park_experimental_textures := false
 var map_switch_progress = 0.0
 var dust_unlocked = false
 var objective_focus: Node3D
@@ -1832,7 +1833,8 @@ func read_title_selection() -> String:
 func save_title_selection() -> void:
 	if not remember_title_selection or qa_mode or title_preview_key().is_empty():return
 	if OS.has_feature("web"):
-		hud.save_web_title_preview(session.session_id)
+		var default_preview := PARK_SESSION_PATH if session.session_id=="amusement_park" and park_experimental_textures else ""
+		hud.save_web_title_preview(session.session_id,default_preview)
 	else:
 		var cfg = ConfigFile.new()
 		cfg.load("user://record.cfg")
@@ -1841,7 +1843,20 @@ func save_title_selection() -> void:
 
 func title_preview_key() -> String:
 	var path := title_session_path(session.session_id)
-	return path if path==session.resource_path else ""
+	if path!=session.resource_path:return ""
+	return path+"#pixel" if path==PARK_SESSION_PATH and park_experimental_textures else path
+
+func set_park_experimental_textures(enabled: bool) -> void:
+	if state!="TITLE" or switching_session or enabled==park_experimental_textures:return
+	park_experimental_textures = enabled
+	if session.session_id!="amusement_park":return
+	switching_session = true
+	hud.fire_button.disabled = true
+	arena.set_experimental_textures(enabled)
+	if DisplayServer.get_name()!="headless" and not hud.reuse_title_frame(title_preview_key()):
+		hud.set_title_frame(await capture_map_preview(),title_preview_key())
+	switching_session = false
+	hud.fire_button.disabled = false
 
 func select_session(selection: Variant, highlighted_id: String = "") -> void:
 	if state!="TITLE" or switching_session or not selection:return

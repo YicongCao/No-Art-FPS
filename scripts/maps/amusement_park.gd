@@ -2,6 +2,7 @@ extends "res://scripts/arena.gd"
 
 const SweepingLight = preload("res://scripts/maps/sweeping_light.gd")
 const MIRROR_TILES = preload("res://assets/shaders/mirror_ball.gdshader")
+const TexturePreview = preload("res://scripts/maps/park_texture_preview.gd")
 const CAROUSEL_TURN_RATE = -TAU/13.33
 const DISCO_TURN_RATE = TAU/5.2+CAROUSEL_TURN_RATE
 const DISCO_COLORS = [Color("ff8bc8"),Color("9ee9ff")]
@@ -19,6 +20,7 @@ var cars: Array[PathFollow3D] = []
 var disco_ball: Node3D
 var disco_spots: Array[SpotLight3D] = []
 var disco_rest_pitch := 0.0
+var texture_preview: TexturePreview
 
 func _ready() -> void:
 	super._ready()
@@ -27,6 +29,11 @@ func _ready() -> void:
 	for path in car_paths:cars.append(get_node(path))
 	add_disco_ball()
 	pose_rides(0,0)
+	if game and game.park_experimental_textures:set_experimental_textures(true)
+
+func set_experimental_textures(enabled: bool) -> void:
+	if enabled and not texture_preview:texture_preview = TexturePreview.new()
+	if texture_preview:texture_preview.set_enabled(self,enabled)
 
 func _process(_delta: float) -> void:
 	if game and game.state=="RUNNING" and game.rules.active and not game.finale_active:
