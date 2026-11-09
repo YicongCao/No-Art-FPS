@@ -1,6 +1,6 @@
 extends SceneTree
 
-const SCORES = ["night_studio","sandgate","bb_office","rain_market","baggage_below","snowline"]
+const SCORES = ["night_studio","sandgate","bb_office","rain_market","baggage_below","snowline","hogwarts"]
 var game: Node3D
 
 func _initialize() -> void:
