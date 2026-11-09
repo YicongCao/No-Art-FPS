@@ -1,6 +1,7 @@
 extends SceneTree
 
 const Arena = preload("res://scripts/maps/concept_arena.gd")
+const HogwartsArena = preload("res://scripts/maps/hogwarts_arena.gd")
 const Prop = preload("res://scripts/maps/concept_prop.gd")
 const Barrel = preload("res://scripts/explosive_barrel.gd")
 const BELT_SHADER = preload("res://assets/shaders/baggage_belt.gdshader")
@@ -61,7 +62,7 @@ func props(items: Array) -> void:
 		part.structural_section = item.structural
 		part.local_bounds = true
 		part.impact_kind = item.effect
-		part.palette = Color("df815a") if arena.map_id=="rain_market" else Color("7696b8")
+		part.palette = Color("df815a") if arena.map_id in ["rain_market","hogwarts"] else Color("7696b8")
 		add(parent,part,item.name)
 		var render_node = model(part,item.asset,"Model")
 		var size = vec(item.size)
@@ -94,13 +95,13 @@ func marks(parent: Node3D, label: String, points: Array) -> Array[NodePath]:
 
 func build() -> void:
 	var args = OS.get_cmdline_user_args()
-	if args.size()!=1 or args[0] not in ["rain_market","baggage_below","snowline"]:
-		push_error("Pass rain_market, baggage_below, or snowline after --")
+	if args.size()!=1 or args[0] not in ["rain_market","baggage_below","snowline","hogwarts"]:
+		push_error("Pass rain_market, baggage_below, snowline, or hogwarts after --")
 		quit(1)
 		return
 	var key = args[0]
 	var layout: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tools/maps/%s_layout.json"%key))
-	arena = Arena.new()
+	arena = HogwartsArena.new() if key=="hogwarts" else Arena.new()
 	arena.name = key.to_pascal_case()
 	arena.map_id = key
 	arena.fall_limit = -3.0
@@ -116,6 +117,12 @@ func build() -> void:
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	environment.ambient_light_color = Color(config.ambient)
 	environment.ambient_light_energy = config.energy
+	if key=="hogwarts":
+		var sky_paint := ShaderMaterial.new()
+		sky_paint.shader = preload("res://assets/shaders/hogwarts_sky.gdshader")
+		environment.sky = Sky.new()
+		environment.sky.sky_material = sky_paint
+		environment.background_mode = Environment.BG_SKY
 	arena.environment_override = environment
 	arena.spot_specs = layout.spots
 	arena.awning_specs = layout.get("awnings",[])
@@ -200,6 +207,8 @@ func build() -> void:
 	mesh.filter_baking_aabb = AABB(Vector3(-24,-.52,-25),Vector3(48,8.38,51))
 	if key=="rain_market":
 		mesh.filter_baking_aabb = AABB(Vector3(-24,-.52,-29.6),Vector3(48,8.38,55.6))
+	if key=="hogwarts":
+		mesh.filter_baking_aabb = AABB(Vector3(-47,-.56,-40.5),Vector3(94,6.6,83))
 	nav.navigation_mesh = mesh
 	add(arena,nav,"Navigation")
 	arena.navigation_path = arena.get_path_to(nav)

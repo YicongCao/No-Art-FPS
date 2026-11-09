@@ -9,6 +9,18 @@
 
 建议白模验证一条主环线：球场 → 城堡前庭 → 海格小屋 → 霍格莫德 → 球场。保留南侧横路和上城堡的侧坡，球场负责开阔交战，村巷负责近战。地面图是气氛与取景参考，距离、高差和建筑遮挡以鸟瞰和后续白模为准。
 
+## Godot 对照
+
+| 视角 | 实机 |
+| --- | --- |
+| 总览 | [实机图](in-engine/overview.png) |
+| 球场、观礼台和礼旗 | [实机图](in-engine/quidditch.png) |
+| 塔楼和大礼堂前庭 | [实机图](in-engine/castle.png) |
+| 村口拱门和海格小屋 | [实机图](in-engine/hogsmeade.png) |
+| 狂暴灯光 | [实机图](in-engine/frenzy.png) |
+
+可编辑构件在 [hogwarts.blend](../../../art_source/hogwarts.blend)。[Blender 构建器](../../../tools/maps/build_hogwarts.py)输出 GLB 和关卡布局。用 Godot 导入后运行 `godot --headless --script tools/maps/save_concept_arena.gd -- hogwarts` 烘焙导航。使用 [capture_hogwarts.gd](../../../tools/maps/capture_hogwarts.gd) 重新渲染五个固定机位。
+
 ## 生成提示词
 
 先用内置 imagegen 生成一张低角度航拍初稿，固定城堡、球场、村庄和小屋的相对位置。以下共用提示和对应机位提示以该初稿为参考。

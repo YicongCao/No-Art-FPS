@@ -19,6 +19,7 @@ const MINIBUS_WAVE_SIZE = 3
 const BELT_SPEED = 1.05
 const BELT_SURGE_SPEED = 1.9
 const IMPACTS = {
+	"wood": [[Vector3(.15,.035,.075),Color("c89561")],[Vector3(.21,.041,.051),Color("835740")],[Vector3(.13,.029,.105),Color("e6bb83")]],
 	"ice": [[Vector3(.12,.092,.14),Color("bfe8ff")],[Vector3(.17,.11,.081),Color("fff1de")],[Vector3(.10,.062,.16),Color("83a7e8")]],
 	"produce": [[Vector3(.12,.12,.14),Color("e89e54")],[Vector3(.10,.09,.12),Color("8db566")]],
 	"luggage": [[Vector3(.23,.016,.115),Color("f4e9d6")],[Vector3(.061,.055,.21),Color("d1d8ee")],[Vector3(.12,.061,.09),Color("e28a58")]],
