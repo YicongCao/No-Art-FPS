@@ -19,6 +19,8 @@
 [ext_resource type="PackedScene" path="res://assets/models/snowline/dome.glb" id="17_yykes"]
 [ext_resource type="PackedScene" path="res://assets/models/snowline/shutter_lights.glb" id="18_acm8a"]
 [ext_resource type="Script" path="res://scripts/explosive_barrel.gd" id="19_o8gvh"]
+[ext_resource type="PackedScene" path="res://assets/models/snowline/shutter_left.glb" id="18_dwgh0"]
+[ext_resource type="PackedScene" path="res://assets/models/snowline/shutter_right.glb" id="19_3xjmx"]
 
 [sub_resource type="Environment" id="Environment_dwgh0"]
 resource_local_to_scene = true
@@ -334,7 +336,7 @@ points = PackedVector3Array(17.26, 1.1, -14.6, 17.26, -0.03999996, -14.6, 17.38,
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_rwu1d"]
 points = PackedVector3Array(20.96, 1.1, -14.6, 20.96, -0.03999996, -14.6, 21.08, 1.1, -14.6, 21.08, -0.03999996, -14.6, 21.08, 3.48, -6.7, 21.08, 2.3400002, -6.7, 20.96, 3.48, -6.7, 20.96, 2.3400002, -6.7)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gjxrj"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ab77k"]
 transparency = 2
 alpha_scissor_threshold = 0.5
 alpha_antialiasing_mode = 0
@@ -1091,7 +1093,7 @@ shape = SubResource("ConvexPolygonShape3D_rwu1d")
 
 [node name="AvalancheBeacon" type="MeshInstance3D" parent="Architecture" unique_id=2112044928]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15.43, 1.38, 17.27)
-material_override = SubResource("StandardMaterial3D_gjxrj")
+material_override = SubResource("StandardMaterial3D_ab77k")
 cast_shadow = 0
 mesh = SubResource("QuadMesh_2345l")
 
@@ -1366,6 +1368,12 @@ shape = SubResource("BoxShape3D_3ev3e")
 [node name="Moving" type="Node3D" parent="." unique_id=1038544839]
 
 [node name="dome" type="Node3D" parent="Moving" unique_id=121965432 instance=ExtResource("17_yykes")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.7)
+
+[node name="shutter_left" type="Node3D" parent="Moving" unique_id=469373954 instance=ExtResource("18_dwgh0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.7)
+
+[node name="shutter_right" type="Node3D" parent="Moving" unique_id=1059207816 instance=ExtResource("19_3xjmx")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.7)
 
 [node name="shutter_lights" type="Node3D" parent="Moving" unique_id=1215487084 instance=ExtResource("18_acm8a")]

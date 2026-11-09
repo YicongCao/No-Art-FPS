@@ -182,6 +182,18 @@ for row,z in enumerate((-21,-15,-9,-3,3,9,15,21)):
         district.box("Shop rain hood",(front+side*.57,y+3.12,z),(.99,.16,3.7),"teal" if row%2 else "blue")
         district.box("Warm wall fixture",(front+side*.21,y+2.68,z-2),(.31,.17,.65),"light")
         district.rod("Vertical rain pipe",(front+side*.20,y,z+2.62),(front+side*.20,y+9.3,z+2.62),.052,"steel",6)
+        if side==1 and row in (3,4,5):
+            # Deep shopfront reveals sit behind the existing stair-side wall line.
+            for dz in (-1.58,1.54):
+                yy=y+4.55
+                for offset in (-.78,.78):
+                    district.box("Masonry window cheek",(front+side*.19,yy,z+dz+offset),(.36,1.72,.13),"tile")
+                district.box("Projecting stone sill",(front+side*.23,yy-.77,z+dz),(.48,.16,1.76),"white")
+                district.box("Deep window lintel",(front+side*.17,yy+.76,z+dz),(.33,.15,1.73),"tile")
+            projection=.41 if row==4 else .26
+            district.box("Projecting shop fascia",(front+side*projection,y+3.47,z),
+                         (.22,.54,3.2),"red" if row==4 else "blue")
+            district.box("Cream fascia lower rim",(front+side*(projection+.09),y+3.21,z),(.09,.065,3.22),"white")
 for i in range(16):
     x=-32+i*4.3
     y=7+((i*13)%8)*.65
@@ -262,6 +274,42 @@ fish.rod("Scale dial",(-.67,1.42,1.52),(-.67,1.42,1.58),.163,"white",12)
 fish.rod("Stainless scale pan",(-.67,1.54,1.42),(-.67,1.64,1.42),.16,"metal",12,.28)
 fish.box("Scale needle",(-.66,1.43,1.588),(.028,.15,.026),"red",.30)
 
+tank=a.kit("live_fish_tank")
+tank.box("Tiled tank plinth",(0,.39,0),(2.12,.78,3.28),"teal")
+tank.box("Tank recessed water",(0,1.13,0),(1.96,.07,3.07),"turq")
+for side in (-1,1):
+    tank.box("Tall blue tank wall",(side*1.01,1.04,0),(.16,.53,3.32),"teal")
+    tank.box("White overflow lip",(side*1.01,1.32,0),(.20,.10,3.34),"white")
+    tank.box("Tank end wall",(0,1.04,side*1.59),(2.04,.53,.16),"teal")
+    tank.box("Tank end lip",(0,1.32,side*1.59),(2.18,.10,.19),"white")
+for z in (-1.0,0,1.0):
+    tank.box("Green pump return channel",(.71,1.19,z),(.46,.06,.13),"mint")
+    for x in (-.54,.13):
+        tank.rod("Live fish",(x-.14,1.17,z-.16),(x+.06,1.22,z+.18),.092,"fish",5,.035)
+        tank.facet("Live fish tail",[(x+.06,1.22,z+.18),(x+.03,1.18,z+.30),(x+.23,1.18,z+.25)],"fish")
+tank.rod("Overflow return riser",(.79,.79,-1.21),(.79,1.29,-1.21),.074,"metal",8)
+tank.rod("Overflow return spout",(.79,1.29,-1.21),(.50,1.29,-1.21),.073,"metal",8)
+
+prep=a.kit("fish_prep_station")
+prep.box("Butcher block worktop",(0,.96,0),(2.12,.13,3.24),"bamboo")
+for x in (-.91,.91):
+    for z in (-1.47,1.47):
+        prep.box("Stainless prep table leg",(x,.46,z),(.12,.91,.12),"steel")
+prep.box("Under-table shelf",(0,.36,0),(1.95,.10,2.86),"steel")
+prep.box("Rinsing tub",(.58,.59,.86),(.62,.42,.69),"blue")
+prep.box("End grain chopping block",(-.36,1.065,-.38),(.93,.11,.85),"warm")
+prep.box("Cleaver blade",(-.34,1.14,-.22),(.42,.048,.22),"metal",.26)
+prep.box("Cleaver wooden handle",(-.66,1.14,-.31),(.23,.069,.087),"bamboo",.26)
+prep.rod("Hanging scale upright",(.75,1.0,1.38),(.75,2.11,1.38),.061,"steel",8)
+prep.rod("Hanging scale boom",(.75,2.11,1.38),(-.35,2.11,1.38),.053,"steel",8)
+prep.rod("Hanging scale hook",(-.35,2.11,1.38),(-.35,1.71,1.38),.024,"metal",7)
+prep.rod("Hanging scale dial",(-.35,1.71,1.44),(-.35,1.71,1.57),.23,"red",12)
+prep.rod("Hanging scale face",(-.35,1.71,1.57),(-.35,1.71,1.59),.17,"white",12)
+prep.box("Hanging scale pointer",(-.35,1.74,1.61),(.022,.19,.024),"ink",.28)
+prep.rod("Hanging scale pan",(-.35,1.35,1.38),(-.35,1.43,1.38),.28,"metal",10,.36)
+for x in (-.23,.23):
+    prep.rod("Scale pan wire",(-.35,1.52,1.38),(-.35+x,1.43,1.38),.018,"steel",6)
+
 produce=a.kit("produce_counter")
 produce.box("Wooden produce table",(0,.47,0),(2.18,.92,3.38),"bamboo")
 for i,z in enumerate((-1,0,1)):
@@ -271,11 +319,11 @@ for i,z in enumerate((-1,0,1)):
             x=(j-3.5)*.235
             produce.rod("Fruit or vegetables",(x,1.16,z+(k-.5)*.36),(x,1.32,z+(k-.5)*.36),.14,
                         ("leaf","fruit","salmon")[(i+j//4)%3],5,.089)
-for x,z,asset in [(-6.1,14,"fish_counter"),(-6.1,9.9,"fish_counter"),(-6.1,2,"fish_counter"),
-                  (6.1,13.8,"produce_counter"),(6.1,9.7,"fish_counter"),(6.1,2,"produce_counter"),
+for x,z,asset in [(-6.1,14,"fish_counter"),(-6.1,9.9,"live_fish_tank"),(-6.1,2,"fish_prep_station"),
+                  (6.1,13.8,"fish_prep_station"),(6.1,9.7,"live_fish_tank"),(6.1,2,"produce_counter"),
                   (-6.1,-3.5,"produce_counter"),(6.1,-3.5,"produce_counter"),
                   (-6.1,-12,"produce_counter"),(6.1,-12,"produce_counter"),(-6.1,-16,"produce_counter")]:
-    a.prop(asset,(x,height(z),z),(2.22,1.38,3.42),effect="ice" if asset=="fish_counter" else "produce")
+    a.prop(asset,(x,height(z),z),(2.22,1.38,3.42),effect="produce" if asset=="produce_counter" else "ice")
 
 screen=a.kit("stall_screen")
 screen.box("Striped destructible market partition",(0,1,0),(.18,1.9,3.4),"white")

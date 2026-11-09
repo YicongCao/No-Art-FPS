@@ -56,6 +56,8 @@ var pipe_spray: MeshInstance3D
 var star_chart: MeshInstance3D
 var deck_light: MeshInstance3D
 var dome: Node3D
+var shutter_left: Node3D
+var shutter_right: Node3D
 var shutter_lights: Node3D
 var belt_bags: Array[Node3D] = []
 
@@ -80,6 +82,8 @@ func _ready() -> void:
 	for body in get_node("Belts").get_children():
 		belts.append(body)
 	dome = get_node_or_null("Moving/dome")
+	shutter_left = get_node_or_null("Moving/shutter_left")
+	shutter_right = get_node_or_null("Moving/shutter_right")
 	shutter_lights = get_node_or_null("Moving/shutter_lights")
 	if map_id=="rain_market":
 		setup_minibus()
@@ -330,15 +334,20 @@ func set_destroy_lighting(active: bool) -> void:
 	if is_instance_valid(dome):
 		deck_light.visible = active
 		star_chart.visible = active
-		if is_instance_valid(shutter_lights):
-			shutter_lights.visible = active
-		dome.rotation.y = 0
+		shutter_lights.visible = active
+		if not active:
+			pose_shutters(0.0)
 		# Each scene owns its environment resource. Reset it on every round.
 		environment_override.background_color = Color("263c76") if active else normal_sky
 		environment_override.ambient_light_color = Color("acbfff") if active else Color("cddfff")
 		environment_override.ambient_light_energy = .60 if active else .81
 	if active and game:
 		pose_frenzy(sweep_elapsed())
+
+func pose_shutters(openness: float) -> void:
+	const SHUTTER_TRAVEL = .465
+	shutter_left.rotation.y = SHUTTER_TRAVEL*openness
+	shutter_right.rotation.y = -SHUTTER_TRAVEL*openness
 
 func pose_frenzy(elapsed: float) -> void:
 	var dome_sweep := sin(elapsed*.60)
@@ -347,9 +356,10 @@ func pose_frenzy(elapsed: float) -> void:
 		var frenzy_seconds: float = game.round_music_position()-(game.rules.duration-game.rules.destroy_duration)
 		warning = airport_display.warning_lights(true,frenzy_seconds,game.reduced_motion)
 	if is_instance_valid(dome):
-		dome.rotation.y = 1.04+dome_sweep*.32
-		if is_instance_valid(shutter_lights):
-			shutter_lights.rotation.y = dome.rotation.y
+		const SHUTTER_OPEN_SECONDS = 2.2
+		var phase_start: float = game.rules.duration-game.rules.destroy_duration
+		var open_amount := smoothstep(0.0,SHUTTER_OPEN_SECONDS,game.rules.elapsed-phase_start)
+		pose_shutters(1.0 if game.reduced_motion else open_amount)
 		deck_light.rotation.y = PI*.5+dome_sweep*.17
 		deck_light.position.z = -2.65+dome_sweep*.89
 		star_chart.rotation.y = elapsed*.23

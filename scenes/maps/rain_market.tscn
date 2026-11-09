@@ -21,6 +21,8 @@
 [ext_resource type="PackedScene" path="res://assets/models/rain_market/tea_hatch.glb" id="19_w4kqx"]
 [ext_resource type="PackedScene" path="res://assets/models/rain_market/minibus_door.glb" id="20_01udu"]
 [ext_resource type="Script" path="res://scripts/explosive_barrel.gd" id="21_h4vuw"]
+[ext_resource type="PackedScene" path="res://assets/models/rain_market/live_fish_tank.glb" id="13_u7x2o"]
+[ext_resource type="PackedScene" path="res://assets/models/rain_market/fish_prep_station.glb" id="14_mf38s"]
 
 [sub_resource type="Environment" id="Environment_1kyhj"]
 resource_local_to_scene = true
@@ -291,7 +293,7 @@ points = PackedVector3Array(10, 1.9371111, 14.72, 10, 0.28711116, 14.72, 10.2, 1
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_1xutt"]
 points = PackedVector3Array(2.35, 3.7, -25.19, 2.35, 3.52, -25.19, 4.41, 3.7, -25.19, 4.41, 3.52, -25.19, 4.41, 3.99, -26.24, 4.41, 3.81, -26.24, 2.35, 3.99, -26.24, 2.35, 3.81, -26.24)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_c6gb3"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sfke4"]
 transparency = 2
 alpha_scissor_threshold = 0.5
 alpha_antialiasing_mode = 0
@@ -301,7 +303,7 @@ albedo_texture = ExtResource("8_a6hit")
 [sub_resource type="QuadMesh" id="QuadMesh_culpo"]
 size = Vector2(2.97, 0.54)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5ddit"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dc6pa"]
 transparency = 2
 alpha_scissor_threshold = 0.5
 alpha_antialiasing_mode = 0
@@ -311,7 +313,7 @@ albedo_texture = ExtResource("9_sqied")
 [sub_resource type="QuadMesh" id="QuadMesh_087fk"]
 size = Vector2(2.34, 0.68)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sfke4"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sfo7d"]
 transparency = 2
 alpha_scissor_threshold = 0.5
 alpha_antialiasing_mode = 0
@@ -446,7 +448,7 @@ awning_specs = [[[-7.34, 3.44025, 16.83], 3.0, 0.83, 0.0], [[-7.34, 4.4556944444
 comedy_site = Vector4(8.7, 0, 20.4, 0)
 normal_sky = Color(0.14901961, 0.22745098, 0.40392157, 1)
 navigation_path = NodePath("Navigation")
-structure_paths = Array[NodePath]([NodePath("Props/fish_counter_00"), NodePath("Props/fish_counter_01"), NodePath("Props/fish_counter_02"), NodePath("Props/produce_counter_03"), NodePath("Props/fish_counter_04"), NodePath("Props/produce_counter_05"), NodePath("Props/produce_counter_06"), NodePath("Props/produce_counter_07"), NodePath("Props/produce_counter_08"), NodePath("Props/produce_counter_09"), NodePath("Props/produce_counter_10"), NodePath("Props/ServiceShortcut"), NodePath("Props/crates_12"), NodePath("Props/crates_13"), NodePath("Props/crates_14"), NodePath("Props/crates_15"), NodePath("Props/crates_16"), NodePath("Props/crates_17"), NodePath("Props/crates_18"), NodePath("Props/crates_19"), NodePath("Props/crates_20"), NodePath("Props/crates_21"), NodePath("Props/crates_22"), NodePath("Props/crates_23"), NodePath("Props/market_stool_24"), NodePath("Props/market_stool_25"), NodePath("Props/market_stool_26"), NodePath("Props/market_stool_27"), NodePath("Props/market_stool_28"), NodePath("Props/market_stool_29"), NodePath("Props/shutter_trolley_30"), NodePath("Props/shutter_trolley_31"), NodePath("Props/shutter_trolley_32"), NodePath("Props/fish_wash_33"), NodePath("Props/tea_hatch_34")])
+structure_paths = Array[NodePath]([NodePath("Props/fish_counter_00"), NodePath("Props/live_fish_tank_01"), NodePath("Props/fish_prep_station_02"), NodePath("Props/fish_prep_station_03"), NodePath("Props/live_fish_tank_04"), NodePath("Props/produce_counter_05"), NodePath("Props/produce_counter_06"), NodePath("Props/produce_counter_07"), NodePath("Props/produce_counter_08"), NodePath("Props/produce_counter_09"), NodePath("Props/produce_counter_10"), NodePath("Props/ServiceShortcut"), NodePath("Props/crates_12"), NodePath("Props/crates_13"), NodePath("Props/crates_14"), NodePath("Props/crates_15"), NodePath("Props/crates_16"), NodePath("Props/crates_17"), NodePath("Props/crates_18"), NodePath("Props/crates_19"), NodePath("Props/crates_20"), NodePath("Props/crates_21"), NodePath("Props/crates_22"), NodePath("Props/crates_23"), NodePath("Props/market_stool_24"), NodePath("Props/market_stool_25"), NodePath("Props/market_stool_26"), NodePath("Props/market_stool_27"), NodePath("Props/market_stool_28"), NodePath("Props/market_stool_29"), NodePath("Props/shutter_trolley_30"), NodePath("Props/shutter_trolley_31"), NodePath("Props/shutter_trolley_32"), NodePath("Props/fish_wash_33"), NodePath("Props/tea_hatch_34")])
 barrel_paths = Array[NodePath]([NodePath("Barrel0"), NodePath("Barrel1"), NodePath("Barrel2")])
 map_id = "rain_market"
 sun_rotation_degrees = Vector3(-38, -34, 0)
@@ -1036,19 +1038,19 @@ shape = SubResource("ConvexPolygonShape3D_1xutt")
 
 [node name="TeaShop" type="MeshInstance3D" parent="Architecture" unique_id=568951943]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.2, 6.1666665, -16.54)
-material_override = SubResource("StandardMaterial3D_c6gb3")
+material_override = SubResource("StandardMaterial3D_sfke4")
 cast_shadow = 0
 mesh = SubResource("QuadMesh_culpo")
 
 [node name="FishShop" type="MeshInstance3D" parent="Architecture" unique_id=306033715]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.05, 3.136111, 15.9)
-material_override = SubResource("StandardMaterial3D_5ddit")
+material_override = SubResource("StandardMaterial3D_dc6pa")
 cast_shadow = 0
 mesh = SubResource("QuadMesh_087fk")
 
 [node name="MinibusStop" type="MeshInstance3D" parent="Architecture" unique_id=1200853215]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.47, 6.07, -23.955)
-material_override = SubResource("StandardMaterial3D_sfke4")
+material_override = SubResource("StandardMaterial3D_sfo7d")
 cast_shadow = 0
 mesh = SubResource("QuadMesh_kpqc2")
 
@@ -1073,7 +1075,7 @@ collision_mask = 0
 [node name="Collision" type="CollisionShape3D" parent="Props/fish_counter_00/Body1" unique_id=1969682593]
 shape = SubResource("BoxShape3D_dc6pa")
 
-[node name="fish_counter_01" type="Node3D" parent="Props" unique_id=1801681477]
+[node name="live_fish_tank_01" type="Node3D" parent="Props" unique_id=746761404]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.1, 0.8325, 9.9)
 script = ExtResource("11_dhf8t")
 impact_kind = "ice"
@@ -1083,16 +1085,16 @@ local_bounds = true
 palette = Color(0.8745098, 0.5058824, 0.3529412, 1)
 scenery = true
 
-[node name="Model" type="Node3D" parent="Props/fish_counter_01" unique_id=1115559405 instance=ExtResource("12_ooe64")]
+[node name="Model" type="Node3D" parent="Props/live_fish_tank_01" unique_id=1227619988 instance=ExtResource("13_u7x2o")]
 
-[node name="Body1" type="StaticBody3D" parent="Props/fish_counter_01" unique_id=2021871007]
+[node name="Body1" type="StaticBody3D" parent="Props/live_fish_tank_01" unique_id=2012632212]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.69, 0)
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Props/fish_counter_01/Body1" unique_id=30094393]
+[node name="Collision" type="CollisionShape3D" parent="Props/live_fish_tank_01/Body1" unique_id=1296816741]
 shape = SubResource("BoxShape3D_oa2o4")
 
-[node name="fish_counter_02" type="Node3D" parent="Props" unique_id=1408801913]
+[node name="fish_prep_station_02" type="Node3D" parent="Props" unique_id=1317310917]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.1, 1.6444445, 2)
 script = ExtResource("11_dhf8t")
 impact_kind = "ice"
@@ -1102,35 +1104,35 @@ local_bounds = true
 palette = Color(0.8745098, 0.5058824, 0.3529412, 1)
 scenery = true
 
-[node name="Model" type="Node3D" parent="Props/fish_counter_02" unique_id=952765950 instance=ExtResource("12_ooe64")]
+[node name="Model" type="Node3D" parent="Props/fish_prep_station_02" unique_id=184497291 instance=ExtResource("14_mf38s")]
 
-[node name="Body1" type="StaticBody3D" parent="Props/fish_counter_02" unique_id=1866551043]
+[node name="Body1" type="StaticBody3D" parent="Props/fish_prep_station_02" unique_id=1274227832]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.69, 0)
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Props/fish_counter_02/Body1" unique_id=2108512817]
+[node name="Collision" type="CollisionShape3D" parent="Props/fish_prep_station_02/Body1" unique_id=1262594892]
 shape = SubResource("BoxShape3D_sfo7d")
 
-[node name="produce_counter_03" type="Node3D" parent="Props" unique_id=1414154114]
+[node name="fish_prep_station_03" type="Node3D" parent="Props" unique_id=1762599197]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.1, 0.43166667, 13.8)
 script = ExtResource("11_dhf8t")
-impact_kind = "produce"
+impact_kind = "ice"
 bounds = AABB(-1.11, 0, -1.71, 2.22, 1.38, 3.42)
 saved_parts = Array[NodePath]([NodePath("Model"), NodePath("Body1")])
 local_bounds = true
 palette = Color(0.8745098, 0.5058824, 0.3529412, 1)
 scenery = true
 
-[node name="Model" type="Node3D" parent="Props/produce_counter_03" unique_id=748952129 instance=ExtResource("13_6rg11")]
+[node name="Model" type="Node3D" parent="Props/fish_prep_station_03" unique_id=1955084142 instance=ExtResource("14_mf38s")]
 
-[node name="Body1" type="StaticBody3D" parent="Props/produce_counter_03" unique_id=1994443264]
+[node name="Body1" type="StaticBody3D" parent="Props/fish_prep_station_03" unique_id=1131809871]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.69, 0)
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Props/produce_counter_03/Body1" unique_id=1855208474]
+[node name="Collision" type="CollisionShape3D" parent="Props/fish_prep_station_03/Body1" unique_id=2025533484]
 shape = SubResource("BoxShape3D_ag7ib")
 
-[node name="fish_counter_04" type="Node3D" parent="Props" unique_id=694117083]
+[node name="live_fish_tank_04" type="Node3D" parent="Props" unique_id=1718796367]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.1, 0.85305554, 9.7)
 script = ExtResource("11_dhf8t")
 impact_kind = "ice"
@@ -1140,13 +1142,13 @@ local_bounds = true
 palette = Color(0.8745098, 0.5058824, 0.3529412, 1)
 scenery = true
 
-[node name="Model" type="Node3D" parent="Props/fish_counter_04" unique_id=1411431078 instance=ExtResource("12_ooe64")]
+[node name="Model" type="Node3D" parent="Props/live_fish_tank_04" unique_id=2005712458 instance=ExtResource("13_u7x2o")]
 
-[node name="Body1" type="StaticBody3D" parent="Props/fish_counter_04" unique_id=1621319953]
+[node name="Body1" type="StaticBody3D" parent="Props/live_fish_tank_04" unique_id=252983367]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.69, 0)
 collision_mask = 0
 
-[node name="Collision" type="CollisionShape3D" parent="Props/fish_counter_04/Body1" unique_id=1953938615]
+[node name="Collision" type="CollisionShape3D" parent="Props/live_fish_tank_04/Body1" unique_id=1402244949]
 shape = SubResource("BoxShape3D_u6hy7")
 
 [node name="produce_counter_05" type="Node3D" parent="Props" unique_id=1401596487]

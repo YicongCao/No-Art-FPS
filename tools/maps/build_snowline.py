@@ -22,21 +22,40 @@ catwalk=a.kit("instrument_deck",True)
 yard=a.kit("snow_yard",True)
 ridge=a.kit("ridge",True)
 dome=a.kit("dome")
+shutter_left=a.kit("shutter_left")
+shutter_right=a.kit("shutter_right")
 dome_glow=a.kit("shutter_lights")
 CZ=-2.7
 R=11.55
 a.solid(terrain,"Compact snowy mountain pad",(0,-.44,0),(46,.87,48),"snow")
+
+def snowbank(x,z,w,d,height):
+    ring=[]
+    for i in range(7):
+        angle=i*math.tau/7
+        spread=(.84,1.0,.95,.78,1.06,.92,1.05)[i]
+        ring.append((x+math.cos(angle)*w*.5*spread,.008,z+math.sin(angle)*d*.5*spread))
+    peak=(x+w*.12,height,z-d*.13)
+    for i,p in enumerate(ring):
+        terrain.facet("Wind sculpted snow drift",[peak,p,ring[(i+1)%7]],("frost","snow_lit","snow")[i%3])
+
 for x,z,w,d in [(-16,-17,5,3),(13,-17,5,4),(-17,-6,5,3),(14,9,5,3),(-16,14,7,4),(16,19,8,4),(-9,21,5,3)]:
-    for i in range(5):
-        ang=i*math.tau/5
-        nxt=(i+1)*math.tau/5
-        terrain.facet("Wind sculpted snow drift",[(x,.26,z),(x+math.cos(ang)*w*.5,.008,z+math.sin(ang)*d*.5),
-                       (x+math.cos(nxt)*w*.5,.008,z+math.sin(nxt)*d*.5)],("frost","snow_lit","snow")[i%3])
-for i in range(37):
-    z=10+i*.33
-    x=6.4+math.sin(i*.084)*2.2
-    for dx in (-.75,.75):
-        terrain.box("Snowcat compacted tread",(x+dx,.007,z),(.39,.017,.13),"ice",.18)
+    snowbank(x,z,w,d,.26)
+for x,z,w,d,h in [(-3.34,9.9,2.1,2.7,.30),(3.38,10.0,2.2,2.3,.33),
+                  (-4.48,10.9,2.0,3.0,.22),(4.34,10.75,1.7,2.9,.24)]:
+    snowbank(x,z,w,d,h)
+
+for i in range(22):
+    z=15.8+i*.27
+    x=8.45+math.sin(i*.071)*.95
+    for dx in (-.92,.92):
+        track=x+dx
+        terrain.box("Compacted snowcat rut",(track,.006,z),(.44,.017,.285),"frost",.10)
+        terrain.box("Snowcat tread imprint",(track,.021,z),(.33,.018,.088),"ice",.18)
+        for side in (-1,1):
+            if (i+side)%3!=0:
+                terrain.box("Snow pushed up by track",(track+side*.22,.047,z),
+                            (.10,.090,.27),"snow_lit",.10)
 for i in range(25):
     z=-21+i*.46
     x=-6.7+math.sin(i*.20)*4
@@ -79,8 +98,18 @@ for i in range(31):
     h=2.2+(i*7%9)*.70
     ridge.rod("Alpine outcrop",(x,-5,z),(x+math.cos(th)*1.75,h,z+math.sin(th)*1.3),
               4.6+(i%4),("rock","dark_rock","light_rock")[i%3],5,1.9)
-    ridge.rod("Snow cap",(x+math.cos(th)*1.68,h-.7,z+math.sin(th)*1.24),
-              (x+math.cos(th)*1.75,h+.04,z+math.sin(th)*1.3),2.22,"frost" if i%3 else "snow_lit",5,1.88)
+    lower=[]
+    upper=[]
+    for j in range(5):
+        angle=j*math.tau/5+th
+        lower.append((x+math.cos(th)*1.7+math.cos(angle)*2.43,h-.42-((i+2*j)%4)*.24,
+                      z+math.sin(th)*1.27+math.sin(angle)*2.43))
+        upper.append((x+math.cos(th)*1.75+math.cos(angle)*1.95,h+.11+(j%2)*.12,
+                      z+math.sin(th)*1.3+math.sin(angle)*1.95))
+    for j in range(5):
+        k=(j+1)%5
+        ridge.facet("Irregular snow overhang",[lower[j],lower[k],upper[k],upper[j]],"frost" if j%2 else "snow_lit")
+    ridge.facet("Snow cap crown",upper,"snow_lit")
 for i in range(20):
     th=i*math.tau/20
     x,z=75*math.cos(th),85*math.sin(th)
@@ -185,18 +214,22 @@ catwalk.box("Weather deck entrance canopy",(12.75,4.54,-2.64),(3.0,.28,4.12),"bl
 catwalk.box("Canopy snow",(12.76,4.72,-2.65),(2.88,.10,4.00),"snow")
 catwalk.box("Weather door top light",(12.83,4.36,-2.62),(.17,.12,1.48),"light")
 
-# Rotatable segmented orange shell, open in the south-facing observing slot.
-theta_start=math.pi*.5+.41
-theta_span=math.tau-.82
+# Fixed shell with a south-facing slot. Two curved leaves slide under it along
+# concentric tracks. All three meshes share the same rotation center.
+slot_center=math.pi*.5
+slot_half=.41
+theta_start=slot_center+slot_half
+theta_span=math.tau-2*slot_half
+def dome_pt(theta,elevation,inset=0):
+    radius=(R-inset)*math.cos(elevation)
+    return (radius*math.cos(theta),4.65+(R*.74-inset)*math.sin(elevation),radius*math.sin(theta))
+
 for band in range(7):
     e0=(band)*1.51/7
     e1=(band+1)*1.51/7
     for i in range(32):
         t0=theta_start+theta_span*i/32
         t1=theta_start+theta_span*(i+1)/32
-        def dome_pt(th,el):
-            rr=R*math.cos(el)
-            return (rr*math.cos(th),4.65+R*.74*math.sin(el),rr*math.sin(th))
         v0,v1,v2,v3=dome_pt(t0,e0),dome_pt(t1,e0),dome_pt(t1,e1),dome_pt(t0,e1)
         dome.facet("Orange dome panel",[v0,v1,v2,v3],("orange","orange_light","orange_dark")[(i+band)%3 if (i+band)%7==0 else 0])
         if i%4==0:
@@ -204,11 +237,40 @@ for band in range(7):
         dome.rod("Dome horizontal joint",v0,v1,.026,"orange_dark",5)
         if i in (0,31):
             p0,p1=(v0,v3) if i==0 else (v1,v2)
+            edge=t0 if i==0 else t1
             dome.rod("Blue shutter edge",p0,p1,.115,"blue",8)
-            if band%2==0:
-                dome.beam("Observing slot fixture",p0,p1,.16,.14,"cream")
+            inner0,inner1=dome_pt(edge,e0,.20),dome_pt(edge,e1,.20)
+            dome.facet("Deep observing slot jamb",[p0,p1,inner1,inner0],"cobalt")
+            dome.rod("Inside edge of shutter channel",inner0,inner1,.075,"steel",8)
             dome_glow.rod("Frenzy red shutter edge",p0,p1,.142,"red_light",8)
+    for shutter,start,end in [(shutter_left,slot_center-slot_half-.025,slot_center+.001),
+                              (shutter_right,slot_center-.001,slot_center+slot_half+.025)]:
+        for panel in range(3):
+            t0=start+(end-start)*panel/3
+            t1=start+(end-start)*(panel+1)/3
+            outer=[dome_pt(t,e,.30) for t,e in ((t0,e0),(t1,e0),(t1,e1),(t0,e1))]
+            inner=[dome_pt(t,e,.43) for t,e in ((t0,e0),(t1,e0),(t1,e1),(t0,e1))]
+            shutter.facet("Sliding shutter outer panel",outer,"orange_light" if panel%2==0 else "orange")
+            shutter.facet("Sliding shutter interior liner",inner,"orange_dark")
+            edge_indices=(1,2) if shutter is shutter_left else (0,3)
+            if panel==(2 if shutter is shutter_left else 0):
+                j,k=edge_indices
+                shutter.facet("Thick leading shutter edge",[outer[j],outer[k],inner[k],inner[j]],"navy")
+                shutter.rod("Shutter leading seam",inner[j],inner[k],.068,"blue",8)
+        if band in (0,3,5):
+            at=dome_pt((start+end)*.5,e0,.53)
+            shutter.rod("Shutter guide roller",(at[0],at[1]-.08,at[2]),(at[0],at[1]+.08,at[2]),.14,"steel",8)
+
+for elevation in (.025,.65,1.08):
+    for rail in (.47,.59):
+        for i in range(12):
+            t0=slot_center-.96+i*.16
+            dome.rod("Curved shutter guide rail",dome_pt(t0,elevation,rail),
+                     dome_pt(t0+.16,elevation,rail),.047,"steel",7)
+dome.rod("Zenith track cap",(0,13.03,0),(0,13.24,0),.77,"cobalt",14,.56)
 a.moving("dome",(0,0,CZ))
+a.moving("shutter_left",(0,0,CZ))
+a.moving("shutter_right",(0,0,CZ))
 a.moving("shutter_lights",(0,0,CZ))
 
 telescope=a.kit("telescope",True)

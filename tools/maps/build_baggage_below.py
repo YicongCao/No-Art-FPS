@@ -61,9 +61,9 @@ for x in (-22,22):
     a.layout["boxes"].append([(x,2.65,17),(.18,5.3,12),0])
     hall.box("Glazing foot rail",(x,.34,17),(.19,.68,12),"steel")
     hall.box("Glazing top rail",(x,5.15,17),(.19,.34,12),"blue")
-    for z in (11.4,14.2,17.0,19.8,22.6):
+    for z in (11.4,12.9,20.8,22.6):
         hall.box("Blue glazing mullion",(x,2.7,z),(.19,5.25,.17),"blue")
-    hall.box("Window transom",(x,2.13,17),(.19,.16,12),"blue")
+    hall.box("High apron window transom",(x,3.72,17),(.19,.16,12),"blue")
 a.layout["boxes"].append([(0,2.65,22.9),(44,5.3,.15),0])
 for x in range(-22,23,3):
     hall.box("Apron-facing mullion",(x,2.66,22.91),(.14,5.15,.21),"blue")
@@ -161,6 +161,30 @@ for i,x in enumerate((-4.6,4.6)):
     a.layout["belts"].append([[x,.73,-1.3],[3.19,.18,17.5],-1 if i==0 else 1])
     a.slope(machines,"Belt step-on ramp",x-1.59,x+1.59,7.45,9.7,.82,0,.19,"rubber")
     a.slope(machines,"Rear belt run-off",x-1.59,x+1.59,-12.3,-10.05,0,.82,.19,"rubber")
+    direction=-1 if i==0 else 1
+    for z in (-10.05,7.45):
+        machines.rod("Exposed conveyor end drum",(x-1.60,.66,z),(x+1.60,.66,z),.198,"metal",12)
+        for side in (-1,1):
+            xx=x+side*1.66
+            machines.box("Bolted tension bracket",(xx,.59,z),(.22,.37,.58),"steel")
+            machines.rod("Drum bearing cap",(xx,.66,z),(xx+side*.16,.66,z),.14,color,10)
+            machines.rod("Tension screw",(xx,.55,z-.33),(xx,.55,z+.33),.038,"metal",8)
+    outlet=-10.05 if direction<0 else 7.45
+    drive_x=x+direction*1.43
+    machines.rod("Sorter drive motor",(drive_x-direction*.22,.42,outlet),
+                 (drive_x+direction*.21,.42,outlet),.24,"cobalt",12)
+    for dx in (-.14,-.04,.06,.16):
+        machines.rod("Motor cooling rib",(drive_x+dx,.42,outlet),
+                     (drive_x+dx+.032,.42,outlet),.263,"steel",12)
+    ramp_end=outlet+direction*2.25
+    # Parallel guide strips frame the transfer slope without narrowing the walkable lane.
+    for side in (-1,1):
+        xx=x+side*1.53
+        machines.beam("Sloping transfer chute lip",(xx,.87,outlet),(xx,.10,ramp_end),.09,.075,"metal")
+    for step in range(4):
+        t=.20+step*.16
+        z=outlet+direction*t*2.25
+        machines.box("Transfer chute roller strip",(x,.83*(1-t),z),(2.90,.035,.105),"slat")
 for z in (-9,-5,-1,3,7):
     for x in (-6.37,-2.83,2.83,6.37):
         machines.box("Belt warning lens housing",(x,.925,z),(.23,.095,.68),"black")

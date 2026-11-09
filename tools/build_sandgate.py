@@ -132,6 +132,27 @@ def shutter(x,y,z,angle=0):
         nx,nz=math.sin(angle)*.069,math.cos(angle)*.069
         box("Shutter louver",x+nx,y-.24+i*.23,z+nz,.70,.105,.045,"blue_light",angle=angle)
 
+def long_house(x,z,w,d,h,windows):
+    # Recess the visual wall in the window band while keeping the full collider.
+    face=x+w/2
+    layout["boxes"].append([[x,h/2,z],[w,h,d],0])
+    facade("Long lane recessed plaster core",x-.18,z,w-.36,d,h,"pale","teal",solid=False)
+    sill,head=2.98,4.31
+    box("Solid base below window reveals",face-.18,sill/2,z,.36,sill,d,"pale")
+    box("Teal street plinth",face+.02,.62,z,.05,1.24,d,"teal")
+    box("Upper plaster above window reveals",face-.18,(h+head)/2,z,.36,h-head,d,"pale")
+    edge=z-d/2
+    for at in sorted(windows):
+        left,right=at-.59,at+.59
+        box("Plaster pier between window reveals",face-.18,(sill+head)/2,(edge+left)/2,
+            .36,head-sill,left-edge,"pale")
+        box("Window back in shadow",face-.35,(sill+head)/2,at,.04,1.31,1.18,"shade")
+        shutter(face-.26,3.63,at,math.pi/2)
+        box("Deep projecting sandstone sill",face-.04,sill,at,.76,.15,1.41,"cap")
+        box("Stone lintel over recess",face-.09,head,at,.49,.16,1.40,"stone")
+        edge=right
+    box("Plaster end pier",face-.18,(sill+head)/2,(edge+z+d/2)/2,.36,head-sill,z+d/2-edge,"pale")
+
 
 def canopy(x,z,y,width,angle=0,accent="stripe",depth=1.45):
     cos,sin=math.cos(angle),math.sin(angle)
@@ -346,15 +367,15 @@ gate_leaf("Long gate left",13.78,15.46,2.17,3.06,-1.32)
 gate_leaf("Long gate right",18.82,15.46,-2.17,3.06,1.32)
 facade("Long gate wing",10.74,15.18,3.9,.83,4.85,"pale","red")
 facade("Long gate outer wing",22.58,15.18,2.5,.83,4.85,"pale","red")
-facade("Long market house",10.75,9.3,2.1,8.8,5.95,"pale","teal")
-facade("Long corner house",10.75,-.55,2.1,5.05,5.6,"pale","teal")
+long_house(10.75,9.3,2.1,8.8,5.95,[6.8,9.15,12.4])
+long_house(10.75,-.55,2.1,5.05,5.6,[-1.28,1.05])
 facade("Pit boundary houses",23.56,5.4,.82,18.8,5.55,"pale",None)
 box("Lavender pit wall",23.12,.6,8.5,.12,2.7,6.7,"purple")
 box("Pit wall cream lintel",23.07,2.04,8.5,.22,.16,6.76,"cap")
-for z in [8.13,9.43,10.73]:
-    arch_recess(11.84,4.17,z,math.pi/2,.39,.66)
-for z in [12.4,9.15,6.8,1.05,-1.28]:
-    shutter(11.84,3.6,z,math.pi/2)
+box("Upper market balcony slab",12.05,2.76,9.15,.71,.19,2.95,"cap")
+box("Terracotta balcony parapet",12.40,3.03,9.15,.12,.41,2.98,"red")
+for z in (7.8,9.15,10.5):
+    box("Balcony corbel",11.99,2.57,z,.44,.26,.26,"stone")
 for z in [8.35,11.15]:
     shutter(23.07,.44,z,-math.pi/2)
 facade("A ramp backdrop",23.4,-10.0,1.05,13,7.5,"plaster",None)

@@ -41,12 +41,18 @@ func capture() -> void:
 		var layout: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tools/maps/%s_layout.json"%id))
 		var cutaway: Node3D = game.arena.get_node({"rain_market":"Architecture/canopy","baggage_below":"Architecture/ceiling_and_beams","snowline":"Moving/dome"}[id])
 		cutaway.hide()
+		if id=="snowline":
+			game.arena.shutter_left.hide()
+			game.arena.shutter_right.hide()
 		camera.projection = Camera3D.PROJECTION_ORTHOGONAL
 		camera.size = 55
 		camera.global_position = Vector3(16,62,40)
 		camera.look_at(Vector3.ZERO)
 		await screenshot(id,"overview")
 		cutaway.show()
+		if id=="snowline":
+			game.arena.shutter_left.show()
+			game.arena.shutter_right.show()
 		camera.projection = Camera3D.PROJECTION_PERSPECTIVE
 		for key in layout.cameras:
 			var shot: Array = layout.cameras[key]

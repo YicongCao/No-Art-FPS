@@ -72,7 +72,10 @@ func check() -> void:
 			cargo_before = display.cargo_bags[1].position
 			assert(display.lens_paints[0].albedo_color==display.OFF_COLOR)
 		if id=="snowline":
+			game.reduced_motion = false
 			check_snowfall()
+			assert(is_zero_approx(game.arena.shutter_left.rotation.y))
+			assert(is_zero_approx(game.arena.shutter_right.rotation.y))
 		game._physics_process(.01)
 		assert(game.destroy_active and is_equal_approx(game.rules.remaining(),15.0))
 		assert(game.arena.frenzy_lights.all(func(light):return light.visible))
@@ -92,7 +95,18 @@ func check() -> void:
 			await check_player_carry()
 		if id=="snowline":
 			assert(game.arena.deck_light.visible and game.arena.star_chart.visible)
-			assert(not is_zero_approx(game.arena.dome.rotation.y))
+			assert(is_zero_approx(game.arena.dome.rotation.y))
+			var partial: float = game.arena.shutter_left.rotation.y
+			assert(partial>.2 and partial<.465)
+			assert(is_equal_approx(game.arena.shutter_right.rotation.y,-partial))
+			game.pause_run()
+			game.arena._process(.2)
+			assert(is_equal_approx(game.arena.shutter_left.rotation.y,partial))
+			game.menu_action("resume")
+			game.rules.elapsed = 48.0
+			game.arena._process(0)
+			assert(is_equal_approx(game.arena.shutter_left.rotation.y,.465))
+			assert(is_equal_approx(game.arena.shutter_right.rotation.y,-.465))
 		var held: Basis = game.arena.frenzy_lights[0].basis
 		var held_snow: float = game.arena.snow_elapsed
 		game.pause_run()
@@ -134,6 +148,9 @@ func check() -> void:
 		game.start_run()
 		assert(not prop.collapsed and game.arena.frenzy_lights.all(func(light):return not light.visible))
 		assert(not game.destroy_active and not game.comedy_toilet)
+		if id=="snowline":
+			assert(is_zero_approx(game.arena.shutter_left.rotation.y))
+			assert(is_zero_approx(game.arena.shutter_right.rotation.y))
 		game.state = "RESULTS"
 		game.menu_action("menu")
 		print("NEW_ARENA_PASS ",id," routes, both elevations where applicable, waves, frenzy, destruction and reset")

@@ -186,11 +186,26 @@ for x in (-9.4,9.4):
         services.box("Flanged duct joint",(x,3.47,z),(1.03,.55,.075),"duct_joint")
     for z in (-9.2,-3.15,2.85,8.85):
         for target_x in (x-4.05,x+4.05):
-            services.box("Rectangular branch duct",((x+target_x)*.5,3.51,z),
-                         (abs(x-target_x),.34,.54),"galvanized")
-            services.box("Ceiling diffuser",(target_x,3.29,z),(.76,.105,.74),"ivory")
+            low_run=z==2.85
+            direction=math.copysign(1,target_x-x)
+            elbow_x=x+direction*1.02
+            duct_y=3.06 if low_run else 3.51
+            diffuser_y=duct_y-.22
+            if low_run:
+                services.box("Upper branch takeoff",(x+direction*.53,3.51,z),(1.06,.34,.54),"galvanized")
+                services.box("Two-level duct drop elbow",(elbow_x,3.27,z),(.49,.78,.58),"galvanized")
+                for y in (3.42,3.13):
+                    services.box("Elbow flange",(elbow_x,y,z),(.55,.069,.64),"duct_joint")
+                services.box("Lower duct hanger saddle",(target_x-direction*.67,2.87,z),(.10,.078,.71),"duct_joint")
+                for shift in (-.32,.32):
+                    services.rod("Lower branch threaded hanger",(target_x-direction*.67,2.87,z+shift),
+                                 (target_x-direction*.67,3.79,z+shift),.026,"slate",7)
+            start=elbow_x if low_run else x
+            services.box("Rectangular branch duct",((start+target_x)*.5,duct_y,z),
+                         (abs(start-target_x),.34,.54),"galvanized")
+            services.box("Ceiling diffuser",(target_x,diffuser_y,z),(.76,.105,.74),"ivory")
             for offset in (-.23,-.115,0,.115,.23):
-                services.box("Diffuser grille",(target_x+offset,3.228,z),(.046,.026,.61),"duct_joint")
+                services.box("Diffuser grille",(target_x+offset,diffuser_y-.062,z),(.046,.026,.61),"duct_joint")
         for shift in (-.65,.65):
             services.rod("Galvanized hanger rod",(x+shift,3.48,z),(x+shift,3.77,z),.026,"slate",6)
         services.box("Duct hanger rail",(x,3.185,z),(1.42,.056,.07),"slate")
@@ -412,8 +427,11 @@ pm = kit("project_manager")
 executive = kit("executive")
 for item in (programmer,pm,executive):
     desk(item,3.1 if item==executive else 2.4)
+programmer.rod("Monitor arm clamp and riser",(0,.93,-.36),(0,1.35,-.36),.064,"slate",8)
 for x in (-.70,0,.70):
-    programmer.box("Monitor stem",(x,1.02,-.26),(.08,.25,.08),"slate")
+    if x:
+        programmer.rod("Articulated display arm",(0,1.26,-.36),(x,1.26,-.36),.042,"slate",7)
+    programmer.box("Monitor arm mounting plate",(x,1.27,-.324),(.14,.16,.075),"navy")
     screen(programmer,x,1.28,-.26,.61,.39,"code")
 programmer.box("Mechanical keyboard",(0,.958,.21),(.64,.065,.23),"ink")
 for x in range(-6,7):
@@ -428,6 +446,8 @@ programmer.box("Link shield",(1.04,1.063,-.045),(.11,.13,.039),"blue",.23)
 programmer.box("Link sword",(.891,1.08,-.07),(.025,.23,.026),"white")
 pm.box("Notebook computer keyboard",(0,.957,.025),(.78,.045,.54),"slate")
 screen(pm,0,1.205,-.22,.73,.44,"waterfall")
+pm.box("Laptop docking station",(.47,.957,-.30),(.25,.059,.20),"navy")
+pm.rod("Dock connection lead",(.41,.974,-.21),(.34,.974,-.14),.015,"ink",6)
 pm.box("Sports car body",(.79,.99,.01),(.45,.095,.22),"red",.11)
 pm.box("Sports car canopy",(.77,1.066,.01),(.24,.075,.17),"screen_dark",.11)
 for x in (.65,.91):
@@ -445,19 +465,36 @@ programmer.rod("Padded headset band",(.78,1.137,.27),(.94,1.137,.27),.027,"ink",
 executive.box("Tablet kickstand",(.26,1.018,-.19),(.42,.17,.16),"slate")
 screen(executive,.26,1.205,-.07,.69,.47,"revenue")
 
-partition = kit("partition")
-partition.box("Teal fabric baffle",(0,1.00,0),(5.1,1.26,.115),"teal")
-partition.box("Blue acoustic cap",(0,1.66,0),(5.15,.07,.156),"navy")
-for x in (-2.46,0,2.46):
-    partition.box("Baffle post",(x,.85,0),(.084,1.7,.164),"slate")
-    partition.box("Fabric trim",(x,1.0,.069),(.055,1.24,.03),"mint")
-for x in (-2.49,2.49):
-    for side in (-1,1):
-        partition.box("Privacy wing",(x,1.02,side*.72),(.11,1.18,1.48),"teal")
-        partition.box("Wing cap",(x,1.64,side*.72),(.14,.07,1.48),"navy")
-for x in (-1.75,-.72,.83,1.82):
-    for side in (-1,1):
-        partition.box("Pinned sprint note",(x,1.49,side*.067),(.18,.21,.016),"gold" if x<0 else "paper",.09)
+partition_assets=("partition","partition_low","partition_storage")
+partition_wings=((1.02,1.18,.13),(.74,.88,.13),(.65,1.30,.42))
+for variant,asset in enumerate(partition_assets):
+    partition=kit(asset)
+    partition.box("Teal fabric baffle",(0,1.00,0),(5.1,1.26,.115),"teal")
+    partition.box("Blue acoustic cap",(0,1.66,0),(5.15,.07,.156),"navy")
+    for x in (-2.46,0,2.46):
+        partition.box("Baffle post",(x,.85,0),(.084,1.7,.164),"slate")
+        partition.box("Fabric trim",(x,1.0,.069),(.055,1.24,.03),"mint")
+    for x in (-1.75,-.72,.83,1.82):
+        for side in (-1,1):
+            partition.box("Pinned sprint note",(x,1.49,side*.067),(.18,.21,.016),"gold" if x<0 else "paper",.09)
+    for x in (-2.49,2.49):
+        if variant==0:
+            partition.box("Privacy wing lower panel",(x,.79,0),(.11,.72,2.94),"dark_teal")
+            partition.box("Frosted upper window",(x,1.39,0),(.076,.42,2.92),"screen")
+            for z in (-1.44,-.05,.05,1.44):
+                partition.box("Frosted screen stile",(x,1.38,z),(.13,.46,.075),"navy")
+            for y in (1.15,1.61):
+                partition.box("Window frame rail",(x,y,0),(.13,.065,2.94),"navy")
+        elif variant==1:
+            partition.box("Low acoustic wing",(x,.74,0),(.11,.88,2.94),"lilac")
+            partition.box("Low screen top rail",(x,1.18,0),(.13,.065,2.94),"violet")
+        else:
+            partition.box("End-of-row storage cabinet",(x,.65,0),(.42,1.30,2.94),"dark_teal")
+            partition.box("Laminate cabinet worktop",(x,1.30,0),(.46,.065,2.94),"ivory")
+            for z in (-1.04,-.36,.36,1.04):
+                face=x+math.copysign(.224,x)
+                partition.box("Locker door reveal",(face,.72,z),(.033,1.03,.61),"teal")
+                partition.box("Inset locker pull",(face+math.copysign(.018,x),1.01,z),(.026,.068,.17),"gold")
 
 leaf = kit("shade_leaf")
 leaf.rod("Leaf clamp stem",(0,0,0),(0,1.52,0),.045,"green",8)
@@ -483,8 +520,10 @@ cot.box("Folded blanket",(0,.455,.65),(.80,.06,.55),"violet")
 for row,z in enumerate((-8,-2,4,10)):
     for col,x in enumerate((-14,0,14)):
         pod=f"{row}{col}"
-        instance("partition","Partition"+pod,(x,0,z),(5.16,1.7,.16),sections=[[[end*2.49,1.02,side*.72],[.11,1.18,1.48]]
-                      for end in (-1,1) for side in (-1,1)])
+        variant=(row+col)%len(partition_assets)
+        center_y,wing_height,wing_width=partition_wings[variant]
+        instance(partition_assets[variant],"Partition"+pod,(x,0,z),(5.16,1.7,.16),
+                 sections=[[[end*2.49,center_y,0],[wing_width,wing_height,2.94]] for end in (-1,1)])
         for side in (-1,1):
             pos=x+side*1.25
             station="project_manager" if (row+col+side)%3==0 else "programmer"

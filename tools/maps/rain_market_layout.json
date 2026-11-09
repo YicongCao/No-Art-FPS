@@ -1749,8 +1749,8 @@
       "structural": false
     },
     {
-      "asset": "fish_counter",
-      "name": "fish_counter_01",
+      "asset": "live_fish_tank",
+      "name": "live_fish_tank_01",
       "at": [
         -6.1,
         0.8325,
@@ -1766,8 +1766,8 @@
       "structural": false
     },
     {
-      "asset": "fish_counter",
-      "name": "fish_counter_02",
+      "asset": "fish_prep_station",
+      "name": "fish_prep_station_02",
       "at": [
         -6.1,
         1.6444444444444446,
@@ -1783,8 +1783,8 @@
       "structural": false
     },
     {
-      "asset": "produce_counter",
-      "name": "produce_counter_03",
+      "asset": "fish_prep_station",
+      "name": "fish_prep_station_03",
       "at": [
         6.1,
         0.4316666666666666,
@@ -1796,12 +1796,12 @@
         3.42
       ],
       "angle": 0,
-      "effect": "produce",
+      "effect": "ice",
       "structural": false
     },
     {
-      "asset": "fish_counter",
-      "name": "fish_counter_04",
+      "asset": "live_fish_tank",
+      "name": "live_fish_tank_04",
       "at": [
         6.1,
         0.8530555555555557,
