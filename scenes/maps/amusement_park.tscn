@@ -36,12 +36,16 @@
 [ext_resource type="Script" path="res://scripts/explosive_barrel.gd" id="32_qedpg"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_t47xq"]
+resource_local_to_scene = true
 shader = ExtResource("2_rso0l")
+shader_parameter/nightfall = 0.0
 
 [sub_resource type="Sky" id="Sky_xomg4"]
+resource_local_to_scene = true
 sky_material = SubResource("ShaderMaterial_t47xq")
 
 [sub_resource type="Environment" id="Environment_77hd4"]
+resource_local_to_scene = true
 background_mode = 2
 sky = SubResource("Sky_xomg4")
 ambient_light_source = 2

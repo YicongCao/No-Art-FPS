@@ -61,10 +61,14 @@ func marker(parent: Node3D, name: String, at: Vector3) -> Marker3D:
 
 func sky() -> Environment:
 	var sky_material = ShaderMaterial.new()
+	sky_material.resource_local_to_scene = true
 	sky_material.shader = preload("res://assets/shaders/park_sunset.gdshader")
+	sky_material.set_shader_parameter("nightfall",0.0)
 	var dome = Sky.new()
+	dome.resource_local_to_scene = true
 	dome.sky_material = sky_material
 	var env = Environment.new()
+	env.resource_local_to_scene = true
 	env.background_mode = Environment.BG_SKY
 	env.sky = dome
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR

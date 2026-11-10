@@ -10,6 +10,7 @@ const DISCO_COLORS = [Color("ff8bc8"),Color("9ee9ff")]
 const NEON_COLORS = [Color("ff39b8"),Color("6bff70")]
 const DISCO_REST_RANGE = 6.6
 const DISCO_FRENZY_RANGE = 32.0
+const NIGHTFALL_DURATION = 1.8
 
 @export var carousel_path: NodePath
 @export var horse_paths: Array[NodePath] = []
@@ -22,6 +23,7 @@ var disco_ball: Node3D
 var disco_paint: ShaderMaterial
 var disco_spots: Array[SpotLight3D] = []
 var disco_rest_pitch := 0.0
+var nightfall := 0.0
 var texture_preview: TexturePreview
 
 func _ready() -> void:
@@ -73,6 +75,7 @@ func add_disco_ball() -> void:
 		disco_spots.append(spot)
 
 func set_destroy_lighting(active: bool) -> void:
+	if not active:set_nightfall(0.0)
 	var colors = NEON_COLORS if active else DISCO_COLORS
 	for i in range(disco_spots.size()):
 		var spot := disco_spots[i]
@@ -84,11 +87,18 @@ func set_destroy_lighting(active: bool) -> void:
 			6.8 if active else 10.0,.22 if active else .27)
 		if not active:spot.rotation.x = disco_rest_pitch
 
+func set_nightfall(progress: float) -> void:
+	if nightfall==progress:return
+	nightfall = progress
+	var sky_material := environment_override.sky.sky_material as ShaderMaterial
+	sky_material.set_shader_parameter("nightfall",nightfall)
+
 func pose_rides(elapsed: float, light_elapsed: float) -> void:
 	carousel.rotation.y = elapsed*CAROUSEL_TURN_RATE
 	disco_ball.rotation.y = .45+light_elapsed*DISCO_TURN_RATE-carousel.rotation.y
 	if game and game.destroy_active:
 		var phase_start: float = game.rules.duration-game.rules.destroy_duration
+		set_nightfall(smoothstep(0.0,NIGHTFALL_DURATION,elapsed-phase_start))
 		var raise_beam := smoothstep(0.0,1.15,elapsed-phase_start)
 		for spot in disco_spots:
 			spot.rotation.x = lerpf(disco_rest_pitch,-.11,raise_beam)

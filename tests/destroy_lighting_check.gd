@@ -21,7 +21,7 @@ func check() -> void:
 		await game.select_session(path)
 		assert(game.nav_ready and game.title_frame_ready and game.session.resource_path==path)
 		await check_map(game.arena.map_id)
-	print("DESTROY_LIGHTING_PASS: four maps, continuous double-speed sweeps, distinct neon lights and shafts, orange sky, pause, retry and title reset")
+	print("DESTROY_LIGHTING_PASS: four maps, continuous double-speed sweeps, distinct neon lights and shafts, sky transitions, pause, retry and title reset")
 	if DisplayServer.get_name()=="headless":
 		# Let headless audio drain before freeing its streams.
 		var deadline = Time.get_ticks_msec()+450
@@ -35,10 +35,13 @@ func check_map(map_id: String) -> void:
 	var lights: Array[SpotLight3D] = []
 	var moving: Array[SpotLight3D] = []
 	var normal_environment: Environment = game.world_environment.environment
+	var park_sky: ShaderMaterial
 	match map_id:
 		"amusement_park":
 			lights.assign(arena.disco_spots)
 			moving.assign(lights)
+			park_sky = normal_environment.sky.sky_material
+			assert(is_zero_approx(park_sky.get_shader_parameter("nightfall")))
 		"last_ferry":
 			lights.assign([arena.searchlight,arena.port_searchlight])
 			moving.assign([arena.searchlight])
@@ -74,10 +77,19 @@ func check_map(map_id: String) -> void:
 			var shaft = light.get_node_or_null("Shaft")
 			if shaft:assert(shaft.material_override.get_shader_parameter("tint")==light.light_color)
 		assert(lights[0].light_color!=normal_colors[0])
+	if park_sky:
+		game.rules.elapsed = 45.9
+		arena._process(0)
+		assert(is_equal_approx(park_sky.get_shader_parameter("nightfall"),.5))
+		game.pause_run()
+		arena._process(.1)
+		assert(is_equal_approx(park_sky.get_shader_parameter("nightfall"),.5))
+		game.menu_action("resume")
 	game.rules.elapsed = 47.0
 	arena._process(0)
 	assert(is_equal_approx(arena.sweep_elapsed(),49.0))
 	if map_id=="amusement_park":
+		assert(is_equal_approx(park_sky.get_shader_parameter("nightfall"),1.0))
 		for light in lights:
 			var shaft: MeshInstance3D = light.get_node("Shaft")
 			var forward := -light.global_basis.z.normalized()
@@ -106,6 +118,7 @@ func assert_reset(lights: Array[SpotLight3D], colors: Array[Color], environment:
 	assert(not game.destroy_active and game.world_environment.environment==environment)
 	for i in range(lights.size()):assert(lights[i].light_color.is_equal_approx(colors[i]))
 	if game.arena.map_id=="amusement_park":
+		assert(is_zero_approx(environment.sky.sky_material.get_shader_parameter("nightfall")))
 		for light in lights:
 			assert(is_equal_approx(light.spot_range,6.6))
 			assert(is_equal_approx(light.get_node("Shaft").mesh.height,4.8))
