@@ -17,6 +17,7 @@ P={
  "coral":"f06a5a","sun":"f6c63e","slate":"4c5872","slate_dark":"3a4459","cream":"efe2c4",
  "brass":"d9a93d","glass":("a7e3ea",.25,0),"mesh":"6e8f86","navy":"2c3a55",
  "grow":("ff4fd8",.4,.9),"lamp":("ffe7b0",.5,.6),
+ "bone":"eadfc4","bone_dark":"c4ae86","bone_shadow":"9e8763",
 }
 a=ArenaKit("palm_house",P,{"sky":"6fb3f2","ambient":"e9f4ff","energy":.6,"sun":"fff3d8",
                            "sun_energy":.64,"sun_rotation":[-48,-28,0]})
@@ -165,14 +166,21 @@ for b in range(len(bands)-1):
         frame.rod("Dome secondary rib",mid0,mid1,.04,"frame",5)
 top=EAVE+.2+4.3*math.sin(bands[-1])
 lantern_r=CORNER*math.cos(bands[-1])
-frame.rod("Lantern base ring",(0,top-.05,0),(0,top+.18,0),lantern_r+.06,"frame",8)
-frame.rod("Lantern top ring",(0,top+.95,0),(0,top+1.12,0),lantern_r+.06,"frame",8)
+for i in range(8):
+    phi0,phi1=math.pi/8+i*math.pi/4,math.pi/8+(i+1)*math.pi/4
+    for y in (top+.06,top+1.04):
+        frame.beam("Lantern ring",(lantern_r*math.cos(phi0),y,lantern_r*math.sin(phi0)),
+                   (lantern_r*math.cos(phi1),y,lantern_r*math.sin(phi1)),.16,.2,"frame")
 for i in range(8):
     phi=math.pi/8+i*math.pi/4
     frame.rod("Lantern mullion",(lantern_r*math.cos(phi),top+.1,lantern_r*math.sin(phi)),
               (lantern_r*math.cos(phi),top+1.05,lantern_r*math.sin(phi)),.06,"frame",5)
 glass.rod("Lantern glazing",(0,top+.15,0),(0,top+.95,0),lantern_r,"glass",8)
-frame.rod("Lantern cap",(0,top+1.1,0),(0,top+1.7,0),lantern_r+.25,"slate",8,.25)
+glass.rod("Lantern cap glazing",(0,top+1.1,0),(0,top+1.7,0),lantern_r+.25,"glass",8,.25)
+frame.rod("Lantern cap rim",(0,top+1.08,0),(0,top+1.16,0),lantern_r+.3,"frame",8)
+for i in range(8):
+    phi=math.pi/8+i*math.pi/4
+    frame.rod("Lantern cap rib",((lantern_r+.25)*math.cos(phi),top+1.12,(lantern_r+.25)*math.sin(phi)),(0,top+1.72,0),.05,"frame",5)
 frame.rod("Lantern finial",(0,top+1.7,0),(0,top+2.5,0),.08,"frame",6)
 frame.rod("Finial ball",(0,top+2.45,0),(0,top+2.6,0),.16,"brass",8)
 
@@ -571,6 +579,99 @@ for asset,at,size,angle,name in [
     a.prop(asset,at,size,angle,name=name,effect=effect)
 
 # Magenta grow lights sweep the interior during frenzy. They stay off in daylight.
+# A tall, thin T. rex fossil rears up from a plinth in the lily channel. Its skull
+# hangs over the centre of the dome, above head height on the canopy deck.
+fossil=a.kit("trex_fossil",True)
+PZ0,PZ1=-3.3,-1.85
+PLINTH=.62
+BONE=1.65
+def bone_rod(label,p,q,r,color,sides=6,r2=None):
+    fossil.rod(label,p,q,r*BONE,color,sides,(r2 or r)*BONE)
+a.solid(fossil,"Fossil plinth",(0,PLINTH/2,(PZ0+PZ1)/2),(1.8,PLINTH,PZ1-PZ0),"stone_dark")
+fossil.box("Plinth cap",(0,PLINTH+.04,(PZ0+PZ1)/2),(1.92,.08,PZ1-PZ0+.12),"stone")
+fossil.box("Brass plinth plaque",(0,.34,PZ1+.005),(.7,.26,.03),"brass")
+a.layout["boxes"].append([(0,PLINTH+1.7,-2.55),(.62,3.4,.5),0])
+
+def spine(points,radius,color="bone",sides=6,taper=1.0):
+    for i in range(len(points)-1):
+        r0=radius*(1-(1-taper)*i/(len(points)-1))
+        r1=radius*(1-(1-taper)*(i+1)/(len(points)-1))
+        bone_rod("Fossil bone",points[i],points[i+1],r0,color,sides,r1)
+
+def lerp(p,q,t):
+    return tuple(p[k]+(q[k]-p[k])*t for k in range(3))
+
+HIP=(0,PLINTH+3.05,-2.55)
+for side in (-1,1):
+    x=side*.34
+    knee=(x,PLINTH+1.75,-2.05)
+    ankle=(x*1.05,PLINTH+.62,-2.62)
+    foot=(x*1.08,PLINTH+.08,-2.22)
+    bone_rod("Fossil femur",(x*.6,HIP[1]-.1,HIP[2]),knee,.12,"bone",7,.09)
+    bone_rod("Fossil shin",knee,ankle,.085,"bone",7,.07)
+    bone_rod("Fossil metatarsal",ankle,foot,.07,"bone_dark",6,.06)
+    bone_rod("Fossil knee cap",(knee[0],knee[1]-.06,knee[2]),(knee[0],knee[1]+.08,knee[2]+.03),.13,"bone_dark",7)
+    for toe in (-.16,0,.16):
+        tip=(foot[0]+toe*side,PLINTH+.05,foot[2]+.42)
+        bone_rod("Fossil toe",foot,tip,.045,"bone",5,.025)
+    fossil.rod("Mount rod",(x*.5,PLINTH,-2.9),(x*.5,HIP[1]-.15,HIP[2]-.12),.025,"navy",5)
+bone_rod("Fossil pelvis",(-.38,HIP[1],HIP[2]),(.38,HIP[1],HIP[2]),.15,"bone_dark",7)
+bone_rod("Fossil pubic boot",(0,HIP[1]-.05,HIP[2]+.05),(0,HIP[1]-.85,HIP[2]+.45),.09,"bone",6,.13)
+
+# Upright, almost vertical back: the thin old-fashioned museum pose.
+back=[HIP,(0,HIP[1]+.8,-2.42),(0,HIP[1]+1.6,-2.2),(0,HIP[1]+2.25,-1.95)]
+neck=[back[-1],(0,HIP[1]+2.75,-1.55),(0,HIP[1]+3.05,-1.0),(0,HIP[1]+3.12,-.45)]
+tail=[HIP,(0,HIP[1]-.35,-2.95),(0,HIP[1]-1.2,-3.12),(0,HIP[1]-2.1,-3.1),(0,PLINTH+.35,-2.9),(.28,PLINTH+.08,-2.6),(.62,PLINTH+.06,-2.15)]
+spine(back,.075)
+spine(neck,.07,taper=.8)
+spine(tail,.11,taper=.25)
+for chain,size in ((back,.11),(neck,.09),(tail,.12)):
+    for i in range(len(chain)-1):
+        for t in (.2,.6):
+            p=lerp(chain[i],chain[i+1],t)
+            fossil.box("Fossil vertebra",p,(size*2.2,size*1.1,size*1.1),"bone_dark")
+            bone_rod("Neural spine",p,(p[0],p[1]+.05,p[2]-size*1.7),.03,"bone",4,.015)
+for i in range(7):
+    t=.08+i*.13
+    base=lerp(back[0],back[-1],t) if t<1 else back[-1]
+    length=.35+.45*math.sin(math.pi*min(1,(i+1)/7))
+    for side in (-1,1):
+        mid=(side*(.18+length*.55),base[1]-.16,base[2]+length*.5)
+        tip=(side*.06,base[1]-.4-length*.15,base[2]+length*.95)
+        bone_rod("Fossil rib",base,mid,.028,"bone",5,.024)
+        bone_rod("Fossil rib",mid,tip,.024,"bone",5,.016)
+shoulder=back[-1]
+for side in (-1,1):
+    elbow=(side*.24,shoulder[1]-.22,shoulder[2]+.28)
+    hand=(side*.2,shoulder[1]-.18,shoulder[2]+.55)
+    bone_rod("Fossil scapula",(0,shoulder[1]+.05,shoulder[2]-.08),(side*.2,shoulder[1]-.08,shoulder[2]+.1),.05,"bone_dark",5)
+    bone_rod("Tiny arm",(side*.2,shoulder[1]-.08,shoulder[2]+.1),elbow,.035,"bone",5,.03)
+    bone_rod("Tiny forearm",elbow,hand,.03,"bone",5,.025)
+    for claw in (-.04,.04):
+        bone_rod("Two-finger claw",hand,(hand[0]+claw,hand[1]-.1,hand[2]+.12),.018,"bone_dark",4,.008)
+
+# Skull points south, jaws slightly open, over the walkway.
+SK=neck[-1]
+S=1.45
+top=[(-.2*S,SK[1]+.22*S,SK[2]),(.2*S,SK[1]+.22*S,SK[2]),(.12*S,SK[1]+.12*S,SK[2]+.95*S),(-.12*S,SK[1]+.12*S,SK[2]+.95*S)]
+low=[(-.24*S,SK[1]-.18*S,SK[2]),(.24*S,SK[1]-.18*S,SK[2]),(.14*S,SK[1]-.08*S,SK[2]+.98*S),(-.14*S,SK[1]-.08*S,SK[2]+.98*S)]
+for quad in (top,low[::-1],[top[0],top[1],low[1],low[0]],[top[2],top[3],low[3],low[2]],
+             [top[1],top[2],low[2],low[1]],[top[3],top[0],low[0],low[3]]):
+    fossil.facet("Fossil skull",quad,"bone")
+for side in (-1,1):
+    fossil.facet("Skull window",[(side*.205*S,SK[1]+.12*S,SK[2]+.12*S),(side*.18*S,SK[1]+.14*S,SK[2]+.42*S),
+                                 (side*.17*S,SK[1]-.06*S,SK[2]+.4*S),(side*.2*S,SK[1]-.08*S,SK[2]+.16*S)],"bone_shadow")
+    fossil.facet("Eye socket",[(side*.19*S,SK[1]+.2*S,SK[2]+.18*S),(side*.18*S,SK[1]+.2*S,SK[2]+.34*S),(side*.19*S,SK[1]+.06*S,SK[2]+.26*S)],"navy")
+jaw=(0,SK[1]-.24*S,SK[2]+.06*S)
+bone_rod("Fossil lower jaw",(-.2*S,jaw[1],jaw[2]),(-.11*S,jaw[1]-.22*S,SK[2]+.9*S),.05,"bone_dark",5,.035)
+bone_rod("Fossil lower jaw",(.2*S,jaw[1],jaw[2]),(.11*S,jaw[1]-.22*S,SK[2]+.9*S),.05,"bone_dark",5,.035)
+for i in range(6):
+    t=.2+i*.13
+    for side in (-1,1):
+        x=side*(.2-.07*t)*S
+        p=(x,SK[1]-.1*S+.03*t,SK[2]+(.05+.9*t)*S)
+        bone_rod("Fossil tooth",p,(x,p[1]-.12*S,p[2]+.02),.025,"cream",4,.004)
+
 for i,(x,z,tx,tz) in enumerate([(-4,-4,-5.5,5.6),(4,4,5.6,-5.4),(4,-4,-5.6,-5.4),(-4,4,5.6,5.6)]):
     a.spot((x,EAVE+2.6,z),(tx,0,tz),"ff4fd8" if i%2 else "b85cff",6.4,13,34,(2.4,0,2.4))
 a.spot((0,EAVE+3.8,0),(0,DECK_Y,0),"ff6ae6",7.0,12,30,(3.0,0,.8),True)
@@ -590,6 +691,7 @@ a.layout.update(
  cameras={
   "forecourt":[[0,1.72,20.6],[0,3.6,0],76],
   "canopy-walk":[[-3.0,DECK_Y+1.65,.2],[9.5,DECK_Y+.6,0],74],
+  "trex-fossil":[[3.9,1.72,-7.4],[0,4.5,-1.6],72],
   "thumbnail":[[11.8,2.1,15.6],[-.6,3.9,-1.2],56],
   "tool-yard-frenzy":[[-14.6,1.75,9.2],[-6.4,2.2,5.6],78],
  })
