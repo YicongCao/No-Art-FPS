@@ -3,6 +3,7 @@ extends "res://scripts/arena.gd"
 const Sweep = preload("res://scripts/maps/sweeping_light.gd")
 const AirportDisplay = preload("res://scripts/maps/airport_display.gd")
 const AirportPower = preload("res://scripts/maps/airport_power.gd")
+const ObservatoryOptics = preload("res://scripts/maps/observatory_optics.gd")
 const CombatFX = preload("res://scripts/combat_fx.gd")
 const SNOW_SHADER = preload("res://assets/shaders/observatory_snow.gdshader")
 const RAIN_SHADER = preload("res://assets/shaders/market_rain.gdshader")
@@ -72,6 +73,7 @@ var dome: Node3D
 var shutter_left: Node3D
 var shutter_right: Node3D
 var shutter_lights: Node3D
+var telescope_optics: ObservatoryOptics
 var belt_bags: Array[Node3D] = []
 
 func _ready() -> void:
@@ -132,6 +134,9 @@ func _ready() -> void:
 		add_child(pipe_spray)
 	if is_instance_valid(dome):
 		add_snow()
+		telescope_optics = ObservatoryOptics.new()
+		telescope_optics.name = "Optics"
+		get_node("Architecture/telescope").add_child(telescope_optics)
 		var paint = ShaderMaterial.new()
 		paint.shader = RED_STRIP_SHADER
 		deck_light = horizontal_effect(Vector2(1.04,8.7),Vector3(16.05,2.434,-2.51),paint)
@@ -386,6 +391,8 @@ func _process(delta: float) -> void:
 		airport_display.pose(display_seconds,game.reduced_motion)
 	if active and game.destroy_active:
 		pose_frenzy(sweep_elapsed())
+	elif telescope_optics and game.finale_active:
+		telescope_optics.beam.hide()
 
 func set_destroy_lighting(active: bool) -> void:
 	for light in frenzy_lights:
@@ -407,6 +414,7 @@ func set_destroy_lighting(active: bool) -> void:
 		shutter_lights.visible = active
 		if not active:
 			pose_shutters(0.0)
+			telescope_optics.pose(0.0,0.0)
 		# Each scene owns its environment resource. Reset it on every round.
 		environment_override.background_color = Color("263c76") if active else normal_sky
 		environment_override.ambient_light_color = Color("acbfff") if active else Color("cddfff")
@@ -433,8 +441,11 @@ func pose_frenzy(elapsed: float) -> void:
 	if is_instance_valid(dome):
 		const SHUTTER_OPEN_SECONDS = 2.2
 		var phase_start: float = game.rules.duration-game.rules.destroy_duration
-		var open_amount := smoothstep(0.0,SHUTTER_OPEN_SECONDS,game.rules.elapsed-phase_start)
+		var seconds: float = game.rules.elapsed-phase_start
+		var open_amount := smoothstep(0.0,SHUTTER_OPEN_SECONDS,seconds)
 		pose_shutters(1.0 if game.reduced_motion else open_amount)
+		var iris := smoothstep(SHUTTER_OPEN_SECONDS,SHUTTER_OPEN_SECONDS+.64,seconds)
+		telescope_optics.pose(1.0 if game.reduced_motion else iris,0.0 if game.reduced_motion else seconds)
 		deck_light.rotation.y = PI*.5+dome_sweep*.17
 		deck_light.position.z = -2.65+dome_sweep*.89
 		star_chart.rotation.y = elapsed*.23

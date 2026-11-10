@@ -78,6 +78,7 @@ func check() -> void:
 			check_snowfall()
 			assert(is_zero_approx(game.arena.shutter_left.rotation.y))
 			assert(is_zero_approx(game.arena.shutter_right.rotation.y))
+			assert(not game.arena.telescope_optics.beam.visible)
 		game._physics_process(.01)
 		assert(game.destroy_active and is_equal_approx(game.rules.remaining(),15.0))
 		assert(game.arena.frenzy_lights.all(func(light):return light.visible))
@@ -104,14 +105,21 @@ func check() -> void:
 			var partial: float = game.arena.shutter_left.rotation.y
 			assert(partial>.2 and partial<.465)
 			assert(is_equal_approx(game.arena.shutter_right.rotation.y,-partial))
+			var optics = game.arena.telescope_optics
+			assert(not optics.beam.visible and is_zero_approx(optics.leaves[0].rotation.y))
 			game.pause_run()
 			game.arena._process(.2)
 			assert(is_equal_approx(game.arena.shutter_left.rotation.y,partial))
 			game.menu_action("resume")
+			game.rules.elapsed = 47.52
+			game.arena._process(0)
+			assert(not optics.beam.visible and optics.leaves[0].rotation.y<0)
 			game.rules.elapsed = 48.0
 			game.arena._process(0)
 			assert(is_equal_approx(game.arena.shutter_left.rotation.y,.465))
 			assert(is_equal_approx(game.arena.shutter_right.rotation.y,-.465))
+			assert(optics.beam.visible and is_equal_approx(optics.leaves[0].rotation.y,-1.55))
+			assert(optics.global_basis.z.is_equal_approx(optics.OPTICAL_AXIS.normalized()))
 		var held: Basis = game.arena.frenzy_lights[0].basis
 		var held_snow: float = game.arena.snow_elapsed
 		game.pause_run()
@@ -121,6 +129,8 @@ func check() -> void:
 		if id=="baggage_below":
 			assert(game.arena.belts.all(func(belt):return belt.constant_linear_velocity.is_zero_approx()))
 			assert(game.arena.airport_display.board_paint.get_shader_parameter("elapsed")==47.0)
+		if id=="snowline":
+			assert(is_equal_approx(float(game.arena.telescope_optics.halo_paint.get_shader_parameter("elapsed")),3.0))
 		game.menu_action("resume")
 		game.player.enabled = false
 		var prop = game.arena.get_node("Props/"+TARGETS[id])
@@ -162,6 +172,8 @@ func check() -> void:
 		if id=="snowline":
 			assert(is_zero_approx(game.arena.shutter_left.rotation.y))
 			assert(is_zero_approx(game.arena.shutter_right.rotation.y))
+			assert(not game.arena.telescope_optics.beam.visible)
+			assert(is_zero_approx(game.arena.telescope_optics.leaves[0].rotation.y))
 		game.state = "RESULTS"
 		game.menu_action("menu")
 		print("NEW_ARENA_PASS ",id," routes, both elevations where applicable, waves, frenzy, destruction and reset")
