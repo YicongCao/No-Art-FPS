@@ -14,6 +14,7 @@ const RAIN_THUMBNAIL = preload("res://assets/ui/maps/rain_market.webp")
 const BAGGAGE_THUMBNAIL = preload("res://assets/ui/maps/baggage_below.webp")
 const SNOWLINE_THUMBNAIL = preload("res://assets/ui/maps/snowline.webp")
 const HOGWARTS_THUMBNAIL = preload("res://assets/ui/maps/hogwarts.webp")
+const PALM_THUMBNAIL = preload("res://assets/ui/maps/palm_house.webp")
 const COMEDY_ICON = preload("res://assets/ui/settings/comedy.svg")
 const ROACH_ICON = preload("res://assets/ui/settings/roach.svg")
 const BadgeCatalog = preload("res://scripts/achievements.gd")
@@ -970,6 +971,7 @@ func rebuild_menu() -> void:
 			["MapBaggage",tr("Baggage Below"),"baggage_below",BAGGAGE_THUMBNAIL,"baggage_below"],
 			["MapSnowline",tr("Snowline Observatory"),"snowline",SNOWLINE_THUMBNAIL,"snowline"],
 			["MapHogwarts",tr("Hogwarts"),"hogwarts",HOGWARTS_THUMBNAIL,"hogwarts"],
+			["MapPalmHouse",tr("Palm House"),"palm_house",PALM_THUMBNAIL,"palm_house"],
 		]
 		var tab_order = [fire_button]
 		for i in range(maps.size()):

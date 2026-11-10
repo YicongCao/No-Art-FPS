@@ -16,6 +16,20 @@
 - 玻璃用不透明的浅青面板加白框表达，避免大片半透明排序和 Web 端过度绘制。温室下部是砖墙裙，常态只有南北门和东西侧门可进出。
 - 狂暴破口固定在西墙一格低玻璃，与工具场的育苗架组成一处可破坏捷径。
 
+## Godot 对照
+
+| 视角 | 实机 |
+| --- | --- |
+| 剖切鸟瞰 | [实机图](in-engine/overview.png) |
+| 南侧入口 | [实机图](in-engine/forecourt.png) |
+| 树冠栈道 | [实机图](in-engine/canopy-walk.png) |
+| 工具场狂暴与破口 | [实机图](in-engine/tool-yard-frenzy.png) |
+| 栈道实战 | [实机图](in-engine/gameplay-deck.png) |
+
+实机与概念的差异：破口落在西南面（概念图在西面门旁），以免和西侧楼梯口重叠。室内棕榈压低到穹顶以下，西南象限只留一株小盆棕榈，给破口进来的路线让位。玻璃用运行时透明材质，碰撞仍按实墙处理，透过玻璃能看到但打不穿。
+
+可编辑构件在 [palm_house.blend](../../../art_source/palm_house.blend)。[Blender 构建器](../../../tools/maps/build_palm_house.py)输出 GLB 与关卡布局。Godot 导入后运行 `godot --headless --script tools/maps/save_concept_arena.gd -- palm_house` 烘焙导航，`godot --resolution 1280x720 --script tools/maps/capture_concept_arenas.gd -- palm_house` 重渲固定机位与缩略图原图。
+
 ## 生成提示词
 
 共用要求：

@@ -25,7 +25,7 @@ func check() -> void:
 	game.hud.rebuild_menu()
 	assert(game.title_frame_ready and game.nav_ready and game.session==YardSession)
 	assert(game.hud.fire_button.text=="FIRE")
-	assert(game.hud.map_grid.get_child_count()==10)
+	assert(game.hud.map_grid.get_child_count()==11)
 	assert(game.hud.menu.get_children().filter(func(node):return node is Button).size()==3)
 	assert(not game.hud.menu.get_node("comedy").button_pressed)
 	assert(not game.hud.menu.get_node("roach").button_pressed)
@@ -221,6 +221,9 @@ func check() -> void:
 		root.push_input(wheel,true)
 		await process_frame
 	assert(scroller.get_global_rect().encloses(secret.get_global_rect().grow(-1.0)))
+	var palm: Button = game.hud.map_grid.get_node("MapPalmHouse")
+	assert(scroller.get_global_rect().encloses(palm.get_global_rect().grow(-1.0)))
+	assert(palm.position.y==secret.position.y and palm.position.x>secret.get_rect().end.x)
 	click(secret.get_global_rect().get_center())
 	assert(game.hud.map_grid.has_node("MapHogwarts/Selected") and game.hud.fire_button.disabled)
 	await wait_for_switch()
@@ -234,7 +237,7 @@ func check() -> void:
 		if game.state=="RUNNING":break
 		await process_frame
 	assert(game.state=="RUNNING" and game.session==HogwartsSession)
-	print("MAP_SELECTOR_PASS: nine visible cards, wheel reveals Hogwarts, staged selection, focus, rollback, records, and FIRE")
+	print("MAP_SELECTOR_PASS: nine visible cards, wheel reveals Hogwarts and Palm House, staged selection, focus, rollback, records, and FIRE")
 	game.pause_run()
 	game.menu_action("menu")
 	game.set_physics_process(false)

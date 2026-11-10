@@ -1,9 +1,10 @@
 extends SceneTree
 
-const TARGETS = {"rain_market":"ServiceShortcut","baggage_below":"BurstCase","snowline":"StormHatch"}
+const TARGETS = {"rain_market":"ServiceShortcut","baggage_below":"BurstCase","snowline":"StormHatch","palm_house":"GlassBreach"}
 const SHORTCUTS = {
 	"rain_market":[Vector3(8.30,1.10,8.20),Vector3(13.15,1.10,8.20)],
 	"snowline":[Vector3(-6.22,.06,-8.92),Vector3(-10.23,.06,-12.93)],
+	"palm_house":[Vector3(-8.6,.06,8.6),Vector3(-5.4,.06,5.4)],
 }
 var game: Node3D
 
@@ -99,6 +100,8 @@ func check() -> void:
 			assert(game.arena.airport_display.cargo_bags[1].position.distance_to(cargo_before)>1.0)
 			await check_player_carry()
 			check_airport_power()
+		if id=="palm_house":
+			check_palm_frenzy()
 		if id=="snowline":
 			assert(game.arena.deck_light.visible and game.arena.star_chart.visible)
 			assert(is_zero_approx(game.arena.dome.rotation.y))
@@ -169,6 +172,10 @@ func check() -> void:
 			assert(power.faulty_fixtures.is_empty() and power.alarms.all(func(light):return not light.visible))
 			assert(game.arena.barrels.all(func(barrel):return not barrel.spent))
 		assert(not game.destroy_active and not game.comedy_toilet)
+		if id=="palm_house":
+			var arena = game.arena
+			assert(not arena.grow_lights.visible and arena.mist_jets.all(func(jet):return not jet.visible))
+			assert(arena.environment_override.background_color==arena.normal_sky and game.sun.light_color==arena.sun_color)
 		if id=="snowline":
 			assert(is_zero_approx(game.arena.shutter_left.rotation.y))
 			assert(is_zero_approx(game.arena.shutter_right.rotation.y))
@@ -183,6 +190,27 @@ func check() -> void:
 	while Time.get_ticks_msec()<deadline:
 		await process_frame
 	quit()
+
+func check_palm_frenzy() -> void:
+	var arena = game.arena
+	assert(arena.grow_lights.visible and arena.mist_jets.size()==8)
+	assert(arena.environment_override.background_color==arena.PALM_SUNSET_SKY)
+	var reduced: bool = game.reduced_motion
+	game.reduced_motion = false
+	game.rules.elapsed = 45.1
+	arena._process(0)
+	var bursting = arena.mist_jets.filter(func(jet):return jet.visible)
+	assert(not bursting.is_empty() and bursting.size()<8)
+	var first: Vector3 = arena.mist_jets[0].scale
+	game.rules.elapsed = 45.9
+	arena._process(0)
+	assert(arena.mist_jets[0].scale!=first)
+	game.reduced_motion = true
+	arena._process(0)
+	assert(arena.mist_jets.all(func(jet):return not jet.visible))
+	game.reduced_motion = reduced
+	game.rules.elapsed = 47.0
+	arena._process(0)
 
 func check_neon_sweep() -> void:
 	var paint: ShaderMaterial = game.arena.neon_fish_paint

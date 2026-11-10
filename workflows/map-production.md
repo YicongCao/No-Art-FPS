@@ -6,6 +6,8 @@
 
 本批参考见[三张地图概念验收](../docs/art/next-arenas/concepts.md)。香港雨市以中央摊道、左侧唐楼石阶和右侧送货坡为主。机场以橙色员工门连接到达厅、双传送带和两侧检修天桥。天文台以室内半层环廊、室外雪地和东侧气象平台形成两个可走的回路。
 
+[棕榈温室](../docs/art/palm-house/concepts.md)沿用同一管线：八角玻璃温室、半层树冠栈道和睡莲水渠，外环连接工具场、锅炉房和蝴蝶馆。
+
 ## 2. 拆解 Blender 构件
 
 - 将地形、永久边界、固定建筑、可破坏物和运动组件分开。复用同一鱼档、周转箱等模型，按位置实例化。楼梯可以用台阶外观覆盖连续的斜坡碰撞。
@@ -15,7 +17,7 @@
 从项目根目录运行本批生成器。
 
 ```sh
-for map in rain_market baggage_below snowline; do
+for map in rain_market baggage_below snowline palm_house; do
   blender --background --python-exit-code 1 --python "tools/maps/build_${map}.py" || exit
 done
 ```
@@ -26,12 +28,14 @@ done
 
 ```sh
 godot --headless --editor --import
-for map in rain_market baggage_below snowline; do
+for map in rain_market baggage_below snowline palm_house; do
   godot --headless --script tools/maps/save_concept_arena.gd -- "$map" || exit
 done
 ```
 
 固定建筑与地图边界承担安全碰撞。破坏遮挡物时释放对应碰撞，关卡捷径变化时更新导航。每张图配置搞笑道具的独立位置，留够三枚引爆筒、周边走位与射击视线的空间。
+
+角色没有自动上台阶，导航却按体素高度判断可攀爬：烘焙区域从 y = -0.52 起算，0.44 m 的路缘会被量化成一格台阶，导航可以跨过而角色会卡住。拦路的矮墙至少做到 0.6 m，坡道两侧用矮护栏封住侧面。
 
 ## 4. 按固定机位打磨
 
@@ -40,6 +44,8 @@ done
 ```sh
 godot --resolution 1280x720 --script tools/maps/capture_concept_arenas.gd
 ```
+
+在命令末尾加 `-- palm_house` 之类的地图 ID，只重渲这一张。
 
 本批主要调整了雨市的棚布和湿地反光、机场透明隔墙和传送带侧挡边、天文台旋转穹顶与雪地红光。狂暴模式沿用倒计时规则与地图自己的灯组。每张图验收常态、狂暴启动、暂停、重开和切图复位。
 

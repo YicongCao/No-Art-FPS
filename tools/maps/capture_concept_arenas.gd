@@ -26,7 +26,10 @@ func capture() -> void:
 	camera.far = 145
 	game.add_child(camera)
 	DirAccess.make_dir_recursive_absolute("res://artifacts/local/next-arenas")
+	var only := OS.get_cmdline_user_args()
 	for id in game.CONCEPT_SESSIONS:
+		if not only.is_empty() and id not in only:
+			continue
 		await game.select_session(game.CONCEPT_SESSIONS[id],id)
 		assert(game.nav_ready and game.arena.map_id==id)
 		game.start_run()
@@ -39,7 +42,7 @@ func capture() -> void:
 			enemy.set_physics_process(false)
 		camera.make_current()
 		var layout: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tools/maps/%s_layout.json"%id))
-		var cutaway: Node3D = game.arena.get_node({"rain_market":"Architecture/canopy","baggage_below":"Architecture/ceiling_and_beams","snowline":"Moving/dome"}[id])
+		var cutaway: Node3D = game.arena.get_node({"rain_market":"Architecture/canopy","baggage_below":"Architecture/ceiling_and_beams","snowline":"Moving/dome","palm_house":"Architecture/glasshouse_glass"}[id])
 		cutaway.hide()
 		if id=="snowline":
 			game.arena.shutter_left.hide()
@@ -62,7 +65,7 @@ func capture() -> void:
 			game.rules.elapsed = shot[3] if shot.size()>3 else (47.0 if key.ends_with("frenzy") else 0.0)
 			if key.ends_with("frenzy"):
 				game.set_destroy_active(true)
-				var targets = {"service-frenzy":"ServiceShortcut","sorting-frenzy":"BurstCase","telescope-frenzy":"StormHatch"}
+				var targets = {"service-frenzy":"ServiceShortcut","sorting-frenzy":"BurstCase","telescope-frenzy":"StormHatch","tool-yard-frenzy":"GlassBreach"}
 				if targets.has(key):
 					var prop = game.arena.get_node("Props/"+targets[key])
 					prop.hit_point = prop.world_bounds().get_center()

@@ -26,7 +26,11 @@ const IMPACTS = {
 	"luggage": [[Vector3(.23,.016,.115),Color("f4e9d6")],[Vector3(.061,.055,.21),Color("d1d8ee")],[Vector3(.12,.061,.09),Color("e28a58")]],
 	"metal": [[Vector3(.12,.045,.13),Color("adc8dd")],[Vector3(.09,.07,.14),Color("f6ca70")]],
 	"instrument": [[Vector3(.17,.043,.12),Color("b5d3e9")],[Vector3(.07,.10,.07),Color("fff4d6")],[Vector3(.13,.033,.16),Color("718eb6")]],
+	"garden": [[Vector3(.13,.05,.11),Color("d4744a")],[Vector3(.10,.08,.10),Color("6b4a35")],[Vector3(.16,.02,.09),Color("86cf45")]],
+	"glass": [[Vector3(.17,.012,.13),Color("c9f1f4")],[Vector3(.11,.012,.19),Color("a7e3ea")],[Vector3(.06,.06,.06),Color("f4f3ec")]],
 }
+const MIST_SECONDS = 2.6
+const PALM_SUNSET_SKY = Color("f08a74")
 
 @export var route_paths: Array[NodePath] = []
 @export var minibus_entry_path: NodePath
@@ -39,6 +43,7 @@ const IMPACTS = {
 @export var belt_directions: Array[int] = []
 @export var comedy_site: Vector4
 @export var normal_sky: Color
+@export var glass_models: Array[String] = []
 var frenzy_lights: Array[SpotLight3D] = []
 var frenzy_origins: Array[Vector3] = []
 var frenzy_targets: Array[Vector3] = []
@@ -75,6 +80,10 @@ var shutter_right: Node3D
 var shutter_lights: Node3D
 var telescope_optics: ObservatoryOptics
 var belt_bags: Array[Node3D] = []
+var grow_lights: Node3D
+var mist_jets: Array[MeshInstance3D] = []
+var mist_paint: StandardMaterial3D
+var grow_lamps: Array[OmniLight3D] = []
 
 func _ready() -> void:
 	super._ready()
@@ -145,6 +154,24 @@ func _ready() -> void:
 		star_chart = horizontal_effect(Vector2(13.3,13.3),dome.position+Vector3.UP*.039,chart_paint)
 	if not belts.is_empty():
 		add_belt_bags()
+	grow_lights = get_node_or_null("Moving/grow_lights")
+	if not glass_models.is_empty():
+		var pane_paint = StandardMaterial3D.new()
+		pane_paint.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		pane_paint.cull_mode = BaseMaterial3D.CULL_DISABLED
+		pane_paint.albedo_color = Color(.62,.9,.94,.16)
+		pane_paint.roughness = .2
+		for asset in glass_models:
+			for mesh: MeshInstance3D in get_node("Architecture/"+asset).find_children("*","MeshInstance3D",true,false):
+				mesh.material_override = pane_paint
+				mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		for mesh: MeshInstance3D in get_node("Props").find_children("*","MeshInstance3D",true,false):
+			for surface in range(mesh.mesh.get_surface_count()):
+				var paint := mesh.mesh.surface_get_material(surface)
+				if paint and paint.resource_name=="glass":
+					mesh.set_surface_override_material(surface,pane_paint)
+	if map_id=="palm_house":
+		add_mist_jets()
 	if map_id=="baggage_below":
 		airport_display = AirportDisplay.new()
 		airport_display.name = "AirportDisplay"
@@ -156,6 +183,51 @@ func _ready() -> void:
 		add_child(airport_power)
 		airport_power.setup(airport_layout)
 	set_destroy_lighting(false)
+
+func add_mist_jets() -> void:
+	mist_paint = StandardMaterial3D.new()
+	mist_paint.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mist_paint.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mist_paint.cull_mode = BaseMaterial3D.CULL_DISABLED
+	mist_paint.albedo_color = Color(1,1,1,0)
+	var cone = CylinderMesh.new()
+	cone.top_radius = .06
+	cone.bottom_radius = .95
+	cone.height = 2.3
+	cone.radial_segments = 7
+	cone.rings = 1
+	cone.cap_top = false
+	cone.cap_bottom = false
+	for i in range(8):
+		var angle := PI/8+i*PI/4
+		var jet = MeshInstance3D.new()
+		jet.name = "MistJet%d"%i
+		jet.mesh = cone
+		jet.material_override = mist_paint
+		jet.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		jet.position = Vector3(cos(angle)*7.2,4.55-1.15,sin(angle)*7.2)
+		add_child(jet)
+		mist_jets.append(jet)
+	for i in range(4):
+		var lamp = OmniLight3D.new()
+		lamp.name = "GrowLamp%d"%i
+		lamp.position = Vector3(cos(PI/4+i*PI/2)*4.6,3.9,sin(PI/4+i*PI/2)*4.6)
+		lamp.light_color = Color("ff4fd8") if i%2 else Color("c25cff")
+		lamp.light_energy = 2.6
+		lamp.omni_range = 8.5
+		lamp.shadow_enabled = false
+		lamp.visible = false
+		add_child(lamp)
+		grow_lamps.append(lamp)
+
+func pose_mist(seconds: float) -> void:
+	for i in range(mist_jets.size()):
+		var phase := fposmod(seconds/MIST_SECONDS+i*.375,1.0)
+		var burst := 0.0 if game.reduced_motion else smoothstep(0.0,.12,phase)*(1.0-smoothstep(.35,.7,phase))
+		mist_jets[i].visible = burst>.01
+		mist_jets[i].scale = Vector3(.55+.45*burst,.4+.6*burst,.55+.45*burst)
+		mist_jets[i].position.y = 4.55-1.15*mist_jets[i].scale.y
+	mist_paint.albedo_color.a = .32
 
 func setup_market_ambience() -> void:
 	for mesh: MeshInstance3D in get_node("Architecture/street_neon").find_children("*","MeshInstance3D",true,false):
@@ -408,6 +480,18 @@ func set_destroy_lighting(active: bool) -> void:
 	if not belts.is_empty():
 		environment_override.ambient_light_energy = .43 if active else .83
 		game.sun.light_energy = .25 if active else sun_energy
+	if grow_lights:
+		grow_lights.visible = active
+		for lamp in grow_lamps:
+			lamp.visible = active
+		for jet in mist_jets:
+			jet.visible = false
+		environment_override.background_color = PALM_SUNSET_SKY if active else normal_sky
+		environment_override.ambient_light_color = Color("ffc6e4") if active else Color("e9f4ff")
+		environment_override.ambient_light_energy = .5 if active else .6
+		game.sun.light_color = Color("ffa45c") if active else sun_color
+		game.sun.light_energy = .42 if active else sun_energy
+		game.sun.rotation_degrees = Vector3(-16,-62,0) if active else sun_rotation_degrees
 	if is_instance_valid(dome):
 		deck_light.visible = active
 		star_chart.visible = active
@@ -438,6 +522,8 @@ func pose_frenzy(elapsed: float) -> void:
 		warning = airport_display.warning_lights(true,frenzy_seconds,game.reduced_motion)
 		var power_seconds: float = game.rules.elapsed-(game.rules.duration-game.rules.destroy_duration)
 		airport_power.pose(power_seconds,game.reduced_motion)
+	if mist_jets.size()>0:
+		pose_mist(game.rules.elapsed-(game.rules.duration-game.rules.destroy_duration))
 	if is_instance_valid(dome):
 		const SHUTTER_OPEN_SECONDS = 2.2
 		var phase_start: float = game.rules.duration-game.rules.destroy_duration
