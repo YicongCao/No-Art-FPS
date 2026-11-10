@@ -23,11 +23,11 @@ func _ready() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	assert(game.rules.deaths==0)
-	assert(game.health==150)
-	for frame in range(4):
+	assert(game.health==225)
+	for frame in range(6):
 		game.invulnerable = 0
 		game.damage_player()
-		assert(game.player.enabled and game.respawn_time==0,"Four standard hits are survivable")
+		assert(game.player.enabled and game.respawn_time==0,"Six standard hits are survivable")
 	game.invulnerable = 0
 	game.damage_player()
 	assert(game.rules.deaths==1 and game.respawn_time==2.0 and not game.player.enabled)
