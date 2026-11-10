@@ -370,6 +370,7 @@
       }catch{return '';}
     };
     const fingers=new Map(),ui=document.querySelector('#touch-ui'),knob=document.querySelector('#stick span');
+    const stick=document.querySelector('#stick');
     const aimButton=document.querySelector('#aim');
     window.noArtSetAim=active=>aimButton.setAttribute('aria-pressed',String(active));
     aimButton.onclick=e=>{if(e.detail===0)touch.aim=true;};
@@ -390,7 +391,15 @@
     }catch{}
     window.noArtHasControlInset=()=>window.noArtMobile&&innerWidth>=900&&innerHeight>=600&&innerWidth>=innerHeight;
     window.noArtGetControlInset=()=>window.noArtHasControlInset()?(savedControlInset??40):0;
-    function syncControlInset(){ui.style.setProperty('--control-inset',`${window.noArtGetControlInset()}px`);}
+    function syncTouchStick(){
+      if(!window.noArtMobile||document.body.dataset.game!=='RUNNING'||!window.noArtTouchStickChanged)return;
+      const bounds=stick.getBoundingClientRect();
+      if(bounds.width>0)window.noArtTouchStickChanged(bounds.left/innerWidth,bounds.top/innerHeight,bounds.width/innerWidth,bounds.height/innerHeight);
+    }
+    function syncControlInset(){
+      ui.style.setProperty('--control-inset',`${window.noArtGetControlInset()}px`);
+      syncTouchStick();
+    }
     window.noArtSetControlInset=value=>{
       if(!window.noArtHasControlInset()||!Number.isFinite(value))return;
       savedControlInset=boundedControlInset(value);
@@ -402,7 +411,7 @@
     document.body.classList.toggle('mobile',window.noArtMobile);syncScreenLayout();window.addEventListener('resize',()=>{clearTouch();syncScreenLayout();});window.addEventListener('orientationchange',()=>{clearTouch();syncScreenLayout();});screen.orientation?.addEventListener?.('change',()=>{clearTouch();syncScreenLayout();});
     document.addEventListener('visibilitychange',()=>{clearTouch();syncScreenLayout();if(document.hidden)pauseRequested=true;});window.addEventListener('blur',()=>{focused=false;clearTouch();if(document.body.dataset.game==='RUNNING')pauseRequested=true;syncGyro();});window.addEventListener('focus',()=>{focused=true;syncGyro();});
     window.noArtMode=mode=>{document.body.dataset.mode=mode;clearTouch();};
-    window.noArtState=state=>{document.body.dataset.game=state;window.noArtUpdateSky?.();clearTouch();hideImmersiveNote();immersiveAttempt++;if(state!=='RUNNING')pauseRequested=false;if(state==='RUNNING'||state==='LOADING')gyroSetup?.close(false);syncGyro();syncToolbarTip();};
+    window.noArtState=state=>{document.body.dataset.game=state;window.noArtUpdateSky?.();clearTouch();hideImmersiveNote();immersiveAttempt++;if(state!=='RUNNING')pauseRequested=false;if(state==='RUNNING'||state==='LOADING')gyroSetup?.close(false);syncGyro();syncToolbarTip();syncTouchStick();};
     window.noArtReadTouch=(alive=true)=>{
       syncGyro(alive);
       const motion=gyroSetup?.practicing?null:gyroSetup?.gyro.read();
@@ -414,7 +423,7 @@
     // iOS Safari can zoom on positioned buttons despite touch-action: none.
     ui.addEventListener('touchstart',e=>{if(e.cancelable)e.preventDefault();},{passive:false});
     ui.addEventListener('pointerdown',e=>{e.preventDefault();const action=e.target.closest('button')?.id;if(action==='grenade'&&grenadeButton.dataset.stock==='0')return;ui.setPointerCapture(e.pointerId);const kind=action||(e.clientX<innerWidth*.4?'move':'look');if([...fingers.values()].some(f=>f.kind===kind))return;fingers.set(e.pointerId,{kind,x:e.clientX,y:e.clientY});if(action){touch[action]=true;document.getElementById(action).classList.add('held');}});
-    ui.addEventListener('pointermove',e=>{const f=fingers.get(e.pointerId);if(!f)return;e.preventDefault();if(f.kind==='move'){const x=(e.clientX-f.x)/50,y=(e.clientY-f.y)/50,length=Math.max(1,Math.hypot(x,y));touch.x=x/length;touch.y=y/length;knob.style.transform=`translate(${touch.x*36}px,${touch.y*36}px)`;}else if(f.kind==='look'||f.kind==='fire'){touch.dx+=e.clientX-f.x;touch.dy+=e.clientY-f.y;f.x=e.clientX;f.y=e.clientY;}});
+    ui.addEventListener('pointermove',e=>{const f=fingers.get(e.pointerId);if(!f)return;e.preventDefault();if(f.kind==='move'){const x=(e.clientX-f.x)/50,y=(e.clientY-f.y)/50,length=Math.max(1,Math.hypot(x,y));touch.x=x/length;touch.y=y/length;knob.style.transform=`translate(${touch.x*36}px,${touch.y*36}px)`;}else if(f.kind==='look'||f.kind==='fire'||f.kind==='aim'){touch.dx+=e.clientX-f.x;touch.dy+=e.clientY-f.y;f.x=e.clientX;f.y=e.clientY;}});
     function release(e){const f=fingers.get(e.pointerId);if(!f)return;fingers.delete(e.pointerId);if(f.kind==='move'){touch.x=touch.y=0;knob.style.transform='';}if(f.kind==='fire')touch.fire=false;if(f.kind==='interact')touch.interact=false;document.getElementById(f.kind)?.classList.remove('held');}
     for(const event of ['pointerup','pointercancel','lostpointercapture'])ui.addEventListener(event,release);
     const immersiveNote=document.querySelector('#immersive-note');

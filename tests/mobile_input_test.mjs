@@ -99,9 +99,10 @@ for(const id of [8,9]){
 pointer('lostpointercapture',1,130,260);assert.equal(read().x,0);
 const aim=get('#aim');
 pointer('pointerdown',18,710,199,aim);
+pointer('pointermove',18,722,190);
 pointer('pointerdown',19,780,300,get('#fire'));
 pointer('pointermove',19,792,304);
-p=read();assert.equal(p.aim,true);assert.equal(p.fire,true);assert.equal(p.dx,12);
+p=read();assert.equal(p.aim,true);assert.equal(p.fire,true);assert.equal(p.dx,24);assert.equal(p.dy,-5);
 assert.equal(read().aim,false);
 pointer('pointerup',18,710,199);assert.equal(read().fire,true);
 pointer('pointerup',19,792,304);

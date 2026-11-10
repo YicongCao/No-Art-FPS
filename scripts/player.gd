@@ -7,6 +7,9 @@ const HIP_FOV = 63.0
 const AIM_ZOOM = 1.44
 const HIP_HALF_TAN = tan(deg_to_rad(HIP_FOV * .5))
 const AIM_GUN_ORIGIN = Vector3(0,-.31,-.86)
+# Raise the rear aperture and front post onto the mobile aim line.
+const TOUCH_AIM_RIFLE_ORIGIN = Vector3(0,-.20,-.86)
+const TOUCH_AIM_RIFLE_PITCH = .124
 const ComedyFX = preload("res://scripts/comedy_fx.gd")
 const Grenade = preload("res://scripts/grenade.gd")
 var camera: Camera3D
@@ -197,10 +200,13 @@ func _process(delta: float) -> void:
 	crosshair_offset = Vector2(sprint_sway.x*14,-sprint_sway.y*9)
 	camera.rotation.x = pitch+recoil*.018
 	var aim_pose := smoothstep(0.0,1.0,aim_blend)
-	gun.position = gun_origin.lerp(AIM_GUN_ORIGIN,aim_pose)
+	var align_rifle_sights: bool = game and game.touch_mode and weapon_mode.is_empty()
+	var aim_origin := TOUCH_AIM_RIFLE_ORIGIN if align_rifle_sights else AIM_GUN_ORIGIN
+	gun.position = gun_origin.lerp(aim_origin,aim_pose)
 	gun.position += Vector3(stride.x*.008,stride.y*.007,0)*movement*lerpf(1.0,.24,aim_pose)
 	gun.position += Vector3(sprint_sway.x*.046,sprint_sway.y*.025,recoil*.06)
 	gun.rotation.x = recoil*.04+sprint_sway.y*.035
+	if align_rifle_sights:gun.rotation.x += TOUCH_AIM_RIFLE_PITCH*aim_pose
 	gun.rotation.z = -sprint_sway.x*.10
 	if game and game.reload_time>0:
 		var reload_phase = sin((1-game.reload_time/game.RELOAD_DURATION)*PI)

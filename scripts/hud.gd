@@ -91,6 +91,8 @@ var title_frame: ImageTexture
 var title_previews: Dictionary = {}
 var title_gutter_ratios = Vector4.ZERO
 var web_title_layout_callback: JavaScriptObject
+var web_touch_stick_callback: JavaScriptObject
+var touch_stick_ratios := Rect2()
 var web_comedy_callback: JavaScriptObject
 var results_frame: ImageTexture
 var results_frame_pending = false
@@ -154,7 +156,23 @@ func magazine_rect(seating: bool = true) -> Rect2:
 	var extent = Vector2(420,92)*MAGAZINE_SCALE
 	if game.touch_mode:
 		extent *= .72
-		return Rect2(Vector2((size.x-extent.x)*.5,size.y-extent.y-28+dip*.72),extent)
+		var hip := Rect2(Vector2((size.x-extent.x)*.5,size.y-extent.y-28),extent)
+		var aim := smoothstep(0.0,1.0,game.player.aim_blend)
+		if aim<=0.0:return Rect2(hip.position+Vector2(0,dip*.72),extent)
+		var stick := Rect2(touch_stick_ratios.position*size,touch_stick_ratios.size*size)
+		var right := size.x*.5-100.0
+		var available := right-stick.end.x-14.0
+		var aim_rect := hip
+		if available>=extent.x*.60:
+			aim_rect.size *= minf(1.0,available/extent.x)
+			aim_rect.position = Vector2(right-aim_rect.size.x,size.y-aim_rect.size.y-28)
+		else:
+			var left := clampf(stick.get_center().x-extent.x*.5,12.0,maxf(12.0,right-extent.x))
+			aim_rect.position = Vector2(left,stick.position.y-extent.y-16.0)
+		var position := hip.position.lerp(aim_rect.position,aim)
+		var shown_extent := extent.lerp(aim_rect.size,aim)
+		position.y += dip*.72*shown_extent.x/extent.x
+		return Rect2(position,shown_extent)
 	return Rect2(size-Vector2(28,32)-extent+Vector2(0,dip*MAGAZINE_SCALE),extent)
 
 func cartridge_rect(index: int) -> Rect2:
@@ -380,6 +398,9 @@ func _ready() -> void:
 		web_title_layout_callback = JavaScriptBridge.create_callback(update_web_title_layout)
 		var browser = JavaScriptBridge.get_interface("window")
 		browser.noArtTitleLayoutChanged = web_title_layout_callback
+		web_touch_stick_callback = JavaScriptBridge.create_callback(func(args):
+			touch_stick_ratios = Rect2(float(args[0]),float(args[1]),float(args[2]),float(args[3])))
+		browser.noArtTouchStickChanged = web_touch_stick_callback
 		web_comedy_callback = JavaScriptBridge.create_callback(func(args):
 			if args.size()==1 and str(args[0]) in ["comedy","roach"]:game.menu_action(str(args[0])))
 		browser.noArtToggleComedy = web_comedy_callback
