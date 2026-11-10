@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="SessionDefinition" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="SessionDefinition" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/modes/session_definition.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/maps/palm_house.tscn" id="2"]
 [ext_resource type="Script" path="res://scripts/run_rules.gd" id="3"]
+[ext_resource type="AudioStream" path="res://assets/music/palm_house.ogg" id="4_music"]
 
 [resource]
 script = ExtResource("1")
@@ -10,3 +11,4 @@ session_id = "palm_house"
 display_name = "Palm House"
 map_scene = ExtResource("2")
 rules_script = ExtResource("3")
+round_music = ExtResource("4_music")

@@ -51,3 +51,7 @@
 **工具场 · 狂暴**
 
 > FRENZY phase at sunset. Eye-height from the west watering and tool yard on the outer sand ring path, looking east-northeast at the octagonal glasshouse. Inside, grow lights switched to vivid magenta and violet glowing through the panes; pulsing jets of white misting spray burst from the rib pipes into angular stylized mist puffs. One wooden seedling rack in the foreground shot apart, scattering terracotta shards, soil clods, seedlings and plant labels; one adjacent pair of low glass wall panes shattered, opening a short shortcut into the interior. Warm orange low sun, long blue shadows on the sand. Effects local and passage readable; the scene is not uniformly dark.
+
+## 配乐
+
+原创 60 秒配乐，128 BPM。马林巴主旋律、卡林巴琶音和指弹贝斯，配轻量桑巴手鼓。第 24 小节（45 秒）进入狂暴变奏，钢鼓加入，琶音和沙锤加倍。由 [build_palm_music.py](../../../tools/build_palm_music.py) 输出可编辑 MIDI 和 Ogg：`cd tools && python3 build_palm_music.py`。
