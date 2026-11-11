@@ -7,7 +7,7 @@ const StudioSession = preload("res://data/sessions/night_studio.tres")
 const SandgateSession = preload("res://data/sessions/sandgate.tres")
 const OfficeSession = preload("res://data/sessions/bb_office.tres")
 const HogwartsSession = preload("res://data/sessions/hogwarts.tres")
-const CARDS = ["MapYard","MapPark","MapFerry","MapStudio","MapSandgate","MapOffice","MapRainMarket","MapBaggage","MapSnowline"]
+const CARDS = ["MapYard","MapPark","MapFerry","MapStudio","MapSandgate","MapOffice","MapRainMarket","MapGinza","MapSnowline"]
 var game: Node3D
 
 func _initialize() -> void:

@@ -982,11 +982,11 @@ func rebuild_menu() -> void:
 			["MapSandgate",tr("Sandgate"),"sandgate",SANDGATE_THUMBNAIL,"sandgate"],
 			["MapOffice",tr("BB Office"),"bb_office",OFFICE_THUMBNAIL,"bb_office"],
 			["MapRainMarket",tr("Hong Kong Rain Market"),"rain_market",RAIN_THUMBNAIL,"rain_market"],
-			["MapBaggage",tr("Baggage Below"),"baggage_below",BAGGAGE_THUMBNAIL,"baggage_below"],
+			["MapGinza",tr("Ginza Station"),"ginza_station",GINZA_THUMBNAIL,"ginza_station"],
 			["MapSnowline",tr("Snowline Observatory"),"snowline",SNOWLINE_THUMBNAIL,"snowline"],
 			["MapHogwarts",tr("Hogwarts"),"hogwarts",HOGWARTS_THUMBNAIL,"hogwarts"],
 			["MapPalmHouse",tr("Palm House"),"palm_house",PALM_THUMBNAIL,"palm_house"],
-			["MapGinza",tr("Ginza Station"),"ginza_station",GINZA_THUMBNAIL,"ginza_station"],
+			["MapBaggage",tr("Baggage Below"),"baggage_below",BAGGAGE_THUMBNAIL,"baggage_below"],
 		]
 		var tab_order = [fire_button]
 		for i in range(maps.size()):
