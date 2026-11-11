@@ -46,7 +46,6 @@ const RESTART_ICON = preload("res://assets/ui/settings/restart.svg")
 const PAUSE_HOME_ICON = preload("res://assets/ui/settings/home.svg")
 const SLIDER_GRIP = preload("res://assets/ui/settings/grip.svg")
 const MEDAL_ICON = preload("res://assets/ui/maps/best-medal.svg")
-const DIFFICULTY_ICON = preload("res://assets/ui/maps/difficulty.svg")
 const DIFFICULTY_STAR = preload("res://assets/ui/maps/difficulty-star.svg")
 const DIFFICULTY_STAR_EMPTY = preload("res://assets/ui/maps/difficulty-star-empty.svg")
 const GRENADE_ICONS = {
@@ -661,10 +660,10 @@ func map_difficulty(card: Button, difficulty: int) -> void:
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_theme_constant_override("separation",2)
 	badge.add_child(row)
-	for i in range(6):
+	for i in range(5):
 		var icon = TextureRect.new()
-		icon.texture = DIFFICULTY_ICON if i==0 else (DIFFICULTY_STAR if i<=difficulty else DIFFICULTY_STAR_EMPTY)
-		icon.custom_minimum_size = Vector2(28,28) if i==0 else Vector2(18,28)
+		icon.texture = DIFFICULTY_STAR if i<difficulty else DIFFICULTY_STAR_EMPTY
+		icon.custom_minimum_size = Vector2(18,28)
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
