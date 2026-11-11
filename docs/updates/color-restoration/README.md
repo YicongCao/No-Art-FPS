@@ -36,3 +36,15 @@ Web：使用本机硬件 Chrome/WebGL2、1280 × 720，独立运行浏览器测�
 新增海报纹理的原始生成图与导入设置位于 `assets/art/office_posters/`；游戏导入最大边长 1024，保留 mipmaps。没有恢复已删除的游乐场实验贴图路径。
 
 11 图 Web 开局检查通过；训练场、渡轮、办公室、行李层各完成 60 秒射击/换弹回合并进入 RESULTS，无脚本或 WebGL 错误。其余七图为短时冒烟检查。
+
+## 发布与线上验证
+
+已发布 `20261111-v9`，游戏源码为 `6b607662bce63e94443003a0afb8e5363c23dd05`，从干净的 `origin/main` 快照构建。
+
+- [正式站点](https://fps.yicong.me/)；上一版 `20261111-v8` 保留用于回滚。
+- [GitHub Pages](https://yicongcao.github.io/No-Art-FPS/)；[发布任务](https://github.com/YicongCao/No-Art-FPS/actions/runs/43009713120)成功。
+- Pages 的 23 个公开文件哈希验证通过；自定义域名的 22 个外壳文件与 4 个 CDN 文件验证通过，健康检查正常。
+- 线上 Pages 训练场、自定义域名办公室与温室触屏模拟均进入 RUNNING，没有捕获到脚本或 WebGL 错误。触屏模拟不代表实体手机验证。
+- 线上短时检查仅证明加载和开局；不纳入独立采样的性能基线。原始浏览器报告的 note 是脚本通用说明，实际访问地址以各报告 url 为准。
+
+发布记录见 [release.json](release.json)，资源证据见 [Pages](pages-http.json) 与 [自定义域名](custom-domain-http.json)。本轮没有做性能专项优化，也未进行人工手感验收。

@@ -50,3 +50,11 @@
 | baggage_below | 16.70 / 16.80 / 16.80 | 249.90 | 8 / 3 | RESULTS |
 
 原始 `web-local/<map>/web.json` 保存逐帧时间序列（elapsedMs / intervalMs / state）。样本中包含一次狂热截图，最大间隔可能含截图开销，不能直接归因于游戏渲染。RAF 接近 16.7 ms 只说明此次浏览器调度表现，不能据此推断剩余 GPU 预算。
+
+## 复现环境与入口
+
+- macOS 27.0.1，Apple M5；Google Chrome 157.0.8103.40；Godot 4.7.2。
+- 原生入口 `tools/maps/capture_visual_performance.gd`，环境变量 `PERF_SECONDS=15`；`PERF_MAPS` 为逗号分隔地图 ID，留空则采集 11 图；`PERF_OUTPUT` 指定 JSON 文件。
+- 狂热设置 `PERF_FRENZY=1 PERF_SECONDS=8`，本轮选取渡轮、摄影棚、办公室、行李层、温室、银座站。
+- Web 入口 `tools/browser/check_rain_market.cjs`，`SAMPLE_SECONDS=60 PERF_TRACE=1 MAP_ID=<地图 ID>`，参数为 URL 和输出目录；需要可用的 Playwright 与 Chrome。
+- 测试渲染进程串行执行；没有控制所有其他桌面应用，属于开发机基线。原生与 Web 的负载路线不同，不能把两组帧间隔直接相减推导平台开销。

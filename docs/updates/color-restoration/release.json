@@ -1,0 +1,37 @@
+{
+  "release": "20261111-v9",
+  "previous_release": "20261111-v8",
+  "source_commit": "6b607662bce63e94443003a0afb8e5363c23dd05",
+  "snapshot_dirty": [],
+  "pages_action": "https://github.com/YicongCao/No-Art-FPS/actions/runs/43009713120",
+  "native_maps": 11,
+  "web_maps": 11,
+  "native_frenzy_performance_maps": 6,
+  "web_full_rounds": 4,
+  "live_browser": [
+    {
+      "check": "fps-office",
+      "url": "https://fps.yicong.me/",
+      "mode": "desktop",
+      "state": "RUNNING",
+      "errors": [],
+      "evidence": "web-live/fps-office/web.json"
+    },
+    {
+      "check": "fps-touch",
+      "url": "https://fps.yicong.me/",
+      "mode": "touch",
+      "state": "RUNNING",
+      "errors": [],
+      "evidence": "web-live/fps-touch/web.json"
+    },
+    {
+      "check": "pages-yard",
+      "url": "https://yicongcao.github.io/No-Art-FPS/",
+      "mode": "desktop",
+      "state": "RUNNING",
+      "errors": [],
+      "evidence": "web-live/pages-yard/web.json"
+    }
+  ]
+}
