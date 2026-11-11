@@ -33,7 +33,6 @@ const BADGE_ANCHORS = [
 ]
 const EXTRA_BADGE_ANCHORS = [Vector2(.15,-.08),Vector2(.53,-.30),Vector2(1.50,-.12),Vector2(.14,-.10)]
 const BADGE_TOAST_DURATION = 1.8
-const MAP_HOLD_MS = 540
 const PAUSE_ICON = preload("res://assets/ui/settings/pause.svg")
 const AIM_ICON = preload("res://assets/ui/settings/aim.svg")
 const MOTION_ICON = preload("res://assets/ui/settings/motion.svg")
@@ -115,9 +114,6 @@ var map_touch_index := -1
 var map_touch_origin := Vector2.ZERO
 var map_touch_scroll := 0
 var map_touch_dragged := false
-var map_touch_started_at := 0
-var map_touch_opened_options := false
-var park_options: PanelContainer
 const TOP_HUD_SCALE = 1.5
 const TITLE_SHADE_OPACITY = .55
 const FIRE_PURPLE = Color("754c87")
@@ -497,8 +493,6 @@ func _process(delta: float) -> void:
 	shot = maxf(0,shot-delta)
 	if game and (menu_state != game.state or menu_size != size):
 		rebuild_menu()
-	if menu_state=="TITLE":
-		update_map_hold()
 	if is_instance_valid(fire_progress):
 		fire_progress.value = game.map_switch_progress
 	if game and game.state == "PAUSED":
@@ -735,7 +729,6 @@ func title_badges(gutters: Vector4) -> void:
 			update_badge_detail())
 
 func _input(event: InputEvent) -> void:
-	if menu_state=="TITLE" and handle_park_options(event):return
 	if menu_state=="TITLE" and handle_map_touch(event):return
 	if menu_state!="TITLE" or not is_instance_valid(selected_badge):return
 	var pointer_down = (event is InputEventScreenTouch and event.pressed) or (
@@ -746,72 +739,9 @@ func _input(event: InputEvent) -> void:
 	selected_badge = null
 	update_badge_detail()
 
-func park_card_at(point: Vector2) -> bool:
-	if not is_instance_valid(map_scroll) or not map_scroll.get_global_rect().has_point(point):return false
-	var card := map_grid.get_node("MapPark") as Control
-	return card.get_global_rect().has_point(point)
-
-func handle_park_options(event: InputEvent) -> bool:
-	if event is InputEventMouseButton and event.pressed and event.button_index==MOUSE_BUTTON_RIGHT:
-		if not game.switching_session and park_card_at(event.position):
-			if game.park_experiment_unlocked:open_park_options(event.position)
-			get_viewport().set_input_as_handled()
-			return true
-	if not is_instance_valid(park_options):return false
-	if event.is_action_pressed("pause"):
-		close_park_options()
-		get_viewport().set_input_as_handled()
-		return true
-	var pointer_down = (event is InputEventScreenTouch and event.pressed) or (
-		event is InputEventMouseButton and event.pressed and event.button_index==MOUSE_BUTTON_LEFT)
-	if pointer_down and not park_options.get_global_rect().has_point(event.position):
-		close_park_options()
-	return false
-
-func update_map_hold() -> void:
-	if not game.park_experiment_unlocked or map_touch_index<0 or map_touch_dragged or map_touch_opened_options or game.switching_session:return
-	if Time.get_ticks_msec()-map_touch_started_at>=MAP_HOLD_MS and park_card_at(map_touch_origin):
-		map_touch_opened_options = true
-		open_park_options(map_touch_origin)
-
-func open_park_options(point: Vector2) -> void:
-	close_park_options()
-	park_options = PanelContainer.new()
-	park_options.name = "ParkTextureOptions"
-	var backing := StyleBoxFlat.new()
-	backing.bg_color = Color("1b2937")
-	backing.border_color = GOLD
-	backing.set_border_width_all(1)
-	backing.set_corner_radius_all(7)
-	for side in [SIDE_LEFT,SIDE_TOP,SIDE_RIGHT,SIDE_BOTTOM]:backing.set_content_margin(side,10)
-	park_options.add_theme_stylebox_override("panel",backing)
-	var toggle := CheckButton.new()
-	toggle.name = "ExperimentalTextures"
-	toggle.text = tr("Experimental textures")
-	toggle.add_theme_font_override("font",font)
-	toggle.add_theme_font_size_override("font_size",26)
-	toggle.custom_minimum_size = Vector2(232,40)
-	toggle.set_pressed_no_signal(game.park_experimental_textures)
-	toggle.toggled.connect(func(enabled: bool):
-		game.set_park_experimental_textures(enabled)
-		toggle.set_pressed_no_signal(game.park_experimental_textures))
-	park_options.add_child(toggle)
-	menu.add_child(park_options)
-	park_options.reset_size()
-	var bounds := park_options.get_combined_minimum_size()
-	park_options.position = (point+Vector2(8,12)).clamp(Vector2.ONE*8,(size-bounds-Vector2.ONE*8).max(Vector2.ONE*8))
-
-func close_park_options() -> void:
-	if not is_instance_valid(park_options):return
-	menu.remove_child(park_options)
-	park_options.queue_free()
-	park_options = null
-
 func handle_map_touch(event: InputEvent) -> bool:
 	if not game.touch_mode or not is_instance_valid(map_scroll):return false
 	var visible_grid := map_scroll.get_global_rect()
-	if is_instance_valid(park_options) and (event is InputEventScreenTouch or event is InputEventMouseButton):
-		if park_options.get_global_rect().has_point(event.position) and map_touch_index<0:return false
 	if (event is InputEventMouseButton and event.device==InputEvent.DEVICE_ID_EMULATION
 			and event.button_index==MOUSE_BUTTON_LEFT and visible_grid.has_point(event.position)):
 		get_viewport().set_input_as_handled()
@@ -822,12 +752,9 @@ func handle_map_touch(event: InputEvent) -> bool:
 			map_touch_origin = event.position
 			map_touch_scroll = map_scroll.scroll_vertical
 			map_touch_dragged = false
-			map_touch_started_at = Time.get_ticks_msec()
-			map_touch_opened_options = false
 		elif not event.pressed and event.index==map_touch_index:
-			if not event.canceled:update_map_hold()
 			map_touch_index = -1
-			var tapped := Time.get_ticks_msec()-map_touch_started_at<MAP_HOLD_MS and not map_touch_dragged
+			var tapped := not map_touch_dragged
 			if not event.canceled and tapped and visible_grid.has_point(event.position):
 				for card: Button in map_grid.get_children():
 					if not card.disabled and card.get_global_rect().has_point(event.position):
@@ -840,7 +767,7 @@ func handle_map_touch(event: InputEvent) -> bool:
 	elif event is InputEventScreenDrag and event.index==map_touch_index:
 		var offset: Vector2 = event.position-map_touch_origin
 		if offset.length()>=12.0:map_touch_dragged = true
-		if map_touch_dragged and not map_touch_opened_options:
+		if map_touch_dragged:
 			map_scroll.scroll_vertical = map_touch_scroll-roundi(offset.y)
 	else:return false
 	get_viewport().set_input_as_handled()
@@ -921,7 +848,6 @@ func results_badges(center: Vector2) -> void:
 
 func rebuild_menu() -> void:
 	map_touch_index = -1
-	park_options = null
 	if is_instance_valid(map_scroll):
 		map_scroll_offset = map_scroll.scroll_vertical
 	map_scroll = null
