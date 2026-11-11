@@ -8,6 +8,8 @@ uniform int kind = 0; // 1 metal, 2 masonry, 3 wood, 4 textile, 5 foliage, 6 sno
 uniform bool use_vertex_color = false;
 uniform bool roof_pattern = false;
 uniform float daylight = 1.0;
+uniform float floor_height = 0.0;
+uniform float wall_gradient = 0.14;
 varying vec3 world;
 varying vec3 world_normal;
 void vertex(){world=(MODEL_MATRIX*vec4(VERTEX,1.0)).xyz;world_normal=normalize(MODEL_NORMAL_MATRIX*NORMAL);}
@@ -27,6 +29,9 @@ void fragment(){
  if(kind==7){vec2 grid=abs(fract(world.xz/1.5)-.5);float seam=smoothstep(.478,.496,max(grid.x,grid.y));c*=1.0-seam*.16;}
  if(roof_pattern&&world_normal.y>.65&&length(world.xz)<9.5){vec2 grid=abs(fract((world.xz+vec2(world.y*.45,world.y*.2))/3.0)-.5);float beam=smoothstep(.42,.47,max(grid.x,grid.y));c*=mix(1.0,.69,beam*daylight);}
  if(kind==8){float wave=sin(world.z*2.0+sin(world.x*.3)+TIME*.6);c=mix(c,vec3(.24,.29,.4),.3+.12*wave);}
+ float wall=1.0-abs(world_normal.y);
+ c*=mix(1.0-wall_gradient*wall,1.0,smoothstep(0.0,3.2,world.y-floor_height));
+ c*=mix(vec3(1.0),vec3(.90,.94,1.02),smoothstep(.3,.9,-world_normal.y));
  ALBEDO=c;
  ROUGHNESS=clamp(roughness_value+(n-.5)*.14,.12,1.0);
  METALLIC=metallic_value;

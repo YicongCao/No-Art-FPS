@@ -266,5 +266,6 @@ func set_map_outline(map_id: String) -> void:
 	var profile: Array = preload("res://scripts/maps/map_lookdev.gd").PROFILES.get(map_id,[.88,.7])
 	if map_id=="rain_market":profile=[.34,.08]
 	var paint := outline.material_override as ShaderMaterial
-	paint.set_shader_parameter("color_edge_strength",profile[1])
-	paint.set_shader_parameter("ink_strength",profile[0])
+	# Toy look: geometry silhouettes only; colour boundaries stay clean paint.
+	paint.set_shader_parameter("color_edge_strength",0.0)
+	paint.set_shader_parameter("ink_strength",profile[0]*.8)

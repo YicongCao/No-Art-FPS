@@ -1,6 +1,7 @@
 extends Node3D
 ## Map-owned materials and fixture receivers. Gameplay geometry remains untouched.
 const SURFACE = preload("res://assets/shaders/map_surface.gdshader")
+const PAINT = preload("res://assets/shaders/toy_paint.gdshader")
 const SPILL = preload("res://assets/shaders/fixture_spill.gdshader")
 const DETAIL = preload("res://assets/textures/rain_market/surface_noise.png")
 const PROFILES = {
@@ -111,15 +112,26 @@ func configure_materials() -> void:
     # Colored coatings stay dielectric, including white greenhouse frames.
     if original.resource_name=="gold" and arena.map_id=="amusement_park":kind=0
     if arena.map_id=="night_studio" and "curtain" in context:kind=4
-    if original.emission_enabled or original.albedo_texture or canopy_bulb or kind==0:
+    if original.emission_enabled or original.albedo_texture or canopy_bulb:
      var copy := original.duplicate() as StandardMaterial3D
      if canopy_bulb:
       copy.emission_enabled=true;copy.emission=Color("ffd18a");copy.emission_energy_multiplier=1.2
      elif copy.emission_enabled:copy.emission_energy_multiplier *= 1.35
      cache[key] = copy
+    elif kind==0:
+     # Plain coatings keep the authored colour, roughness and metallic exactly.
+     var coat := ShaderMaterial.new()
+     coat.shader = surface_shader(original.cull_mode,PAINT)
+     coat.set_shader_parameter("base_color",original.albedo_color)
+     coat.set_shader_parameter("use_vertex_color",original.vertex_color_use_as_albedo)
+     coat.set_shader_parameter("roughness_value",original.roughness)
+     coat.set_shader_parameter("metallic_value",original.metallic)
+     coat.set_shader_parameter("specular_value",original.metallic_specular)
+     coat.set_shader_parameter("floor_height",arena.global_position.y)
+     cache[key] = coat
     else:
      var material := ShaderMaterial.new()
-     material.shader = surface_shader(original.cull_mode)
+     material.shader = surface_shader(original.cull_mode,SURFACE)
      var roughness := .64
      var metallic := 0.0
      match kind:
@@ -141,19 +153,21 @@ func configure_materials() -> void:
      material.set_shader_parameter("roughness_value",roughness)
      material.set_shader_parameter("metallic_value",metallic)
      material.set_shader_parameter("roof_pattern",arena.map_id=="palm_house" and original.resource_name in ["paving","paving_dark","stone","gravel"])
+     material.set_shader_parameter("floor_height",arena.global_position.y)
      cache[key] = material
    if index==-1:mesh.material_override=cache[key]
    else:mesh.set_surface_override_material(index,cache[key])
 
-func surface_shader(cull: int) -> Shader:
- if not surface_shaders.has(cull):
-  if cull==BaseMaterial3D.CULL_BACK:surface_shaders[cull]=SURFACE
+func surface_shader(cull: int, base: Shader) -> Shader:
+ var key := str(base.get_instance_id())+":"+str(cull)
+ if not surface_shaders.has(key):
+  if cull==BaseMaterial3D.CULL_BACK:surface_shaders[key]=base
   else:
    var shader := Shader.new()
    var mode := "cull_disabled" if cull==BaseMaterial3D.CULL_DISABLED else "cull_front"
-   shader.code=SURFACE.code.replace("render_mode diffuse_burley,", "render_mode "+mode+", diffuse_burley,")
-   surface_shaders[cull]=shader
- return surface_shaders[cull]
+   shader.code=base.code.replace("render_mode diffuse_burley,", "render_mode "+mode+", diffuse_burley,")
+   surface_shaders[key]=shader
+ return surface_shaders[key]
 
 # Extract separate fixture boxes from their original mesh, before material names are replaced.
 # Spatial clustering joins duplicated triangle vertices but never merges different lamps.

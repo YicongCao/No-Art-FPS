@@ -25,9 +25,9 @@ func run() -> void:
     if original.cull_mode==BaseMaterial3D.CULL_DISABLED and active is ShaderMaterial and active.shader.code.contains("uniform float metallic_value"):
      assert(active.shader.code.contains("cull_disabled"));double_faces+=1
     if id=="palm_house" and original.resource_name=="frame":
-     assert(active is StandardMaterial3D)
-     assert(active.albedo_color.is_equal_approx(original.albedo_color))
-     assert(is_equal_approx(active.metallic,original.metallic));white_frames+=1
+     assert(active is ShaderMaterial and active.shader.code.contains("Faithful painted coating"))
+     assert(active.get_shader_parameter("base_color").is_equal_approx(original.albedo_color))
+     assert(is_equal_approx(active.get_shader_parameter("metallic_value"),original.metallic));white_frames+=1
   if id=="hogwarts":assert(double_faces>0)
   if id=="palm_house":assert(white_frames>0)
   if id=="night_studio":assert(arena.get_node("StageKeySoftbox/Key").light_energy>0)
