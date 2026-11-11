@@ -4,6 +4,8 @@ render_mode unshaded, fog_disabled, cull_disabled, depth_draw_never, depth_test_
 uniform sampler2D scene_color : hint_screen_texture, repeat_disable, filter_nearest;
 uniform sampler2D scene_depth : hint_depth_texture, repeat_disable, filter_nearest;
 uniform float width_pixels : hint_range(0.5, 3.0) = 1.15;
+uniform float color_edge_strength = 0.7;
+uniform float ink_strength = 0.88;
 uniform vec3 ink : source_color = vec3(0.075, 0.10, 0.14);
 
 void vertex() {
@@ -38,7 +40,7 @@ void fragment() {
         geometry_edge = max(geometry_edge, abs(center_depth-adjacent) / max(0.25,min(center_depth,adjacent)));
         color_edge = max(color_edge, length(base-texture(scene_color,uv).rgb));
     }
-    float edge = max(smoothstep(0.035,0.11,geometry_edge),smoothstep(0.22,0.42,color_edge)*0.7);
-    ALBEDO = mix(base,ink,edge*0.88);
+    float edge = max(smoothstep(0.035,0.11,geometry_edge),smoothstep(0.22,0.42,color_edge)*color_edge_strength);
+    ALBEDO = mix(base,ink,edge*ink_strength);
     ALPHA = 1.0;
 }

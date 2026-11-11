@@ -349,6 +349,7 @@ func apply_map_lighting() -> void:
 	sun.light_color = arena.sun_color
 	sun.light_energy = arena.sun_energy
 	sun.shadow_bias = arena.sun_shadow_bias
+	if is_instance_valid(player):player.set_map_outline(arena.map_id=="rain_market")
 
 func set_destroy_active(active: bool) -> void:
 	if destroy_active==active:return

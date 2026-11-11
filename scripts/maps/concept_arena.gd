@@ -1,5 +1,6 @@
 extends "res://scripts/arena.gd"
 
+const MarketLookdev = preload("res://scripts/maps/market_lookdev.gd")
 const Sweep = preload("res://scripts/maps/sweeping_light.gd")
 const AirportDisplay = preload("res://scripts/maps/airport_display.gd")
 const AirportPower = preload("res://scripts/maps/airport_power.gd")
@@ -49,6 +50,7 @@ var frenzy_lights: Array[SpotLight3D] = []
 var frenzy_origins: Array[Vector3] = []
 var frenzy_targets: Array[Vector3] = []
 var frenzy_motion: Array[Vector3] = []
+var market_lookdev: Node3D
 var airport_display: AirportDisplay
 var airport_power: AirportPower
 var belts: Array[StaticBody3D] = []
@@ -207,6 +209,10 @@ func _ready() -> void:
 		airport_power.game = game
 		add_child(airport_power)
 		airport_power.setup(airport_layout)
+	if map_id=="rain_market":
+		market_lookdev = MarketLookdev.new()
+		add_child(market_lookdev)
+		market_lookdev.setup(self)
 	set_destroy_lighting(false)
 
 func add_mist_jets() -> void:
@@ -310,6 +316,7 @@ func add_wet_film(x: float, width: float, rear: float, front: float, high_y: flo
 	var film = horizontal_effect(Vector2(width,Vector2(length,drop).length()),
 		Vector3(x,(high_y+low_y)*.5+.028,(front+rear)*.5),puddles)
 	film.rotation.x = atan2(drop,length)
+	film.add_to_group("market_wet_film")
 
 func add_awnings() -> void:
 	awning_paint = ShaderMaterial.new()

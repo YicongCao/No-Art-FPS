@@ -24,6 +24,7 @@ func check() -> void:
 	game.set_physics_process(false)
 	game.player.set_process_unhandled_input(false)
 	for id in game.CONCEPT_SESSIONS:
+		if not OS.get_cmdline_user_args().is_empty() and id not in OS.get_cmdline_user_args():continue
 		await game.select_session(game.CONCEPT_SESSIONS[id],id)
 		assert(game.arena.map_id==id and game.nav_ready and game.arena.validate_navigation())
 		assert(game.score_record_key()=="score_%s_v1"%id)

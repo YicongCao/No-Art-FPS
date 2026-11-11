@@ -9,7 +9,7 @@ const fs=require('node:fs');const path=require('node:path');const assert=require
  const context=await browser.newContext({viewport:mobile?{width:844,height:390}:{width:1280,height:720},deviceScaleFactor:1,hasTouch:mobile,isMobile:mobile});
  await context.addInitScript(()=>{localStorage.setItem('no-art-fps.title.v1',JSON.stringify({id:'rain_market'}));});
  const page=await context.newPage();const errors=[];const logs=[];
- page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{const t=m.text();if(m.type()==='error'||/SCRIPT ERROR|Shader.*error|ERROR:/.test(t))errors.push(t);if(/Godot Engine|WebGL/.test(t))logs.push(t)});
+ page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{const t=m.text();if(m.type()==='error'||/SCRIPT ERROR|Shader.*error|ERROR:|GL_INVALID_|WebGL.*CONTEXT_LOST/.test(t))errors.push(t);if(/Godot Engine|WebGL/.test(t))logs.push(t)});
  const start=Date.now();await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});await page.locator('#loading').waitFor({state:'hidden',timeout:120000});
  const loadMs=Date.now()-start;
  if(mobile && await page.locator('#gyro-panel').isVisible())await page.locator('[data-gyro-touch]:visible').first().tap();
@@ -20,7 +20,7 @@ const fs=require('node:fs');const path=require('node:path');const assert=require
  await page.waitForFunction(()=>['RUNNING','CAPTURING'].includes(document.body.dataset.game),null,{timeout:45000});
  if(await page.evaluate(()=>document.body.dataset.game==='CAPTURING'))await press(mobile?422:640,mobile?195:360);
  await page.waitForFunction(()=>document.body.dataset.game==='RUNNING');
- await page.waitForTimeout(1500);await page.screenshot({path:path.join(out,'gameplay.png')});
+ await page.waitForTimeout(250);await page.screenshot({path:path.join(out,'gameplay.png')});await page.waitForTimeout(1250);
  // A real running round with a stationary viewpoint, firing and reloading.
  if(!mobile)await page.mouse.down();
  const samplePromise=page.evaluate(seconds=>new Promise(resolve=>{const a=[];let last=performance.now();const begin=last;function tick(t){a.push(t-last);last=t;if(t-begin<seconds*1000)requestAnimationFrame(tick);else{a.shift();a.sort((x,y)=>x-y);const c=document.querySelector('#canvas');resolve({seconds:(t-begin)/1000,frames:a.length,meanMs:a.reduce((s,v)=>s+v,0)/a.length,p50Ms:a[a.length>>1],p95Ms:a[Math.floor(a.length*.95)],p99Ms:a[Math.floor(a.length*.99)],maxMs:a.at(-1),canvas:[c.width,c.height],state:document.body.dataset.game,heapBytes:performance.memory?.usedJSHeapSize})}}requestAnimationFrame(tick)}),duration);
