@@ -83,6 +83,7 @@ func apply_state(active: bool) -> void:
    if entry.has("light"):entry.light.visible=not active
  for material in cache.values():
   if material is ShaderMaterial:material.set_shader_parameter("daylight",0.0 if active else 1.0)
+ preload("res://scripts/maps/toy_look.gd").apply(env)
 
 func classify(label: String) -> int:
  if label in ["metal","steel","iron","galvanized","copper","bronze","brass","gold","rail","duct_joint"]:return 1

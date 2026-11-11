@@ -71,6 +71,7 @@ func configure_lighting() -> void:
 	env.fog_light_energy = .65
 	env.fog_density = .0015
 	env.fog_sky_affect = .12
+	preload("res://scripts/maps/toy_look.gd").apply(env)
 	for light in arena.find_children("*","SpotLight3D",true,false):
 		if light in arena.frenzy_lights:continue
 		light.light_color = Color("ffd08c")
