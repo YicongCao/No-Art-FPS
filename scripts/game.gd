@@ -671,7 +671,7 @@ func prepare_loaded_run(ticket: int) -> void:
 		push_error("Navigation unavailable; returned to title")
 		return
 	loading.report(.2)
-	var path = "res://assets/models/enemy.glb"
+	var path = "res://assets/models/toy/enemy.glb"
 	if OS.has_feature("web"):
 		# The opening frame already cached this scene. Single-thread Web builds
 		# must not depend on a worker thread to prepare it again.

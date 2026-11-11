@@ -25,6 +25,11 @@ PAINT = {
     'toy_glove': ('2C3542', .58, 0, 0),
     'toy_sleeve': ('4C8C78', .82, 0, 0),
     'toy_cuff': ('ECE6D6', .5, 0, 0),
+    'toy_body': ('2B3447', .40, 0, 0),
+    'toy_body_dark': ('1D2431', .50, 0, 0),
+    'toy_vest': ('4D5B72', .44, 0, 0),
+    'toy_team': ('E0513F', .34, 0, 0),
+    'toy_visor': ('FF5A3C', .25, 0, 1.1),
 }
 MATS = {}
 
@@ -95,6 +100,11 @@ def box(name, p, size, material, width=.012, rotation=None):
     bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
     return finish(obj, name, material, width, rotation)
 
+def attach(child, parent):
+    child.parent = parent
+    child.matrix_parent_inverse = parent.matrix_world.inverted()
+    return child
+
 def cyl(name, p, r, depth, material, axis='y', vertices=16, width=.008):
     bpy.ops.mesh.primitive_cylinder_add(vertices=vertices, radius=r, depth=depth, location=xyz(p))
     obj = bpy.context.object
@@ -161,5 +171,29 @@ box('right_glove', (.015, -.23, .3), (.13, .17, .17), 'toy_glove', .04)
 box('right_cuff', (.07, -.33, .39), (.18, .06, .2), 'toy_cuff', .022, (.35, 0, -.25))
 box('right_sleeve', (.1, -.42, .45), (.2, .34, .23), 'toy_sleeve', .05)
 export('rifle')
+
+# Enemy: names and pivots match the original actor. Head hit sphere stays at y 1.70.
+begin('enemy')
+box('Torso', (0, 1.21, 0), (.46, .54, .26), 'toy_body', .07)
+box('Vest', (0, 1.24, -.15), (.36, .34, .08), 'toy_vest', .03)
+box('ChestMark', (0, 1.33, -.195), (.16, .05, .02), 'toy_visor', .008)
+box('Backpack', (0, 1.22, .17), (.30, .34, .12), 'toy_body_dark', .04)
+box('Pelvis', (0, .86, 0), (.32, .17, .24), 'toy_body_dark', .04)
+cyl('Neck', (0, 1.52, 0), .075, .12, 'toy_body_dark')
+cyl('Head', (0, 1.68, 0), .17, .28, 'toy_body', 'y', 16, .035)
+helmet = cyl('Helmet', (0, 1.81, 0), .2, .12, 'toy_body_dark', 'y', 16, .04)
+attach(box('Crest', (0, 1.88, .01), (.05, .045, .32), 'toy_team', .015), helmet)
+box('Visor', (0, 1.70, -.165), (.28, .065, .04), 'toy_visor', .015)
+for side, x in [('Left', -.145), ('Right', .145)]:
+    leg = box(side + 'Leg', (x, .46, 0), (.15, .68, .17), 'toy_body', .045)
+    attach(box(side + 'Knee', (x, .52, -.095), (.12, .11, .04), 'toy_vest', .015), leg)
+    box(side + 'Foot', (x, .09, -.06), (.19, .16, .30), 'toy_body_dark', .05)
+for side, x in [('Left', -.30), ('Right', .30)]:
+    arm = box(side + 'Arm', (x, 1.17, -.025), (.14, .46, .16), 'toy_body', .045)
+    attach(box(side + 'Pad', (x * 1.04, 1.40, -.02), (.18, .11, .21), 'toy_team', .04), arm)
+    box(side + 'Hand', (x, 1.02, -.18), (.12, .13, .14), 'toy_rubber', .04)
+gun = box('EnemyGun', (.22, 1.12, -.35), (.1, .12, .45), 'toy_metal', .025)
+attach(box('GunStripe', (.272, 1.14, -.38), (.006, .025, .24), 'toy_visor', .003), gun)
+export('enemy', False)
 
 bpy.ops.wm.save_as_mainfile(filepath=str(ROOT / 'art_source/toy_actors.blend'), compress=True)

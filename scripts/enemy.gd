@@ -2,6 +2,8 @@ extends CharacterBody3D
 
 const ShotLine = preload("res://scripts/shot_line.gd")
 const ComedyFX = preload("res://scripts/comedy_fx.gd")
+const TOY_MODEL = "res://assets/models/toy/enemy.glb"
+static var rim_pass: ShaderMaterial
 
 var game: Node
 var patrol_brain: Node
@@ -78,13 +80,15 @@ func _ready() -> void:
 	hs.position.y = 1.70
 	head_area.add_child(hs)
 	add_child(head_area)
-	visual = (game.enemy_model if game.enemy_model else load("res://assets/models/enemy.glb")).instantiate()
+	visual = (game.enemy_model if game.enemy_model else load(TOY_MODEL)).instantiate()
 	add_child(visual)
+	add_toy_rim(visual)
 	if fast:
 		visual.scale = Vector3(.92,1,.92)
 		orange = StandardMaterial3D.new()
 		orange.albedo_color = Color("f17c28")
-		orange.roughness = .9
+		orange.roughness = .36
+		orange.next_pass = toy_rim()
 		for part in ["Torso","Vest","Helmet","LeftArm","RightArm","LeftLeg","RightLeg"]:
 			var mesh = visual.find_child(part,true,false)
 			if mesh:mesh.material_override = orange
@@ -123,6 +127,19 @@ func _ready() -> void:
 	if game.arena.uses_patrol(home_zone):
 		var posts = game.arena.patrol_points(home_zone)
 		patrol_offset = 1 if position.distance_to(posts[0])<position.distance_to(posts[1]) else 0
+
+static func toy_rim() -> ShaderMaterial:
+	if rim_pass==null:
+		rim_pass = ShaderMaterial.new()
+		rim_pass.shader = preload("res://assets/shaders/toy_rim.gdshader")
+	return rim_pass
+
+# Imported materials are shared by every enemy instance, so this runs once per material.
+static func add_toy_rim(model: Node3D) -> void:
+	for mesh: MeshInstance3D in model.find_children("*","MeshInstance3D",true,false):
+		for index in mesh.get_surface_override_material_count():
+			var paint := mesh.get_active_material(index) as StandardMaterial3D
+			if paint and paint.next_pass==null and not paint.emission_enabled:paint.next_pass = toy_rim()
 
 func set_comedy_head(mode: String) -> void:
 	if mode.is_empty() or comedy_head:return
