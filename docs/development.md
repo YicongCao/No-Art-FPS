@@ -18,7 +18,7 @@ The rendered check covers movement, shooting, reload, respawn, and restarting. T
 
 Run `python3 tools/qa_run.py -- --qa` for an automated 60-second round. Append **one** of the following flags to run a focused check instead.
 
-- Combat and scoring — `--combat`, `--dodge`, `--multikill`, `--awareness`, `--blast-range`, `--destroy`, `--finale`, `--respawn`.
+- Combat and scoring — `--combat`, `--dodge`, `--multikill`, `--awareness`, `--damage-feedback`, `--blast-range`, `--destroy`, `--finale`, `--respawn`.
 - Movement and arena — `--movement`, `--population`, `--containers`, `--expansion`, `--terrace`, `--routes`, `--graffiti`.
 - UI and audio — `--loading`, `--magazine`, `--reload-audio`, `--feedback`, `--results-ui`.
 - Performance — `--benchmark`.

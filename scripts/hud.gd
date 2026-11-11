@@ -2,8 +2,13 @@ extends Control
 
 const FRENZY_FONT_ZH = preload("res://assets/fonts/GlowSansSC-Frenzy.otf")
 const SKULL_ICON = preload("res://assets/ui/skull.svg")
-const DAMAGE_IMPACT = preload("res://assets/ui/damage-impact.svg")
 const AIM_WARNING = preload("res://assets/ui/aim-warning.svg")
+const ATTACKER_MARK = preload("res://assets/ui/attacker-mark.svg")
+const DAMAGE_MARK_LIFE = 1.4
+const DAMAGE_MARK_LIMIT = 3
+const BULLET_ARC = Color("ff4d4d")
+const BLAST_ARC = Color("ff9a3c")
+const SIDE_WARNING_LIMIT = 2
 const YARD_THUMBNAIL = preload("res://assets/ui/maps/yard.webp")
 const PARK_THUMBNAIL = preload("res://assets/ui/maps/amusement-park.webp")
 const FERRY_THUMBNAIL = preload("res://assets/ui/maps/last-ferry.webp")
@@ -60,6 +65,8 @@ var kill_group = 1
 var multi_time = 0.0
 var damage = 0.0
 var damage_source: Variant = null
+# One entry per attacker: point, attacker, kind, strength and remaining life.
+var damage_marks: Array[Dictionary] = []
 var shot = 0.0
 var time_pulse = 0.0
 var go_time = 0.0
@@ -472,6 +479,11 @@ func _process(delta: float) -> void:
 	ejections = ejections.filter(func(age):return age<EJECTION_TIME)
 	time_pulse = maxf(0,time_pulse-delta*2.5)
 	damage = maxf(0,damage-delta)
+	for mark in damage_marks:
+		mark.life -= delta
+		if is_instance_valid(mark.attacker) and not mark.attacker.dead:
+			mark.point = mark.attacker.global_position+Vector3.UP*1.3
+	damage_marks = damage_marks.filter(func(mark):return mark.life>0)
 	if game:
 		var target = clampf(1.0-game.health/game.MAX_HEALTH,0,1) if game.state in ["RUNNING","PAUSED","CAPTURING"] else 0.0
 		health_shade = move_toward(health_shade,target,delta*(1.15 if target>health_shade else .85))
@@ -1319,7 +1331,9 @@ func _draw() -> void:
 	if state=="RUNNING" and destroy_time>0:draw_destroy_notice(c)
 	if state=="RUNNING":draw_badge_toast()
 	draw_rear_aim_warning()
-	draw_damage_impact()
+	draw_side_aim_warnings()
+	if game.respawn_time>0:draw_killer_focus()
+	else:draw_damage_marks(c)
 	if game.rules.mission:
 		draw_mission_radar()
 		for objective in game.arena.objectives:
@@ -1367,15 +1381,86 @@ func draw_rear_aim_warning() -> void:
 	draw_texture_rect(AIM_WARNING,Rect2(-5,-60,90,120),false,Color(Color.WHITE,opacity))
 	draw_set_transform(Vector2.ZERO)
 
-func draw_damage_impact() -> void:
-	var direction = damage_edge_direction()
-	if direction==Vector2.ZERO:return
-	var center = edge_position(direction)
-	var extent = minf(1,size.y/810.0)
-	var pulse = 1.0 if game.reduced_motion else lerpf(1,1.1,smoothstep(.56,.8,damage))
-	draw_set_transform(center,(-direction).angle(),Vector2.ONE*extent*pulse)
-	draw_texture_rect(DAMAGE_IMPACT,Rect2(-5,-67,101,134),false,Color(1,1,1,smoothstep(0,.23,damage)))
-	draw_set_transform(Vector2.ZERO)
+func add_damage_mark(point: Vector3, attacker: Node3D, kind: String, amount: float) -> void:
+	var strength := clampf(amount/60.0,.35,1.0)
+	for mark in damage_marks:
+		var same: bool = mark.attacker==attacker if is_instance_valid(attacker) else (mark.attacker==null and mark.point.distance_to(point)<1.5)
+		if same:
+			mark.point = point
+			mark.kind = kind
+			mark.life = DAMAGE_MARK_LIFE
+			mark.strength = minf(1.0,mark.strength+strength*.5)
+			return
+	damage_marks.append({"point":point,"attacker":attacker,"kind":kind,"strength":strength,"life":DAMAGE_MARK_LIFE})
+	while damage_marks.size()>DAMAGE_MARK_LIMIT:damage_marks.remove_at(0)
+
+func damage_mark_angle(mark: Dictionary) -> float:
+	# Screen angle around the crosshair: straight ahead points up, right points right.
+	var local: Vector3 = game.player.camera.to_local(mark.point)
+	return atan2(local.x,-local.z)-PI*.5
+
+func damage_mark_on_screen(mark: Dictionary) -> bool:
+	var camera: Camera3D = game.player.camera
+	return is_instance_valid(mark.attacker) and camera.is_position_in_frustum(mark.point)
+
+func draw_damage_marks(center: Vector2) -> void:
+	if game.finale_active:return
+	var radius := clampf(minf(size.x,size.y)*.16,64,140)
+	for mark in damage_marks:
+		var fade := smoothstep(0.0,.5,mark.life)
+		var angle := damage_mark_angle(mark)
+		var half := deg_to_rad(lerpf(13,24,mark.strength))
+		var width := lerpf(5,9,mark.strength)
+		var tint := BLAST_ARC if mark.kind=="explosion" else BULLET_ARC
+		draw_arc(center,radius,angle-half,angle+half,20,Color(INK,.8*fade),width+4,true)
+		draw_arc(center,radius,angle-half,angle+half,20,Color(tint,fade),width,true)
+		if mark.kind=="explosion":
+			draw_arc(center,radius+width+5,angle-half*.7,angle+half*.7,16,Color(tint,.7*fade),3,true)
+		if damage_mark_on_screen(mark):
+			draw_attacker_mark(mark.attacker.global_position+Vector3.UP*2.2,Color(tint,fade),1.0)
+
+func draw_attacker_mark(point: Vector3, tint: Color, extent: float) -> void:
+	var camera: Camera3D = game.player.camera
+	if camera.is_position_behind(point):return
+	var at := camera.unproject_position(point)
+	var mark_size := Vector2(30,25)*extent*minf(1,size.y/810.0)
+	draw_texture_rect(ATTACKER_MARK,Rect2(at-Vector2(mark_size.x*.5,mark_size.y),mark_size),false,tint)
+
+func draw_killer_focus() -> void:
+	if game.state!="RUNNING":return
+	var focus: Vector3 = game.killer_focus()
+	var camera: Camera3D = game.player.camera
+	if camera.is_position_behind(focus):return
+	var settled := smoothstep(.3,.6,game.death_view_time)
+	if is_instance_valid(game.killer) and not game.killer.dead:
+		draw_attacker_mark(focus+Vector3.UP*.8,Color(GOLD,settled),1.25)
+	else:
+		var at := camera.unproject_position(focus)
+		var wave := fposmod(game.death_view_time,1.0)
+		draw_arc(at,lerpf(10,46,wave),0,TAU,32,Color(BLAST_ARC,settled*(1.0-wave)),3,true)
+
+func side_aim_threats() -> Array:
+	# Off-screen enemies to the side that are winding up a shot, most urgent first.
+	var rear = game.rear_aiming_enemy()
+	var aimers: Array = game.ranged_aimers.keys().filter(func(enemy):return is_side_threat(enemy,rear))
+	aimers.sort_custom(func(a,b):return a.windup<b.windup)
+	return aimers.slice(0,SIDE_WARNING_LIMIT)
+
+func is_side_threat(enemy: Variant, rear: Variant) -> bool:
+	if not is_instance_valid(enemy) or enemy==rear or enemy.windup<=0:return false
+	var origin: Vector3 = enemy.ranged_origin()
+	return not game.is_behind_player(origin) and source_edge_direction(origin)!=Vector2.ZERO
+
+func draw_side_aim_warnings() -> void:
+	if game.state!="RUNNING" or not game.rules.active or game.respawn_time>0:return
+	for enemy in side_aim_threats():
+		var direction := source_edge_direction(enemy.ranged_origin())
+		var progress: float = 1.0-enemy.windup/maxf(.001,enemy.aim_duration)
+		var center := edge_position(direction)
+		var extent := minf(1,size.y/810.0)*.78
+		draw_set_transform(center,(-direction).angle(),Vector2.ONE*extent)
+		draw_texture_rect(AIM_WARNING,Rect2(-5,-60,90,120),false,Color(Color.WHITE,lerpf(.4,.9,progress)))
+		draw_set_transform(Vector2.ZERO)
 
 func draw_top_summary() -> void:
 	var origin = Vector2(size.x*.5,0)

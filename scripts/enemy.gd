@@ -41,6 +41,9 @@ var attack = 1.8
 var windup = 0.0
 var aim_duration = 0.0
 var rear_warned = false
+var glint: Sprite3D
+var killer_glow: ShaderMaterial
+var highlighted := false
 var aim_offset = Vector3.ZERO
 var aim_line: ShotLine
 var death_time = 0.0
@@ -256,12 +259,38 @@ func advance_ranged_attack(delta: float, can_aim: bool) -> void:
 		windup = maxf(0,windup-delta)
 		if windup==0:
 			cancel_ranged_aim()
-			game.enemy_shoot(origin,target)
+			game.enemy_shoot(origin,target,self)
 			attack = 2.3 if patrol_brain else 1.8+randf()*1.2
 			return
 	var progress = 1.0-windup/aim_duration
-	aim_line.material_override.albedo_color = Color("d6dce390").lerp(Color("5e6873ed"),progress)
+	aim_line.material_override.albedo_color = Color("d6dce390").lerp(Color("8a2a2aed"),progress)
 	aim_line.set_segment(origin,target,lerpf(.018,.031,progress))
+	update_glint(origin,progress)
+
+func set_killer_highlight(active: bool) -> void:
+	if killer_glow==null:
+		killer_glow = ShaderMaterial.new()
+		killer_glow.shader = preload("res://assets/shaders/killer_highlight.gdshader")
+	for mesh: MeshInstance3D in visual.find_children("*","MeshInstance3D",true,false):
+		if mesh.material_overlay==armor_hit and armor_hit!=null:continue
+		mesh.material_overlay = killer_glow if active else null
+	highlighted = active
+
+func update_glint(origin: Vector3, progress: float) -> void:
+	if glint==null:
+		glint = Sprite3D.new()
+		glint.name = "MuzzleGlint"
+		glint.texture = preload("res://assets/ui/muzzle-glint.svg")
+		glint.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		glint.shaded = false
+		glint.pixel_size = .006
+		glint.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		add_child(glint)
+	glint.global_position = origin
+	var pulse := 1.0 if game.reduced_motion else .85+.15*sin(Time.get_ticks_msec()*.025)
+	glint.scale = Vector3.ONE*lerpf(.45,1.15,progress)*pulse
+	glint.modulate = Color(1,1,1,lerpf(.35,1.0,progress))
+	glint.show()
 
 func ranged_origin() -> Vector3:
 	return visual.to_global(Vector3(.22,1.12,-.58))
@@ -271,6 +300,7 @@ func cancel_ranged_aim() -> void:
 	windup = 0
 	rear_warned = false
 	if aim_line:aim_line.hide()
+	if glint:glint.hide()
 
 func _exit_tree() -> void:
 	if is_instance_valid(game):game.ranged_aimers.erase(self)
@@ -437,7 +467,7 @@ func process_rusher(delta: float) -> void:
 				slash_hit = true
 				var flat = Vector3(to_player.x,0,to_player.z)
 				if in_front and flat.length()<2.1 and absf(to_player.y)<1 and rush_direction.dot(flat.normalized())>.5 and can_see_player():
-					game.damage_player(34,global_position+Vector3.UP)
+					game.damage_player(34,global_position+Vector3.UP,self,"melee")
 			if rush_time<=0:recover_charge()
 		"RECOVER":
 			rush_time -= delta

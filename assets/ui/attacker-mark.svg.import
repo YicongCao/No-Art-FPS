@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bk6l1j4bxm16t"
-path="res://.godot/imported/damage-impact.svg-0fe32b641f53c0cfba099b1e2df7695c.ctex"
+uid="uid://d0687w2tet81n"
+path="res://.godot/imported/attacker-mark.svg-1b54a05a58237f70dcc3eae635fb742d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/damage-impact.svg"
-dest_files=["res://.godot/imported/damage-impact.svg-0fe32b641f53c0cfba099b1e2df7695c.ctex"]
+source_file="res://assets/ui/attacker-mark.svg"
+dest_files=["res://.godot/imported/attacker-mark.svg-1b54a05a58237f70dcc3eae635fb742d.ctex"]
 
 [params]
 

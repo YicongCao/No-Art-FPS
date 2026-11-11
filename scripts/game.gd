@@ -75,6 +75,10 @@ const HEAL_DELAY = 5.0
 const HEAL_RATE = 12.0
 const HEARTBEAT_THRESHOLD = MAX_HEALTH * .30
 const RESPAWN_DELAY = 2.0
+const DEATH_VIEW_TURN = .6
+# Hold the killer above the respawn skull in the screen centre.
+const DEATH_VIEW_DROP = .16
+const NEAR_MISS_RADIUS = 1.3
 const DESTROY_RESPAWN_DELAY = 1.25
 const RANGED_ATTACK_LIMIT = 3
 const SCENERY_TARGET_LAYER = 16
@@ -91,6 +95,10 @@ var new_record = false
 var invulnerable = 0.0
 var since_damage = 0.0
 var respawn_time = 0.0
+var killer: Node3D
+var killer_point := Vector3.ZERO
+var death_view_from := Vector2.ZERO
+var death_view_time := 0.0
 var respawn_duration = RESPAWN_DELAY
 var best = 0
 var reduced_motion = false
@@ -266,7 +274,7 @@ func _ready() -> void:
 	layer.add_child(hud)
 	achievements.unlocked.connect(hud.queue_badge_toast)
 	achievements.changed.connect(queue_progress_save)
-	for key in ["shot","hit","kill","headshot","reload","hurt","tick","end","fuse","explosion","charge","cartridge_insert","magazine_latch","comedy_plop","roach_buzz","water_shot","slipper_shot","roach_grenade","enemy_raise"]:
+	for key in ["shot","hit","kill","headshot","reload","hurt","tick","end","fuse","explosion","charge","cartridge_insert","magazine_latch","comedy_plop","roach_buzz","water_shot","slipper_shot","roach_grenade","enemy_raise","hit_impact","whiz"]:
 		sounds[key] = load("res://assets/audio/"+key+".wav")
 	for i in range(12):
 		var voice = AudioStreamPlayer.new()
@@ -330,6 +338,7 @@ func _ready() -> void:
 		if "--blast-range" in OS.get_cmdline_user_args():test_path = "res://tests/barrel_range_check.gd"
 		if "--barrel-routes" in OS.get_cmdline_user_args():test_path = "res://tools/analysis/barrel_routes.gd"
 		if "--awareness" in OS.get_cmdline_user_args():test_path = "res://tests/awareness_check.gd"
+		if "--damage-feedback" in OS.get_cmdline_user_args():test_path = "res://tests/damage_feedback_check.gd"
 		var qa = load(test_path).new()
 		qa.game = self
 		add_child(qa)
@@ -601,6 +610,8 @@ func reset_run_state() -> void:
 	hud.hit = 0
 	hud.damage = 0
 	hud.damage_source = null
+	hud.damage_marks.clear()
+	clear_killer()
 	hud.kill_pop = 0
 	hud.reset_magazine()
 
@@ -625,6 +636,8 @@ func request_run() -> void:
 	hud.hit = 0
 	hud.damage = 0
 	hud.damage_source = null
+	hud.damage_marks.clear()
+	clear_killer()
 	hud.kill_pop = 0
 	hud.sync_loading_cover()
 	prepare_loaded_run.call_deferred(load_ticket)
@@ -821,6 +834,8 @@ func _process(delta: float) -> void:
 
 func clear_round() -> void:
 	set_destroy_active(false)
+	clear_killer()
+	hud.damage_marks.clear()
 	clear_grenades()
 	arena.cancel_interaction()
 	objective_focus = null
@@ -1155,9 +1170,11 @@ func _physics_process(delta: float) -> void:
 	if health<MAX_HEALTH and since_damage>=HEAL_DELAY and respawn_time<=0:
 		health = minf(MAX_HEALTH,health+HEAL_RATE*delta)
 	if respawn_time>0:
+		update_death_view(delta)
 		respawn_time = maxf(0,respawn_time-delta)
 		if respawn_time<.000001:respawn_time = 0
 		if respawn_time<=0:
+			clear_killer()
 			player.teleport_to(arena.respawn_pose(player,live_enemies()))
 			player.enabled = true
 			player.gun.show()
@@ -1437,7 +1454,7 @@ func grenade_blast(center: Vector3, style: String) -> void:
 		achievements.increment("grenade",rules.kills-kills_before)
 	var target = player.global_position+Vector3.UP
 	if center.distance_to(target)<=GRENADE_LETHAL_RADIUS and blast_clear(center,target,[]):
-		damage_player(30,center)
+		damage_player(30,center,null,"explosion")
 	for barrel in arena.barrels:
 		target = barrel.global_position+Vector3.UP*.65
 		if not barrel.spent and center.distance_to(target)<=GRENADE_OUTER_RADIUS and blast_clear(center,target,[barrel.get_rid()]):
@@ -1587,13 +1604,20 @@ func rear_aiming_enemy() -> Node3D:
 			next = enemy
 	return next
 
-func enemy_shoot(origin: Vector3, target: Vector3) -> void:
+func check_near_miss(bullet: Dictionary, from: Vector3, to: Vector3) -> void:
+	var ear: Vector3 = player.camera.global_position
+	var closest := Geometry3D.get_closest_point_to_segment(ear,from,to)
+	if closest.distance_to(ear)>NEAR_MISS_RADIUS:return
+	bullet["whizzed"] = true
+	play_world_sound("whiz",closest,-5,randf_range(.92,1.08))
+
+func enemy_shoot(origin: Vector3, target: Vector3, attacker: Node3D = null) -> void:
 	if state!="RUNNING" or not rules.active or respawn_time>0:return
 	var trail = ShotLine.new()
 	trail.name = "EnemyTracer"
 	effects.add_child(trail)
 	trail.material_override.albedo_color = Color("ffcf3bee")
-	bullets.append({"node":trail,"origin":origin,"position":origin,"direction":origin.direction_to(target),"life":.8})
+	bullets.append({"node":trail,"origin":origin,"position":origin,"direction":origin.direction_to(target),"life":.8,"attacker":attacker})
 
 func update_bullets(delta: float) -> void:
 	if state!="RUNNING" or not rules.active:return
@@ -1607,18 +1631,20 @@ func update_bullets(delta: float) -> void:
 		var query = PhysicsRayQueryParameters3D.create(from,to,1|2)
 		var hit = get_world_3d().direct_space_state.intersect_ray(query)
 		var end: Vector3 = hit.position if not hit.is_empty() else to
+		var struck_player: bool = not hit.is_empty() and hit.collider==player
+		if not struck_player and not b.get("whizzed",false):check_near_miss(b,from,end)
 		var length: float = minf(end.distance_to(b.origin),ENEMY_TRAIL_LENGTH)
 		b.node.set_segment(end-b.direction*length,end,.045)
 		b.life -= delta
 		if not hit.is_empty() or b.life<=0:
-			if not hit.is_empty() and hit.collider==player:damage_player(34,b.origin)
+			if not hit.is_empty() and hit.collider==player:damage_player(34,b.origin,b.get("attacker"))
 			var fade = b.node.create_tween()
 			fade.tween_property(b.node.material_override,"albedo_color:a",0.0,.075)
 			fade.tween_callback(b.node.queue_free)
 			bullets.remove_at(i)
 		else:b.position = to
 
-func damage_player(amount: float = 34.0, source: Variant = null) -> void:
+func damage_player(amount: float = 34.0, source: Variant = null, attacker: Node3D = null, kind: String = "bullet") -> void:
 	if state!="RUNNING" or not rules.active or respawn_time>0:return
 	since_damage = 0
 	if invulnerable>0:return
@@ -1627,12 +1653,16 @@ func damage_player(amount: float = 34.0, source: Variant = null) -> void:
 	since_damage = 0
 	hud.damage = .8
 	hud.damage_source = source
-	play_sound("hurt",-8)
+	play_sound("hurt",-11)
+	if source is Vector3:
+		hud.add_damage_mark(source,attacker,kind,amount)
+		play_hit_direction(source)
 	if objective_focus:objective_focus.cancel()
 	if health<=0:
 		player.reset_aim()
 		grenade_throw_time = 0
 		rules.deaths += 1
+		begin_death_view(source,attacker)
 		rules.report_death()
 		respawn_duration = DESTROY_RESPAWN_DELAY if destroy_active else RESPAWN_DELAY
 		respawn_time = respawn_duration if rules.respawn_allowed else 0
@@ -1641,6 +1671,42 @@ func damage_player(amount: float = 34.0, source: Variant = null) -> void:
 		player.enabled = false
 		player.velocity = Vector3.ZERO
 		player.gun.hide()
+
+func play_hit_direction(source: Vector3) -> void:
+	var ear: Vector3 = player.camera.global_position
+	var flat := Vector3(source.x-ear.x,0,source.z-ear.z)
+	if flat.length()<.01:flat = -player.global_basis.z
+	var behind := is_behind_player(source)
+	play_world_sound("hit_impact",ear+flat.normalized()*1.6,-2 if behind else -4,.74 if behind else 1.0)
+
+func begin_death_view(source: Variant, attacker: Node3D) -> void:
+	clear_killer()
+	killer = attacker if is_instance_valid(attacker) else null
+	killer_point = source if source is Vector3 else player.camera.global_position-player.global_basis.z
+	death_view_from = Vector2(player.rotation.y,player.pitch)
+	death_view_time = 0.0
+	if killer:killer.set_killer_highlight(true)
+
+func killer_focus() -> Vector3:
+	if is_instance_valid(killer) and not killer.dead:
+		return killer.global_position+Vector3.UP*1.45
+	return killer_point
+
+func update_death_view(delta: float) -> void:
+	death_view_time += delta
+	var eye: Vector3 = player.camera.global_position
+	var aim: Vector3 = killer_focus()-eye
+	if aim.length()<.2:return
+	var yaw := atan2(-aim.x,-aim.z)
+	var look_pitch := clampf(atan2(aim.y,Vector2(aim.x,aim.z).length())-DEATH_VIEW_DROP,-1.2,1.2)
+	var blend := 1.0 if reduced_motion else smoothstep(0.0,DEATH_VIEW_TURN,death_view_time)
+	player.rotation.y = lerp_angle(death_view_from.x,yaw,blend)
+	player.pitch = lerpf(death_view_from.y,look_pitch,blend)
+	if is_instance_valid(killer) and killer.highlighted and killer.dead:killer.set_killer_highlight(false)
+
+func clear_killer() -> void:
+	if is_instance_valid(killer):killer.set_killer_highlight(false)
+	killer = null
 
 func effect_material(color: Color) -> StandardMaterial3D:
 	if effect_materials.has(color):return effect_materials[color]
@@ -1825,7 +1891,7 @@ func barrel_blast(center: Vector3, radius: float, source: StaticBody3D) -> void:
 	var player_target = player.global_position+Vector3.UP
 	var player_distance = center.distance_to(player_target)
 	if player_distance<=radius and blast_clear(center,player_target,[source.get_rid()]):
-		damage_player(lerpf(60,15,player_distance/radius),center)
+		damage_player(lerpf(60,15,player_distance/radius),center,null,"explosion")
 	for barrel in arena.barrels:
 		if barrel==source or barrel.spent:continue
 		var target = barrel.global_position+Vector3.UP*.65
