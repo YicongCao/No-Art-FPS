@@ -1,10 +1,13 @@
 """Editable original interactive props. blender --background --python tools/build_playbox_assets.py"""
 import bpy
 import math
+import sys
 from pathlib import Path
 from mathutils import Vector
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'tools'))
+from toy_bevel import toy_soften
 OUT = ROOT / 'assets/models'
 bpy.ops.object.select_all(action='SELECT')
 bpy.ops.object.delete(use_global=False)
@@ -20,7 +23,7 @@ for name, code in COLORS.items():
     m.use_nodes=True
     p=next(n for n in m.node_tree.nodes if n.type=='BSDF_PRINCIPLED')
     p.inputs['Base Color'].default_value=rgba
-    p.inputs['Roughness'].default_value=.85
+    p.inputs['Roughness'].default_value=.7
     MATS[name]=m
 roots=[]
 current=None
@@ -43,9 +46,7 @@ def box(name,p,size,color,bevel=0):
     o=bpy.context.object
     o.dimensions=(size[0],size[2],size[1])
     bpy.ops.object.transform_apply(location=False,rotation=False,scale=True)
-    if bevel:
-        mod=o.modifiers.new('Edge','BEVEL');mod.width=bevel;mod.segments=1
-        bpy.ops.object.modifier_apply(modifier=mod.name)
+    toy_soften(o,min(size),bevel)
     return finish(o,name,color)
 
 def mesh(name,vertices,faces,color):

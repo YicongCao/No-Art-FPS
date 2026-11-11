@@ -39,3 +39,49 @@
 | ![院子基线](baseline/score_attack.png) | ![沙门基线](baseline/sandgate.png) |
 | 雪线 | 办公室 |
 | ![雪线基线](baseline/snowline.png) | ![办公室基线](baseline/bb_office.png) |
+
+## 第一轮结果
+
+五个阶段已完成，同一机位、1440 x 810 本地渲染：
+
+| 院子 | 沙门 |
+| --- | --- |
+| ![院子改造后](after/score_attack.png) | ![沙门改造后](after/sandgate.png) |
+| 雪线 | 办公室 |
+| ![雪线改造后](after/snowline.png) | ![办公室改造后](after/bb_office.png) |
+
+| 阶段 | 实现 |
+| --- | --- |
+| 枪 | `tools/build_toy_actors.py` 生成 `assets/models/toy/rifle.glb`：分段倒角、加权法线、奶油外壳、蓝色主体、金属件与青色发光点缀。照门、准星和枪口坐标不变。相机上挂暖色主光与冷色轮廓光，只照第一人称图层。 |
+| 敌人 | 同一脚本生成 `assets/models/toy/enemy.glb`：圆角大块、红色护肩与头盔脊、暖红发光面罩。节点名、四肢枢轴和头部判定不变。`assets/shaders/toy_rim.gdshader` 作为附加通道，提供不依赖场景灯光的冷色边缘。 |
+| 全局 | `scripts/maps/toy_look.gd`：Filmic 色调映射、饱和度 1.15、对比度 1.06；纯色背景地图改为 `toy_sky` 渐变天空，颜色取自当前背景色，狂暴模式的天色同样生效。天空同时作为反射来源。 |
+| 环境 | 纯色漆面改用 `toy_paint`，原色、粗糙度、金属度不变，只加墙面下暗上亮和底面偏冷；`map_surface` 同步。描边去掉颜色差检测，线色取压暗的底色，1.4 米内淡出，远处减弱。 |
+| 道具 | `tools/toy_bevel.py` 按最短边 18%、最大 4 厘米倒角并修正法线，`build_assets.py` 与 `build_playbox_assets.py` 共用；漆面粗糙度 0.88 改为 0.7。院子场景不重建，用 `tools/maps/apply_toy_kit.gd` 按网格名替换几何，节点、碰撞与导航不变。 |
+
+重建顺序：
+
+```sh
+blender --background --python tools/build_toy_actors.py
+blender --background --python tools/build_assets.py
+blender --background --python tools/build_playbox_assets.py
+godot --headless --path . --editor --import
+godot --headless --path . --script tools/maps/apply_toy_kit.gd
+```
+
+## 验证与已知问题
+
+自动检查：导入、规则测试、瞄准照门、颜色材质、地图场景、战斗、伤害反馈、集装箱、破坏、终局、楼梯路线，以及 8 张地图普通与狂暴状态的渲染截图。尚未人工完整试玩。
+
+原生性能，Apple M4 Pro、1440 x 810、每图 8 秒，敌人 AI 运行、镜头缓慢扫动：
+
+| 地图 | 帧时间 P50（`main` -> `toy`） | draw calls | 图元 |
+| --- | ---: | ---: | ---: |
+| 院子 | 9.07 -> 10.0 ms | 1837 -> 1995 | 4.9 万 -> 20.6 万 |
+| 办公室（第 4 阶段时） | 9.21 -> 10.92 ms | 2374 -> 2575 | 未复测 |
+
+合回 `main` 并发布 Web 前需要处理：
+
+- 敌人边缘光按部件逐个多绘制一次，8 个敌人约多 200 次 draw call；可合并非动画部件，或改为单一材质内的菲涅尔项。
+- 倒角使院子道具三角面约增加 4 倍；需要给远处道具做低模 LOD，或减少波纹的倒角段数。
+- `tests/interaction_check.gd` 的重生断言与 `--graffiti` 重复视角断言在 `main` 上同样失败；`--containers` 的放出守卫断言在两个分支上都偶发失败。均非本分支引入。
+- 其余地图的专属道具（温室、城堡、雪线等）还未套用倒角规范。

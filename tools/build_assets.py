@@ -5,9 +5,12 @@ The saved blend presents each asset separately; GLBs retain origin-at-ground.
 """
 import bpy
 import math
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'tools'))
+from toy_bevel import toy_soften
 OUT = ROOT / 'assets/models'
 OUT.mkdir(parents=True, exist_ok=True)
 bpy.ops.object.select_all(action='SELECT')
@@ -27,7 +30,7 @@ for name, code in COLORS.items():
     m.use_nodes = True
     p = next(n for n in m.node_tree.nodes if n.type == 'BSDF_PRINCIPLED')
     p.inputs['Base Color'].default_value = rgba
-    p.inputs['Roughness'].default_value = .88
+    p.inputs['Roughness'].default_value = .7
     p.inputs['Metallic'].default_value = 0
     MATS[name] = m
 
@@ -52,11 +55,7 @@ def box(name, p, size, color, bevel=0):
     obj = bpy.context.object
     obj.dimensions = (size[0], size[2], size[1])
     bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
-    if bevel:
-        mod = obj.modifiers.new('Crisp tiny bevel', 'BEVEL')
-        mod.width = bevel
-        mod.segments = 1
-        bpy.ops.object.modifier_apply(modifier=mod.name)
+    toy_soften(obj, min(size), bevel)
     return finish_obj(obj, name, color)
 
 def cyl(name, p, r, depth, color, vertices=8, axis='y'):
@@ -64,6 +63,7 @@ def cyl(name, p, r, depth, color, vertices=8, axis='y'):
     obj = bpy.context.object
     if axis == 'z': obj.rotation_euler.x = math.pi/2
     if axis == 'x': obj.rotation_euler.y = math.pi/2
+    toy_soften(obj, min(2*r, depth))
     return finish_obj(obj, name, color)
 
 def export(name, merge=False):
