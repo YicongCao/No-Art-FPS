@@ -8,6 +8,7 @@
 - Keep analyses and screenshots in this project as ordinary Markdown/PNG/SVG. No editor-specific canvas runtime.
 - Work in verifiable stages and make a Git commit after each completed stage. Immediately push every new commit to `origin` (`git@github.com:YicongCao/No-Art-FPS.git`); the user has authorized ongoing pushes. Never force-push without explicit authorization. If a push fails, report it and preserve the local commit.
 - After each completed game update, publish the verified Web build from `origin/main` to both GitHub Pages and `https://fps.yicong.me/`. For the custom domain, use the existing local `server-connect` FPS release workflow referenced by the personal résumé project. Keep the previous release available for rollback, and verify the live release and browser launch before reporting completion.
+- The `toy` branch is a client-only painted-plastic-toy rendering branch. Commit and push it to `origin/toy`, but do not publish it to GitHub Pages or `https://fps.yicong.me/`. Follow docs/art/toy/README.md there; when style choices conflict, take cues from Overwatch's rendering without copying its characters, maps, or marks.
 - Validate with Godot import/headless checks, rule tests, and actual rendered gameplay. Distinguish automated checks from human playtesting.
 - Reference video and extracted reference screenshots remain local and are not committed.
 
