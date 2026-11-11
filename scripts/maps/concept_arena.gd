@@ -27,6 +27,7 @@ const IMPACTS = {
 	"metal": [[Vector3(.12,.045,.13),Color("adc8dd")],[Vector3(.09,.07,.14),Color("f6ca70")]],
 	"instrument": [[Vector3(.17,.043,.12),Color("b5d3e9")],[Vector3(.07,.10,.07),Color("fff4d6")],[Vector3(.13,.033,.16),Color("718eb6")]],
 	"garden": [[Vector3(.13,.05,.11),Color("d4744a")],[Vector3(.10,.08,.10),Color("6b4a35")],[Vector3(.16,.02,.09),Color("86cf45")]],
+	"station": [[Vector3(.06,.12,.06),Color("e60012")],[Vector3(.11,.012,.07),Color("fbf7ee")],[Vector3(.14,.03,.12),Color("f39700")]],
 	"glass": [[Vector3(.17,.012,.13),Color("c9f1f4")],[Vector3(.11,.012,.19),Color("a7e3ea")],[Vector3(.06,.06,.06),Color("f4f3ec")]],
 }
 const MIST_SECONDS = 2.6
@@ -84,6 +85,11 @@ var grow_lights: Node3D
 var mist_jets: Array[MeshInstance3D] = []
 var mist_paint: StandardMaterial3D
 var grow_lamps: Array[OmniLight3D] = []
+var express_train: Node3D
+var station_tubes: Node3D
+var station_alarms: Node3D
+var departure_signs: Array[Node3D] = []
+var passing_signs: Array[Node3D] = []
 
 func _ready() -> void:
 	super._ready()
@@ -172,6 +178,25 @@ func _ready() -> void:
 					mesh.set_surface_override_material(surface,pane_paint)
 	if map_id=="palm_house":
 		add_mist_jets()
+	if map_id=="ginza_station":
+		express_train = get_node("Moving/express_train")
+		station_tubes = get_node("Moving/fluorescent_tubes")
+		station_alarms = get_node("Moving/alarm_lamps")
+		for sign: Node3D in get_node("Architecture").get_children():
+			if sign.name.begins_with("Departures"):departure_signs.append(sign)
+			elif sign.name.begins_with("Passing"):passing_signs.append(sign)
+		var pane := StandardMaterial3D.new()
+		pane.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		pane.cull_mode = BaseMaterial3D.CULL_DISABLED
+		pane.albedo_color = Color(.66,.86,.92,.28)
+		for mesh: MeshInstance3D in find_children("*","MeshInstance3D",true,false):
+			for surface in range(mesh.mesh.get_surface_count()):
+				var paint := mesh.mesh.surface_get_material(surface)
+				if paint and paint.resource_name=="glass":
+					mesh.set_surface_override_material(surface,pane)
+		var hoarding_model: Node3D = get_node("Props/Hoarding/Model")
+		for label in ["HoardingSign","HoardingSignBack"]:
+			get_node("Architecture/"+label).reparent(hoarding_model)
 	if map_id=="baggage_below":
 		airport_display = AirportDisplay.new()
 		airport_display.name = "AirportDisplay"
@@ -480,6 +505,15 @@ func set_destroy_lighting(active: bool) -> void:
 	if not belts.is_empty():
 		environment_override.ambient_light_energy = .43 if active else .83
 		game.sun.light_energy = .25 if active else sun_energy
+	if express_train:
+		station_tubes.visible = not active
+		station_alarms.visible = active
+		express_train.visible = active and not game.reduced_motion
+		for sign in departure_signs:sign.visible = not active
+		for sign in passing_signs:sign.visible = active
+		environment_override.ambient_light_color = Color("ffb4a8") if active else Color("f1f4ff")
+		environment_override.ambient_light_energy = .45 if active else .8
+		game.sun.light_energy = .06 if active else sun_energy
 	if grow_lights:
 		grow_lights.visible = active
 		for lamp in grow_lamps:
@@ -522,6 +556,10 @@ func pose_frenzy(elapsed: float) -> void:
 		warning = airport_display.warning_lights(true,frenzy_seconds,game.reduced_motion)
 		var power_seconds: float = game.rules.elapsed-(game.rules.duration-game.rules.destroy_duration)
 		airport_power.pose(power_seconds,game.reduced_motion)
+	if express_train:
+		var passing_seconds: float = game.rules.elapsed-(game.rules.duration-game.rules.destroy_duration)
+		express_train.visible = not game.reduced_motion
+		express_train.position.z = fposmod(passing_seconds*42.0,160.0)-80.0
 	if mist_jets.size()>0:
 		pose_mist(game.rules.elapsed-(game.rules.duration-game.rules.destroy_duration))
 	if is_instance_valid(dome):

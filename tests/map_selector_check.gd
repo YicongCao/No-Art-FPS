@@ -25,7 +25,7 @@ func check() -> void:
 	game.hud.rebuild_menu()
 	assert(game.title_frame_ready and game.nav_ready and game.session==YardSession)
 	assert(game.hud.fire_button.text=="FIRE")
-	assert(game.hud.map_grid.get_child_count()==11)
+	assert(game.hud.map_grid.get_child_count()==12)
 	assert(game.hud.menu.get_children().filter(func(node):return node is Button).size()==3)
 	assert(not game.hud.menu.get_node("comedy").button_pressed)
 	assert(not game.hud.menu.get_node("roach").button_pressed)

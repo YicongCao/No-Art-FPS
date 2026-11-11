@@ -27,6 +27,7 @@ const CONCEPT_SESSIONS = {
 	"baggage_below":"res://data/sessions/baggage_below.tres",
 	"snowline":"res://data/sessions/snowline.tres",
 	"palm_house":"res://data/sessions/palm_house.tres",
+	"ginza_station":"res://data/sessions/ginza_station.tres",
 }
 var session = DefaultSession
 var opening: Array[Dictionary] = []
@@ -1075,7 +1076,7 @@ func menu_action(action: String) -> void:
 			select_session(OFFICE_SESSION_PATH,action)
 		"hogwarts":
 			select_session(HOGWARTS_SESSION_PATH,action)
-		"rain_market", "baggage_below", "snowline", "palm_house":
+		"rain_market", "baggage_below", "snowline", "palm_house", "ginza_station":
 			select_session(CONCEPT_SESSIONS[action],action)
 		"comedy", "roach":
 			if state!="TITLE":return

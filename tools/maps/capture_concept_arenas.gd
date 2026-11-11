@@ -42,7 +42,7 @@ func capture() -> void:
 			enemy.set_physics_process(false)
 		camera.make_current()
 		var layout: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tools/maps/%s_layout.json"%id))
-		var cutaway: Node3D = game.arena.get_node({"rain_market":"Architecture/canopy","baggage_below":"Architecture/ceiling_and_beams","snowline":"Moving/dome","palm_house":"Architecture/glasshouse_glass"}[id])
+		var cutaway: Node3D = game.arena.get_node({"rain_market":"Architecture/canopy","baggage_below":"Architecture/ceiling_and_beams","snowline":"Moving/dome","palm_house":"Architecture/glasshouse_glass","ginza_station":"Architecture/ceiling"}[id])
 		cutaway.hide()
 		if id=="snowline":
 			game.arena.shutter_left.hide()
@@ -65,7 +65,7 @@ func capture() -> void:
 			game.rules.elapsed = shot[3] if shot.size()>3 else (47.0 if key.ends_with("frenzy") else 0.0)
 			if key.ends_with("frenzy"):
 				game.set_destroy_active(true)
-				var targets = {"service-frenzy":"ServiceShortcut","sorting-frenzy":"BurstCase","telescope-frenzy":"StormHatch","tool-yard-frenzy":"GlassBreach"}
+				var targets = {"service-frenzy":"ServiceShortcut","sorting-frenzy":"BurstCase","telescope-frenzy":"StormHatch","tool-yard-frenzy":"GlassBreach","passing-frenzy":"Hoarding"}
 				if targets.has(key):
 					var prop = game.arena.get_node("Props/"+targets[key])
 					prop.hit_point = prop.world_bounds().get_center()

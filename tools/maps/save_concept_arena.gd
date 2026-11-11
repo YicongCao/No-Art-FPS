@@ -62,7 +62,7 @@ func props(items: Array) -> void:
 		part.structural_section = item.structural
 		part.local_bounds = true
 		part.impact_kind = item.effect
-		part.palette = Color("df815a") if arena.map_id in ["rain_market","hogwarts","palm_house"] else Color("7696b8")
+		part.palette = Color("df815a") if arena.map_id in ["rain_market","hogwarts","palm_house","ginza_station"] else Color("7696b8")
 		add(parent,part,item.name)
 		var render_node = model(part,item.asset,"Model")
 		var size = vec(item.size)
@@ -95,8 +95,8 @@ func marks(parent: Node3D, label: String, points: Array) -> Array[NodePath]:
 
 func build() -> void:
 	var args = OS.get_cmdline_user_args()
-	if args.size()!=1 or args[0] not in ["rain_market","baggage_below","snowline","hogwarts","palm_house"]:
-		push_error("Pass rain_market, baggage_below, snowline, hogwarts, or palm_house after --")
+	if args.size()!=1 or args[0] not in ["rain_market","baggage_below","snowline","hogwarts","palm_house","ginza_station"]:
+		push_error("Pass rain_market, baggage_below, snowline, hogwarts, palm_house, or ginza_station after --")
 		quit(1)
 		return
 	var key = args[0]

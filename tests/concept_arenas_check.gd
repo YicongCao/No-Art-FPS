@@ -1,10 +1,11 @@
 extends SceneTree
 
-const TARGETS = {"rain_market":"ServiceShortcut","baggage_below":"BurstCase","snowline":"StormHatch","palm_house":"GlassBreach"}
+const TARGETS = {"rain_market":"ServiceShortcut","baggage_below":"BurstCase","snowline":"StormHatch","palm_house":"GlassBreach","ginza_station":"Hoarding"}
 const SHORTCUTS = {
 	"rain_market":[Vector3(8.30,1.10,8.20),Vector3(13.15,1.10,8.20)],
 	"snowline":[Vector3(-6.22,.06,-8.92),Vector3(-10.23,.06,-12.93)],
 	"palm_house":[Vector3(-8.6,.06,8.6),Vector3(-5.4,.06,5.4)],
+	"ginza_station":[Vector3(3.6,.06,5.6),Vector3(3.6,.06,10.8)],
 }
 var game: Node3D
 
@@ -102,6 +103,8 @@ func check() -> void:
 			check_airport_power()
 		if id=="palm_house":
 			check_palm_frenzy()
+		if id=="ginza_station":
+			check_ginza_frenzy()
 		if id=="snowline":
 			assert(game.arena.deck_light.visible and game.arena.star_chart.visible)
 			assert(is_zero_approx(game.arena.dome.rotation.y))
@@ -172,6 +175,10 @@ func check() -> void:
 			assert(power.faulty_fixtures.is_empty() and power.alarms.all(func(light):return not light.visible))
 			assert(game.arena.barrels.all(func(barrel):return not barrel.spent))
 		assert(not game.destroy_active and not game.comedy_toilet)
+		if id=="ginza_station":
+			var station = game.arena
+			assert(station.station_tubes.visible and not station.station_alarms.visible and not station.express_train.visible)
+			assert(station.departure_signs.all(func(sign):return sign.visible))
 		if id=="palm_house":
 			var arena = game.arena
 			assert(not arena.grow_lights.visible and arena.mist_jets.all(func(jet):return not jet.visible))
@@ -190,6 +197,27 @@ func check() -> void:
 	while Time.get_ticks_msec()<deadline:
 		await process_frame
 	quit()
+
+func check_ginza_frenzy() -> void:
+	var arena = game.arena
+	assert(arena.station_alarms.visible and not arena.station_tubes.visible)
+	assert(arena.passing_signs.size()==4 and arena.passing_signs.all(func(sign):return sign.visible))
+	assert(arena.departure_signs.all(func(sign):return not sign.visible))
+	var reduced: bool = game.reduced_motion
+	game.reduced_motion = false
+	game.rules.elapsed = 45.5
+	arena._process(0)
+	var first: float = arena.express_train.position.z
+	assert(arena.express_train.visible)
+	game.rules.elapsed = 45.8
+	arena._process(0)
+	assert(arena.express_train.position.z>first)
+	game.reduced_motion = true
+	arena._process(0)
+	assert(not arena.express_train.visible)
+	game.reduced_motion = reduced
+	game.rules.elapsed = 47.0
+	arena._process(0)
 
 func check_palm_frenzy() -> void:
 	var arena = game.arena

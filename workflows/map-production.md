@@ -6,7 +6,7 @@
 
 本批参考见[三张地图概念验收](../docs/art/next-arenas/concepts.md)。香港雨市以中央摊道、左侧唐楼石阶和右侧送货坡为主。机场以橙色员工门连接到达厅、双传送带和两侧检修天桥。天文台以室内半层环廊、室外雪地和东侧气象平台形成两个可走的回路。
 
-[棕榈温室](../docs/art/palm-house/concepts.md)沿用同一管线：八角玻璃温室、半层树冠栈道和睡莲水渠，外环连接工具场、锅炉房和蝴蝶馆。
+[棕榈温室](../docs/art/palm-house/concepts.md)沿用同一管线：八角玻璃温室、半层树冠栈道和睡莲水渠，外环连接工具场、锅炉房和蝴蝶馆。[东京银座站](../docs/art/ginza-station/concepts.md)是岛式站台加两座跨线天桥的两层车站，日文标识由字体轮廓生成 SVG。
 
 ## 2. 拆解 Blender 构件
 
@@ -17,7 +17,7 @@
 从项目根目录运行本批生成器。
 
 ```sh
-for map in rain_market baggage_below snowline palm_house; do
+for map in rain_market baggage_below snowline palm_house ginza_station; do
   blender --background --python-exit-code 1 --python "tools/maps/build_${map}.py" || exit
 done
 ```
@@ -28,7 +28,7 @@ done
 
 ```sh
 godot --headless --editor --import
-for map in rain_market baggage_below snowline palm_house; do
+for map in rain_market baggage_below snowline palm_house ginza_station; do
   godot --headless --script tools/maps/save_concept_arena.gd -- "$map" || exit
 done
 ```
