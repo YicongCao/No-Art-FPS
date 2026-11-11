@@ -1,0 +1,51 @@
+{
+  "release": "20261111-v4",
+  "cdn": [
+    {
+      "path": "/index.wasm",
+      "http": 200,
+      "sha256_verified": true,
+      "bytes": 39514754,
+      "cors": "*",
+      "encoding": null
+    },
+    {
+      "path": "/index.wasm.br",
+      "http": 200,
+      "sha256_verified": true,
+      "bytes": 7889576,
+      "cors": "*",
+      "encoding": "br"
+    },
+    {
+      "path": "/index.pck",
+      "http": 200,
+      "sha256_verified": true,
+      "bytes": 28287432,
+      "cors": "*",
+      "encoding": null
+    },
+    {
+      "path": "/index.pck.br",
+      "http": 200,
+      "sha256_verified": true,
+      "bytes": 23700557,
+      "cors": "*",
+      "encoding": "br"
+    }
+  ],
+  "range": {
+    "http": 206,
+    "bytes": 1024
+  },
+  "private_origin_http": 403,
+  "health_http": 200,
+  "shell_files_verified": 22,
+  "wasm_redirect_http": 302,
+  "missing_http": 404,
+  "other_sites": {
+    "cv": 200,
+    "rally": 302,
+    "photo": 200
+  }
+}

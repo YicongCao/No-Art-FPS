@@ -42,4 +42,16 @@ Web 通过 1280 x 720、60 秒真实回合（固定视角射击和换弹，进�
 
 [Web 原始数据](after/web.json) / [Web 实机](after/web-gameplay.png) / [触屏模拟数据](after/touch.json) / [触屏实机](after/touch-gameplay.png)
 
-双站发布与线上验证待记录。未进行人工手感试玩或实体手机验收。
+未进行人工手感试玩或实体手机验收。
+
+## 发布结果
+
+- 游戏源版本：`7ad21e5ad8b0d02e1c976a6ee6866b31306db536`；自定义域名发布快照时 `HEAD == origin/main`、工作区干净。
+- [GitHub Pages](https://yicongcao.github.io/No-Art-FPS/)：[构建部署成功](https://github.com/YicongCao/No-Art-FPS/actions/runs/42989332690)，23 个导出文件逐个通过字节数和 SHA-256 校验。
+- [自定义域名](https://fps.yicong.me/)：`20261111-v4`，健康检查通过；4 个 CDN 原始/Brotli 文件、22 个站点文件校验通过，压缩、CORS、Range 和资源跳转正常。
+- 上一发布 `20261111-v3` 与对应 CDN 对象保留，可通过既有 `publish_fps.py activate 20261111-v3` 流程回滚。该版本包含地图难度标识更新，本次完整保留。
+- 两个线上入口各以新浏览器缓存进入雨市，实际运行和射击 15 秒，无脚本或 WebGL 错误，并检查实际渲染截图。线上短测用于发布冒烟，不代替本地 60 秒基准。
+
+[Pages 浏览器](release/pages-browser.json) / [Pages 文件校验](release/pages-http.json) / [自定义域名浏览器](release/custom-browser.json) / [自定义域名 HTTP](release/custom-http.json) / [线上实机截图](release/custom-gameplay.png)
+
+后续文档归档提交不改变游戏构建版本。
