@@ -45,7 +45,7 @@ TIME EXPIRED,时间到
 KILLED,已阵亡
 %.1f s,%.1f 秒
 BEST %.1f s,最佳 %.1f 秒
-DESTROY ALL,狂暴模式
+DESTROY ALL,射爆一切
 GO,开始
 HOLD,长按
 HOLD E,按住 E
