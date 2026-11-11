@@ -237,9 +237,9 @@ func _ready() -> void:
 	add_child(world_environment)
 	sun = DirectionalLight3D.new()
 	sun.shadow_enabled = true
-	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
+	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL
 	sun.directional_shadow_split_1 = .24
-	sun.directional_shadow_max_distance = 65
+	sun.directional_shadow_max_distance = 45
 	add_child(sun)
 	arena = session.map_scene.instantiate()
 	apply_map_lighting()
@@ -481,20 +481,11 @@ func capture_opening_frame() -> void:
 	for i in range(opening.size()):spawn_opening_actor(i)
 	arena.prepare_rooms()
 	opening_prepared = true
-	# Submit the two instanced materials before the first DESTROY shot or collapse.
-	# The tiny batch is below the starting floor and removed before the title capture.
+	# Visible submissions are required even on native: below-floor samples can be culled.
 	if not OS.has_feature("web") and rules.destroy_duration>0 and not destroy_effects_warmed:
-		var warmup = CombatFX.new()
-		warmup.game = self
-		effects.add_child(warmup)
-		var at = player.camera.to_global(Vector3(0,-1.85,-4))
-		warmup.chunk(at,Vector3.ONE*.04,Color.WHITE,Vector3.ZERO)
-		warmup.flame(at,.04,Color.WHITE)
-		warmup.bloom(at,.04,Color.WHITE)
-		warmup.show_pieces()
-		await loading_frame()
-		warmup.free()
-		destroy_effects_warmed = true
+		await warm_destroy_effects(load_ticket)
+	if rules.destroy_duration>0:
+		await warm_map_destroy_lighting(load_ticket)
 	if switching_session:
 		map_switch_progress = .92
 		hud.set_title_frame(await capture_map_preview(),title_preview_key())
@@ -739,12 +730,28 @@ func prepare_loaded_run(ticket: int) -> void:
 			if ticket!=load_ticket:return
 			destroy_effects_warmed = false
 		if rules.destroy_duration>0 and not destroy_effects_warmed:
-			await warm_web_destroy_effects(ticket)
+			await warm_destroy_effects(ticket)
 			if ticket!=load_ticket:return
+	if rules.destroy_duration>0:
+		await warm_map_destroy_lighting(ticket)
+		if ticket!=load_ticket:return
 	loading.report(1)
 	loading.work_complete = true
 
-func warm_web_destroy_effects(ticket: int) -> void:
+func warm_map_destroy_lighting(ticket: int) -> void:
+	if DisplayServer.get_name()=="headless":return
+	# Submit frenzy light/shaft variants behind the loading cover, before combat.
+	var yaw: float = player.rotation.y
+	set_destroy_active(true)
+	for turn in range(4):
+		player.rotation.y = yaw+turn*PI*.5
+		await loading_frame()
+		if ticket!=load_ticket:return
+	player.rotation.y = yaw
+	set_destroy_active(false)
+	await loading_frame()
+
+func warm_destroy_effects(ticket: int) -> void:
 	# Render each material in view while the loading cover is opaque. In
 	# WebGL, creating a material alone does not compile its draw variants.
 	var eye = player.camera

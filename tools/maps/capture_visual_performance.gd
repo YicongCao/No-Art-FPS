@@ -14,6 +14,7 @@ func run() -> void:
  var seconds := float(OS.get_environment("PERF_SECONDS"))
  if seconds<1:seconds=20
  var frenzy := OS.get_environment("PERF_FRENZY")=="1"
+ var transition := OS.get_environment("PERF_TRANSITION")=="1"
  var results: Array=[]
  for id in sessions:
   if id=="rain_market" or (not selected.is_empty() and not id in selected):continue
@@ -33,6 +34,9 @@ func run() -> void:
   var primitives: Array[float]=[]
   var start:=Time.get_ticks_usec()
   var last:=start
+  if transition:
+   game.rules.elapsed=game.rules.duration-game.rules.destroy_duration
+   game.set_destroy_active(true)
   while (Time.get_ticks_usec()-start)/1000000.0<seconds:
    game.player.rotation.y=yaw+sin((Time.get_ticks_usec()-start)/1000000.0*.45)*.55
    await process_frame
@@ -42,7 +46,7 @@ func run() -> void:
    objects.append(Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME))
    primitives.append(Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME))
   frame_ms.sort();draws.sort();objects.sort();primitives.sort()
-  var row={"map":id,"phase":"frenzy" if frenzy else "normal","seconds":seconds,"frames":frame_ms.size(),"frame_ms_p50":percentile(frame_ms,.5),"frame_ms_p95":percentile(frame_ms,.95),"frame_ms_p99":percentile(frame_ms,.99),"draw_calls_p50":percentile(draws,.5),"draw_calls_p95":percentile(draws,.95),"objects_p50":percentile(objects,.5),"primitives_p50":percentile(primitives,.5),"texture_bytes":Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED),"static_bytes":Performance.get_monitor(Performance.MEMORY_STATIC),"end_state":game.state}
+  var row={"map":id,"phase":"transition" if transition else ("frenzy" if frenzy else "normal"),"seconds":seconds,"frames":frame_ms.size(),"frame_ms_max":frame_ms[-1],"frame_ms_p50":percentile(frame_ms,.5),"frame_ms_p95":percentile(frame_ms,.95),"frame_ms_p99":percentile(frame_ms,.99),"draw_calls_p50":percentile(draws,.5),"draw_calls_p95":percentile(draws,.95),"objects_p50":percentile(objects,.5),"primitives_p50":percentile(primitives,.5),"texture_bytes":Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED),"static_bytes":Performance.get_monitor(Performance.MEMORY_STATIC),"end_state":game.state}
   results.append(row);print("VISUAL_PERF ",JSON.stringify(row))
  var path:=OS.get_environment("PERF_OUTPUT")
  if path.is_empty():path="res://artifacts/local/visual-perf.json"

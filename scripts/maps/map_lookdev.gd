@@ -25,6 +25,7 @@ var fixture_count := 0
 var frenzy := false
 var mirror: Camera3D
 var reflection: SubViewport
+var reflection_elapsed := 0.0
 var water: ShaderMaterial
 const REFLECTION_LAYER = 1 << 19
 
@@ -76,6 +77,10 @@ func apply_state(active: bool) -> void:
   if arena.map_id in ["bb_office","night_studio","ginza_station","baggage_below"]:arena.game.sun.light_energy = .18
   elif arena.map_id=="snowline":arena.game.sun.light_energy = .48
   elif arena.map_id=="last_ferry":arena.game.sun.light_energy = .22
+ for entry in receivers:
+  if entry.mode=="station":
+   entry.node.visible=not active
+   if entry.has("light"):entry.light.visible=not active
  for material in cache.values():
   if material is ShaderMaterial:material.set_shader_parameter("daylight",0.0 if active else 1.0)
 
@@ -97,11 +102,11 @@ func configure_materials() -> void:
   for index in surfaces:
    var original = (mesh.material_override if index==-1 else mesh.get_active_material(index)) as StandardMaterial3D
    if not original or original.transparency!=BaseMaterial3D.TRANSPARENCY_DISABLED or original.shading_mode==BaseMaterial3D.SHADING_MODE_UNSHADED:continue
-   var key := str(original.get_instance_id())+":"+str(mesh.get_path()).get_slice("/",3)
+   var context := str(mesh.get_path()).to_lower()
+   var key := str(original.get_instance_id())+":"+str(arena.map_id=="night_studio" and "curtain" in context)+":"+str(arena.map_id=="amusement_park" and "carouselcanopy" in context)
    if not cache.has(key):
     var canopy_bulb: bool = arena.map_id=="amusement_park" and "CarouselCanopy" in str(mesh.get_path()) and original.resource_name=="gold_light"
     var kind := classify(original.resource_name)
-    var context := str(mesh.get_path()).to_lower()
     # Colored coatings stay dielectric, including white greenhouse frames.
     if original.resource_name=="gold" and arena.map_id=="amusement_park":kind=0
     if arena.map_id=="night_studio" and "curtain" in context:kind=4
@@ -298,17 +303,19 @@ func configure_reflection() -> void:
  reflection.add_child(mirror);mirror.current=true
  water.set_shader_parameter("reflection_tex",reflection.get_texture())
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
  for entry in receivers:
-  if entry.mode=="station":
-   entry.node.visible=not frenzy
-   if entry.has("light"):entry.light.visible=not frenzy
-  elif entry.mode=="airport":
+  if entry.mode=="airport":
    var color: Color = arena.airport_power.ceiling.get_instance_color(entry.fixture)
    var brightness := clampf((color.r-.204)/.796,0,1)
+   if absf(brightness-entry.get("brightness",-1.0))<.002:continue
+   entry["brightness"]=brightness
    entry.paint.set_shader_parameter("strength",entry.strength*brightness)
    if entry.has("light"):entry.light.light_energy=brightness
  if not mirror:return
+ reflection_elapsed+=delta
+ if reflection_elapsed<1.0/30.0:return
+ reflection_elapsed=fmod(reflection_elapsed,1.0/30.0)
  var camera := get_viewport().get_camera_3d()
  if not camera:return
  var aspect := get_viewport().get_visible_rect().size.aspect()

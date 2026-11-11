@@ -41,7 +41,7 @@ const fs=require('node:fs');const path=require('node:path');const assert=require
   requestAnimationFrame(tick);
  }),{seconds:duration,captureTrace:process.env.PERF_TRACE==='1'});
 
- for(let t=0;t<duration;t+=4){await page.waitForTimeout(Math.min(4,duration-t)*1000);if(!mobile)await page.keyboard.press('r');if(t===44)await page.screenshot({path:path.join(out,'frenzy.png')});}
+ for(let t=0;t<duration;t+=4){await page.waitForTimeout(Math.min(4,duration-t)*1000);if(!mobile)await page.keyboard.press('r');if(t===44 && process.env.NO_SAMPLE_SCREENSHOT!=='1')await page.screenshot({path:path.join(out,'frenzy.png')});}
  const performanceData=await samplePromise;if(!mobile)await page.mouse.up();
  await page.screenshot({path:path.join(out,'end.png')});
  const data={url,mode,loadMs,performance:performanceData,errors,logs,note:'Hardware Chrome RAF intervals, not GPU timer queries. Fresh browser cache; localhost loading is not an internet download benchmark.'};
