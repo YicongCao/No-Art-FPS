@@ -53,9 +53,9 @@ void fragment() {
 	float highlights = tube * 1.63 + pendant * 1.03 + sconce * 1.35
 		+ seafood_sign * 0.41 + ice_sign * 0.36 + (frenzy ? neon * 0.62 : 0.0);
 	ALPHA = min((0.09 + canopy * 0.14 + highlights) * glancing * bands * mix(0.40, 1.0, puddle), 0.78);
-	float patches = texture(detail_noise,p*0.027).r;
-	float water = smoothstep(.53,.69,patches);
-	ALPHA *= mix(.13,.82,water);
+	float patches = texture(detail_noise,p*0.065).r + (texture(detail_noise,p*.55).r-.5)*.10;
+	float water = smoothstep(.53,.62,patches) * mix(1.0,.45,smoothstep(9.0,17.0,abs(p.x)));
+	ALPHA *= mix(.20,.96,water);
 	bool main_slope = abs(world_position.y-(1.878-p.y*3.7/36.0))<.08 && abs(p.x)<18.0;
 	if(reflection_enabled && main_slope) {
 		vec4 clip = reflection_matrix*vec4(world_position,1.0);
@@ -64,8 +64,9 @@ void fragment() {
 		uv += vec2(breakup,ripples)*.0007;
 		float border = smoothstep(0.0,.035,min(min(uv.x,uv.y),min(1.0-uv.x,1.0-uv.y)));
 		vec3 reflected_color = texture(reflection_tex,clamp(uv,vec2(.002),vec2(.998))).rgb;
-		float fresnel = .18+.70*pow(1.0-max(dot(-eye,world_normal),0.0),3.0);
-		ALBEDO = mix(tint,reflected_color,border);
-		ALPHA = mix(ALPHA,(.04+water*.76)*fresnel,border);
+		float fresnel = .60+.35*pow(1.0-max(dot(-eye,world_normal),0.0),2.0);
+		float lamp = smoothstep(.50,.8,reflected_color.r)*smoothstep(.1,.3,reflected_color.r-reflected_color.b);
+		ALBEDO = mix(tint,reflected_color*1.18+vec3(1.0,.66,.30)*lamp*.8,border);
+		ALPHA = mix(ALPHA,(.02+water*.94)*fresnel,border);
 	}
 }

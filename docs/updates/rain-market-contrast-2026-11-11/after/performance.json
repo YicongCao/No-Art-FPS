@@ -1,0 +1,42 @@
+{
+  "all": {
+    "count": 7348,
+    "max": 26.142,
+    "mean": 8.16673965704954,
+    "p50": 8.098,
+    "p95": 9.341,
+    "p99": 10.052
+  },
+  "device": "Apple M5",
+  "draw_calls": {
+    "count": 7348,
+    "max": 1204.0,
+    "mean": 916.3011703865,
+    "p50": 899.0,
+    "p95": 1155.0,
+    "p99": 1192.0
+  },
+  "fps_cap": 0,
+  "frenzy": {
+    "count": 1861,
+    "max": 16.009,
+    "mean": 8.06665502418055,
+    "p50": 7.993,
+    "p95": 9.324,
+    "p99": 10.091
+  },
+  "normal": {
+    "count": 5487,
+    "max": 26.142,
+    "mean": 8.20068489156188,
+    "p50": 8.13,
+    "p95": 9.344,
+    "p99": 10.052
+  },
+  "note": "60s deterministic camera sweep with 8 frozen actors, weather and frenzy lights; includes scheduling, not GPU timer queries or combat CPU benchmark.",
+  "resolution": "(1138.0, 640.0)",
+  "seconds": 60,
+  "video_memory_bytes": 158407150.0,
+  "vsync": false,
+  "warmup": 3
+}

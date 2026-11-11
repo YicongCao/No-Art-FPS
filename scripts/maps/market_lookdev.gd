@@ -1,6 +1,7 @@
 extends Node3D
 ## Rain-market-only materials, lighting and a shared reflection for the main sloping aisle.
 const SURFACE = preload("res://assets/shaders/market_surface.gdshader")
+const HALO = preload("res://assets/shaders/market_lamp_halo.gdshader")
 const DETAIL = preload("res://assets/textures/rain_market/surface_noise.png")
 const REFLECTION_LAYER = 1 << 18
 var arena: Node3D
@@ -19,6 +20,7 @@ func setup(map: Node3D) -> void:
 	arena.puddles.set_shader_parameter("detail_noise",DETAIL)
 	configure_materials()
 	configure_lighting()
+	configure_fixture_halos()
 	if DisplayServer.get_name()!="headless":configure_reflection()
 
 func configure_materials() -> void:
@@ -38,8 +40,10 @@ func configure_materials() -> void:
 				elif original.resource_name in ["asphalt","road","concrete","grout","tile"]:kind = 2
 				elif original.resource_name=="canvas":kind = 3
 				if kind==2 and original.resource_name in ["asphalt","road"]:
-					paint.set_shader_parameter("base_color",Color("74767d"))
+					paint.set_shader_parameter("base_color",Color("47556c"))
+					paint.set_shader_parameter("ground_surface",true)
 				paint.set_shader_parameter("surface_kind",kind)
+				paint.set_shader_parameter("canopy_surface",arena.get_node("Architecture/canopy").is_ancestor_of(mesh) and original.resource_name in ["blue","canvas","turq"])
 				paint.set_shader_parameter("base_roughness",.43 if kind==1 else (.77 if kind==2 else original.roughness))
 				paint.set_shader_parameter("base_metallic",.32 if kind==1 and original.resource_name!="ink" else 0.0)
 				cache[key] = paint
@@ -47,12 +51,12 @@ func configure_materials() -> void:
 
 func configure_lighting() -> void:
 	arena.sun_color = Color("ffcb8e")
-	arena.sun_energy = .23
+	arena.sun_energy = .15
 	arena.game.sun.light_color = arena.sun_color
 	arena.game.sun.light_energy = arena.sun_energy
 	var env: Environment = arena.environment_override
-	env.ambient_light_color = Color("c5d9ff")
-	env.ambient_light_energy = .42
+	env.ambient_light_color = Color("a7c7ff")
+	env.ambient_light_energy = .36
 	env.ssao_enabled = true
 	env.ssao_radius = .38
 	env.ssao_intensity = .65
@@ -65,20 +69,20 @@ func configure_lighting() -> void:
 	env.fog_enabled = true
 	env.fog_light_color = Color("d1b398")
 	env.fog_light_energy = .65
-	env.fog_density = .004
+	env.fog_density = .0015
 	env.fog_sky_affect = .12
 	for light in arena.find_children("*","SpotLight3D",true,false):
 		if light in arena.frenzy_lights:continue
 		light.light_color = Color("ffd08c")
-		light.light_energy *= 1.65
+		light.light_energy *= 2.0
 		light.spot_attenuation = .7
 	# Fill the gaps between existing practical lights without adding shadow passes.
 	for z in [-10.0,0.0,10.0]:
 		var light := OmniLight3D.new()
 		light.position = Vector3(0,(18-z)*3.7/36.0+3.45,z)
 		light.light_color = Color("ffcc86")
-		light.light_energy = 2.25
-		light.omni_range = 7.5
+		light.light_energy = 1.1
+		light.omni_range = 6.0
 		light.omni_attenuation = 1.4
 		add_child(light)
 	# Chrome WebGL rejects the probe cube capture depth blit on this renderer.
@@ -94,6 +98,26 @@ func configure_lighting() -> void:
 	probe.box_projection = true
 	probe.cull_mask = REFLECTION_LAYER
 	add_child(probe)
+
+func configure_fixture_halos() -> void:
+	# Soft fixture glow works in Compatibility without a full-screen bloom pass.
+	var paint := ShaderMaterial.new()
+	paint.shader = HALO
+	var positions: Array[Vector3] = []
+	for z in [-15.0,-10.0,-5.0,0.0,5.0,10.0,15.0]:
+		positions.append(Vector3(0,(18-z)*3.7/36.0+3.60,z))
+	for x in [-6.2,6.2]:
+		for z in [-12.0,-8.0,-1.0,3.0,9.0,13.0,16.0]:
+			positions.append(Vector3(x,(18-z)*3.7/36.0+2.52,z))
+	for at in positions:
+		var glow := MeshInstance3D.new()
+		var quad := QuadMesh.new()
+		quad.size = Vector2(1.8,1.2) if is_zero_approx(at.x) else Vector2(1.2,1.2)
+		glow.mesh = quad
+		glow.material_override = paint
+		glow.position = at
+		glow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		add_child(glow)
 
 func configure_reflection() -> void:
 	# Keep ground, transparent weather, viewmodel and screen effects out of the mirror.
