@@ -68,4 +68,13 @@ Web 条件：同机硬件 Chrome，1280 x 720，60 秒真实回合，固定出�
 
 ## 发布
 
-代码验证完成，双站发布与线上浏览器结果将在本节记录。
+- 发布源提交：`9b663deebc6a4006f6ee878f11e3c650a08c1e07`，构建快照时 `HEAD == origin/main` 且工作区干净。
+- [GitHub Pages](https://yicongcao.github.io/No-Art-FPS/)：[构建与部署成功](https://github.com/YicongCao/No-Art-FPS/actions/runs/42985521289)，23 个线上导出文件按清单逐个校验字节数与 SHA-256。
+- [自定义域名](https://fps.yicong.me/)：`20261111-v2`，健康检查确认新版。4 个 CDN 原始/Brotli 文件、22 个站点文件校验通过，CORS、Content-Type、压缩、Range 与跳转检查通过。
+- 前一版本 `20261111-v1` 及其 CDN 对象均保留。需要回退时通过既有 `publish_fps.py activate 20261111-v1` 工作流切回，无需覆盖发布目录。
+- 两个线上入口均使用新浏览器缓存实际进入雨市，持续运行和射击 15 秒，未出现脚本或 WebGL 错误。线上结果用于发布冒烟验证，不与本地 60 秒基准混作性能对比。
+- 本次为自动化验证与截图检查，未替代人工手感试玩和实体手机验收。
+
+证据：[Pages 浏览器](release/pages-browser.json)、[Pages 文件校验](release/pages-http.json)、[自定义域名浏览器](release/custom-browser.json)、[自定义域名 HTTP 校验](release/custom-http.json)、[线上实机](release/custom-gameplay.png)。
+
+此后的文档归档提交不改变游戏构建；两站游戏源版本均为上述 `9b663de`。
