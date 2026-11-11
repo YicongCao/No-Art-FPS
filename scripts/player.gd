@@ -75,7 +75,7 @@ func _ready() -> void:
 	outline.material_override = ink
 	camera.add_child(outline)
 	outline.position.z = -.1
-	set_map_outline(game.arena.map_id=="rain_market")
+	set_map_outline(game.arena.map_id)
 
 func set_weapon_style(mode: String) -> void:
 	if weapon_models.has(weapon_mode):weapon_models[weapon_mode].hide()
@@ -244,7 +244,9 @@ func teleport_to(pose: Transform3D) -> void:
 	recoil = 0
 	camera.rotation.x = 0
 
-func set_map_outline(market: bool) -> void:
+func set_map_outline(map_id: String) -> void:
+	var profile: Array = preload("res://scripts/maps/map_lookdev.gd").PROFILES.get(map_id,[.88,.7])
+	if map_id=="rain_market":profile=[.34,.08]
 	var paint := outline.material_override as ShaderMaterial
-	paint.set_shader_parameter("color_edge_strength",.08 if market else .7)
-	paint.set_shader_parameter("ink_strength",.34 if market else .88)
+	paint.set_shader_parameter("color_edge_strength",profile[1])
+	paint.set_shader_parameter("ink_strength",profile[0])

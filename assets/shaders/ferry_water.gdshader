@@ -1,10 +1,14 @@
 shader_type spatial;
 render_mode unshaded, shadows_disabled;
 
+uniform sampler2D reflection_tex : source_color, filter_linear, repeat_disable;
+uniform bool harbor_capture_active = false;
+varying vec3 world;
 varying vec2 water_position;
 
 void vertex() {
-	water_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xz;
+	world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+ water_position = world.xz;
 }
 
 void fragment() {
@@ -21,5 +25,11 @@ void fragment() {
 
 	float glint = exp(-abs(p.x - 61.0) * 0.2) * smoothstep(-64.0, -56.0, p.y) * (1.0 - smoothstep(-41.0, -19.0, p.y));
 	glint += exp(-abs(p.x + 48.0) * 0.085) * smoothstep(-68.0, -60.0, p.y) * (1.0 - smoothstep(-52.0, -33.0, p.y));
+
 	ALBEDO = mix(blue, vec3(0.91, 0.57, 0.26), glint * smoothstep(0.81, 1.0, stripe) * 0.56);
+ if(harbor_capture_active){
+  // Keep the capture lookup independent of procedural wave coordinates in GLES.
+  // The reflected up vector reverses the camera horizontal axis.
+  ALBEDO=mix(ALBEDO,texture(reflection_tex,vec2(1.0-SCREEN_UV.x,SCREEN_UV.y)).rgb,.64);
+ }
 }

@@ -14,5 +14,5 @@ void fragment() {
 	float along = smoothstep(0.0, 0.08, distance_along) * (1.0 - smoothstep(0.22, 1.0, distance_along));
 	float silhouette = pow(1.0 - abs(dot(normalize(NORMAL), normalize(VIEW))), 0.65);
 	ALBEDO = tint.rgb;
-	ALPHA = along * mix(0.52, 1.0, silhouette) * density;
+	ALPHA = along * pow(silhouette, 2.0) * density * smoothstep(.3,1.4,length(VERTEX));
 }

@@ -79,7 +79,7 @@ func set_frenzy(active: bool) -> void:
 		for _i in range(5):
 			faulty_fixtures.append(available.pop_at(rng.randi_range(0,available.size()-1)))
 	for light in row_lights:
-		light.visible = active
+		light.visible = true
 		light.light_energy = 2.4
 	for light in alarms:light.visible = active
 	alarm_lens.albedo_color = ALARM_RED if active else Color("642b3b")

@@ -342,7 +342,7 @@ func apply_map_lighting() -> void:
 	sun.light_color = arena.sun_color
 	sun.light_energy = arena.sun_energy
 	sun.shadow_bias = arena.sun_shadow_bias
-	if is_instance_valid(player):player.set_map_outline(arena.map_id=="rain_market")
+	if is_instance_valid(player):player.set_map_outline(arena.map_id)
 
 func set_destroy_active(active: bool) -> void:
 	if destroy_active==active:return
@@ -353,6 +353,8 @@ func set_destroy_active(active: bool) -> void:
 		if OS.has_feature("web"):
 			var sky = "#"+destroy_yard_environment.background_color.to_html(false) if active else ""
 			JavaScriptBridge.eval("window.noArtSetDestroySky?.("+JSON.stringify(sky)+")")
+
+	if arena.has_node("MapLookdev"):arena.get_node("MapLookdev").apply_state(active)
 
 func score_record_key() -> String:
 	if session.session_id==DefaultSession.session_id:return "score"

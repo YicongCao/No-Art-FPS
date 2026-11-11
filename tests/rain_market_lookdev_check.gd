@@ -48,7 +48,7 @@ func check() -> void:
 	assert(arena.nav.navigation_mesh.get_polygon_count()==nav_before)
 	game.state = "TITLE"
 	await game.select_session(game.SANDGATE_SESSION_PATH,"sandgate")
-	assert(is_equal_approx(ink.get_shader_parameter("ink_strength"),.88))
+	assert(is_equal_approx(ink.get_shader_parameter("ink_strength"),.48))
 	await process_frame
 	assert(not is_instance_valid(old))
 	await game.select_session(game.CONCEPT_SESSIONS.rain_market,"rain_market")
