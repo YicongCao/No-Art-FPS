@@ -1,0 +1,13 @@
+# Imagegen 改造设想提示词
+
+工具：内置 image_gen；参考图：2026-11-11 从当前 Godot 4.7.2 项目实际渲染的雨市 wet-aisle 视角。输出是美术方向概念，不是引擎运行截图，也不代表性能实测。
+
+```text
+Use case: lighting-weather / stylized-concept.
+Asset type: a single 16:9 in-game environment visual-upgrade concept for No-Art-FPS.
+Input image 1: exact edit target and geometric reference, a real current Godot screenshot of the covered Hong Kong rain market. Preserve its camera position, field of view, perspective, composition, aisle width, roof frame grid, canopy panels, counters, stalls, hanging lamps, striped awnings, scattered props, drain in the foreground, and the distant street opening. Do not redesign the level or add buildings, furniture, people, weapons, text, or HUD.
+Primary request: relight and rematerialize this SAME low-poly scene as a polished, achievable stylized real-time FPS environment. The recognizable source layout must remain almost exactly intact. Keep the original blue/teal canopy, warm cream counter tops, red pendants and alternating red-white-blue fabric awnings. Keep simple low-poly silhouettes and cheerful clear color separation; do not turn this into a photorealistic film still.
+Lighting: warm physically motivated practical lamps cast localized soft light pools on nearby counters and the floor, cooler blue ambient fill from the open market sides, restrained warm late-afternoon light entering from the existing distant opening. Add soft contact occlusion at the bases of counters and props and gentle atmospheric depth only toward the far opening. Maintain clearly legible shadow detail and a bright central combat lane. Reduce thick uniform black outlines to subtle selective contour accents.
+Materials: dry matte painted teal counter faces with restrained edge wear, lightly worn concrete pavement with sparse irregular shallow puddles, roughness breakup and subtle normal detail, simple corrugated metal and fabric differences. Puddles reflect the actual canopy frame, existing lamps and striped awnings in geometrically plausible perspective, with blurred reflections on damp areas and sharper reflections only on isolated puddles; never make the entire floor a mirror. Roof panels stay opaque blue canopy sheets, not glass or open sky. Localized subtle bloom around lamps, controlled highlight roll-off, clear cool/warm separation. No excessive grunge, debris, fog, glare, lens flare, chromatic aberration, film grain, depth of field or motion blur. Everything stays focused and readable for an FPS.
+Output: one landscape frame, edge to edge, no labels, no split-screen comparison, no border, no captions, no watermark. This is a restrained credible material-and-lighting upgrade, not an architecture redesign.
+```

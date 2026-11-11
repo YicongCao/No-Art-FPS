@@ -1,0 +1,116 @@
+{
+  "shots": {
+    "ammo": 30,
+    "combat": {
+      "shots": 0,
+      "hits": 0,
+      "kills": 0
+    },
+    "locked": true,
+    "mode": "lock"
+  },
+  "reload": {
+    "ammo": 30,
+    "combat": {
+      "shots": 0,
+      "hits": 0,
+      "kills": 0
+    }
+  },
+  "sample": {
+    "durationMs": 10010,
+    "count": 600,
+    "meanMs": 16.665999999999993,
+    "medianMs": 16.69999999999891,
+    "p95Ms": 16.799999999999272,
+    "p99Ms": 16.80000000000109
+  },
+  "revision": "180",
+  "stats": {
+    "calls": 389,
+    "tris": 2021010,
+    "geos": 199,
+    "tex": 144,
+    "programs": 116,
+    "res": [
+      1280,
+      720
+    ],
+    "scale": 1,
+    "advanced": true,
+    "softShadows": true,
+    "fps": 59.9,
+    "state": "playing"
+  },
+  "mats": {
+    "sets": 24,
+    "textureMB": 111.6,
+    "genMs": 101,
+    "decalMB": 50.1
+  },
+  "level": {
+    "labelsAtlased": 96,
+    "containers": 47,
+    "props": 298,
+    "tris": 794188,
+    "meshes": 125
+  },
+  "quality": {
+    "name": "high",
+    "scale": 1,
+    "msaa": 4,
+    "shadow": 4096,
+    "tex": 1024,
+    "volSteps": 24,
+    "ao": true,
+    "planar": 0.5,
+    "bloom": true,
+    "motionBlur": true,
+    "rain": 1
+  },
+  "errors": [],
+  "post": {
+    "damage": 0,
+    "lowHealth": 0,
+    "ads": 0,
+    "flash": 0,
+    "fade": 0,
+    "saturation": 1,
+    "focusDist": 0,
+    "shake": 0,
+    "wet": 1
+  },
+  "planar": true,
+  "source": {
+    "name": "fable5.5一次性制作.html",
+    "sha256": "9e55b5200b088adaf8e1152da04efc0d3b25e236e6baf2dee96f81e23e084966",
+    "bytes": 1425707,
+    "gzip_bytes": 445935,
+    "three_core_and_exports_bytes": 701819,
+    "game_and_helpers_bytes": 691788,
+    "html_css_bytes": 32100,
+    "boundary": "var oi=; approximate semantic split, byte counts exact"
+  },
+  "conditions": {
+    "date": "2026-11-11",
+    "browser": "Google Chrome headless, hardware ANGLE Metal Apple M5",
+    "viewport": [
+      1280,
+      720
+    ],
+    "dpr": 1,
+    "quality": "high",
+    "dynamic_resolution": false,
+    "audio": false,
+    "sample": "10 seconds fixed camera; RAF intervals, not GPU timings; not sustained combat or mobile acceptance",
+    "gameplay_validation": "Boot, rendered play state and forward movement verified; mouse firing and reload smoke did not produce shots, so unverified."
+  },
+  "project": {
+    "revision": "88f6940",
+    "engine": "4.7.2.stable.official.ed1daf0bf",
+    "renderer": "gl_compatibility",
+    "capture": "tools/maps/capture_concept_arenas.gd -- rain_market",
+    "capture_result": "CONCEPT_ARENAS_RENDERED",
+    "scope": "Analysis and generated concept only; no runtime change"
+  }
+}
