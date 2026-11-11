@@ -13,6 +13,8 @@ const AIM_GUN_ORIGIN = Vector3(0,-.31,-.86)
 const RIFLE_REAR_APERTURE = Vector3(0,.269,-.17)
 const RIFLE_FRONT_POST_TIP = Vector3(0,.205,-.65)
 const RIFLE_POST_DISTANCE = .80
+# Viewmodel meshes also sit on this render layer; only the camera key light uses it.
+const VIEWMODEL_LAYER = 1 << 17
 const ComedyFX = preload("res://scripts/comedy_fx.gd")
 const Grenade = preload("res://scripts/grenade.gd")
 var camera: Camera3D
@@ -58,6 +60,7 @@ func _ready() -> void:
 	camera.add_child(gun)
 	gun.position = gun_origin
 	gun.scale = Vector3.ONE*.70
+	add_viewmodel_lights()
 	set_weapon_style("")
 
 	# Full-screen depth/color edges cover all opaque scenery, actors and the viewmodel.
@@ -77,16 +80,31 @@ func _ready() -> void:
 	outline.position.z = -.1
 	set_map_outline(game.arena.map_id)
 
+func add_viewmodel_lights() -> void:
+	# Warm key from upper left and a cool rim from behind right, fixed to the
+	# camera, so bevel highlights read the same in daylight and dark interiors.
+	for spec in [[Vector3(-.55,.42,-.18),Color("fff0dc"),.85,1.6],[Vector3(.62,.12,-1.25),Color("a9c8ff"),1.6,1.5]]:
+		var lamp := OmniLight3D.new()
+		lamp.position = spec[0]
+		lamp.light_color = spec[1]
+		lamp.light_energy = spec[2]
+		lamp.omni_range = spec[3]
+		lamp.light_specular = 1.0
+		lamp.light_cull_mask = VIEWMODEL_LAYER
+		lamp.shadow_enabled = false
+		camera.add_child(lamp)
+
 func set_weapon_style(mode: String) -> void:
 	if weapon_models.has(weapon_mode):weapon_models[weapon_mode].hide()
 	if not weapon_models.has(mode):
-		var asset = "res://assets/models/rifle.glb"
+		var asset = "res://assets/models/toy/rifle.glb"
 		if mode=="comedy":asset = "res://assets/models/comedy/water_blaster.glb"
 		if mode=="roach":asset = "res://assets/models/comedy/slipper_launcher.glb"
 		var model = load(asset).instantiate()
 		gun.add_child(model)
 		for part in model.find_children("*","MeshInstance3D",true,false):
 			part.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			part.layers |= VIEWMODEL_LAYER
 		if not mode.is_empty():
 			var sticker = ComedyFX.sprite(ComedyFX.ROACH_ART[0] if mode=="roach" else ComedyFX.SPLAT,.18)
 			sticker.position = Vector3(-.146,.028,.09)
