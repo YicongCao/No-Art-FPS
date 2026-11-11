@@ -1,0 +1,61 @@
+{
+  "display": "macOS",
+  "gpu": "Apple M5",
+  "maps": [
+    {
+      "draw_calls_p50": 563.0,
+      "draw_calls_p95": 667.0,
+      "end_state": "RUNNING",
+      "frame_ms_max": 180.666,
+      "frame_ms_p50": 8.625,
+      "frame_ms_p95": 11.086,
+      "frame_ms_p99": 76.446,
+      "frames": 300,
+      "map": "last_ferry",
+      "objects_p50": 684.0,
+      "phase": "transition",
+      "primitives_p50": 35729.0,
+      "seconds": 3.0,
+      "static_bytes": 72822865.0,
+      "texture_bytes": 148163952.0
+    },
+    {
+      "draw_calls_p50": 2451.0,
+      "draw_calls_p95": 2619.0,
+      "end_state": "RUNNING",
+      "frame_ms_max": 247.455,
+      "frame_ms_p50": 10.153,
+      "frame_ms_p95": 21.292,
+      "frame_ms_p99": 24.76,
+      "frames": 245,
+      "map": "bb_office",
+      "objects_p50": 2672.0,
+      "phase": "transition",
+      "primitives_p50": 188714.0,
+      "seconds": 3.0,
+      "static_bytes": 80212825.0,
+      "texture_bytes": 157554476.0
+    },
+    {
+      "draw_calls_p50": 739.0,
+      "draw_calls_p95": 800.0,
+      "end_state": "RUNNING",
+      "frame_ms_max": 85.117,
+      "frame_ms_p50": 8.998,
+      "frame_ms_p95": 11.423,
+      "frame_ms_p99": 20.957,
+      "frames": 307,
+      "map": "baggage_below",
+      "objects_p50": 960.0,
+      "phase": "transition",
+      "primitives_p50": 75883.0,
+      "seconds": 3.0,
+      "static_bytes": 75678576.0,
+      "texture_bytes": 165234044.0
+    }
+  ],
+  "note": "Live AI, stationary player, gentle camera yaw. Frame intervals include CPU/GPU scheduling and VSync; not GPU timer queries. Memory counters are engine process totals, not incremental per-map allocations.",
+  "renderer": "Compatibility",
+  "viewport": "(1280, 720)",
+  "vsync": 1
+}

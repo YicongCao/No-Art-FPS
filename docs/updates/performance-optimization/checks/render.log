@@ -1,0 +1,25 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 4.1 Metal - 91.7 - Compatibility - Using Device: Apple - Apple M5
+
+FIXTURES score_attack 0
+MAP_LOOKDEV_PASS score_attack 73
+FIXTURES amusement_park 24
+MAP_LOOKDEV_PASS amusement_park 128
+FIXTURES last_ferry 22
+MAP_LOOKDEV_PASS last_ferry 59
+FIXTURES night_studio 0
+MAP_LOOKDEV_PASS night_studio 151
+FIXTURES sandgate 0
+MAP_LOOKDEV_PASS sandgate 147
+FIXTURES bb_office 49
+MAP_LOOKDEV_PASS bb_office 261
+FIXTURES hogwarts 120
+MAP_LOOKDEV_PASS hogwarts 105
+FIXTURES baggage_below 40
+MAP_LOOKDEV_PASS baggage_below 101
+FIXTURES snowline 7
+MAP_LOOKDEV_PASS snowline 123
+FIXTURES palm_house 0
+MAP_LOOKDEV_PASS palm_house 125
+FIXTURES ginza_station 84
+MAP_LOOKDEV_PASS ginza_station 105
