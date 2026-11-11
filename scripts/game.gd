@@ -344,6 +344,7 @@ func _ready() -> void:
 		add_child(qa)
 
 func apply_map_lighting() -> void:
+	preload("res://scripts/maps/map_lookdev.gd").apply.call_deferred(arena,arena.environment_override)
 	world_environment.environment = arena.environment_override if arena.environment_override else daylight_environment
 	sun.rotation_degrees = arena.sun_rotation_degrees
 	sun.light_color = arena.sun_color

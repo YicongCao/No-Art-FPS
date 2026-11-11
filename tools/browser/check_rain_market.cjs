@@ -7,7 +7,7 @@ const fs=require('node:fs');const path=require('node:path');const assert=require
  const browser=await chromium.launch({executablePath:process.env.CHROME_BIN||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
  try{
  const context=await browser.newContext({viewport:mobile?{width:844,height:390}:{width:1280,height:720},deviceScaleFactor:1,hasTouch:mobile,isMobile:mobile});
- await context.addInitScript(()=>{localStorage.setItem('no-art-fps.title.v1',JSON.stringify({id:'rain_market'}));});
+ await context.addInitScript(id=>{localStorage.setItem('no-art-fps.title.v1',JSON.stringify({id}));},process.env.MAP_ID||'rain_market');
  const page=await context.newPage();const errors=[];const logs=[];
  page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{const t=m.text();if(m.type()==='error'||/SCRIPT ERROR|Shader.*error|ERROR:|GL_INVALID_|WebGL.*CONTEXT_LOST/.test(t))errors.push(t);if(/Godot Engine|WebGL/.test(t))logs.push(t)});
  const start=Date.now();await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});await page.locator('#loading').waitFor({state:'hidden',timeout:120000});

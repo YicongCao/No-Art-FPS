@@ -1,0 +1,26 @@
+{
+  "url": "http://127.0.0.1:8773/",
+  "mode": "desktop",
+  "loadMs": 2948,
+  "performance": {
+    "seconds": 2.004800000095367,
+    "frames": 111,
+    "meanMs": 18.017117117117113,
+    "p50Ms": 16.69999999999891,
+    "p95Ms": 16.700000000000728,
+    "p99Ms": 16.80000000000109,
+    "maxMs": 166.69999999999982,
+    "canvas": [
+      1280,
+      720
+    ],
+    "state": "RUNNING",
+    "heapBytes": 51482898
+  },
+  "errors": [],
+  "logs": [
+    "Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org",
+    "OpenGL API OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium)) - Compatibility - Using Device: WebKit - WebKit WebGL"
+  ],
+  "note": "Hardware Chrome RAF intervals, not GPU timer queries. Fresh browser cache; localhost loading is not an internet download benchmark."
+}
