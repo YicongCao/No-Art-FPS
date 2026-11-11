@@ -6,6 +6,7 @@ Every block is bevelled, then weighted normals keep faces flat while edges catch
 """
 import bpy
 import math
+from mathutils import Vector
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -30,6 +31,8 @@ PAINT = {
     'toy_vest': ('4D5B72', .44, 0, 0),
     'toy_team': ('E0513F', .34, 0, 0),
     'toy_visor': ('FF5A3C', .25, 0, 1.1),
+    'toy_gun': ('5B6476', .40, 0, 0),
+    'toy_gun_light': ('7C8496', .42, 0, 0),
 }
 MATS = {}
 
@@ -131,39 +134,76 @@ def export(name, merge=True):
                               export_format='GLB', export_yup=True, export_normals=True)
     current.location = ((len(roots) - 1) * 2.5, 0, 0)
 
+def segment(name, a, b, section, material, width=.03):
+    a, b = Vector(xyz(a)), Vector(xyz(b))
+    bpy.ops.mesh.primitive_cube_add(size=1, location=(a + b) / 2)
+    obj = bpy.context.object
+    obj.dimensions = (section[0], section[1], (b - a).length)
+    bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+    obj.rotation_mode = 'QUATERNION'
+    obj.rotation_quaternion = Vector((0, 0, 1)).rotation_difference((b - a).normalized())
+    bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
+    obj.rotation_mode = 'XYZ'
+    return finish(obj, name, material, width)
+
+def ring(name, p, major, minor, material):
+    bpy.ops.mesh.primitive_torus_add(major_radius=major, minor_radius=minor, major_segments=20,
+                                     minor_segments=8, location=xyz(p), rotation=(math.pi / 2, 0, 0))
+    bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
+    return finish(bpy.context.object, name, material, 0)
+
+def pivot(obj, p):
+    bpy.context.scene.cursor.location = xyz(p)
+    bpy.ops.object.select_all(action='DESELECT')
+    obj.select_set(True)
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
+    return obj
+
+def merge_rigid(main):
+    """Join attached parts into as few meshes as possible without changing gameplay node names.
+    Parts painted like the main mesh join it; every other colour becomes one child mesh."""
+    groups = {}
+    for o in main.children:
+        groups.setdefault(o.data.materials[0].name, []).append(o)
+    for material, parts in groups.items():
+        target = main if main.data.materials[0].name == material else parts[0]
+        rest = [o for o in parts if o is not target]
+        if not rest:
+            continue
+        bpy.ops.object.select_all(action='DESELECT')
+        for o in rest + [target]:
+            o.select_set(True)
+        bpy.context.view_layer.objects.active = target
+        bpy.ops.object.join()
+    return main
+
 # Rifle: rear aperture centre (0,.269,-.17), front post tip (0,.205,-.65), muzzle near z -1.0.
+# Layout follows docs/art/toy/concepts/tripo/player-rifle: blue receiver, cream handguard and
+# stock, one smooth top rail, ring aperture on a short stem.
 begin('rifle')
-box('receiver', (0, 0, 0), (.18, .23, .68), 'toy_primary', .035)
-box('top_cover', (0, .108, .02), (.172, .05, .56), 'toy_shell', .02)
-for x in (-.094, .094):
-    box('side_panel', (x, -.005, -.04), (.014, .13, .40), 'toy_shell', .006)
-    box('glow_strip', (x * 1.06, -.052, -.06), (.008, .022, .26), 'toy_glow', .003)
-    for i in range(3):
-        box('vent', (x * 1.02, .03, -.30 + i * .05), (.012, .045, .022), 'toy_metal', .004)
-box('rail', (0, .145, -.13), (.13, .045, .65), 'toy_metal', .01)
-for i in range(6):
-    box('rail_tooth', (0, .174, -.40 + i * .1), (.15, .022, .04), 'toy_metal', .006)
-box('foregrip', (0, .015, -.46), (.15, .18, .32), 'toy_shell', .04)
-box('foregrip_band', (0, .015, -.31), (.158, .186, .035), 'toy_primary', .012)
-for x in (-.077, .077):
-    box('grip_slot', (x, -.01, -.50), (.008, .03, .16), 'toy_rubber', .004)
-cyl('barrel', (0, .015, -.77), .04, .3, 'toy_metal', 'z', 16, .006)
-cyl('muzzle', (0, .015, -.94), .058, .11, 'toy_primary', 'z', 16, .014)
-cyl('muzzle_ring', (0, .015, -.875), .061, .016, 'toy_glow', 'z', 16, .003)
-box('stock', (0, -.02, .42), (.15, .21, .28), 'toy_shell', .045)
-box('stock_pad', (0, -.025, .57), (.156, .22, .045), 'toy_rubber', .015)
+box('receiver', (0, 0, 0), (.19, .24, .60), 'toy_primary', .035)
+for x in (-.097, .097):
+    box('side_panel', (x, -.005, -.02), (.014, .12, .36), 'toy_shell', .006)
+    box('glow_strip', (x * 1.07, -.02, -.02), (.008, .026, .24), 'toy_glow', .003)
+    box('guard_slot', (x * .87, .01, -.50), (.008, .035, .17), 'toy_rubber', .004)
+box('badge', (.098, .075, .14), (.012, .045, .075), 'toy_accent', .006)
+box('handguard', (0, .01, -.50), (.165, .19, .42), 'toy_shell', .04)
+cyl('barrel', (0, .01, -.80), .038, .2, 'toy_metal', 'z', 16, .006)
+cyl('muzzle_ring', (0, .01, -.905), .05, .025, 'toy_glow', 'z', 16, .004)
+cyl('muzzle', (0, .01, -.955), .058, .09, 'toy_primary', 'z', 16, .016)
+box('stock', (0, 0, .45), (.17, .22, .30), 'toy_shell', .045)
+box('stock_pad', (0, 0, .615), (.18, .235, .05), 'toy_rubber', .015)
+box('rail', (0, .145, -.06), (.125, .05, .50), 'toy_metal', .014)
+box('sight_base', (0, .19, -.17), (.05, .045, .05), 'toy_shell', .01)
+ring('sight_ring', (0, .269, -.17), .058, .013, 'toy_metal')
+box('post_base', (0, .12, -.65), (.05, .03, .05), 'toy_metal', .008)
+box('front_sight', (0, .165, -.65), (.022, .08, .022), 'toy_accent', .005)
 box('magazine', (0, -.25, .02), (.12, .34, .18), 'toy_metal', .025)
-box('mag_window', (0, -.22, .02), (.126, .12, .05), 'toy_glow', .006)
+box('mag_window', (0, -.22, .02), (.126, .13, .045), 'toy_glow', .006)
 box('mag_base', (0, -.42, .02), (.13, .04, .19), 'toy_primary', .014)
 box('grip', (0, -.24, .27), (.1, .27, .13), 'toy_rubber', .03, (-.18, 0, 0))
 box('trigger_guard', (0, -.14, .17), (.055, .1, .13), 'toy_metal', .012)
-for x in (-.062, .062):
-    box('sight_side', (x, .265, -.17), (.025, .16, .035), 'toy_metal', .006)
-box('sight_top', (0, .345, -.17), (.15, .026, .035), 'toy_metal', .006)
-box('sight_base', (0, .188, -.17), (.15, .035, .08), 'toy_shell', .01)
-box('post_base', (0, .12, -.65), (.06, .03, .05), 'toy_metal', .008)
-box('front_sight', (0, .16, -.65), (.025, .09, .025), 'toy_accent', .005)
-box('badge', (.097, .055, .18), (.012, .05, .1), 'toy_accent', .006)
 box('left_glove', (-.08, -.16, -.38), (.15, .14, .18), 'toy_glove', .04)
 box('left_cuff', (-.17, -.29, -.27), (.19, .07, .21), 'toy_cuff', .025, (.45, 0, .35))
 box('left_sleeve', (-.22, -.36, -.19), (.21, .35, .23), 'toy_sleeve', .05)
@@ -172,28 +212,60 @@ box('right_cuff', (.07, -.33, .39), (.18, .06, .2), 'toy_cuff', .022, (.35, 0, -
 box('right_sleeve', (.1, -.42, .45), (.2, .34, .23), 'toy_sleeve', .05)
 export('rifle')
 
-# Enemy: names and pivots match the original actor. Head hit sphere stays at y 1.70.
+# Enemy rifleman, after docs/art/toy/concepts/tripo/rifleman: big helmet, coral pads, boots.
+# Gameplay names stay; limbs pivot at shoulder and hip. Head hit sphere stays at y 1.70,
+# the shot origin at (.22, 1.12, -.58) is the blaster's front opening.
 begin('enemy')
-box('Torso', (0, 1.21, 0), (.46, .54, .26), 'toy_body', .07)
-box('Vest', (0, 1.24, -.15), (.36, .34, .08), 'toy_vest', .03)
-box('ChestMark', (0, 1.33, -.195), (.16, .05, .02), 'toy_visor', .008)
-box('Backpack', (0, 1.22, .17), (.30, .34, .12), 'toy_body_dark', .04)
-box('Pelvis', (0, .86, 0), (.32, .17, .24), 'toy_body_dark', .04)
-cyl('Neck', (0, 1.52, 0), .075, .12, 'toy_body_dark')
-cyl('Head', (0, 1.68, 0), .17, .28, 'toy_body', 'y', 16, .035)
-helmet = cyl('Helmet', (0, 1.81, 0), .2, .12, 'toy_body_dark', 'y', 16, .04)
-attach(box('Crest', (0, 1.88, .01), (.05, .045, .32), 'toy_team', .015), helmet)
-box('Visor', (0, 1.70, -.165), (.28, .065, .04), 'toy_visor', .015)
-for side, x in [('Left', -.145), ('Right', .145)]:
-    leg = box(side + 'Leg', (x, .46, 0), (.15, .68, .17), 'toy_body', .045)
-    attach(box(side + 'Knee', (x, .52, -.095), (.12, .11, .04), 'toy_vest', .015), leg)
-    box(side + 'Foot', (x, .09, -.06), (.19, .16, .30), 'toy_body_dark', .05)
-for side, x in [('Left', -.30), ('Right', .30)]:
-    arm = box(side + 'Arm', (x, 1.17, -.025), (.14, .46, .16), 'toy_body', .045)
-    attach(box(side + 'Pad', (x * 1.04, 1.40, -.02), (.18, .11, .21), 'toy_team', .04), arm)
-    box(side + 'Hand', (x, 1.02, -.18), (.12, .13, .14), 'toy_rubber', .04)
-gun = box('EnemyGun', (.22, 1.12, -.35), (.1, .12, .45), 'toy_metal', .025)
-attach(box('GunStripe', (.272, 1.14, -.38), (.006, .025, .24), 'toy_visor', .003), gun)
+torso = box('Torso', (0, 1.30, 0), (.56, .38, .32), 'toy_body', .08)
+attach(box('Backpack', (0, 1.29, .22), (.38, .36, .14), 'toy_body_dark', .04), torso)
+attach(box('PackPlate', (0, 1.30, .295), (.18, .08, .02), 'toy_vest', .01), torso)
+attach(box('Belt', (0, 1.11, 0), (.48, .08, .33), 'toy_vest', .02), torso)
+attach(box('Pelvis', (0, 1.0, 0), (.40, .17, .27), 'toy_body_dark', .04), torso)
+attach(cyl('Neck', (0, 1.51, 0), .075, .10, 'toy_body_dark'), torso)
+merge_rigid(torso)
+vest = box('Vest', (0, 1.32, -.165), (.44, .30, .07), 'toy_vest', .03)
+attach(box('ChestMark', (0, 1.36, -.203), (.15, .045, .02), 'toy_visor', .008), vest)
+head = box('Head', (0, 1.68, 0), (.36, .29, .33), 'toy_body', .07)
+for side, x in [('Left', -.195), ('Right', .195)]:
+    attach(cyl(side + 'Ear', (x, 1.68, .01), .075, .05, 'toy_body_dark', 'x', 16, .012), head)
+merge_rigid(head)
+helmet = box('Helmet', (0, 1.835, .01), (.39, .11, .37), 'toy_body_dark', .045)
+attach(box('Crest', (0, 1.915, 0), (.08, .075, .38), 'toy_team', .025), helmet)
+box('Visor', (0, 1.70, -.167), (.28, .08, .04), 'toy_visor', .015)
+for side, x in [('Left', -.16), ('Right', .16)]:
+    leg = pivot(box(side + 'Leg', (x, .81, 0), (.20, .32, .22), 'toy_body', .05), (x, .98, 0))
+    attach(box(side + 'Shin', (x, .38, .01), (.22, .40, .24), 'toy_body', .055), leg)
+    attach(cyl(side + 'KneeJoint', (x, .62, 0), .08, .17, 'toy_body_dark', 'x', 12, .01), leg)
+    attach(box(side + 'Knee', (x, .60, -.13), (.19, .15, .06), 'toy_vest', .025), leg)
+    attach(box(side + 'Foot', (x, .095, -.05), (.26, .19, .37), 'toy_body_dark', .05), leg)
+    merge_rigid(leg)
+hands = {'Left': (.20, 1.07, -.50), 'Right': (.25, 1.03, -.24)}
+elbows = {'Left': (-.30, 1.17, -.27), 'Right': (.40, 1.20, -.04)}
+for side, s in [('Left', -1), ('Right', 1)]:
+    shoulder = (.37 * s, 1.43, 0)
+    arm = pivot(segment(side + 'Arm', shoulder, elbows[side], (.18, .19), 'toy_body', .05), shoulder)
+    attach(segment(side + 'Forearm', elbows[side], hands[side], (.16, .17), 'toy_body', .05), arm)
+    attach(cyl(side + 'Elbow', elbows[side], .088, .17, 'toy_body_dark', 'x', 12, .01), arm)
+    attach(box(side + 'Pad', (.39 * s, 1.47, 0), (.25, .16, .27), 'toy_team', .06), arm)
+    merge_rigid(arm)
+    box(side + 'Hand', hands[side], (.14, .14, .15), 'toy_rubber', .045)
+G = (.22, 1.12, -.36)
+def gp(x, y, z):
+    return (G[0] + x, G[1] + y, G[2] + z)
+gun = box('EnemyGun', G, (.10, .11, .34), 'toy_gun', .022)
+for part in [
+    box('GunMuzzle', gp(0, .005, -.205), (.078, .078, .08), 'toy_body_dark', .016),
+    box('GunBore', gp(0, .005, -.246), (.038, .038, .012), 'toy_rubber', 0),
+    box('GunStock', gp(0, 0, .215), (.112, .125, .09), 'toy_gun_light', .022),
+    box('GunTop', gp(0, .073, -.03), (.05, .04, .08), 'toy_body_dark', .01),
+    box('GunRear', gp(0, .066, .12), (.04, .025, .04), 'toy_body_dark', .006),
+    box('GunClip', gp(0, -.11, -.06), (.05, .13, .08), 'toy_gun_light', .012),
+    box('GunGrip', gp(0, -.10, .09), (.045, .12, .06), 'toy_body_dark', .012, (-.3, 0, 0)),
+    box('GunStripe', gp(-.052, .012, -.02), (.006, .022, .22), 'toy_visor', .003),
+    box('GunStripe', gp(.052, .012, -.02), (.006, .022, .22), 'toy_visor', .003),
+]:
+    attach(part, gun)
+merge_rigid(gun)
 export('enemy', False)
 
 bpy.ops.wm.save_as_mainfile(filepath=str(ROOT / 'art_source/toy_actors.blend'), compress=True)

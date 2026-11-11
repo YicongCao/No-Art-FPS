@@ -6,6 +6,7 @@ builds/
 logs/
 artifacts/local/
 docs/design/reference/
+art_source/toy/hunyuan/*_raw.glb
 
 __pycache__/
 *.pyc

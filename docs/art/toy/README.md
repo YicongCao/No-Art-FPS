@@ -85,3 +85,29 @@ godot --headless --path . --script tools/maps/apply_toy_kit.gd
 - 倒角使院子道具三角面约增加 4 倍；需要给远处道具做低模 LOD，或减少波纹的倒角段数。
 - `tests/interaction_check.gd` 的重生断言与 `--graffiti` 重复视角断言在 `main` 上同样失败；`--containers` 的放出守卫断言在两个分支上都偶发失败。均非本分支引入。
 - 其余地图的专属道具（温室、城堡、雪线等）还未套用倒角规范。
+
+## 第二轮：按四视图重建敌人与步枪
+
+混元 3D 原件不能直接用，原因见 [`art_source/toy/hunyuan/README.md`](../../../art_source/toy/hunyuan/README.md)。改为在 `tools/build_toy_actors.py` 中照 [`concepts/tripo/`](concepts/tripo/README.md) 程序化重建：
+
+- **步枪手（`enemy.glb`）：**
+  - 加粗躯干、四肢和靴子，加大护肩，头盔改为整块加珊瑚色头盔脊，加耳罩；胸甲、腰带、护膝用石板灰；
+  - 四肢的枢轴从部件中心移到肩和髋，走路时绕关节摆动；上臂和前臂分段，双手握枪；
+  - 节点名、头部判定 1.70 米、开火点 `(.22, 1.12, -.58)` 不变；
+  - 每个部件里，与主体同色的块并进主体，其余颜色各并成一个子网格；共 8288 面、29 个网格。
+- **敌人的枪：** 按四视图改成石板灰机身、炭灰枪口块、浅灰枪托和弹匣，两侧各一道发光条，枪口正对开火点。
+- **玩家步枪（`rifle.glb`）：** 蓝色机匣、奶油色护木和枪托、一整条顶部导轨、环形照门。照门中心、准星顶点和枪口坐标不变，共 5964 面。
+
+| 两种敌人 | 关节摆动 |
+| --- | --- |
+| ![两种敌人](actors/pair.png) | ![关节摆动](actors/walk-pose.png) |
+| 腰射 | 开镜 |
+| ![腰射](actors/rifle-hip.png) | ![开镜](actors/rifle-aim.png) |
+
+截图：`godot --path . --script tests/toy_actor_capture.gd`。
+
+自动检查：瞄准照门、颜色材质、`--combat`、`--dodge`、`--awareness`、`--enemy-accuracy`、`--damage-feedback`、`--finale`，以及一局 60 秒自动对局，全部通过。`comedy_check` 在第 87 行失败（狂暴模式下快攻敌人的生命值断言），改动前同样失败。尚未人工试玩。
+
+院子性能基准（12 个敌人、不限帧）：draw call 2128 -> 2256，帧时间 P50 7.58 -> 7.41 毫秒，P99 11.9 -> 12.8 毫秒，在测量波动范围内。多出的 draw call 来自每个敌人多 5 个网格，各带一次边缘光绘制。
+
+已知问题：快攻敌人仍共用步枪手模型，只换成橙色并隐藏枪，左手会停在原本握枪的位置。下一步按 `concepts/tripo/rusher/` 单独建模。
