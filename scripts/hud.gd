@@ -46,6 +46,9 @@ const RESTART_ICON = preload("res://assets/ui/settings/restart.svg")
 const PAUSE_HOME_ICON = preload("res://assets/ui/settings/home.svg")
 const SLIDER_GRIP = preload("res://assets/ui/settings/grip.svg")
 const MEDAL_ICON = preload("res://assets/ui/maps/best-medal.svg")
+const DIFFICULTY_ICON = preload("res://assets/ui/maps/difficulty.svg")
+const DIFFICULTY_STAR = preload("res://assets/ui/maps/difficulty-star.svg")
+const DIFFICULTY_STAR_EMPTY = preload("res://assets/ui/maps/difficulty-star-empty.svg")
 const GRENADE_ICONS = {
 	"": preload("res://assets/ui/frag-grenade.svg"),
 	"comedy": preload("res://assets/ui/stink-bomb.svg"),
@@ -578,11 +581,11 @@ func menu_button(text: String, rect: Rect2, action: String, primary: bool = fals
 	return button
 
 func map_button(node_name: String, map_name: String, action: String, thumbnail: Texture2D,
-		rect: Rect2, selected: bool, best_kills: int) -> Button:
+		rect: Rect2, selected: bool, best_kills: int, difficulty: int) -> Button:
 	var card = Button.new()
 	card.name = node_name
 	card.accessibility_name = map_name
-	card.accessibility_description = tr("Best kills %d")%best_kills
+	card.accessibility_description = "%s · %s"%[tr("Difficulty %d of 5")%difficulty,tr("Best kills %d")%best_kills]
 	card.position = rect.position
 	card.size = rect.size
 	card.disabled = game.switching_session
@@ -610,6 +613,7 @@ func map_button(node_name: String, map_name: String, action: String, thumbnail: 
 	card.pressed.connect(func():game.menu_action(action))
 	map_grid.add_child(card)
 	map_record(card,best_kills)
+	map_difficulty(card,difficulty)
 	return card
 
 func map_record(card: Button, best_kills: int) -> void:
@@ -643,6 +647,32 @@ func map_record(card: Button, best_kills: int) -> void:
 	record.reset_size()
 	record.scale = Vector2.ONE*.5
 	record.position = Vector2(card.size.x-record.size.x*record.scale.x-8,8)
+
+func map_difficulty(card: Button, difficulty: int) -> void:
+	var badge = PanelContainer.new()
+	badge.name = "Difficulty"
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var backing = card.get_node("Record").get_theme_stylebox("panel").duplicate()
+	backing.content_margin_left = 6
+	backing.content_margin_right = 6
+	badge.add_theme_stylebox_override("panel",backing)
+	card.add_child(badge)
+	var row = HBoxContainer.new()
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_theme_constant_override("separation",2)
+	badge.add_child(row)
+	for i in range(6):
+		var icon = TextureRect.new()
+		icon.texture = DIFFICULTY_ICON if i==0 else (DIFFICULTY_STAR if i<=difficulty else DIFFICULTY_STAR_EMPTY)
+		icon.custom_minimum_size = Vector2(28,28) if i==0 else Vector2(18,28)
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(icon)
+	badge.reset_size()
+	badge.scale = Vector2.ONE*.5
+	badge.position = Vector2(8,8)
 
 func sync_comedy_buttons() -> void:
 	for action in comedy_buttons:
@@ -975,18 +1005,18 @@ func rebuild_menu() -> void:
 		map_scroll.add_child(map_grid)
 		map_scroll.set_deferred("scroll_vertical",map_scroll_offset)
 		var maps = [
-			["MapYard",tr("Container Yard"),"arena",YARD_THUMBNAIL,"score_attack"],
-			["MapPark",tr("Sunset Park"),"amusement_park",PARK_THUMBNAIL,"amusement_park"],
-			["MapFerry",tr("Last Ferry"),"last_ferry",FERRY_THUMBNAIL,"last_ferry"],
-			["MapStudio",tr("Night Studio"),"night_studio",STUDIO_THUMBNAIL,"night_studio"],
-			["MapSandgate",tr("Sandgate"),"sandgate",SANDGATE_THUMBNAIL,"sandgate"],
-			["MapOffice",tr("BB Office"),"bb_office",OFFICE_THUMBNAIL,"bb_office"],
-			["MapRainMarket",tr("Hong Kong Rain Market"),"rain_market",RAIN_THUMBNAIL,"rain_market"],
-			["MapGinza",tr("Ginza Station"),"ginza_station",GINZA_THUMBNAIL,"ginza_station"],
-			["MapSnowline",tr("Snowline Observatory"),"snowline",SNOWLINE_THUMBNAIL,"snowline"],
-			["MapHogwarts",tr("Hogwarts"),"hogwarts",HOGWARTS_THUMBNAIL,"hogwarts"],
-			["MapPalmHouse",tr("Palm House"),"palm_house",PALM_THUMBNAIL,"palm_house"],
-			["MapBaggage",tr("Baggage Below"),"baggage_below",BAGGAGE_THUMBNAIL,"baggage_below"],
+			["MapYard",tr("Container Yard"),"arena",YARD_THUMBNAIL,"score_attack",2],
+			["MapPark",tr("Sunset Park"),"amusement_park",PARK_THUMBNAIL,"amusement_park",2],
+			["MapFerry",tr("Last Ferry"),"last_ferry",FERRY_THUMBNAIL,"last_ferry",4],
+			["MapStudio",tr("Night Studio"),"night_studio",STUDIO_THUMBNAIL,"night_studio",3],
+			["MapSandgate",tr("Sandgate"),"sandgate",SANDGATE_THUMBNAIL,"sandgate",4],
+			["MapOffice",tr("BB Office"),"bb_office",OFFICE_THUMBNAIL,"bb_office",3],
+			["MapRainMarket",tr("Hong Kong Rain Market"),"rain_market",RAIN_THUMBNAIL,"rain_market",1],
+			["MapGinza",tr("Ginza Station"),"ginza_station",GINZA_THUMBNAIL,"ginza_station",4],
+			["MapSnowline",tr("Snowline Observatory"),"snowline",SNOWLINE_THUMBNAIL,"snowline",4],
+			["MapHogwarts",tr("Hogwarts"),"hogwarts",HOGWARTS_THUMBNAIL,"hogwarts",3],
+			["MapPalmHouse",tr("Palm House"),"palm_house",PALM_THUMBNAIL,"palm_house",5],
+			["MapBaggage",tr("Baggage Below"),"baggage_below",BAGGAGE_THUMBNAIL,"baggage_below",3],
 		]
 		var tab_order = [fire_button]
 		for i in range(maps.size()):
@@ -995,7 +1025,7 @@ func rebuild_menu() -> void:
 			var row = floori(i/3.0)
 			var position = Vector2(column*(width+gap),row*(height+gap))
 			tab_order.append(map_button(item[0],item[1],item[2],item[3],Rect2(position,Vector2(width,height)),
-				game.title_session_id==item[4],game.map_best_score(item[4])))
+				game.title_session_id==item[4],game.map_best_score(item[4]),item[5]))
 		if not OS.has_feature("web"):
 			var modes = [["comedy",tr("Poop Mode"),COMEDY_ICON,Color("62412f")],
 				["roach",tr("Cockroach Mode"),ROACH_ICON,Color("533c65")]]
