@@ -5,6 +5,7 @@ uniform sampler2D detail_noise : repeat_enable, filter_linear_mipmap;
 uniform float roughness_value = 0.8;
 uniform float metallic_value = 0.0;
 uniform int kind = 0; // 1 metal, 2 masonry, 3 wood, 4 textile, 5 foliage, 6 snow, 7 tile
+uniform bool use_vertex_color = false;
 uniform bool roof_pattern = false;
 uniform float daylight = 1.0;
 varying vec3 world;
@@ -15,11 +16,12 @@ void fragment(){
  float n=texture(detail_noise,world.yz*.44).r*weights.x+texture(detail_noise,world.xz*.44).r*weights.y+texture(detail_noise,world.xy*.44).r*weights.z;
  
  vec3 c=base_color.rgb;
- float variation=.07;
- if(kind==2){variation=.14;}
- if(kind==3){n=mix(n,texture(detail_noise,vec2(world.x+world.y,world.z)*vec2(1.7,.08)).r,.7);variation=.26;}
+ if(use_vertex_color){c*=COLOR.rgb;}
+ float variation=0.0;
+ if(kind==2){variation=.06;}
+ if(kind==3){n=mix(n,texture(detail_noise,vec2(world.x+world.y,world.z)*vec2(1.7,.08)).r,.7);variation=.12;}
  if(kind==4){variation=.13;}
- if(kind==5){variation=.14;c*=mix(.78,1.18,smoothstep(-.4,.8,world_normal.y));BACKLIGHT=c*.28;}
+ if(kind==5){variation=.06;c*=mix(.90,1.06,smoothstep(-.4,.8,world_normal.y));BACKLIGHT=c*.28;}
  if(kind==6){variation=.09;c*=vec3(.62,.69,.77);}
  c*=1.0+(n-.5)*variation;
  if(kind==7){vec2 grid=abs(fract(world.xz/1.5)-.5);float seam=smoothstep(.478,.496,max(grid.x,grid.y));c*=1.0-seam*.16;}

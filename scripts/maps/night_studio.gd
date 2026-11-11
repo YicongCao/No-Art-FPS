@@ -24,7 +24,38 @@ func _ready() -> void:
 		spot.spot_angle = 20.0
 		spot.shadow_enabled = index==2 and not OS.has_feature("web")
 		SweepingLight.add_shaft(spot,spot.spot_range-1.3,.20,14.0,.17)
+	add_key_softbox()
 	pose_spots(0)
+
+func add_key_softbox() -> void:
+	# A broad, fixed key provides readable faces between the moving stage spots.
+	var fixture := Node3D.new()
+	fixture.name = "StageKeySoftbox"
+	fixture.position = Vector3(0,5.55,1.4)
+	add_child(fixture)
+	var housing := MeshInstance3D.new()
+	var box := BoxMesh.new()
+	box.size = Vector3(2.9,.16,1.2)
+	housing.mesh = box
+	var casing := StandardMaterial3D.new()
+	casing.albedo_color = Color("25304a")
+	housing.material_override = casing
+	fixture.add_child(housing)
+	var diffuser := MeshInstance3D.new()
+	var panel := BoxMesh.new()
+	panel.size = Vector3(2.7,.035,1.03)
+	diffuser.mesh = panel
+	diffuser.position.y = -.095
+	var paint := StandardMaterial3D.new()
+	paint.albedo_color = Color("fff1d9")
+	paint.emission_enabled = true
+	paint.emission = Color("fff1d9")
+	paint.emission_energy_multiplier = .8
+	diffuser.material_override = paint
+	diffuser.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	fixture.add_child(diffuser)
+	var key = SweepingLight.add_spot(fixture,"Key",Vector3(0,-.15,0),Color("fff0d4"),2.1,15,58,false)
+	key.look_at(to_global(Vector3(0,1.1,-4.6)))
 
 func _process(_delta: float) -> void:
 	if game and game.state=="RUNNING" and game.rules.active and not game.finale_active:

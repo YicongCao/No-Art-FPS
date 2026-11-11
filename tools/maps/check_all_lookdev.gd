@@ -10,7 +10,8 @@ func run() -> void:
  game.set_physics_process(false)
  var sessions: Dictionary = game.TITLE_SESSIONS.duplicate()
  sessions.merge(game.CONCEPT_SESSIONS)
- var out = "res://docs/updates/maps-custom-lookdev/after/"
+ var out = OS.get_environment("LOOKDEV_CAPTURE_DIR")
+ if out.is_empty():out="res://docs/updates/maps-custom-lookdev/after/"
  DirAccess.make_dir_recursive_absolute(out)
  for id in sessions:
   if id=="rain_market":continue
@@ -41,7 +42,7 @@ func run() -> void:
     await RenderingServer.frame_post_draw
     root.get_texture().get_image().save_png(out+id+("-left" if view<0 else "-right")+".png")
   game.player.rotation.y=original_yaw
-  var focus = {"last_ferry":[Vector3(-12,2,0),Vector3(-38,-3,-48)],"amusement_park":[Vector3(0,2,9),Vector3(0,2,1)],"palm_house":[Vector3(0,1.7,7),Vector3(0,3,0)]}
+  var focus = {"last_ferry":[Vector3(-12,2,0),Vector3(-38,-3,-48)],"amusement_park":[Vector3(0,2,9),Vector3(0,2,1)],"palm_house":[Vector3(0,1.7,7),Vector3(0,3,0)],"hogwarts":[Vector3(-25.3,2.1,24),Vector3(-25.3,5,31.6)],"night_studio":[Vector3(0,1.7,5),Vector3(0,3,-4)],"bb_office":[Vector3(-3.78,1.7,-8),Vector3(-3.78,1.93,-11.94)]}
   if focus.has(id) and DisplayServer.get_name()!="headless":
    var pose: Transform3D = game.player.camera.global_transform
    game.player.camera.global_position=focus[id][0]

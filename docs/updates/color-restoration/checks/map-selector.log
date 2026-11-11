@@ -1,0 +1,9 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+WARNING: Map selection reverted: navigation or spawn validation failed
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] select_session (res://scripts/game.gd:2010)
+         [1] wait_for_map_navigation (res://scripts/game.gd:2045)
+MAP_SELECTOR_PASS: nine visible cards, wheel reveals Hogwarts and Palm House, staged selection, focus, rollback, records, and FIRE
+

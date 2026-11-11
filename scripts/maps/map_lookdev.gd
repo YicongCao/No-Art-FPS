@@ -18,6 +18,8 @@ const PROFILES = {
 }
 var arena: Node3D
 var cache: Dictionary = {}
+var surface_shaders: Dictionary = {}
+var authored_ambient := Color.WHITE
 var receivers: Array[Dictionary] = []
 var fixture_count := 0
 var frenzy := false
@@ -38,6 +40,7 @@ static func apply(map: Node3D, _environment: Environment) -> void:
  component.setup()
 
 func setup() -> void:
+ authored_ambient=arena.game.world_environment.environment.ambient_light_color
  configure_materials()
  configure_fixtures()
  configure_atmosphere()
@@ -53,14 +56,14 @@ func apply_state(active: bool) -> void:
  var profile: Array = PROFILES[arena.map_id]
  var env: Environment = arena.game.world_environment.environment
  if env:
-  env.ambient_light_color = Color(profile[3]) if not active else env.ambient_light_color
+  env.ambient_light_color = authored_ambient if not active else env.ambient_light_color
   env.ambient_light_energy = profile[2] if not active else minf(env.ambient_light_energy,.55)
   env.ssao_enabled = true
   env.ssao_radius = .48
   env.ssao_intensity = .85
   env.ssao_power = 1.3
   env.ssao_light_affect = .15
-  env.glow_enabled = true
+  env.glow_enabled = false
   env.glow_intensity = .23
   env.glow_bloom = .025
   env.glow_hdr_threshold = 1.1
@@ -72,11 +75,12 @@ func apply_state(active: bool) -> void:
  if not active:
   if arena.map_id in ["bb_office","night_studio","ginza_station","baggage_below"]:arena.game.sun.light_energy = .18
   elif arena.map_id=="snowline":arena.game.sun.light_energy = .48
+  elif arena.map_id=="last_ferry":arena.game.sun.light_energy = .22
  for material in cache.values():
   if material is ShaderMaterial:material.set_shader_parameter("daylight",0.0 if active else 1.0)
 
 func classify(label: String) -> int:
- if label in ["metal","steel","iron","galvanized","copper","bronze","brass","gold","rail","frame","duct_joint"]:return 1
+ if label in ["metal","steel","iron","galvanized","copper","bronze","brass","gold","rail","duct_joint"]:return 1
  if label in ["stone","rock","rock_light","flagstone","plaster","concrete","sand","clay","brick","grout","paving","pavement"]:return 2
  if label in ["wood","wood_light","wood_dark","timber","oak","deck","plank","trunk","crate","sleeper"]:return 3
  if label in ["carpet","carpet_dark","carpet_light","cable","rubber"]:return 4
@@ -96,7 +100,12 @@ func configure_materials() -> void:
    var key := str(original.get_instance_id())+":"+str(mesh.get_path()).get_slice("/",3)
    if not cache.has(key):
     var canopy_bulb: bool = arena.map_id=="amusement_park" and "CarouselCanopy" in str(mesh.get_path()) and original.resource_name=="gold_light"
-    if original.emission_enabled or original.albedo_texture or canopy_bulb:
+    var kind := classify(original.resource_name)
+    var context := str(mesh.get_path()).to_lower()
+    # Colored coatings stay dielectric, including white greenhouse frames.
+    if original.resource_name=="gold" and arena.map_id=="amusement_park":kind=0
+    if arena.map_id=="night_studio" and "curtain" in context:kind=4
+    if original.emission_enabled or original.albedo_texture or canopy_bulb or kind==0:
      var copy := original.duplicate() as StandardMaterial3D
      if canopy_bulb:
       copy.emission_enabled=true;copy.emission=Color("ffd18a");copy.emission_energy_multiplier=1.2
@@ -104,12 +113,7 @@ func configure_materials() -> void:
      cache[key] = copy
     else:
      var material := ShaderMaterial.new()
-     material.shader = SURFACE
-     var kind := classify(original.resource_name)
-     var context := str(mesh.get_path()).to_lower()
-     if arena.map_id=="yard" and ("container" in context or "forklift" in context):kind=1
-     if arena.map_id=="amusement_park" and "carousel" in context and original.resource_name in ["gold","gold_light"]:kind=1
-     if arena.map_id=="night_studio" and "curtain" in context:kind=4
+     material.shader = surface_shader(original.cull_mode)
      var roughness := .64
      var metallic := 0.0
      match kind:
@@ -125,6 +129,7 @@ func configure_materials() -> void:
      if original.resource_name in ["ice","glass","window","display_glass","glass_blue","laptop_glass"]:roughness = .19;metallic = .18
      if original.resource_name=="soil":roughness = .58
      material.set_shader_parameter("base_color",original.albedo_color)
+     material.set_shader_parameter("use_vertex_color",original.vertex_color_use_as_albedo)
      material.set_shader_parameter("detail_noise",DETAIL)
      material.set_shader_parameter("kind",kind)
      material.set_shader_parameter("roughness_value",roughness)
@@ -133,6 +138,16 @@ func configure_materials() -> void:
      cache[key] = material
    if index==-1:mesh.material_override=cache[key]
    else:mesh.set_surface_override_material(index,cache[key])
+
+func surface_shader(cull: int) -> Shader:
+ if not surface_shaders.has(cull):
+  if cull==BaseMaterial3D.CULL_BACK:surface_shaders[cull]=SURFACE
+  else:
+   var shader := Shader.new()
+   var mode := "cull_disabled" if cull==BaseMaterial3D.CULL_DISABLED else "cull_front"
+   shader.code=SURFACE.code.replace("render_mode diffuse_burley,", "render_mode "+mode+", diffuse_burley,")
+   surface_shaders[cull]=shader
+ return surface_shaders[cull]
 
 # Extract separate fixture boxes from their original mesh, before material names are replaced.
 # Spatial clustering joins duplicated triangle vertices but never merges different lamps.
@@ -197,11 +212,11 @@ func configure_fixtures() -> void:
     if not original or not original.resource_name in wanted:continue
     for at in fixture_centers(mesh,surface):
      if fixture_count>=120:break
-     add_receiver(at-Vector3.UP*.2,Vector2(2.8,2.8),Color("ffcb83"),.48)
+     add_receiver(at-Vector3.UP*.2,Vector2(2.8,2.8),Color("ffcb83"),.30 if id=="last_ferry" else .48)
  # Existing moving spots remain the authoritative source for stage/searchlight illumination.
  for light in arena.find_children("*","SpotLight3D",true,false):
   if id in ["night_studio","last_ferry"]:
-   light.light_energy *= 1.65
+   light.light_energy *= 1.1 if id=="last_ferry" else 1.65
    light.spot_attenuation = .65
 
 func configure_atmosphere() -> void:
@@ -273,7 +288,7 @@ func configure_reflection() -> void:
  if not water:return
  for mesh: MeshInstance3D in arena.find_children("*","MeshInstance3D",true,false):
   if mesh==sea:continue
-  if mesh.material_override is ShaderMaterial and mesh.material_override.shader!=SURFACE:continue
+  if mesh.material_override is ShaderMaterial and mesh.material_override.shader not in surface_shaders.values():continue
   mesh.layers |= REFLECTION_LAYER
  reflection=SubViewport.new();reflection.size=Vector2i(640,360)
  reflection.world_3d=get_viewport().world_3d

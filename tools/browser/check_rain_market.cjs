@@ -23,7 +23,24 @@ const fs=require('node:fs');const path=require('node:path');const assert=require
  await page.waitForTimeout(250);await page.screenshot({path:path.join(out,'gameplay.png')});await page.waitForTimeout(1250);
  // A real running round with a stationary viewpoint, firing and reloading.
  if(!mobile)await page.mouse.down();
- const samplePromise=page.evaluate(seconds=>new Promise(resolve=>{const a=[];let last=performance.now();const begin=last;function tick(t){a.push(t-last);last=t;if(t-begin<seconds*1000)requestAnimationFrame(tick);else{a.shift();a.sort((x,y)=>x-y);const c=document.querySelector('#canvas');resolve({seconds:(t-begin)/1000,frames:a.length,meanMs:a.reduce((s,v)=>s+v,0)/a.length,p50Ms:a[a.length>>1],p95Ms:a[Math.floor(a.length*.95)],p99Ms:a[Math.floor(a.length*.99)],maxMs:a.at(-1),canvas:[c.width,c.height],state:document.body.dataset.game,heapBytes:performance.memory?.usedJSHeapSize})}}requestAnimationFrame(tick)}),duration);
+ const samplePromise=page.evaluate(({seconds,captureTrace})=>new Promise(resolve=>{
+  const a=[],trace=[];let last=performance.now();const begin=last;
+  function tick(t){
+   const dt=t-last;a.push(dt);
+   if(captureTrace)trace.push([Math.round(t-begin),Math.round(dt*1000)/1000,document.body.dataset.game]);
+   last=t;
+   if(t-begin<seconds*1000)requestAnimationFrame(tick);
+   else{
+    a.shift();a.sort((x,y)=>x-y);const c=document.querySelector('#canvas');
+    resolve({seconds:(t-begin)/1000,frames:a.length,meanMs:a.reduce((s,v)=>s+v,0)/a.length,
+     p50Ms:a[a.length>>1],p95Ms:a[Math.floor(a.length*.95)],p99Ms:a[Math.floor(a.length*.99)],maxMs:a.at(-1),
+     canvas:[c.width,c.height],state:document.body.dataset.game,heapBytes:performance.memory?.usedJSHeapSize,
+     ...(captureTrace?{frameTraceColumns:['elapsedMs','intervalMs','state'],frameTrace:trace}:{})});
+   }
+  }
+  requestAnimationFrame(tick);
+ }),{seconds:duration,captureTrace:process.env.PERF_TRACE==='1'});
+
  for(let t=0;t<duration;t+=4){await page.waitForTimeout(Math.min(4,duration-t)*1000);if(!mobile)await page.keyboard.press('r');if(t===44)await page.screenshot({path:path.join(out,'frenzy.png')});}
  const performanceData=await samplePromise;if(!mobile)await page.mouse.up();
  await page.screenshot({path:path.join(out,'end.png')});

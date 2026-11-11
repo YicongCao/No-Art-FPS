@@ -26,6 +26,7 @@ var last_fault := -1
 
 func _ready() -> void:
 	super._ready()
+	add_child(preload("res://scripts/maps/office_posters.gd").new())
 	if game == null:
 		return
 	for i in range(sweep_centers.size()):
