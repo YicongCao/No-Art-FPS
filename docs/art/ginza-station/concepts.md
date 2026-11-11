@@ -31,7 +31,7 @@
 | 通过列车与破口 | [实机图](in-engine/passing-frenzy.png) |
 | 站台实战 | [实机图](in-engine/gameplay-platform.png) |
 
-实机与概念的差异：站台柱改成中央一列，跨线天桥下的柱子只到桥底，兼作桥墩。检票机减为四台，通道放宽。丸之内线换乘口和出口 A2 只画在端墙上，不进入可玩区域。狂暴时荧光灯熄灭，天花板红色警示灯扫动，站台门指示灯转红，发车屏换成“通過列車 ご注意下さい”，回送列车每约 3.8 秒从东轨道穿过一次。减少动态效果时列车不出现。
+实机与概念的差异：站台柱改成中央一列且南端留空，出生视线能看到整条站台，跨线天桥下的柱子只到桥底，兼作桥墩。检票机减为四台，通道放宽。丸之内线换乘口和出口 A2 只画在端墙上，不进入可玩区域。狂暴时荧光灯熄灭，天花板红色警示灯扫动，站台门指示灯转红，发车屏换成“通過列車 ご注意下さい”，回送列车每约 3.8 秒从东轨道穿过一次。减少动态效果时列车不出现。
 
 可编辑构件在 [ginza_station.blend](../../../art_source/ginza_station.blend)。[Blender 构建器](../../../tools/maps/build_ginza_station.py)输出 GLB 与关卡布局，[标识生成器](../../../tools/maps/ginza_signs.py)用 Glow Sans 字形轮廓输出全部站内标识 SVG：`python3 tools/maps/ginza_signs.py GlowSansSC-Normal-v0.93.zip`。Godot 导入后运行 `godot --headless --script tools/maps/save_concept_arena.gd -- ginza_station` 烘焙导航，`godot --resolution 1280x720 --script tools/maps/capture_concept_arenas.gd -- ginza_station` 重渲固定机位。
 

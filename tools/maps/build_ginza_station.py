@@ -95,7 +95,7 @@ def column(kit,x,z,band="orange"):
     for k,(dx,dz,ang) in enumerate(((0,.43,0),(0,-.43,math.pi),(.43,0,math.pi/2),(-.43,0,-math.pi/2))):
         a.sign(f"Roundel{len(a.layout['signs'])}","ginza-roundel" if band=="orange" else "ginza-roundel-m",
                (x+dx,2.35,z+dz),(.32,.32),ang)
-for z in (-20.6,-16.8,.5,16.4,20.0):
+for z in (-20.6,-16.8,.5):
     column(platform,0,z)
 for side in (-1,1):
     for z in (-17.0,.5,17.0):
