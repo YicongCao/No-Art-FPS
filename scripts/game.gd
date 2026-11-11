@@ -741,6 +741,7 @@ func prepare_loaded_run(ticket: int) -> void:
 func warm_map_destroy_lighting(ticket: int) -> void:
 	if DisplayServer.get_name()=="headless":return
 	# Submit frenzy light/shaft variants behind the loading cover, before combat.
+	hud.warm_destroy_notice()
 	var yaw: float = player.rotation.y
 	set_destroy_active(true)
 	for turn in range(4):

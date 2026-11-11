@@ -1187,6 +1187,16 @@ func draw_results() -> void:
 	label(best,Vector2(row_left+54,c.y+16),34,GOLD)
 	draw_line(c+Vector2(-174,66),c+Vector2(174,66),Color(WHITE,.16),1)
 
+func warm_destroy_notice() -> void:
+	var notice := tr("DESTROY ALL")
+	var notice_font := (font if notice=="DESTROY ALL" else FRENZY_FONT_ZH) as FontFile
+	if not notice_font:return
+	for size in [66,82]:
+		for i in range(notice.length()):
+			var code := notice.unicode_at(i)
+			for outline_size in [0,3]:
+				notice_font.render_range(0,Vector2i(size,outline_size),code,code)
+
 func draw_destroy_notice(center: Vector2) -> void:
 	var text_size = 66 if game.touch_mode else 82
 	var opacity = smoothstep(0,.22,destroy_time)
