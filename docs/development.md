@@ -24,7 +24,7 @@ Run `python3 tools/qa_run.py -- --qa` for an automated 60-second round. Append *
 - Performance — `--benchmark`.
 - Dust mission — add `--mission` and one of `--mission-check`, `--dust-revision`, `--floor-render`, or `--mission-route`. With `--mission-route`, use `--expanded-loop` for the longer route or `--live-patrols` for active enemies.
 
-Pass `--headless` before the `--` separator for checks that do not need a render window, such as `--population`, `--blast-range`, or `--reload-audio`. Other standalone Godot checks are `tests/defuse_rules_test.gd` and `tests/map_scene_test.gd`. For browser input, run `node tests/mobile_input_test.mjs` and `node tests/gyro_test.mjs`.
+Pass `--headless` before the `--` separator for checks that do not need a render window, such as `--population`, `--blast-range`, or `--reload-audio`. Other standalone Godot checks are `tests/defuse_rules_test.gd`, `tests/map_scene_test.gd`, and `tests/aim_sights_check.gd` (rifle iron sights land on the shot point when aiming). For browser input, run `node tests/mobile_input_test.mjs` and `node tests/gyro_test.mjs`.
 
 ## Maps and assets
 

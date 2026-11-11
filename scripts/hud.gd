@@ -1294,6 +1294,11 @@ func _draw() -> void:
 		if hit>0:
 			var col = GOLD if kill_pop>0 else WHITE
 			for a in [Vector2(-1,-1),Vector2(1,-1),Vector2(-1,1),Vector2(1,1)]:draw_line(aim_center+a*7,aim_center+a*12,col,2)
+		elif game.player.aim_blend>=.5 and game.player.uses_iron_sights():
+			# The aligned iron sights are the reticle; a faint dot marks the post tip.
+			var settle := smoothstep(.5,.85,game.player.aim_blend)
+			draw_circle(aim_center,2.5,Color(INK,.8*settle))
+			draw_circle(aim_center,1.5,Color(GOLD,settle))
 		elif game.player.aim_blend>=.5:
 			for a in [Vector2.LEFT,Vector2.RIGHT,Vector2.DOWN]:
 				draw_line(aim_center+a*8,aim_center+a*16,INK,4)

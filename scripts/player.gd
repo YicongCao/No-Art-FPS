@@ -7,9 +7,12 @@ const HIP_FOV = 63.0
 const AIM_ZOOM = 1.44
 const HIP_HALF_TAN = tan(deg_to_rad(HIP_FOV * .5))
 const AIM_GUN_ORIGIN = Vector3(0,-.31,-.86)
-# Raise the rear aperture and front post onto the mobile aim line.
-const TOUCH_AIM_RIFLE_ORIGIN = Vector3(0,-.20,-.86)
-const TOUCH_AIM_RIFLE_PITCH = .124
+# Rifle iron sights in model space (tools/build_assets.py): the centre of the
+# rear aperture and the top of the front post. Aiming pitches the rifle until
+# this line is level and places the post tip on the screen centre, where shots go.
+const RIFLE_REAR_APERTURE = Vector3(0,.269,-.17)
+const RIFLE_FRONT_POST_TIP = Vector3(0,.205,-.65)
+const RIFLE_POST_DISTANCE = .80
 const ComedyFX = preload("res://scripts/comedy_fx.gd")
 const Grenade = preload("res://scripts/grenade.gd")
 var camera: Camera3D
@@ -200,19 +203,31 @@ func _process(delta: float) -> void:
 	crosshair_offset = Vector2(sprint_sway.x*14,-sprint_sway.y*9)
 	camera.rotation.x = pitch+recoil*.018
 	var aim_pose := smoothstep(0.0,1.0,aim_blend)
-	var align_rifle_sights: bool = game and game.touch_mode and weapon_mode.is_empty()
-	var aim_origin := TOUCH_AIM_RIFLE_ORIGIN if align_rifle_sights else AIM_GUN_ORIGIN
+	var aim_origin := AIM_GUN_ORIGIN
+	var aim_pitch := 0.0
+	if uses_iron_sights():
+		var sights := rifle_sight_pose()
+		aim_origin = sights.origin
+		aim_pitch = sights.basis.get_euler().x
 	gun.position = gun_origin.lerp(aim_origin,aim_pose)
-	gun.position += Vector3(stride.x*.008,stride.y*.007,0)*movement*lerpf(1.0,.24,aim_pose)
+	gun.position += Vector3(stride.x*.008,stride.y*.007,0)*movement*lerpf(1.0,.08,aim_pose)
 	gun.position += Vector3(sprint_sway.x*.046,sprint_sway.y*.025,recoil*.06)
-	gun.rotation.x = recoil*.04+sprint_sway.y*.035
-	if align_rifle_sights:gun.rotation.x += TOUCH_AIM_RIFLE_PITCH*aim_pose
+	gun.rotation.x = recoil*.04+sprint_sway.y*.035+aim_pitch*aim_pose
 	gun.rotation.z = -sprint_sway.x*.10
 	if game and game.reload_time>0:
 		var reload_phase = sin((1-game.reload_time/game.RELOAD_DURATION)*PI)
 		gun.position.y -= reload_phase*.18
 		gun.rotation.z -= reload_phase*.25
 	if game:animate_grenade_throw()
+
+func uses_iron_sights() -> bool:
+	return weapon_mode.is_empty()
+
+func rifle_sight_pose() -> Transform3D:
+	var line := RIFLE_FRONT_POST_TIP-RIFLE_REAR_APERTURE
+	var basis := Basis(Vector3.RIGHT,atan2(-line.y,-line.z))
+	var tip := basis*(RIFLE_FRONT_POST_TIP*gun.scale)
+	return Transform3D(basis,Vector3(0,0,-RIFLE_POST_DISTANCE)-tip)
 
 func reset_position() -> void:
 	teleport_to(game.arena.player_start())
