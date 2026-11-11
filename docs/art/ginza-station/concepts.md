@@ -35,6 +35,10 @@
 
 可编辑构件在 [ginza_station.blend](../../../art_source/ginza_station.blend)。[Blender 构建器](../../../tools/maps/build_ginza_station.py)输出 GLB 与关卡布局，[标识生成器](../../../tools/maps/ginza_signs.py)用 Glow Sans 字形轮廓输出全部站内标识 SVG：`python3 tools/maps/ginza_signs.py GlowSansSC-Normal-v0.93.zip`。Godot 导入后运行 `godot --headless --script tools/maps/save_concept_arena.gd -- ginza_station` 烘焙导航，`godot --resolution 1280x720 --script tools/maps/capture_concept_arenas.gd -- ginza_station` 重渲固定机位。
 
+## 配乐
+
+原创 60 秒城市流行风配乐，128 BPM。电钢琴和弦、拨弦贝斯和鼓机，主旋律是一段原创的发车提示音式钟声短句。第 24 小节（45 秒）进入狂暴变奏，合成铜管加入，琶音和鼓点加倍。由 [build_ginza_music.py](../../../tools/build_ginza_music.py) 输出 MIDI 和 Ogg：`cd tools && python3 build_ginza_music.py`。
+
 ## 生成提示词
 
 共用要求：
