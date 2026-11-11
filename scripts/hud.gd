@@ -320,6 +320,7 @@ func sync_loading_cover() -> void:
 	loading_cover.material.set_shader_parameter("viewport_size",size)
 
 func set_title_frame(image: Image, preview_key: String = "") -> void:
+	if image==null or image.is_empty():return
 	var texture = ImageTexture.create_from_image(image)
 	var tints = PackedStringArray()
 	if OS.has_feature("web"):
@@ -338,7 +339,7 @@ func set_title_frame(image: Image, preview_key: String = "") -> void:
 func reuse_title_frame(preview_key: String) -> bool:
 	if not title_previews.has(preview_key):return false
 	var preview: Dictionary = title_previews[preview_key]
-	if preview.texture.get_size()!=get_viewport().get_texture().get_size():
+	if Vector2i(preview.texture.get_size())!=game.preview_size():
 		title_previews.erase(preview_key)
 		return false
 	show_title_frame(preview.texture,preview.tints)

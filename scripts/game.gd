@@ -498,10 +498,18 @@ func capture_opening_frame() -> void:
 	title_frame_ready = true
 	hud.show()
 
+func preview_size() -> Vector2i:
+	# Viewport.get_texture().get_size() is unreliable under canvas_items stretch
+	# (a 5K fullscreen window reports 18205x10240). Use the window's pixels,
+	# scaled down to the title cache limit so large displays still get a frame.
+	var pixels := Vector2(get_window().size)
+	var fit := minf(1.0,sqrt(2560.0*1440.0/maxf(pixels.x*pixels.y,1.0)))
+	return Vector2i((pixels*fit).floor()).maxi(1)
+
 func capture_map_preview() -> Image:
 	# The visible viewport keeps its old title frame while the new camera renders.
 	var preview = SubViewport.new()
-	preview.size = Vector2i(get_viewport().get_texture().get_size())
+	preview.size = preview_size()
 	preview.world_3d = get_world_3d()
 	preview.msaa_3d = get_viewport().msaa_3d
 	add_child(preview)
@@ -1454,7 +1462,7 @@ func grenade_hit_scenery(center: Vector3) -> void:
 		var reach = GRENADE_OUTER_RADIUS if center.is_equal_approx(target) else minf(GRENADE_OUTER_RADIUS,target.distance_to(center)+.25)
 		var query = PhysicsRayQueryParameters3D.create(center,center+direction*reach,1|SCENERY_TARGET_LAYER)
 		var hit = space.intersect_ray(query)
-		if not hit.is_empty() and hit.collider.get_meta("structure",null)==structure:
+		if not hit.is_empty() and hit.collider.has_meta("structure") and hit.collider.get_meta("structure")==structure:
 			structure.ignite_hit(hit.position)
 
 func grenade_blast_fx(center: Vector3, style: String) -> void:

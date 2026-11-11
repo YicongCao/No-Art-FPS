@@ -64,7 +64,7 @@ func check() -> void:
 	assert(game.hud.map_grid.get_node("MapPark").has_focus())
 	assert(game.world_environment.environment==game.arena.environment_override)
 	if DisplayServer.get_name()!="headless":
-		assert(game.hud.title_frame!=old_frame and game.hud.title_frame.get_image().get_size()==Vector2i(root.get_texture().get_size()))
+		assert(game.hud.title_frame!=old_frame and game.hud.title_frame.get_image().get_size()==game.preview_size())
 		await capture("park-title")
 	var park_frame = game.hud.title_frame
 
