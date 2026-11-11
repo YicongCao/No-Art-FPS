@@ -1,0 +1,26 @@
+{
+  "url": "https://yicongcao.github.io/No-Art-FPS/",
+  "mode": "desktop",
+  "loadMs": 11457,
+  "performance": {
+    "seconds": 3.0052000000000008,
+    "frames": 177,
+    "meanMs": 16.948587570621477,
+    "p50Ms": 16.69999999999891,
+    "p95Ms": 16.700000000000728,
+    "p99Ms": 16.80000000000291,
+    "maxMs": 66.70000000000073,
+    "canvas": [
+      1280,
+      720
+    ],
+    "state": "RUNNING",
+    "heapBytes": 61833442
+  },
+  "errors": [],
+  "logs": [
+    "Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org",
+    "OpenGL API OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium)) - Compatibility - Using Device: WebKit - WebKit WebGL"
+  ],
+  "note": "Hardware Chrome RAF intervals, not GPU timer queries. Fresh browser cache; localhost loading is not an internet download benchmark."
+}

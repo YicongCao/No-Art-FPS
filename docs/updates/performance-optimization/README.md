@@ -47,3 +47,13 @@ Web 对比采用完整 60 秒自然推进、持续射击与换弹；采样期间
 |web-after|16.80 / 99.90|1|RESULTS|
 
 这是每版一个回合的观察值，不能视为所有地图/设备的稳定收益保证。原生仍有较长单帧，需要继续用 CPU/GPU profiler 分离驱动编译、AI 与特效创建成本。
+
+## 交付
+
+游戏代码提交 `608d2597fc0b8148cc65dae09c196199ea044204`，完整验证报告提交后的干净 `origin/main` 快照 `baf499487345b48344d2f7eaf9087a1fcd38c15f` 用于正式站点发布。Web 导出在代码提交前执行，其游戏源码与该提交相同，之后只新增文档。
+
+- [正式站点](https://fps.yicong.me/)：`20261111-v11`，保留 `20261111-v10` 回滚。
+- [GitHub Pages](https://yicongcao.github.io/No-Art-FPS/)：[发布任务](https://github.com/YicongCao/No-Art-FPS/actions/runs/43021013259)成功。
+- 原生材质断言脚本退出时仍输出资源引用清理日志，不能作为运行时泄漏的证据；本轮没有宣称解决内存问题。字形预生成把栅格化和字形缓存分配提前到加载阶段，会增加预先占用的缓存。
+
+正式站点外壳文件与四个 CDN 文件校验通过，两个站点线上浏览器均进入 RUNNING，未捕获脚本或 WebGL 错误。证据见 release.json、custom-domain-http.json、pages-http.json 和 live-* 目录。Pages 对其 Linux 导出的公开 manifest 校验，本机导出包字节数略有差异。

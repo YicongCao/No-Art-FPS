@@ -1,0 +1,120 @@
+{
+  "note": "Verified against GitHub Actions Linux export manifest; native macOS export differs in pack byte size.",
+  "files": [
+    {
+      "path": "DUST-LICENSE.txt",
+      "bytes": 1908,
+      "sha256_verified": true
+    },
+    {
+      "path": "FONT-LICENSE.txt",
+      "bytes": 4373,
+      "sha256_verified": true
+    },
+    {
+      "path": "GODOT-COPYRIGHT.txt",
+      "bytes": 100108,
+      "sha256_verified": true
+    },
+    {
+      "path": "GODOT-LICENSE.txt",
+      "bytes": 1149,
+      "sha256_verified": true
+    },
+    {
+      "path": "GlowSans-LICENSE.txt",
+      "bytes": 4339,
+      "sha256_verified": true
+    },
+    {
+      "path": "GlowSansSC-UI.woff2",
+      "bytes": 43544,
+      "sha256_verified": true
+    },
+    {
+      "path": "Rajdhani-Bold.woff2",
+      "bytes": 8672,
+      "sha256_verified": true
+    },
+    {
+      "path": "comedy.svg",
+      "bytes": 371,
+      "sha256_verified": true
+    },
+    {
+      "path": "frag-grenade.svg",
+      "bytes": 306,
+      "sha256_verified": true
+    },
+    {
+      "path": "gyro-setup.js",
+      "bytes": 10560,
+      "sha256_verified": true
+    },
+    {
+      "path": "gyro.js",
+      "bytes": 10139,
+      "sha256_verified": true
+    },
+    {
+      "path": "icon.svg",
+      "bytes": 220,
+      "sha256_verified": true
+    },
+    {
+      "path": "index.audio.position.worklet.js",
+      "bytes": 2973,
+      "sha256_verified": true
+    },
+    {
+      "path": "index.audio.worklet.js",
+      "bytes": 7298,
+      "sha256_verified": true
+    },
+    {
+      "path": "index.html",
+      "bytes": 47867,
+      "sha256_verified": true
+    },
+    {
+      "path": "index.js",
+      "bytes": 279815,
+      "sha256_verified": true
+    },
+    {
+      "path": "index.pck",
+      "bytes": 33747700,
+      "sha256_verified": true
+    },
+    {
+      "path": "index.wasm",
+      "bytes": 39514754,
+      "sha256_verified": true
+    },
+    {
+      "path": "locale.js",
+      "bytes": 7749,
+      "sha256_verified": true
+    },
+    {
+      "path": "roach-bomb.svg",
+      "bytes": 388,
+      "sha256_verified": true
+    },
+    {
+      "path": "roach.svg",
+      "bytes": 553,
+      "sha256_verified": true
+    },
+    {
+      "path": "stink-bomb.svg",
+      "bytes": 335,
+      "sha256_verified": true
+    },
+    {
+      "path": "title-background.webp",
+      "bytes": 248256,
+      "sha256_verified": true
+    }
+  ]
+}
