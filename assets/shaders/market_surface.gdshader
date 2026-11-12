@@ -6,6 +6,7 @@ uniform float base_roughness = 0.8;
 uniform float base_metallic = 0.0;
 uniform bool ground_surface = false;
 uniform bool canopy_surface = false;
+uniform bool use_vertex_color = false;
 uniform int surface_kind = 0; // paint, metal, masonry, fabric
 varying vec3 world_position;
 varying vec3 world_normal;
@@ -29,6 +30,7 @@ void fragment() {
 	float fine = texture(detail_noise,uv*3.0).r;
 	float relief = grain*0.65+fine*0.35;
 	vec3 paint = base_color.rgb;
+	if(use_vertex_color) paint *= COLOR.rgb;
 	float contrast = surface_kind==2 ? 0.12 : 0.13;
 	paint *= 1.0+(macro-.5)*contrast+(grain-.5)*0.14;
 	float roughness = clamp(base_roughness+(macro-.5)*.18,0.14,1.0);

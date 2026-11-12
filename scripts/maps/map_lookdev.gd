@@ -46,6 +46,7 @@ func setup() -> void:
  authored_ambient=arena.game.world_environment.environment.ambient_light_color
  configure_materials()
  configure_fixtures()
+ add_practicals()
  configure_atmosphere()
  if arena.map_id=="last_ferry" and DisplayServer.get_name()!="headless":configure_reflection()
  arena.set_meta("lookdev_v1",true)
@@ -300,12 +301,24 @@ func add_receiver(at: Vector3, extent: Vector2, tint: Color, strength: float, mo
  var receiver := MeshInstance3D.new();receiver.mesh=shape;receiver.material_override=paint
  receiver.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
  add_child(receiver)
- receivers.append({"node":receiver,"paint":paint,"mode":mode,"fixture":fixture,"strength":strength})
+ receivers.append({"node":receiver,"paint":paint,"mode":mode,"fixture":fixture,"strength":strength,"at":at,"tint":tint})
  fixture_count+=1
- if fixture_count<=2:
+ if fixture_count<=2 and mode!="normal":
   var light := OmniLight3D.new();light.position=at;light.light_color=tint;light.light_energy=1.0;light.omni_range=5
   add_child(light)
   receivers[-1]["light"]=light
+
+# Lamps nearest the start get a real, shadowless light so they visibly light the floor and the
+# enemies walking under them; the rest keep only their painted pool.
+func add_practicals() -> void:
+ var practical: Array = Palette.practicals(arena.map_id)
+ var start: Vector3 = arena.player_start().origin
+ var lamps: Array = receivers.filter(func(entry): return entry.mode=="normal" and entry.has("at"))
+ lamps.sort_custom(func(a,b): return a.at.distance_squared_to(start)<b.at.distance_squared_to(start))
+ for entry in lamps.slice(0,practical[0]):
+  var light := OmniLight3D.new();light.position=entry.at;light.light_color=entry.tint;light.light_energy=practical[1];light.omni_range=practical[2]
+  add_child(light)
+  entry["light"]=light
 
 func configure_reflection() -> void:
  var sea := arena.get_node_or_null("HarborWater") as MeshInstance3D

@@ -29,12 +29,15 @@ func configure_materials() -> void:
 		for surface in range(mesh.mesh.get_surface_count()):
 			var original = mesh.get_active_material(surface) as StandardMaterial3D
 			if not original or original.emission_enabled or original.transparency!=BaseMaterial3D.TRANSPARENCY_DISABLED:continue
-			var key := original.get_instance_id()
+			# Static kits from tools/maps/bake_vertex_light.py carry occlusion in their vertex colours.
+			var baked: bool = mesh.mesh is ArrayMesh and (mesh.mesh as ArrayMesh).surface_get_format(surface)&Mesh.ARRAY_FORMAT_COLOR!=0
+			var key := str(original.get_instance_id())+":"+str(baked)
 			if not cache.has(key):
 				var paint := ShaderMaterial.new()
 				paint.shader = SURFACE
 				paint.set_shader_parameter("detail_noise",DETAIL)
 				paint.set_shader_parameter("base_color",original.albedo_color)
+				paint.set_shader_parameter("use_vertex_color",baked)
 				var kind := 0
 				if original.resource_name in ["metal","steel","ink","gold"]:kind = 1
 				elif original.resource_name in ["asphalt","road","concrete","grout","tile"]:kind = 2
@@ -71,6 +74,7 @@ func configure_lighting() -> void:
 	env.fog_light_energy = .65
 	env.fog_density = .0015
 	env.fog_sky_affect = .12
+	preload("res://scripts/maps/toy_palette.gd").apply(arena.map_id,env,arena.game.sun,false)
 	preload("res://scripts/maps/toy_look.gd").apply(env)
 	for light in arena.find_children("*","SpotLight3D",true,false):
 		if light in arena.frenzy_lights:continue
