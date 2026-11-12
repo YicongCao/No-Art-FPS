@@ -132,3 +132,7 @@ godot --headless --path . --script tools/maps/apply_toy_kit.gd
 自动检查：`--combat`（含刀可见、没有枪）、`--dodge`、`--awareness`、`--enemy-accuracy`、`--damage-feedback`、`--finale`、瞄准照门、颜色材质和一局 60 秒自动对局，全部通过。两种搞笑模式的检查都通过了武器文件断言，之后停在原有的第 87 行。尚未人工试玩。
 
 性能：这次测量时机器负载很高（load average 13 到 18），和上一提交交替测了三轮，帧时间与 draw call 持平。完整的性能排查放到后面再做。
+
+## 第四轮：霍格沃茨光照与色彩方案样板
+
+烘焙顶点光照（`tools/maps/bake_vertex_light.py`）加每张地图的色彩方案（`scripts/maps/toy_palette.gd`），目前只做了霍格沃茨。对比图与参数见 [`hogwarts/README.md`](hogwarts/README.md)。

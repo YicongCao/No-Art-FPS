@@ -4,6 +4,7 @@ const SURFACE = preload("res://assets/shaders/map_surface.gdshader")
 const PAINT = preload("res://assets/shaders/toy_paint.gdshader")
 const SPILL = preload("res://assets/shaders/fixture_spill.gdshader")
 const DETAIL = preload("res://assets/textures/rain_market/surface_noise.png")
+const Palette = preload("res://scripts/maps/toy_palette.gd")
 const PROFILES = {
  "yard":[.52,.18,.67,"b5ceef",0.0],
  "amusement_park":[.48,.16,.52,"a7bafa",.0013],
@@ -84,6 +85,7 @@ func apply_state(active: bool) -> void:
    if entry.has("light"):entry.light.visible=not active
  for material in cache.values():
   if material is ShaderMaterial:material.set_shader_parameter("daylight",0.0 if active else 1.0)
+ Palette.apply(arena.map_id,env,arena.game.sun,active)
  preload("res://scripts/maps/toy_look.gd").apply(env)
 
 func classify(label: String) -> int:
@@ -105,7 +107,10 @@ func configure_materials() -> void:
    var original = (mesh.material_override if index==-1 else mesh.get_active_material(index)) as StandardMaterial3D
    if not original or original.transparency!=BaseMaterial3D.TRANSPARENCY_DISABLED or original.shading_mode==BaseMaterial3D.SHADING_MODE_UNSHADED:continue
    var context := str(mesh.get_path()).to_lower()
-   var key := str(original.get_instance_id())+":"+str(arena.map_id=="night_studio" and "curtain" in context)+":"+str(arena.map_id=="amusement_park" and "carouselcanopy" in context)
+   # Static kits from tools/maps/bake_vertex_light.py carry sky occlusion in their vertex colours.
+   var baked: bool = index>=0 and mesh.mesh is ArrayMesh and (mesh.mesh as ArrayMesh).surface_get_format(index)&Mesh.ARRAY_FORMAT_COLOR!=0
+   var tinted: bool = original.vertex_color_use_as_albedo or baked
+   var key := str(original.get_instance_id())+":"+str(baked)+":"+str(arena.map_id=="night_studio" and "curtain" in context)+":"+str(arena.map_id=="amusement_park" and "carouselcanopy" in context)
    if not cache.has(key):
     var canopy_bulb: bool = arena.map_id=="amusement_park" and "CarouselCanopy" in str(mesh.get_path()) and original.resource_name=="gold_light"
     var kind := classify(original.resource_name)
@@ -116,14 +121,15 @@ func configure_materials() -> void:
      var copy := original.duplicate() as StandardMaterial3D
      if canopy_bulb:
       copy.emission_enabled=true;copy.emission=Color("ffd18a");copy.emission_energy_multiplier=1.2
-     elif copy.emission_enabled:copy.emission_energy_multiplier *= 1.35
+     elif copy.emission_enabled:copy.emission_energy_multiplier *= 1.35*Palette.emission_boost(arena.map_id)
+     copy.vertex_color_use_as_albedo = tinted
      cache[key] = copy
     elif kind==0:
      # Plain coatings keep the authored colour, roughness and metallic exactly.
      var coat := ShaderMaterial.new()
      coat.shader = surface_shader(original.cull_mode,PAINT)
      coat.set_shader_parameter("base_color",original.albedo_color)
-     coat.set_shader_parameter("use_vertex_color",original.vertex_color_use_as_albedo)
+     coat.set_shader_parameter("use_vertex_color",tinted)
      coat.set_shader_parameter("roughness_value",original.roughness)
      coat.set_shader_parameter("metallic_value",original.metallic)
      coat.set_shader_parameter("specular_value",original.metallic_specular)
@@ -147,7 +153,7 @@ func configure_materials() -> void:
      if original.resource_name in ["ice","glass","window","display_glass","glass_blue","laptop_glass"]:roughness = .19;metallic = .18
      if original.resource_name=="soil":roughness = .58
      material.set_shader_parameter("base_color",original.albedo_color)
-     material.set_shader_parameter("use_vertex_color",original.vertex_color_use_as_albedo)
+     material.set_shader_parameter("use_vertex_color",tinted)
      material.set_shader_parameter("detail_noise",DETAIL)
      material.set_shader_parameter("kind",kind)
      material.set_shader_parameter("roughness_value",roughness)
