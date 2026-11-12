@@ -220,3 +220,7 @@ done
 godot --headless --path . --editor --import
 godot --headless --path . --script tools/maps/save_yard.gd
 ```
+
+## 六、下一轮模型进化方案
+
+2026-11-12：在本轮全图基础结构升级之上，后续建议转向专属母版、主轮廓、真实深度和第一人称可见收益。详见 [下一轮方案](next-iteration.md)。该文档为设计建议，尚未实施；不改变以上已完成工作的范围。
