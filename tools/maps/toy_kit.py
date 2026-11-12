@@ -100,8 +100,9 @@ def recessed_window(emit, center, width, height, angle, frame_color, sill_color,
                                 (leaf_w - 0.08, 0.088, 0.042), louver_color, angle=angle, taper=(0.05, 0.12))
 
 
-def cambered_canopy(emit, origin, width, depth, drop, angle, stripe_a, stripe_b, wood_color, post_h=2.06):
-    """Three-segment curved striped awning with thick scalloped valance and diagonal knee braces."""
+def cambered_canopy(emit, origin, width, depth, drop, angle, stripe_a, stripe_b, wood_color,
+                    post_h=2.06, posts=True):
+    """Three-segment curved striped awning with thick scalloped valance and support brackets."""
     cos_a, sin_a = math.cos(angle), math.sin(angle)
 
     def pt(u, v, w):
@@ -110,7 +111,9 @@ def cambered_canopy(emit, origin, width, depth, drop, angle, stripe_a, stripe_b,
     # Curved profile along w in 3 segments so the awning reads as a thick molded shell, not a flat card
     curve = [(0.0, 0.0), (0.36, -drop * 0.24), (0.72, -drop * 0.58), (1.0, -drop)]
     thick = 0.085
-    stripes = 7
+    stripes = max(5, round(width / 0.42))
+    if stripes % 2 == 0:
+        stripes += 1
     for i in range(stripes):
         u0 = -width * 0.5 + width * i / stripes
         u1 = -width * 0.5 + width * (i + 1) / stripes
@@ -126,11 +129,11 @@ def cambered_canopy(emit, origin, width, depth, drop, angle, stripe_a, stripe_b,
             emit("Canopy curved rib", top_quad + bot_quad, faces, tone)
         # Chunky front valance tab with slight gap between tabs
         um = (u0 + u1) * 0.5
-        tab_w = (u1 - u0) - 0.016
+        tab_w = max(0.08, (u1 - u0) - 0.016)
         tapered_box(emit, "Canopy valance", pt(um, -drop - 0.14, depth - 0.03),
                     (tab_w, 0.24, 0.078), tone, angle=angle, taper=(-0.06, 0.06))
 
-    # Wall ledger beam + front crossbeam + sturdy posts + diagonal knee braces
+    # Wall ledger beam + front crossbeam + posts or cantilevered wall brackets
     tapered_box(emit, "Canopy wall ledger", pt(0.0, -0.06, 0.05),
                 (width + 0.10, 0.12, 0.11), wood_color, angle=angle, taper=(0.02, 0.02))
     tapered_box(emit, "Canopy front rail", pt(0.0, -drop - 0.07, depth - 0.12),
@@ -138,14 +141,18 @@ def cambered_canopy(emit, origin, width, depth, drop, angle, stripe_a, stripe_b,
     for side in (-1.0, 1.0):
         pu = side * (width * 0.5 - 0.16)
         pw = depth - 0.12
-        tapered_box(emit, "Canopy post", pt(pu, -post_h * 0.5 - drop * 0.85, pw),
-                    (0.145, post_h, 0.145), wood_color, angle=angle, taper=(0.12, 0.12))
-        stepped_plinth(emit, "Canopy post foot", pt(pu, -post_h - drop * 0.85 + 0.07, pw),
-                       0.19, 0.14, 0.19, stripe_b, angle=angle, flare=0.025)
-        # Diagonal knee brace from wall/rear toward front rail
-        b0 = Vector(pt(pu, -drop - 0.52, pw))
-        b1 = Vector(pt(pu, -0.14, max(0.10, pw - 0.58)))
-        _strut(emit, "Canopy knee brace", b0, b1, 0.095, wood_color)
+        if posts:
+            tapered_box(emit, "Canopy post", pt(pu, -post_h * 0.5 - drop * 0.85, pw),
+                        (0.145, post_h, 0.145), wood_color, angle=angle, taper=(0.12, 0.12))
+            stepped_plinth(emit, "Canopy post foot", pt(pu, -post_h - drop * 0.85 + 0.07, pw),
+                           0.19, 0.14, 0.19, stripe_b, angle=angle, flare=0.025)
+            b0 = Vector(pt(pu, -drop - 0.52, pw))
+            b1 = Vector(pt(pu, -0.14, max(0.10, pw - 0.58)))
+            _strut(emit, "Canopy knee brace", b0, b1, 0.095, wood_color)
+        else:
+            b0 = Vector(pt(pu, -drop - 0.34, 0.06))
+            b1 = Vector(pt(pu, -drop - 0.06, max(0.18, pw - 0.04)))
+            _strut(emit, "Canopy wall bracket", b0, b1, 0.088, wood_color)
 
 
 def _strut(emit, label, start, end, thickness, color):

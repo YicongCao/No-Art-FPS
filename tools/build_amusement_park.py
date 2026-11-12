@@ -6,11 +6,21 @@ Geometry and the layout manifest use Godot coordinates in metres.
 import json
 import math
 from pathlib import Path
+import sys
 
 import bpy
 from mathutils import Vector
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "tools/maps"))
+from toy_kit import (
+    cambered_canopy,
+    export_toy_parts,
+    segmented_coping,
+    stepped_plinth,
+    tapered_box,
+)
+
 OUTPUT = ROOT / "assets/models/park"
 OUTPUT.mkdir(parents=True, exist_ok=True)
 bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -32,7 +42,7 @@ for key, rgb in PALETTE.items():
     material.use_nodes = True
     surface = material.node_tree.nodes.get("Principled BSDF")
     surface.inputs["Base Color"].default_value = (*linear, 1)
-    surface.inputs["Roughness"].default_value = .86
+    surface.inputs["Roughness"].default_value = .42 if key in ("gold", "blue", "brick", "teal", "purple") else .54
     MATERIALS[key] = material
 
 
@@ -52,7 +62,7 @@ class Asset:
 
     def part(self, name, vertices, faces, color):
         vertices = [tuple(v) for v in vertices]
-        self.parts.append((vertices, faces, color))
+        self.parts.append((name, vertices, faces, color))
         data = bpy.data.meshes.new(name)
         data.from_pydata([xyz(v) for v in vertices], [], faces)
         data.update()
@@ -60,7 +70,10 @@ class Asset:
         obj = bpy.data.objects.new(name, data)
         self.collection.objects.link(obj)
 
-    def box(self, name, point, size, color, axes=None):
+    def box(self, name, point, size, color, axes=None, taper=0.0):
+        if taper and axes is None:
+            tapered_box(self.part, name, point, size, color, taper=taper)
+            return
         axes = axes or (Vector((1, 0, 0)), Vector((0, 1, 0)), Vector((0, 0, 1)))
         vertices = [
             Vector(point)+sum((axis*sign*extent/2 for axis, sign, extent in zip(axes, corner, size)), Vector())
@@ -107,28 +120,22 @@ class Asset:
         self.part(name, vertices, faces, color)
 
     def export(self):
-        vertices, faces, colors = [], [], []
-        for verts, polygons, color in self.parts:
-            faces.extend(tuple(len(vertices)+i for i in face) for face in polygons)
-            vertices.extend(xyz(v) for v in verts)
-            colors.extend([color]*len(polygons))
-        data = bpy.data.meshes.new(self.name)
-        data.from_pydata(vertices, [], faces)
-        data.update()
-        used = list(dict.fromkeys(colors))
-        for key in used:
-            data.materials.append(MATERIALS[key])
-        for face, color in zip(data.polygons, colors):
-            face.material_index = used.index(color)
-        obj = bpy.data.objects.new(self.name, data)
-        bpy.context.scene.collection.objects.link(obj)
-        bpy.ops.object.select_all(action="DESELECT")
-        obj.select_set(True)
-        bpy.context.view_layer.objects.active = obj
-        bpy.ops.export_scene.gltf(filepath=str(OUTPUT/f"{self.name}.glb"), export_format="GLB",
-                                  use_selection=True, export_yup=True)
-        bpy.data.objects.remove(obj, do_unlink=True)
-        bpy.data.meshes.remove(data)
+        bl_parts = [(label, [xyz(v) for v in verts], polygons, color)
+                    for label, verts, polygons, color in self.parts]
+        export_toy_parts(
+            self.name,
+            bl_parts,
+            MATERIALS,
+            OUTPUT / f"{self.name}.glb",
+            bevel=(self.name != "coaster_track"),
+            max_bevel=0.028,
+            skip_labels=(
+                "Paving seam", "Promenade", "Terracotta curb", "Plaza ring",
+                "Entrance walk", "Cross walk", "Diamond mesh", "Exterior",
+                "Apron", "Bowl", "Walk-in ramp", "Plaza access ramp", "Raised edge",
+                "Riding surface", "Side panels", "Bank surface", "Blue sides",
+            ),
+        )
 
 
 def smooth_loop(points, step):
@@ -209,26 +216,34 @@ place("Grounds","grounds")
 
 gate = Asset("entry", "02 Entrance")
 for x in (-5,5):
-    gate.box("Ticket booth", (x,1.35,0), (2.3,2.7,2.5), "teal")
-    gate.box("Inset booth window", (x,1.65,.01+1.25), (1.62,1.18,.075), "teal_dark")
-    gate.box("Booth sill", (x,1.03,1.29), (1.76,.12,.29), "edge")
-    gate.box("Booth cap", (x,2.79,0), (2.75,.24,2.89), "blue")
-    gate.box("Gold fascia", (x,2.66,1.45), (2.75,.19,.06), "gold")
+    stepped_plinth(gate.part, "Booth plinth", (x,.15,0), 2.38, .30, 2.58, "brick", flare=.045)
+    gate.box("Ticket booth", (x,1.40,0), (2.28,2.52,2.48), "teal", taper=(.04,.04))
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            gate.box("Booth corner pilaster", (x+sx*1.08,1.42,sz*1.18), (.20,2.48,.20), "cream", taper=(.05,.05))
+    gate.box("Inset booth window", (x,1.65,1.22), (1.56,1.14,.08), "ink")
+    for sx in (-1, 1):
+        gate.box("Window jamb", (x+sx*.82,1.65,1.29), (.12,1.24,.15), "cream")
+    gate.box("Window head", (x,2.27,1.30), (1.84,.14,.18), "gold")
+    gate.box("Booth sill", (x,1.03,1.34), (1.92,.15,.36), "edge", taper=(.02,.04))
+    for sx in (-1, 1):
+        gate.box("Booth sill corbel", (x+sx*.66,.90,1.30), (.14,.14,.26), "gold")
+    gate.box("Booth cornice", (x,2.68,0), (2.58,.12,2.74), "gold", taper=(-.04,-.04))
+    segmented_coping(gate.part, "Booth cap", (x,2.84,0), 2.82, .24, 2.94, "blue", seg_len=1.4, gap=.025)
     collider((x,1.35,24),(2.3,2.7,2.5),"Entry")
 for x in (-3.38,3.38):
-    gate.box("Gate pier", (x,1.8,0), (.42,3.6,.46), "gold")
-    gate.box("Pier foot", (x,.14,0), (.62,.28,.65), "cream")
+    gate.box("Gate pier", (x,1.82,0), (.48,3.44,.52), "gold", taper=(.09,.09))
+    stepped_plinth(gate.part, "Pier foot", (x,.16,0), .66, .32, .70, "cream", flare=.05)
+    gate.box("Pier capital", (x,3.42,0), (.62,.20,.66), "cream", taper=(-.06,-.06))
     collider((x,1.8,24),(.42,3.6,.46),"Entry")
-gate.box("Gate roof", (0,3.66,0), (8.3,.38,2.8), "blue")
-gate.box("Cream marquee", (0,3.65,1.43), (7.5,.56,.17), "edge")
+gate.box("Gate roof core", (0,3.60,0), (8.2,.28,2.72), "deep_blue")
+segmented_coping(gate.part, "Gate roof", (0,3.82,0), 8.46, .24, 2.96, "blue", seg_len=1.68, gap=.028)
+gate.box("Cream marquee", (0,3.65,1.44), (7.54,.60,.22), "edge", taper=(.02,.04))
+gate.box("Marquee gold frame", (0,3.65,1.38), (7.72,.70,.14), "gold")
 for x, sign in ((-3.42,1),(3.42,-1)):
-    gate.rod("Flag mast",(x,3.85,0),(x,5.1,0),.065,"blue",6)
-    gate.box("Pennant",(x+.30*sign,4.88,0),(.60,.36,.065),"brick")
-for i in range(16):
-    x = (i-7.5)*.475
-    gate.part("Striped canopy",[(x-.2375,3.42,1.32),(x+.2375,3.42,1.32),
-                               (x+.2375,2.99,2.85),(x-.2375,2.99,2.85)],[(3,2,1,0)],"brick" if i%2==0 else "white")
-    gate.box("Canopy valance", (x,2.9,2.85), (.475,.18,.13), "brick" if i%2==0 else "white")
+    gate.rod("Flag mast",(x,3.92,0),(x,5.15,0),.072,"blue",8)
+    gate.box("Pennant",(x+.32*sign,4.88,0),(.64,.38,.085),"brick",taper=(.06,.04))
+cambered_canopy(gate.part, (0,3.44,1.32), 7.6, 1.56, .44, 0.0, "brick", "white", "gold", posts=False)
 gate.export()
 place("Entrance","entry",(0,0,24),group="Entry",shoot=False)
 collider((0,3.62,24),(8.4,.68,3.0),"Entry",layer=16)
@@ -328,18 +343,25 @@ collider((-22,.59,7),(3.5,.32,.9),"GrindRail")
 
 # Carousel parts are exported independently so animation only moves the deck.
 roof = Asset("carousel_roof", "04 Carousel")
-roof.rod("Central spindle",(0,.1,0),(0,5.05,0),.38,"purple",12)
-roof.rod("Spindle skirt",(0,.1,0),(0,.72,0),.9,"gold",24)
+roof.rod("Central spindle",(0,.1,0),(0,5.05,0),.40,"purple",12)
+roof.rod("Spindle skirt",(0,.1,0),(0,.74,0),.94,"gold",24,.82)
+for y_ring in (1.45, 2.65, 3.65):
+    roof.rod("Spindle brass collar",(0,y_ring,0),(0,y_ring+.14,0),.47,"gold",16)
 for i in range(16):
     a,b=i*math.tau/16,(i+1)*math.tau/16
     p=lambda r,h,t:(r*math.cos(t),h,r*math.sin(t))
-    roof.part("Canopy wedge",[p(.28,5.46,a),p(4.35,3.69,a),p(4.35,3.69,b),p(.28,5.46,b)],
-              [(3,2,1,0)],"brick" if i%2==0 else "white")
-    roof.part("Scalloped fascia",[p(4.34,3.77,a),p(4.34,3.77,b),p(4.34,3.19,b),
-                                  p(4.34,3.03,(a+b)/2),p(4.34,3.19,a)],[(0,1,2,3,4)],"gold")
-    roof.part("Blue inset",[p(4.36,3.65,a+.025),p(4.36,3.65,b-.025),
-                            p(4.36,3.32,b-.025),p(4.36,3.15,(a+b)/2),p(4.36,3.32,a+.025)],[(0,1,2,3,4)],"blue")
-    roof.ellipsoid("Fascia bulb",p(4.42,3.46,(a+b)/2),(.22,.22,.22),"gold_light")
+    top_q = [p(.28,5.48,a),p(4.36,3.72,a),p(4.36,3.72,b),p(.28,5.48,b)]
+    bot_q = [p(.28,5.38,a),p(4.36,3.62,a),p(4.36,3.62,b),p(.28,5.38,b)]
+    w_faces = [(3,2,1,0),(4,5,6,7),(0,1,5,4),(1,2,6,5),(2,3,7,6),(3,0,4,7)]
+    roof.part("Canopy wedge", top_q + bot_q, w_faces, "brick" if i%2==0 else "white")
+    roof.rod("Canopy gold rib", p(.30,5.49,a), p(4.38,3.73,a), .048, "gold", 6)
+    f_out = [p(4.36,3.77,a),p(4.36,3.77,b),p(4.36,3.19,b),p(4.36,3.02,(a+b)/2),p(4.36,3.19,a)]
+    f_in = [p(4.24,3.77,a),p(4.24,3.77,b),p(4.24,3.19,b),p(4.24,3.02,(a+b)/2),p(4.24,3.19,a)]
+    f_faces = [(0,1,2,3,4),(9,8,7,6,5)] + [(k,(k+1)%5,(k+1)%5+5,k+5) for k in range(5)]
+    roof.part("Scalloped fascia", f_out + f_in, f_faces, "gold")
+    roof.part("Blue inset",[p(4.38,3.65,a+.025),p(4.38,3.65,b-.025),
+                            p(4.38,3.32,b-.025),p(4.38,3.15,(a+b)/2),p(4.38,3.32,a+.025)],[(0,1,2,3,4)],"blue")
+    roof.ellipsoid("Fascia bulb",p(4.44,3.46,(a+b)/2),(.23,.23,.23),"gold_light")
 roof.ellipsoid("Finial",(0,5.67,0),(.62,.68,.62),"gold_light")
 for i in range(24):
     a,b=i*math.tau/24,(i+1)*math.tau/24
@@ -431,9 +453,14 @@ car.rod("Restraint",(-.58,.83,-.18),(.58,.83,-.18),.048,"steel")
 car.export()
 
 platform=Asset("station_foundation","06 Station")
-platform.box("Platform floor",(25.6,1.97,1),(5.3,.46,10),"purple")
-platform.box("Platform top",(25.6,2.202,1),(5.25,.016,9.96),"cream")
-platform.box("Gold fascia",(22.95,2.01,1),(.13,.35,10),"gold")
+stepped_plinth(platform.part, "Station plinth", (25.6,.18,1), 5.42, .36, 10.12, "brick", flare=.05)
+platform.box("Platform core",(25.6,1.12,1),(5.22,1.62,9.88),"purple",taper=(.03,.02))
+for z_pil in (-3.6, 1.0, 5.6):
+    for sx in (-1, 1):
+        platform.box("Station pilaster",(25.6+sx*2.56,1.12,z_pil),(.26,1.66,.34),"deep_blue",taper=(.05,.05))
+platform.box("Platform floor",(25.6,2.02,1),(5.34,.36,10.04),"purple")
+platform.box("Platform top",(25.6,2.202,1),(5.22,.024,9.92),"cream")
+segmented_coping(platform.part,"Gold fascia",(22.94,2.04,1),.22,.36,10.12,"gold",seg_len=1.68,gap=.026)
 collider((25.6,1.97,1),(5.3,.46,10))
 platform.export()
 place("StationFoundation","station_foundation")
@@ -447,10 +474,10 @@ for direction,z0,sign in (("South",6,1),("North",-4,-1)):
         step_height=2.2*(1-i/14)
         stairs.box("Visible stair",(25.6,step_height-.08,z0+sign*(i+.5)*7.8/14),(3.04,.16,7.8/14),"gold" if i%2==0 else "gold_light")
     for x in (24.03,27.17):
-        stairs.rod("Ramp rail",(x,3.23,z0),(x,1.03,z0+sign*7.8),.054,"purple")
+        stairs.rod("Ramp rail",(x,3.23,z0),(x,1.03,z0+sign*7.8),.062,"purple",8)
         for i in range(5):
             t=i/4
-            stairs.rod("Ramp post",(x,2.2*(1-t),z0+sign*t*7.8),(x,2.2*(1-t)+1.03,z0+sign*t*7.8),.05,"purple")
+            stairs.rod("Ramp post",(x,2.2*(1-t),z0+sign*t*7.8),(x,2.2*(1-t)+1.03,z0+sign*t*7.8),.058,"purple",8)
         collider((x,1.65,z0+sign*3.9),(.12,3.3,7.8),name)
     stairs.export()
     place(name,asset,group=name,shoot=False)
@@ -458,36 +485,49 @@ for direction,z0,sign in (("South",6,1),("North",-4,-1)):
 station=Asset("station_roof","06 Station")
 for x in (22.8,28.16):
     for z in (-3.4,5.4):
-        station.box("Roof support",(x,3.6,z),(.22,2.8,.22),"purple")
+        station.box("Roof support",(x,3.6,z),(.26,2.8,.26),"purple",taper=(.08,.08))
+        stepped_plinth(station.part,"Support base",(x,2.30,z),.38,.20,.38,"gold",flare=.025)
+        station.box("Support capital",(x,4.88,z),(.38,.18,.38),"gold",taper=(-.06,-.06))
         collider((x,3.6,z),(.22,2.8,.22),"Station")
 for x in (23.03,28.22):
     for y in (2.66,3.19):
-        station.rod("Platform rail",(x,y,-3.9),(x,y,5.9),.049,"purple",6)
+        station.rod("Platform rail",(x,y,-3.9),(x,y,5.9),.056,"purple",8)
     for z in (-3.9,-1.45,1,3.45,5.9):
-        station.rod("Platform post",(x,2.2,z),(x,3.2,z),.047,"purple",6)
+        station.rod("Platform post",(x,2.2,z),(x,3.2,z),.055,"purple",8)
     collider((x,2.7,1),(.13,1.0,9.8),"Station")
 for x in (18.7,20.2,21.7):
     for z in (1.8,3.7,5.6):
-        station.rod("Queue post",(x,0,z),(x,.92,z),.048,"purple",6)
-    station.rod("Queue rail",(x,.86,1.8),(x,.86,5.6),.045,"purple",6)
+        station.rod("Queue post",(x,0,z),(x,.92,z),.056,"purple",8)
+        stepped_plinth(station.part,"Queue foot",(x,.05,z),.18,.10,.18,"gold",flare=.02)
+    station.rod("Queue rail",(x,.86,1.8),(x,.86,5.6),.050,"purple",8)
     collider((x,.45,3.7),(.11,.9,3.8),"Station")
-station.part("Blue canopy",[(22.13,5.32,-4.25),(28.8,4.91,-4.25),
-                            (28.8,4.91,6.25),(22.13,5.32,6.25)],[(3,2,1,0)],"blue")
-station.box("Roof fascia",(28.8,4.81,1),(.21,.22,10.5),"deep_blue")
+c_top = [(22.10,5.38,-4.30),(28.84,4.96,-4.30),(28.84,4.96,6.30),(22.10,5.38,6.30)]
+c_bot = [(22.10,5.20,-4.30),(28.84,4.78,-4.30),(28.84,4.78,6.30),(22.10,5.20,6.30)]
+station.part("Blue canopy", c_top + c_bot,
+             [(3,2,1,0),(4,5,6,7),(0,1,5,4),(1,2,6,5),(2,3,7,6),(3,0,4,7)], "blue")
+for z_rib in (-3.4, -1.2, 1.0, 3.2, 5.4):
+    station.rod("Canopy rafter",(22.2,5.18,z_rib),(28.75,4.77,z_rib),.065,"gold",6)
+segmented_coping(station.part,"Roof fascia",(28.82,4.86,1),.26,.26,10.65,"gold",seg_len=1.75,gap=.026)
+segmented_coping(station.part,"Roof high fascia",(22.12,5.28,1),.26,.26,10.65,"gold",seg_len=1.75,gap=.026)
 station.export()
 place("StationCanopy","station_roof",group="Station",shoot=False)
 collider((25.5,5.02,1),(6.5,.35,10.5),"Station",layer=16)
 
 kiosk=Asset("kiosk","07 Park props")
-kiosk.box("Kiosk body",(0,1.05,0),(2.35,2.1,1.95),"teal")
-kiosk.box("Open window",(0,1.47,.99),(1.82,.79,.07),"teal_dark")
-kiosk.box("Counter",(0,1.03,1.05),(1.98,.14,.4),"cream")
-kiosk.box("Roof",(0,2.26,0),(2.65,.27,2.23),"edge")
-for i in range(10):
-    x=(i-4.5)*.256
-    kiosk.part("Awning stripe",[(x-.128,2.17,1.03),(x+.128,2.17,1.03),(x+.128,1.87,1.66),(x-.128,1.87,1.66)],
-               [(3,2,1,0)],"gold" if i%2==0 else "white")
-    kiosk.box("Scallop",(x,1.79,1.65),(.256,.18,.12),"gold" if i%2==0 else "white")
+stepped_plinth(kiosk.part,"Kiosk plinth",(0,.13,0),2.44,.26,2.04,"brick",flare=.04)
+kiosk.box("Kiosk body",(0,1.12,0),(2.32,1.96,1.92),"teal",taper=(.04,.04))
+for sx in (-1, 1):
+    for sz in (-1, 1):
+        kiosk.box("Kiosk corner post",(sx*1.11,1.12,sz*.91),(.16,1.94,.16),"cream",taper=(.05,.05))
+kiosk.box("Open window",(0,1.47,.94),(1.76,.78,.09),"ink")
+for sx in (-1, 1):
+    kiosk.box("Kiosk window jamb",(sx*.92,1.47,.99),(.11,.84,.14),"cream")
+kiosk.box("Counter",(0,1.03,1.08),(2.06,.16,.44),"cream",taper=(.02,.04))
+for sx in (-1, 1):
+    kiosk.box("Counter bracket",(sx*.72,.90,1.04),(.13,.14,.30),"gold")
+kiosk.box("Roof cornice",(0,2.14,0),(2.52,.11,2.12),"gold",taper=(-.04,-.04))
+segmented_coping(kiosk.part,"Roof",(0,2.30,0),2.72,.24,2.32,"edge",seg_len=1.35,gap=.024)
+cambered_canopy(kiosk.part,(0,2.16,.98),2.48,.76,.30,0.0,"gold","white","brick",posts=False)
 kiosk.export()
 for i,(x,z,yaw) in enumerate([(-15,15,.1),(14,15,-.1),(-13,-13,0),(15,-12,.3),(-28,12,1.1),(30,13,-.8)]):
     name=f"Kiosk{i}"
@@ -496,25 +536,30 @@ for i,(x,z,yaw) in enumerate([(-15,15,.1),(14,15,-.1),(-13,-13,0),(15,-12,.3),(-
 
 bench=Asset("bench","07 Park props")
 for x in (-.81,.81):
-    bench.box("Bench legs",(x,.26,0),(.15,.51,.62),"blue")
-    bench.box("Back support",(x,.65,-.28),(.13,.67,.13),"blue")
+    stepped_plinth(bench.part,"Bench leg foot",(x,.05,0),.20,.10,.68,"cream",flare=.02)
+    bench.box("Bench legs",(x,.28,0),(.17,.48,.62),"blue",taper=(.08,.06))
+    bench.box("Back support",(x,.66,-.28),(.15,.68,.15),"blue",taper=(.08,.08))
+    bench.box("Bench armrest",(x,.64,.02),(.16,.09,.56),"cream")
 for z in (-.19,0,.19):
-    bench.box("Seat slat",(0,.53,z),(2.12,.13,.155),"gold")
+    bench.box("Seat slat",(0,.53,z),(2.14,.13,.165),"gold")
 for y in (.78,.96):
-    bench.box("Back slat",(0,y,-.29),(2.12,.125,.15),"gold")
+    bench.box("Back slat",(0,y,-.29),(2.14,.13,.155),"gold")
 bench.export()
 planter=Asset("planter","07 Park props")
-planter.box("Pot",(0,.22,0),(2.0,.44,1.0),"brick")
-planter.box("Pot rim",(0,.44,0),(2.08,.14,1.08),"cream")
+stepped_plinth(planter.part,"Planter foot",(0,.08,0),2.06,.16,1.06,"cream",flare=.03)
+planter.box("Pot",(0,.26,0),(1.98,.36,.98),"brick",taper=(-.05,-.05))
+segmented_coping(planter.part,"Pot rim",(0,.47,0),2.14,.14,1.14,"cream",seg_len=1.06,gap=.022)
 for i in range(5):
     x=(i-2)*.34
-    planter.ellipsoid("Hedge",(x,.68+.05*(i%3),.07*(i%2)),(.61,.55,.75),"leaf" if i%2 else "leaf_light")
+    planter.ellipsoid("Hedge",(x,.68+.05*(i%3),.07*(i%2)),(.63,.57,.77),"leaf" if i%2 else "leaf_light")
 planter.export()
 lamp=Asset("lamp","07 Park props")
-lamp.box("Lamp foot",(0,.1,0),(.31,.2,.31),"cream")
-lamp.rod("Post",(0,.1,0),(0,3.45,0),.066,"blue",6)
-lamp.box("Light housing",(.20,3.48,0),(.57,.16,.30),"blue")
-lamp.box("Lens",(.2,3.39,0),(.43,.045,.24),"edge")
+stepped_plinth(lamp.part,"Lamp foot",(0,.12,0),.38,.24,.38,"cream",flare=.04)
+lamp.rod("Post collar",(0,.24,0),(0,.44,0),.12,"gold",8,.09)
+lamp.rod("Post",(0,.22,0),(0,3.45,0),.078,"blue",8,.058)
+lamp.box("Light housing",(.20,3.49,0),(.62,.19,.34),"blue",taper=(.06,.08))
+lamp.box("Housing cap",(.20,3.60,0),(.46,.08,.26),"gold")
+lamp.box("Lens",(.2,3.38,0),(.46,.055,.26),"edge")
 lamp.export()
 for i,(x,z) in enumerate([(-10,13),(-6,10),(6,10),(10,13),(-10,-4),(-6,-8),(6,-8),(10,-4),(-28,12),(29,15),(-25,-13),(26,-13)]):
     place(f"Bench{i}","bench",(x,0,z),group=f"Bench{i}")
@@ -538,8 +583,10 @@ def fence_asset(name,a,b):
     step=length/count
     for i in range(count+1):
         p=start+tangent*(i*step)
-        asset.box("Brick plinth",p+Vector((0,.15,0)),(.32,.3,.32),"brick")
-        asset.rod("Steel post",p+Vector((0,.22,0)),p+Vector((0,1.76,0)),.077,"blue",6)
+        stepped_plinth(asset.part,"Brick plinth",p+Vector((0,.16,0)),.38,.32,.38,"brick",flare=.035)
+        asset.box("Plinth cap",p+Vector((0,.34,0)),(.42,.08,.42),"cream")
+        asset.rod("Steel post",p+Vector((0,.36,0)),p+Vector((0,1.78,0)),.084,"blue",8,.068)
+        asset.box("Post finial",p+Vector((0,1.82,0)),(.15,.09,.15),"gold")
     for i in range(count):
         p=start+tangent*(i*step)
         q=p+tangent*step
