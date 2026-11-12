@@ -123,8 +123,10 @@ def inside(centre, config):
 
 
 def refine(obj, config):
+    had_custom = obj.data.has_custom_normals
     bm = bmesh.new()
     bm.from_mesh(obj.data)
+    bmesh.ops.join_triangles(bm, faces=list(bm.faces), angle_face_threshold=.02, angle_shape_threshold=.7)
     bm.transform(obj.matrix_world)
     for _ in range(8):
         long = set()
@@ -143,6 +145,13 @@ def refine(obj, config):
     bm.transform(obj.matrix_world.inverted())
     bm.to_mesh(obj.data)
     bm.free()
+    if had_custom and len(obj.data.polygons) > 0:
+        bpy.context.view_layer.objects.active = obj
+        bpy.ops.mesh.customdata_custom_splitnormals_clear()
+        wn = obj.modifiers.new('ToyWeightedNormal', 'WEIGHTED_NORMAL')
+        wn.keep_sharp = True
+        wn.weight = 100
+        bpy.ops.object.modifier_apply(modifier=wn.name)
 
 
 def bake(meshes, config):
@@ -266,7 +275,8 @@ def export(baked, restore):
         for obj in parts:
             obj.select_set(True)
         bpy.ops.export_scene.gltf(filepath=str(ROOT / kit), export_format='GLB',
-                                  use_selection=True, export_vertex_color='ACTIVE')
+                                  use_selection=True, export_normals=True,
+                                  export_vertex_color='ACTIVE')
 
 
 def triangles(objects):

@@ -143,8 +143,8 @@ func configure_materials() -> void:
      var metallic := 0.0
      match kind:
       1:roughness = .28;metallic = .65
-      2:roughness = .92
-      3:roughness = .67
+      2:roughness = .68
+      3:roughness = .58
       4:roughness = .98
       5:roughness = .87
       6:roughness = .94

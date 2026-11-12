@@ -2,9 +2,13 @@
 import json
 import math
 from pathlib import Path
+import sys
 
 import bpy
 from mathutils import Vector
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from toy_kit import export_toy_parts, tapered_box, stepped_plinth, segmented_coping
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -22,7 +26,7 @@ class Kit:
         self.collection = bpy.data.collections.new(name)
 
     def mesh(self, label, points, faces, color):
-        self.parts.append((points, faces, color))
+        self.parts.append((label, points, faces, color))
         origin = sum((Vector(v) for v in points), Vector()) / len(points)
         mesh = bpy.data.meshes.new(label)
         mesh.from_pydata([xyz(Vector(v) - origin) for v in points], [], faces)
@@ -31,7 +35,10 @@ class Kit:
         obj.location = xyz(origin)
         self.collection.objects.link(obj)
 
-    def box(self, label, center, size, color, angle=0):
+    def box(self, label, center, size, color, angle=0, taper=0.0):
+        if taper:
+            tapered_box(self.mesh, label, center, size, color, angle=angle, taper=taper)
+            return
         c, s = math.cos(angle), math.sin(angle)
         points = []
         for x, y, z in ((-1,-1,-1),(1,-1,-1),(1,1,-1),(-1,1,-1),
@@ -40,6 +47,12 @@ class Kit:
             points.append((center[0]+c*x+s*z,center[1]+y,center[2]-s*x+c*z))
         self.mesh(label, points, [(3,2,1,0),(4,5,6,7),(0,1,5,4),
                                   (1,2,6,5),(2,3,7,6),(3,0,4,7)], color)
+
+    def plinth(self, label, center, width, height, depth, color, angle=0.0, flare=0.045):
+        stepped_plinth(self.mesh, label, center, width, height, depth, color, angle=angle, flare=flare)
+
+    def coping(self, label, center, width, height, depth, color, angle=0.0, seg_len=1.75):
+        segmented_coping(self.mesh, label, center, width, height, depth, color, angle=angle, seg_len=seg_len)
 
     def rod(self, label, start, finish, radius, color, sides=8, end_radius=None):
         start, finish = Vector(start), Vector(finish)
@@ -56,26 +69,15 @@ class Kit:
         self.mesh(label, points, faces, color)
 
     def export(self):
-        points, faces, colors = [], [], []
-        for verts, polys, color in self.parts:
-            faces.extend(tuple(len(points)+i for i in face) for face in polys)
-            points.extend(xyz(p) for p in verts)
-            colors.extend([color]*len(polys))
-        mesh = bpy.data.meshes.new(self.name)
-        mesh.from_pydata(points, [], faces)
-        keys = list(dict.fromkeys(colors))
-        for key in keys:
-            mesh.materials.append(self.materials[key])
-        for polygon, color in zip(mesh.polygons, colors):
-            polygon.material_index = keys.index(color)
-        obj = bpy.data.objects.new(self.name, mesh)
-        bpy.context.scene.collection.objects.link(obj)
-        bpy.ops.object.select_all(action="DESELECT")
-        obj.select_set(True)
-        bpy.context.view_layer.objects.active = obj
-        bpy.ops.export_scene.gltf(filepath=str(self.destination/f"{self.name}.glb"),export_format="GLB",use_selection=True)
-        bpy.data.objects.remove(obj, do_unlink=True)
-        bpy.data.meshes.remove(mesh)
+        bl_parts = [(label, [xyz(p) for p in verts], polys, color)
+                    for label, verts, polys, color in self.parts]
+        export_toy_parts(
+            self.name,
+            bl_parts,
+            self.materials,
+            self.destination / f"{self.name}.glb",
+            bevel=self.name not in ("lake", "landscape", "harbour_water"),
+        )
 
 
     def beam(self, label, start, end, width, height, color):
@@ -110,7 +112,7 @@ class ArenaKit:
         self.layout = {"environment": environment, "fixed": [], "boxes": [], "slabs": [],
                        "props": [], "signs": [], "spots": [], "belts": [], "moving": []}
         for name, value in palette.items():
-            hex_color, roughness, emission = value if isinstance(value, tuple) else (value,.84,0)
+            hex_color, roughness, emission = value if isinstance(value, tuple) else (value,.62,0)
             rgb = [int(hex_color[i:i+2],16)/255 for i in (0,2,4)]
             linear = (*[c/12.92 if c<=.04045 else ((c+.055)/1.055)**2.4 for c in rgb],1)
             mat = bpy.data.materials.new(name)
