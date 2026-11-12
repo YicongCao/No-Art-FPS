@@ -1,0 +1,18 @@
+{
+  "release": "20261112-v1",
+  "previous_release": "20261111-v11",
+  "source_commit": "2c1d066777fc53351f14ab41c47b9f79e0fe351b",
+  "source_commit_on_toy": "a1082fb4c91db2dd0608f3f270667f89fb42ab4e",
+  "live_browser": [
+    {
+      "url": "https://yicongcao.github.io/No-Art-FPS/",
+      "state": "RUNNING",
+      "errors": []
+    },
+    {
+      "url": "https://fps.yicong.me/",
+      "state": "RUNNING",
+      "errors": []
+    }
+  ]
+}
