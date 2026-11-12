@@ -2,11 +2,22 @@
 import json
 import math
 from pathlib import Path
+import sys
 
 import bpy
 import bmesh
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "tools/maps"))
+from toy_kit import (
+    cambered_canopy,
+    export_toy_parts,
+    recessed_window,
+    segmented_coping,
+    stepped_plinth,
+    tapered_box,
+)
+
 MODELS = ROOT / "assets/models/sandgate"
 MODELS.mkdir(parents=True, exist_ok=True)
 bpy.ops.object.select_all(action="SELECT")
@@ -29,26 +40,30 @@ for name, hex_color in PALETTE.items():
     material.use_nodes = True
     shader = material.node_tree.nodes.get("Principled BSDF")
     shader.inputs["Base Color"].default_value = rgba
-    shader.inputs["Roughness"].default_value = 1
-    shader.inputs["Specular IOR Level"].default_value = 0
+    shader.inputs["Roughness"].default_value = .44 if name in ("teal", "blue", "gold", "iron", "clay_light") else .58
+    shader.inputs["Specular IOR Level"].default_value = .5
     MATERIALS[name] = material
 
 layout = {"zones": [], "boxes": [], "ramps": [], "rail_barriers": [], "props": []}
 collection = None
+zone_parts = {}
 
 
 def zone(name, fixed=True):
     global collection
     collection = bpy.data.collections.new(name)
     bpy.context.scene.collection.children.link(collection)
+    zone_parts[name] = []
     if fixed:
         layout["zones"].append(name)
     return collection
 
 
 def mesh(label, vertices, faces, color):
+    bl_verts = [(x, -z, y) for x, y, z in vertices]
+    zone_parts[collection.name].append((label, bl_verts, faces, color))
     data = bpy.data.meshes.new(label)
-    data.from_pydata([(x, -z, y) for x, y, z in vertices], [], faces)
+    data.from_pydata(bl_verts, [], faces)
     bm = bmesh.new()
     bm.from_mesh(data)
     bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
@@ -67,11 +82,14 @@ def prism(label, points, offset, color):
     mesh(label, points + upper, faces, color)
 
 
-def box(label, x, y, z, w, h, d, color, solid=False, angle=0):
-    cos, sin = math.cos(angle), math.sin(angle)
-    base = [(x+u*cos+v*sin, y-h/2, z-u*sin+v*cos)
-            for u, v in [(-w/2,-d/2),(w/2,-d/2),(w/2,d/2),(-w/2,d/2)]]
-    prism(label, base, (0,h,0), color)
+def box(label, x, y, z, w, h, d, color, solid=False, angle=0, taper=0.0):
+    if taper:
+        tapered_box(mesh, label, (x, y, z), (w, h, d), color, angle=angle, taper=taper)
+    else:
+        cos, sin = math.cos(angle), math.sin(angle)
+        base = [(x+u*cos+v*sin, y-h/2, z-u*sin+v*cos)
+                for u, v in [(-w/2,-d/2),(w/2,-d/2),(w/2,d/2),(-w/2,d/2)]]
+        prism(label, base, (0,h,0), color)
     if solid:
         layout["boxes"].append([[x,y,z],[w,h,d],angle])
 
@@ -105,32 +123,47 @@ def guardrail(start, end, base=0):
                   for point,level in [(start,bottom),(end,bottom),(end,top),(start,top)]]
         return points, tuple(axis*width for axis in normal)
 
-    for bottom,top,color in [(max(base+.13,.43),max(base+.22,.52),"iron"),(1.12,height,"teal")]:
-        points,offset = span(bottom,top,.14)
+    for bottom,top,color in [(max(base+.13,.43),max(base+.24,.54),"iron"),(1.10,height,"teal")]:
+        points,offset = span(bottom,top,.165)
         prism("Guardrail beam",points,offset,color)
     posts = max(1,math.ceil(length/1.7))
     for i in range(posts+1):
         x,y,z = [a+(b-a)*i/posts for a,b in zip(start,end)]
-        box("Guardrail post",x,y+(height+base)/2,z,.16,height-base,.17,"iron",angle=angle)
-        box("Guardrail post cap",x,y+height-.045,z,.19,.09,.20,"teal",angle=angle)
+        box("Guardrail post",x,y+(height+base)/2,z,.175,height-base,.185,"iron",angle=angle,taper=.12)
+        stepped_plinth(mesh,"Guardrail post foot",(x,y+base+.06,z),.20,.12,.21,"stone",angle=angle,flare=.025)
+        box("Guardrail post cap",x,y+height-.045,z,.22,.10,.23,"teal",angle=angle,taper=.06)
     # Continuous guard collision follows the slope, including the gaps between posts.
     points,offset = span(-.05,height,.17)
     layout["rail_barriers"].append(points+[tuple(a+b for a,b in zip(point,offset)) for point in points])
 
 
 def facade(label, x, z, w, d, h, color="pale", base=None, floor=0, solid=True):
-    box(label,x,floor+h/2,z,w,h,d,color,solid)
-    box("Roof coping",x,floor+h+.10,z,w+.22,.20,d+.22,"cap")
+    skyline = label == "Skyline house"
+    box(label,x,floor+h/2,z,w,h,d,color,solid,taper=0.0 if skyline else (.022,.022))
+    if skyline:
+        box("Roof coping",x,floor+h+.10,z,w+.22,.20,d+.22,"cap")
+        return
+    # 1. Grounding stepped stone plinth at base
+    stepped_plinth(mesh,"Wall stone plinth",(x,floor+.14,z),w+.04,.28,d+.04,"stone",flare=.042)
+    # 2. Painted wall skirt + projecting belt course molding
     if base:
-        box("Painted wall skirt",x,floor+.62,z,w+.022,1.24,d+.022,base)
+        box("Painted wall skirt",x,floor+.64,z,w+.036,1.20,d+.036,base,taper=(.015,.015))
+        box("Skirt belt rail",x,floor+1.27,z,w+.095,.085,d+.095,"cap",taper=(.03,.03))
+    # 3. Corner pilasters on substantial facades to break straight box silhouettes
+    if w >= 1.6 and d >= .58:
+        pw, pd = min(.22, w*.16), min(.22, d*.28)
+        for sx in (-1, 1):
+            for sz in (-1, 1):
+                px = x + sx*(w*.5 - pw*.38)
+                pz = z + sz*(d*.5 - pd*.38)
+                box("Corner pilaster",px,floor+h*.5,pz,pw+.055,h-.04,pd+.055,"plaster",taper=(.035,.035))
+    # 4. Stepped cornice lip + segmented overhanging roof coping
+    box("Roof cornice lip",x,floor+h+.04,z,w+.15,.10,d+.15,"stone",taper=(-.04,-.04))
+    segmented_coping(mesh,"Roof coping",(x,floor+h+.18,z),w+.28,.22,d+.28,"cap",seg_len=1.7,gap=.028)
 
 
 def shutter(x,y,z,angle=0):
-    box("Window stone sill",x,y-.46,z,1.18,.14,.25,"cap",angle=angle)
-    box("Shutter frame",x,y,z,.96,.85,.12,"blue",angle=angle)
-    for i in range(3):
-        nx,nz=math.sin(angle)*.069,math.cos(angle)*.069
-        box("Shutter louver",x+nx,y-.24+i*.23,z+nz,.70,.105,.045,"blue_light",angle=angle)
+    recessed_window(mesh,(x,y,z),.98,.88,angle,"stone","cap","shade","blue","blue_light",depth=.15)
 
 def long_house(x,z,w,d,h,windows):
     # Recess the visual wall in the window band while keeping the full collider.
@@ -155,18 +188,7 @@ def long_house(x,z,w,d,h,windows):
 
 
 def canopy(x,z,y,width,angle=0,accent="stripe",depth=1.45):
-    cos,sin=math.cos(angle),math.sin(angle)
-    def pt(u,v,w):
-        return (x+u*cos+w*sin,y+v,z-u*sin+w*cos)
-    for i in range(7):
-        a,b = -width/2+width*i/7,-width/2+width*(i+1)/7
-        tone = accent if i%2==0 else "cap"
-        prism("Canvas stripe",[pt(a,0,0),pt(b,0,0),pt(b,-.41,depth),pt(a,-.41,depth)],(0,-.055,0),tone)
-        xx,yy,zz=pt((a+b)/2,-.54,depth)
-        box("Canvas valance",xx,yy,zz,b-a,.22,.06,tone,angle=angle)
-    for side in [-1,1]:
-        xx,yy,zz=pt(side*(width/2-.16),-1.43,depth-.10)
-        box("Market post",xx,yy,zz,.12,2.06,.12,"wood",angle=angle)
+    cambered_canopy(mesh,(x,y,z),width,depth,.42,angle,accent,"cap","wood",post_h=2.02)
 
 
 def lathe(label,x,y,z,profile,color,segments=10):
@@ -183,8 +205,9 @@ def lathe(label,x,y,z,profile,color,segments=10):
 
 
 def pot(x,z,scale=1,y=0):
-    profile=[(.22,0),(.30,.08),(.38,.41),(.25,.62),(.24,.70),(.29,.72),(.29,.78),(.19,.78),(.17,.62)]
-    lathe("Terra cotta jar",x,y,z,[(r*scale,h*scale) for r,h in profile],"clay",9)
+    profile=[(.23,0),(.32,.09),(.40,.40),(.26,.61),(.24,.69),(.31,.72),(.31,.80),(.20,.80),(.18,.63)]
+    lathe("Terra cotta jar",x,y,z,[(r*scale,h*scale) for r,h in profile],"clay",12)
+    lathe("Jar painted band",x,y,z,[(.408*scale,.34*scale),(.408*scale,.44*scale)],"cap",12)
 
 
 def cactus(x,z,y=0):
@@ -221,28 +244,40 @@ def arch(label,x,z,y,r=1.75,spring=2.12,thick=.42,depth=.62,side=1.55,solid=True
         return (x+u*cos+w*sin,y+v,z-u*sin+w*cos)
     for sign in [-1,1]:
         xx,yy,zz=at(sign*(r+side/2),spring/2)
-        box(label+" pier",xx,yy,zz,side,spring,depth,"pale",solid,angle)
-        xx,yy,zz=at(sign*(r+thick/2),spring/2,depth*.11)
-        box("Arch jamb",xx,yy,zz,thick,spring,depth*1.15,"stone",angle=angle)
+        box(label+" pier",xx,yy,zz,side,spring,depth,"pale",solid,angle,taper=(.055,.045))
+        px,py,pz=at(sign*(r+side/2),.15)
+        stepped_plinth(mesh,label+" pier plinth",(px,py,pz),side+.08,.30,depth+.10,"stone",angle=angle,flare=.05)
+        xx,yy,zz=at(sign*(r+thick/2),spring/2,depth*.08)
+        box("Arch jamb",xx,yy,zz,thick,spring,depth*1.18,"stone",angle=angle,taper=(.03,.03))
+        ix,iy,iz=at(sign*(r+thick*.48),spring-.08,depth*.08)
+        box("Arch impost capital",ix,iy,iz,thick+.12,.16,depth*1.26,"cap",angle=angle,taper=(-.06,-.06))
     n=11
     top=spring+r+thick+.52
     for i in range(n):
         a,b=i*math.pi/n,(i+1)*math.pi/n
+        keystone = (i == n // 2)
+        extrude = 1.24 if keystone else 1.12
+        outer = r + thick + (.11 if keystone else 0.0)
         def ring(t,d):
             return (d*math.cos(t),spring+d*math.sin(t))
         ua,va=ring(a,r)
         ub,vb=ring(b,r)
-        uo,vo=ring(b,r+thick)
-        up,vp=ring(a,r+thick)
-        prism("Arch voussoir",[at(u,v,-depth*.55) for u,v in [(ua,va),(ub,vb),(uo,vo),(up,vp)]],
-              (sin*depth*1.10,0,cos*depth*1.10),"stone" if i%3!=0 else "plaster")
+        uo,vo=ring(b,outer)
+        up,vp=ring(a,outer)
+        tone = "cap" if keystone else ("stone" if i%2==0 else "plaster")
+        prism("Arch voussoir",[at(u,v,-depth*extrude*.5) for u,v in [(ua,va),(ub,vb),(uo,vo),(up,vp)]],
+              (sin*depth*extrude,0,cos*depth*extrude),tone)
         prism("Arch spandrel",[at(u,v,-depth*.5) for u,v in [(up,vp),(uo,vo),(uo,top),(up,top)]],
               (sin*depth,0,cos*depth),"pale")
+    cx,cy,cz=at(0,top-.30)
+    box("Gate cornice",cx,cy,cz,2*(r+side)+.14,.11,depth+.16,"stone",angle=angle,taper=(-.03,-.04))
     xx,yy,zz=at(0,top-.16)
-    box("Gate cap",xx,yy,zz,2*(r+side),.32,depth+.20,"cap",solid,angle)
+    if solid:
+        layout["boxes"].append([[xx,yy,zz],[2*(r+side),.32,depth+.20],angle])
+    segmented_coping(mesh,"Gate cap",(xx,yy+.02,zz),2*(r+side)+.26,.24,depth+.28,"cap",angle=angle,seg_len=1.6,gap=.028)
     for sign in [-1,1]:
         xx,yy,zz=at(sign*(r+side/2),top/2)
-        box("Upper gate pier",xx,yy+.98,zz,side-.05,top-1.96,depth,"pale",angle=angle)
+        box("Upper gate pier",xx,yy+.98,zz,side-.05,top-1.96,depth,"pale",angle=angle,taper=(.04,.04))
 
 
 def arch_recess(x,y,z,angle=0,r=.42,h=.75):
@@ -289,13 +324,19 @@ def gate_leaf(label,hinge_x,z,width,height,angle):
 
 
 def crate(x,y,z,w=1.65,h=1.15,d=1.4):
-    box("Market freight crate",x,y+h/2,z,w,h,d,"gold")
-    box("Recessed face",x,y+h/2,z+d/2+.009,w-.18,h-.27,.028,"crate")
-    box("Recessed side",x-w/2-.009,y+h/2,z,.028,h-.27,d-.18,"crate")
+    # Core recessed crate body + proud corner posts + 4-face recessed panels + binding bands
+    box("Market freight crate",x,y+h/2,z,w-.08,h-.04,d-.08,"crate",taper=(.02,.02))
+    for sz in (-1, 1):
+        box("Crate front frame",x,y+h/2,z+sz*(d/2-.025),w,.095*2,0.06,"gold")
     for level in [y+.085,y+h-.085]:
-        box("Ivory crate binding",x,level,z,w+.06,.135,d+.06,"cap")
-    for dx in [-1,1]:
-        box("Corner cleat",x+dx*(w/2-.065),y+h/2,z+d/2+.025,.095,h-.19,.06,"wood_light")
+        box("Ivory crate binding",x,level,z,w+.065,.145,d+.065,"cap",taper=(.02,.02))
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            box("Corner cleat",x+sx*(w/2-.065),y+h/2,z+sz*(d/2-.065),.135,h-.06,.135,"gold",taper=(.03,.03))
+    for sz in (-1, 1):
+        box("Crate cross batten",x,y+h/2,z+sz*(d/2-.018),w-.22,.11,.055,"wood_light")
+    for sx in (-1, 1):
+        box("Crate side batten",x+sx*(w/2-.018),y+h/2,z,.055,.11,d-.22,"wood_light")
 
 
 def prop(name,kind,x,y,z,w,h,d,angle=0):
@@ -306,11 +347,18 @@ def prop(name,kind,x,y,z,w,h,d,angle=0):
         crate(0,0,0,w,h*.57,d)
         crate(.10,h*.57,-.08,w*.77,h*.43,d*.79)
     elif kind=="stall":
-        box("Painted counter",0,.47,0,w,.94,d,"gold")
-        box("Counter top",0,.99,0,w+.16,.12,d+.14,"cap")
-        canopy(0,-d*.5,h-.12,w+.18,depth=d+.34)
+        stepped_plinth(mesh,"Stall plinth",(0,.09,0),w+.04,.18,d+.04,"stone",flare=.035)
+        box("Painted counter",0,.50,0,w-.06,.82,d-.06,"gold",taper=(.03,.03))
+        for side in (-1, 1):
+            box("Counter corner post",side*(w*.5-.08),.51,0,.16,.84,d+.02,"wood_light",taper=(.04,.04))
+        for bay in (-w*.24, w*.24):
+            for sz in (-1, 1):
+                box("Counter recessed panel",bay,.52,sz*(d*.5-.015),w*.34,.52,.045,"crate")
+        segmented_coping(mesh,"Counter top",(0,.98,0),w+.20,.14,d+.18,"cap",seg_len=1.4,gap=.022)
+        canopy(0,-d*.5,h-.12,w+.22,depth=d+.38)
         pot(-.56,.18,.63,1.05)
         pot(.36,.14,.83,1.05)
+        lathe("Counter display bowl",.08,1.05,-.12,[(.18,0),(.26,.09),(.28,.16),(.22,.16)],"teal",12)
     elif kind=="wall":
         facade("Market partition",0,0,w,d,h,"plaster","red",solid=False)
         shutter(-.86,2.16,d*.5+.10)
@@ -326,21 +374,29 @@ slab("East street south",16,24,13,20)
 slab("Pit floor",16,22.5,7,13,-1.35,"plaster")
 slab("Pit east walkway",22.5,24,3,13)
 ramp("Pit approach",16,22.5,3,7,0,-1.35,"plaster")
-box("South pit retaining",19.25,-.63,12.95,6.5,1.27,.21,"purple",True)
-box("West pit retaining",16.04,-.63,9.8,.18,1.27,6.35,"purple",True)
-box("Pit coping",16.02,.20,9.65,.34,.40,6.8,"cap",True)
-box("South pit coping",19.25,.23,12.93,6.47,.46,.32,"cap",True)
-box("Pit rim at outer edge",22.5,.18,9.8,.27,.36,6.4,"cap",True)
+box("South pit retaining",19.25,-.63,12.95,6.5,1.27,.21,"purple",True,taper=(.02,.04))
+box("West pit retaining",16.04,-.63,9.8,.18,1.27,6.35,"purple",True,taper=(.04,.02))
+layout["boxes"].append([[16.02,.20,9.65],[.34,.40,6.8],0])
+segmented_coping(mesh,"Pit coping",(16.02,.20,9.65),.40,.42,6.8,"cap",seg_len=1.7,gap=.026)
+layout["boxes"].append([[19.25,.23,12.93],[6.47,.46,.32],0])
+segmented_coping(mesh,"South pit coping",(19.25,.23,12.93),6.47,.46,.38,"cap",seg_len=1.62,gap=.026)
+layout["boxes"].append([[22.5,.18,9.8],[.27,.36,6.4],0])
+segmented_coping(mesh,"Pit rim at outer edge",(22.5,.18,9.8),.33,.38,6.4,"cap",seg_len=1.6,gap=.026)
 slab("Raised A square",9.7,23.8,-17.7,-8.0,2.4,"pale",2.4)
 slab("Walk-out A lookout",7.65,9.7,-16.45,-13.55,2.4,"stone",.38)
 ramp("A Long ramp",12.1,22.8,-8,-2.0,2.4,0,"sand")
-box("A side ramp wall",11.83,.58,-5.23,.40,1.16,5.45,"plaster",True)
+box("A side ramp wall",11.83,.58,-5.23,.40,1.16,5.45,"plaster",True,taper=(.06,.02))
+segmented_coping(mesh,"A side ramp cap",(11.83,1.21,-5.23),.48,.14,5.52,"cap",seg_len=1.6,gap=.025)
 slab("A Short landing",5.6,9.7,-13.0,-8.3,2.4,"pale",2.4)
 slab("A Short elevated lane",5.6,9.55,-8.3,-2.8,2.4,"pale",2.4)
 ramp("Short steps",5.6,9.55,2.4,-2.8,0,2.4,"plaster",steps=12)
 box("Short teal retaining wall",5.57,1.17,-5.45,.13,2.34,5.45,"teal")
-box("Short parapet",5.60,2.75,-5.60,.34,.7,5.7,"cap",True)
-box("Short landing parapet",5.62,2.75,-10.62,.34,.7,4.45,"cap",True)
+layout["boxes"].append([[5.60,2.75,-5.60],[.34,.7,5.7],0])
+box("Short parapet core",5.60,2.69,-5.60,.32,.58,5.68,"plaster",taper=(.06,.01))
+segmented_coping(mesh,"Short parapet",(5.60,3.04,-5.60),.42,.15,5.74,"cap",seg_len=1.45,gap=.025)
+layout["boxes"].append([[5.62,2.75,-10.62],[.34,.7,4.45],0])
+box("Short landing parapet core",5.62,2.69,-10.62,.32,.58,4.43,"plaster",taper=(.06,.01))
+segmented_coping(mesh,"Short landing parapet",(5.62,3.04,-10.62),.42,.15,4.50,"cap",seg_len=1.5,gap=.025)
 prism("Short stair teal cheek",[(5.51,0,2.39),(5.51,0,-2.79),(5.51,2.4,-2.79)],(.12,0,0),"teal")
 prism("Short stair rising coping",[(5.45,.21,2.39),(5.76,.21,2.39),(5.76,2.61,-2.79),(5.45,2.61,-2.79)],(0,-.18,0),"cap")
 for z,top in [(.85,.72),(-.85,1.5),(-2.51,2.28)]:
@@ -394,15 +450,16 @@ facade("A ramp backdrop",23.4,-10.0,1.05,13,7.5,"plaster",None)
 facade("A high court rear",16.68,-17.68,14.8,.60,4.42,"pale","red",floor=2.4)
 for x,width,depth in [(10.85,.85,.51),(12.90,.60,.73),(15.16,.91,.56),(20.23,.74,.55),(22.45,.89,.77)]:
     z=-17.40+depth*.43
-    box("High court projecting masonry pier",x,4.51,z,width,4.22,depth,"plaster",True)
-    box("Pier battered sandstone foot",x,2.67,z+.08,width+.15,.54,depth+.15,"stone",True)
-    box("Pier carved cap",x,6.65,z,width+.16,.19,depth+.10,"cap")
+    box("High court projecting masonry pier",x,4.51,z,width,4.22,depth,"plaster",True,taper=(.08,.08))
+    layout["boxes"].append([[x,2.67,z+.08],[width+.15,.54,depth+.15],0])
+    box("Pier battered sandstone foot",x,2.67,z+.08,width+.18,.54,depth+.18,"stone",False,taper=(.12,.12))
+    box("Pier carved cap",x,6.65,z,width+.20,.21,depth+.14,"cap",taper=(.04,.04))
 for x in (11.90,14.02,21.36):
     arch_recess(x,4.70,-17.35,0,.37,.88)
-    box("High court deep stone ledge",x,4.27,-17.11,.97,.13,.51,"cap")
+    box("High court deep stone ledge",x,4.27,-17.11,.97,.15,.54,"cap")
 arch("A lookout",17.7,-16.98,2.4,r=1.24,spring=1.91,side=1.25,solid=False)
 for x in [10.1,11.6,13.1,22.1]:
-    box("A parapet merlon",x,6.98,-17.6,.55,.38,.65,"cap")
+    box("A parapet merlon",x,6.98,-17.6,.58,.42,.68,"cap",taper=(.10,.10))
 canopy(18.75,-15.85,5.4,3.7)
 facade("A lookout upper crown",18.56,-17.36,4.75,.70,1.90,"plaster",None,floor=6.48,solid=False)
 for x in [17.32,18.50,19.68]:
@@ -434,7 +491,7 @@ for x in [-2.91,2.91]:
 facade("Mid left jamb",-4.02,1.55,1.31,.76,4.42,"pale","teal")
 arch("Mid B side arch",-6.7,1.55,0,r=1.48,spring=1.89,depth=.8,side=.84)
 for x in [-2.9,-1.9,-.9,.1,1.1,2.1,3.1]:
-    box("Mid gate crenellation",x,5.02,1.55,.54,.48,.80,"cap")
+    box("Mid gate crenellation",x,5.02,1.55,.56,.50,.82,"cap",taper=(.10,.10))
 facade("Central market front",-5.82,8.5,4.8,5.7,5.7,"pale","teal")
 facade("Central market upper",-6.4,8.55,3.38,4.1,1.32,"plaster",None,floor=5.6)
 for z in [6.9,8.9,10.45]:
@@ -492,7 +549,10 @@ cactus(-10.0,-9.20)
 pot(-10.61,-9.35,1.1)
 pot(-21.71,-8.87,.91)
 potted_agave(-13.30,0,-9.91,1.07,.3)
-box("B display plinth",-17.40,.44,-9.10,3.19,.88,2.48,"pale",True)
+layout["boxes"].append([[-17.40,.44,-9.10],[3.19,.88,2.48],0])
+box("B display plinth",-17.40,.41,-9.10,3.19,.82,2.48,"pale",False,taper=(.05,.05))
+stepped_plinth(mesh,"B display plinth foot",(-17.40,.11,-9.10),3.26,.22,2.55,"stone",flare=.045)
+segmented_coping(mesh,"B display plinth cap",(-17.40,.83,-9.10),3.30,.12,2.58,"cap",seg_len=1.65,gap=.024)
 lathe("Ochre tower",-20.3,0,-15.15,[(1.38,0),(1.38,6.98),(1.54,7.07),(1.54,7.41)],"gold",10)
 lathe("Faceted tower dome",-20.3,7.41,-15.15,[(1.55,0),(1.53,.45),(1.22,.98),(.62,1.34),(.12,1.43)],"cap",10)
 lathe("Tower finial",-20.3,8.8,-15.15,[(.085,0),(.074,1.01)],"wood",8)
@@ -566,37 +626,15 @@ bpy.context.preferences.filepaths.save_version = 0
 bpy.ops.wm.save_as_mainfile(filepath=str(ROOT / "art_source/sandgate.blend"))
 
 # Retain separate editable objects in Blender. Export only one mesh per zone
-# and material, so the browser does not pay a draw call for every corbel.
-def export(source):
-    batch = bpy.data.collections.new("Export")
-    bpy.context.scene.collection.children.link(batch)
-    bpy.ops.object.select_all(action="DESELECT")
-    combined = {}
-    for obj in source.objects:
-        color = obj.data.materials[0]
-        vertices, faces = combined.setdefault(color, ([],[]))
-        offset = len(vertices)
-        vertices.extend(tuple(v.co) for v in obj.data.vertices)
-        faces.extend(tuple(offset+i for i in f.vertices) for f in obj.data.polygons)
-    data = bpy.data.meshes.new(source.name)
-    vertices, faces, slots = [], [], []
-    for i, (color, (points, polygons)) in enumerate(combined.items()):
-        offset = len(vertices)
-        vertices.extend(points)
-        faces.extend(tuple(offset+j for j in f) for f in polygons)
-        slots.extend([i]*len(polygons))
-    data.from_pydata(vertices, [], faces)
-    for color in combined:data.materials.append(color)
-    for polygon, slot in zip(data.polygons, slots):polygon.material_index = slot
-    obj = bpy.data.objects.new(source.name, data)
-    batch.objects.link(obj)
-    obj.select_set(True)
-    bpy.context.view_layer.objects.active = obj
-    bpy.ops.export_scene.gltf(filepath=str(MODELS / (source.name + ".glb")), use_selection=True, export_format="GLB")
-    bpy.data.objects.remove(obj, do_unlink=True)
-    bpy.data.collections.remove(batch)
-
+# and material, with selective 1-segment toy bevels and weighted normals.
+total_tris = 0
 for name in layout["zones"] + [item["name"] for item in layout["props"]]:
-    export(bpy.data.collections[name])
+    total_tris += export_toy_parts(
+        name,
+        zone_parts[name],
+        MATERIALS,
+        MODELS / (name + ".glb"),
+        bevel=(name != "skyline"),
+    )
 (ROOT / "tools/maps/sandgate_layout.json").write_text(json.dumps(layout, separators=(",",":")) + "\n")
-print("SANDGATE_KIT_READY", len(layout["zones"]), "zones and", len(layout["props"]), "destructible props")
+print("SANDGATE_KIT_READY", len(layout["zones"]), "zones,", len(layout["props"]), "props,", total_tris, "triangles")

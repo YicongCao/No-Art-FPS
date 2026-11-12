@@ -62,42 +62,42 @@ def segmented_coping(emit, label, center, width, height, depth, color, angle=0.0
 
 
 def recessed_window(emit, center, width, height, angle, frame_color, sill_color,
-                    back_color, shutter_color=None, louver_color=None, depth=0.14):
-    """Three-level toy window: projecting molded casing, recessed dark pocket, corbelled sill."""
+                    back_color, shutter_color=None, louver_color=None, depth=0.15):
+    """Three-level toy window: projecting molded casing, recessed dark pocket, corbelled sill.
+    Offsets stay >= 0 along local +w so surface-mounted calls never z-fight with the host wall."""
     cos_a, sin_a = math.cos(angle), math.sin(angle)
 
     def at(u, v, w):
         return _rot_pt(center, u, v, w, cos_a, sin_a)
 
-    # 1. Deep shadow pocket recessed behind the wall plane
-    tapered_box(emit, "Window shadow pocket", at(0.0, 0.0, -depth * 0.45),
-                (width - 0.10, height - 0.10, depth), back_color, angle=angle, taper=(0.0, 0.0))
-    # 2. Projecting surrounding molded frame jambs and lintel head
-    jamb_w = 0.11
-    frame_d = depth + 0.09
+    # 1. Shadow back plate sits cleanly in front of host wall while recessed behind outer casing
+    tapered_box(emit, "Window shadow pocket", at(0.0, 0.0, 0.022),
+                (width - 0.08, height - 0.08, 0.032), back_color, angle=angle, taper=(0.0, 0.0))
+    # 2. Projecting surrounding molded frame jambs and lintel head (15 cm deep reveal)
+    jamb_w = 0.115
     for side in (-1.0, 1.0):
-        tapered_box(emit, "Window molded jamb", at(side * (width * 0.5 + jamb_w * 0.35), 0.0, 0.02),
-                    (jamb_w, height + 0.08, frame_d), frame_color, angle=angle, taper=(0.04, 0.04))
-    tapered_box(emit, "Window molded head", at(0.0, height * 0.5 + 0.075, 0.03),
-                (width + jamb_w * 2.1, 0.15, frame_d + 0.04), sill_color, angle=angle, taper=(0.04, 0.06))
+        tapered_box(emit, "Window molded jamb", at(side * (width * 0.5 + jamb_w * 0.36), 0.0, depth * 0.5),
+                    (jamb_w, height + 0.08, depth), frame_color, angle=angle, taper=(0.04, 0.04))
+    tapered_box(emit, "Window molded head", at(0.0, height * 0.5 + 0.075, depth * 0.56),
+                (width + jamb_w * 2.2, 0.15, depth + 0.04), sill_color, angle=angle, taper=(0.04, 0.06))
     # 3. Chunky overhanging bottom sill + pair of corbel brackets
     sill_y = -height * 0.5 - 0.075
-    tapered_box(emit, "Window chunky sill", at(0.0, sill_y, 0.065),
-                (width + jamb_w * 2.5, 0.15, frame_d + 0.11), sill_color, angle=angle, taper=(0.02, 0.04))
+    tapered_box(emit, "Window chunky sill", at(0.0, sill_y, depth * 0.68),
+                (width + jamb_w * 2.5, 0.15, depth + 0.09), sill_color, angle=angle, taper=(0.02, 0.04))
     for side in (-1.0, 1.0):
-        tapered_box(emit, "Window sill corbel", at(side * width * 0.34, sill_y - 0.11, 0.045),
-                    (0.13, 0.13, frame_d + 0.04), sill_color, angle=angle, taper=(-0.12, -0.18))
+        tapered_box(emit, "Window sill corbel", at(side * width * 0.34, sill_y - 0.11, depth * 0.52),
+                    (0.13, 0.13, depth + 0.02), sill_color, angle=angle, taper=(-0.12, -0.18))
     # 4. Optional chunky slatted shutters set inside the frame reveal
     if shutter_color:
-        leaf_w = (width - 0.09) * 0.5
+        leaf_w = (width - 0.10) * 0.5
         for side in (-1.0, 1.0):
             u = side * (leaf_w * 0.5 + 0.014)
-            tapered_box(emit, "Shutter leaf", at(u, 0.0, -0.01),
-                        (leaf_w, height - 0.08, 0.075), shutter_color, angle=angle, taper=(0.02, 0.02))
+            tapered_box(emit, "Shutter leaf", at(u, 0.0, 0.058),
+                        (leaf_w, height - 0.09, 0.052), shutter_color, angle=angle, taper=(0.02, 0.02))
             if louver_color:
                 for row in (-1, 0, 1):
-                    tapered_box(emit, "Shutter louver", at(u, row * height * 0.24, 0.032),
-                                (leaf_w - 0.09, 0.085, 0.042), louver_color, angle=angle, taper=(0.05, 0.12))
+                    tapered_box(emit, "Shutter louver", at(u, row * height * 0.24, 0.094),
+                                (leaf_w - 0.08, 0.088, 0.042), louver_color, angle=angle, taper=(0.05, 0.12))
 
 
 def cambered_canopy(emit, origin, width, depth, drop, angle, stripe_a, stripe_b, wood_color, post_h=2.06):
