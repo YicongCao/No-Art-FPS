@@ -1,93 +1,137 @@
-# 上漆玩具场景建模进阶：从圆角盒体到微缩沙盘
+# 上漆玩具场景建模进阶：可行性调研、五项原则与样板实施
 
-日期：2026-11-12。作为 [`docs/art/toy/README.md`](../toy/README.md) 的场景几何补充方案，解决当前地图建筑与道具“只是给直角长方体包了一圈圆角”的造型单薄问题。
-
-## 问题诊断
-
-当前角色与武器（[`tools/build_toy_actors.py`](../../../tools/build_toy_actors.py)）已完成多级体块拆分，但多数地图场景（如 [`tools/maps/arena_kit.py`](../../../tools/maps/arena_kit.py)、[`tools/build_sandgate.py`](../../../tools/build_sandgate.py)、[`tools/build_bb_office.py`](../../../tools/build_bb_office.py)）底层仍以正交直棱柱 `box()` 和 `slab()` 直接拼合：
-
-1. 大部分地图静态建筑尚未接入统一倒角与加权法线，或仅做了均匀圆角，变成缺少骨点的“肥皂块”；
-2. 墙地直插、门窗平贴、管线光滑无节，缺少二三级结构拆分与非正交剪影，在纯色无贴图的材质规则下暴露出明显的灰盒感。
-
-| 当前沙门实战视角 | 当前办公室实战视角 |
-| --- | --- |
-| ![当前沙门实战视角](../toy/maps/after/sandgate-play.png) | ![当前办公室实战视角](../toy/maps/after/bb_office-play.png) |
-
-在不引入手工雕刻与写实贴图、保持 Blender Python 脚本程序化建模且不改动现有碰撞盒的前提下，按以下五个建模要点升级场景套件。
+日期：2026-11-12。作为 [`docs/art/toy/README.md`](../toy/README.md) 的场景几何深化方案，针对当前地图建筑与道具“只是给直角长方体包了一圈圆角”的造型单薄问题，完成底层管线可行性调研，并在室外地图 `sandgate` 与室内地图 `bb_office` 落地完整样板。
 
 ---
 
-## 1. 三段式建筑截面：消灭光秃直墙交界
+## 一、工程可行性调研
 
-墙体不能用单个 `box()` 从地面一通到底，需要拆分为接地、墙身、收顶三层结构，配合顶点烘焙遮蔽稳住体积。
+对现有全部地图构建脚本（[`tools/maps/arena_kit.py`](../../../tools/maps/arena_kit.py)、[`tools/build_sandgate.py`](../../../tools/build_sandgate.py)、[`tools/build_bb_office.py`](../../../tools/build_bb_office.py) 等）、顶点光烘焙器（[`tools/maps/bake_vertex_light.py`](../../../tools/maps/bake_vertex_light.py)）和运行时材质装配器（[`scripts/maps/map_lookdev.gd`](../../../scripts/maps/map_lookdev.gd)）排查后，确认方案**完全可行，且零碰撞与导航回退风险**，但必须先解决以下四个底层症结：
+
+| 症结 | 代码根因 | 解决方案 |
+| --- | --- | --- |
+| 导出阶段丢弃倒角与法线 | 各构建器 `export()` 使用 `mesh.from_pydata()` 重新拼合裸网格，未做倒角且丢弃光滑组与自定义法线 | 新增共用模块 [`tools/maps/toy_kit.py`](../../../tools/maps/toy_kit.py)，按构件真实厚度 `体积 / 最大面面积` 自动筛选，逐件执行 `1` 段 `bmesh.ops.bevel` 后合并材质，统一施加 `WEIGHTED_NORMAL` 并开启 `export_normals=True` |
+| 漆面高光被粗糙度锁死 | `build_sandgate.py` 将材质设为 `Roughness = 1.0`、`Specular = 0.0`；`map_lookdev.gd` 将石材与灰泥锁在 `0.92`，即使倒角也无法产生边缘高光 | 将玩具彩漆粗糙度调整至 `0.44`–`0.62`、石材灰泥调至 `0.68`、木质调至 `0.58`，由加权法线保证大平面哑光平整、倒角窄边承接高光 |
+| 顶点烘焙细分破坏自定义法线 | `bake_vertex_light.py` 的 `refine()` 直接切分导入后的三角面，既多产生约 `40%` 碎面，又会冲掉倒角条两侧的加权法线 | 在 `refine()` 前先执行 `bmesh.ops.join_triangles` 还原四边面再做网格切分，切分后清理旧法线并重算 `WEIGHTED_NORMAL` |
+| 室内缺少方向性高光光源 | `bb_office` 主光能量仅 `0.18`，全靠无方向环境光照明，立体框线与倒角缺乏明暗转折 | 在 [`scripts/maps/toy_palette.gd`](../../../scripts/maps/toy_palette.gd) 为 `bb_office` 补入侧窗暖色主光（能量 `0.46`），拉开背光面与倒角亮边 |
+
+### 物理碰撞与性能安全边界
+
+1. **视觉与物理完全解耦：** 各场景 `.tscn` 的 `Collision` 与 `NavigationRegion3D`（`PARSED_GEOMETRY_STATIC_COLLIDERS`）完全读取 `tools/maps/*_layout.json` 的简化碰撞盒，不解析视觉 `.glb`。升级建模时保持 `*_layout.json` 零改动，即可保证寻路、护栏、射击视线和狂暴爆破捷径不变。
+2. **单段加权倒角与按需跳过：** `1` 段斜切倒角配合平滑着色与 `WEIGHTED_NORMAL(weight=100)`，法线在倒角条两侧连续插值，高光观感接近多段圆角，但面数增量仅为多段圆角的三分之一；同时自动跳过厚度小于 `2.2` 厘米的贴片（地毯砖、纸张、屏幕字符）及远景天际线（`skyline`、`city`）。
+
+---
+
+## 二、五项场景建模原则与概念对照
+
+在不引入手工雕刻与写实贴图、保持 Blender Python 脚本程序化生成的前提下，按以下五项结构规则补齐微缩沙盘精度。
+
+### 1. 三段式建筑截面：消灭光秃直墙交界
+
+墙体不能用单个 `box()` 从地面一通到底，需要拆分为接地勒脚、墙身、分段收顶三层结构，配合顶点烘焙遮蔽稳住体积。
 
 ![三段式墙体截面对比](01-three-part-wall.png)
 
-- **底部勒脚 / 踢脚线（Plinth / Baseboard）：** 高 `0.18` 至 `0.30` 米，向外凸出 `3` 至 `5` 厘米，颜色比主墙压深一档或改用石材、深色塑料色板，把墙体钉在地面上。
-- **顶部压顶 / 挑檐（Coping / Cornice）：** 高 `0.12` 至 `0.20` 米，向外挑出 `5` 至 `8` 厘米并带斜切面，使用亮一档的浅色并切出分段拼缝，让墙顶边缘接住连续高光。
-- **转角护角柱（Corner Pilaster）：** 两面墙交汇的外转角包覆凸出墙面 `4` 厘米的立柱，打破平直转折。
-- **脚本落点：** 在 `tools/maps/arena_kit.py` 中封装 `coping_wall(start, end, height, thickness)`，替代直接调用 `box()` 砌墙。
+- **底部勒脚 / 踢脚线（`stepped_plinth`）：** 高 `0.18` 至 `0.30` 米，向外微扩 `3` 至 `5` 厘米，使用石材或深色塑料色板把墙体锚定在地面上。
+- **墙裙腰线与转角护角柱：** 彩漆墙裙顶部增加外凸腰线（Belt Rail），主要建筑外转角包覆凸出 `4` 至 `5.5` 厘米的转角柱（Pilaster）。
+- **分段挑檐压顶（`segmented_coping`）：** 取消整根贯通长条，按 `1.5` 至 `1.75` 米模数切出 `2.6` 厘米拼缝，下衬一层石质挑檐唇边。
 
----
+### 2. 微锥度与斜切咬合：打破 90 度正交死板感
 
-## 2. 微锥度与斜切咬合：打破 90 度正交死板感
-
-纯正交（90 度）方块堆叠会产生强烈的工程白盒感。参考《守望先锋》场景体块处理，立柱、墩体与矮掩体应引入轻微的上窄下宽锥度，并用硬斜切配合窄倒角替代均匀大圆角。
+纯正交（90 度）方块堆叠会产生强烈的工程白盒感。墩柱、门洞扶壁与胸墙引入轻微的上窄下宽锥度，建立稳重的玩具重心。
 
 ![微锥度与主次体块咬合对比](02-taper-and-chamfer.png)
 
-- **1 至 4 度微锥度（Taper）：** 墩柱、门洞扶壁、室外胸墙顶面比底面内缩 `3%` 至 `6%`，搭配独立柱础垫块（Footing），剪影重心自然下沉。
-- **45 度结构斜切 + 窄高光倒角：** 工业结构件、掩体转角优先做显式的斜切面（Chamfer），再用小半径倒角接高光，避免所有边缘都糊成软泡沫。
-- **剪影破形件：** 在墙头、门楣局部挑出短木梁头、拱顶石（Keystone）或承托牛腿，用极少面数打破直线边界。
-- **脚本落点：** 为 `prism()` 与 `box()` 增加 `taper` 参数，支持顶面按比例缩放。
+- **1 至 4 度微锥度（`tapered_box`）：** 门洞墩柱、扶壁、护栏立柱、女墙垛口顶面内缩 `3%` 至 `10%`，底部配独立柱础垫块。
+- **拱门拱顶石（Keystone）：** 拱圈正中石块在径向与厚度方向同时外凸并改用浅亮色，强化入口视觉焦点。
 
----
+### 3. 内凹深框与注塑分件缝：禁止表面平贴色块
 
-## 3. 内凹深框与注塑分件缝：禁止表面平贴色块
-
-纯色画面里没有贴图阴影造假，门窗、屏幕、隔断如果只是大盒体表面贴薄片，侧面与高光下会立刻露馅。
+纯色画面没有贴图阴影造假，门窗、隔断如果只是大盒体表面贴薄片，侧面与斜光下会立刻露馅。
 
 ![内凹深框与分件接缝对比](03-recessed-openings-and-seams.png)
 
-- **三层深度开洞法则：** 外框凸出墙面 `+4` 厘米 -> 门板或窗玻璃向墙内退 `-12` 至 `-20` 厘米 -> 底部挑出 `+8` 厘米的厚窗台板（Sill）。`20` 厘米的真实进深能在斜射主光与顶点遮蔽下投出清晰口袋阴影。
-- **注塑拼装分件缝（Panel Seams）：** 大尺寸塑料玩具必然存在分件卡扣缝。超过 `3` 米的连续平面（办公室紫色隔断、地铁站墙板、演播室背景板）每隔 `1.2` 至 `2.0` 米切出宽 `2` 厘米、深 `1.5` 厘米的凹槽，或拆分为留有 `1.5` 厘米间隙的并排面板，并在边角加入规则定位凹点或包角盖。
-- **脚本落点：** 新增 `recessed_opening()` 与 `paneled_wall()` 组件，自动生成外框、内退芯板、窗台与等距分缝。
+- **三层深度窗洞（`recessed_window`）：** 深色阴影底板后退 -> 双扇百叶窗居中 -> 周围 `15` 厘米深模压外框与挑出厚窗台板（下带双牛腿托架）前探，在斜射光下形成真实口袋阴影且不与宿主墙面穿插。
+- **注塑拼装分件缝：** 室内长墙与工位屏风内衬深色龙骨芯板，外挂按 `1.5` 至 `1.75` 米分块的彩漆面板，留出 `2.4` 至 `2.6` 厘米深色内凹拼缝。
 
----
+### 4. 薄片改厚体块：补齐骨架与工业箍圈
 
-## 4. 薄片改厚体块：补齐骨架与工业箍圈
-
-微缩玩具比例下，薄于 `3` 厘米的零件在 `10` 米外接不住倒角高光，还会显得廉价脆弱。所有单薄片状物与光滑长管都需要加厚并补齐支撑逻辑。
+微缩玩具比例下，薄于 `3` 厘米的零件在 `10` 米外接不住高光。单薄片状物与光滑长管需统一加厚并补齐支撑骨架。
 
 ![加厚道具与骨架箍圈对比](04-chunky-props-and-skeleton.png)
 
-- **遮阳棚与雨棚：** 去掉零厚度平板，改为带厚度的三段微弧折面，前缘增加下垂挡边（Valance），下方补齐加厚三角斜撑木架与咬合槽口。
-- **风管与管道桥架：** 去掉一通到底的光滑方管，每隔 `1.5` 至 `2.0` 米套一圈凸出 `2.5` 厘米的法兰夹箍（Flange Clamp）与吊杆卡扣，形成明暗节奏。
-- **家具与终端设备：** 桌面边缘、椅背、栏杆与显示器外壳放大至写实厚度的 `1.5` 至 `2` 倍；办公桌显示器改用厚边框、深背壳的复古块体造型，契合塑料玩具语境。
-- **脚本落点：** 在 `tools/toy_blocks.py` 与地图套件中提取 `flanged_duct()`、`awning()` 等带骨架的复用生成器。
+- **三段微弧遮阳棚（`cambered_canopy`）：** 改为 `8.5` 厘米厚的三段折弧条纹棚面，前缘挂分片垂边，下方补齐墙面横梁、前檐连杆、微锥木柱与三角斜撑。
+- **带箍风管与吊顶灯盘：** 主风管每隔 `2` 米套一圈外凸法兰箍、浅色密封垫圈与四角金色螺栓耳；吊顶条灯增加模压端盖。
+- **双面耐看的复古厚框终端机：** 办公室半数工位以显示器背面朝向走廊，将平板薄屏改为带奶油色厚前框、青色阶梯状 CRT 后壳与散热百叶槽的块体造型，正反两面均有玩具剪影。
 
----
+### 5. 核心玩具套件工作流：共用原语拼装母版模块
 
-## 5. 核心玩具套件工作流：每图聚焦 5 个母版模块
-
-无需手工重做整张地图，沿用角色与武器已跑通的“正交设定图 -> 程序化零件拼装”流程，每张地图优先升级出镜率最高的 5 个核心套件（Hero Kits），严格控制大、中、小三级体块比例（约 `7 : 2 : 1`）。
+将上述结构沉淀为 [`tools/maps/toy_kit.py`](../../../tools/maps/toy_kit.py) 与 [`tools/maps/arena_kit.py`](../../../tools/maps/arena_kit.py) 中的标准原语，围绕每张图出镜率最高的 5 类母版组件（掩体矮墙、拱门门洞、主题摊位、室内工位隔断、管线机械）批量升级。
 
 ![五件套微缩沙盘母版示例](05-hero-kit-sheet.png)
 
-| 编号 | 模块类型 | 结构要点 | 适用地图举例 |
-| --- | --- | --- | --- |
-| 1 | 微锥度矮掩体 | 底宽顶窄、深色底座、分段浅色压顶 | `sandgate`、`yard`、`hogwarts` |
-| 2 | 厚框拱门 / 门洞 | 多色块咬合拱圈、外凸门柱、侧面拼装卡槽 | `sandgate`、`hogwarts`、`palm_house` |
-| 3 | 主题摊位 / 掩体组 | 厚折边条纹棚、承重斜撑、成组圆润陶罐或货箱 | `sandgate`、`rain_market`、`amusement_park` |
-| 4 | 模块化室内工位 | 分缝隔断屏风、厚圆角桌面、大肚厚框终端机 | `bb_office`、`night_studio`、`baggage_below` |
-| 5 | 重型管线机械组 | 粗主管道、等距法兰箍、支撑底座与百叶格栅 | `bb_office`、`ginza_station`、`baggage_below` |
+---
+
+## 三、已落地样板与实机渲染对比
+
+所有对比图均为 `1600 x 900` 本地实机渲染（左为本次几何升级前的玩具分支状态，右为升级并重烘焙顶点光后的状态）。
+
+### 1. 室外样板：沙门（`sandgate`）
+
+升级范围（[`tools/build_sandgate.py`](../../../tools/build_sandgate.py)）：全部可玩分区建筑立面三段式改造（石质勒脚、彩漆墙裙腰线、转角柱、分段挑檐压顶）、拱门微锥墩柱与凸出拱顶石、`15` 厘米深框百叶窗与牛腿窗台、三段弧面斜撑遮阳棚、彩带陶罐、四面内凹加固货箱，以及下沉广场与平台护墙分段压顶。`tools/maps/sandgate_layout.json` 碰撞与导航数据零改动。
+
+| 起点实战视角（左：升级前 / 右：升级后） | 全景机位（左：升级前 / 右：升级后） |
+| --- | --- |
+| ![沙门实战视角前后对比](renders/compare-sandgate-play.png) | ![沙门全景视角前后对比](renders/compare-sandgate-view.png) |
+
+单张高清图：[`renders/sandgate-play.png`](renders/sandgate-play.png)、[`renders/sandgate-view.png`](renders/sandgate-view.png)。
+
+### 2. 室内样板：办公室（`bb_office`）
+
+升级范围（[`tools/build_bb_office.py`](../../../tools/build_bb_office.py)）：走廊与会议室紫色隔墙分缝面板化（深色内凹缝、双面踢脚底座、分段顶冠）、三类工位屏风模块化重构（外凸立柱、外扩稳固底座脚、奶油色分段压顶、内嵌软包面板与磨砂窗台）、厚框复古 CRT 显示器（正反双面造型）、微锥桌腿与扶手椅、带垫圈与金色螺栓耳的法兰风管及吊顶灯具端盖。`tools/maps/bb_office_layout.json` 碰撞与导航数据零改动。
+
+| 起点实战视角（左：升级前 / 右：升级后） | 全景机位（左：升级前 / 右：升级后） |
+| --- | --- |
+| ![办公室实战视角前后对比](renders/compare-bb_office-play.png) | ![办公室全景视角前后对比](renders/compare-bb_office-view.png) |
+
+单张高清图：[`renders/bb_office-play.png`](renders/bb_office-play.png)、[`renders/bb_office-view.png`](renders/bb_office-view.png)。
 
 ---
 
-## 最小试水步骤
+## 四、验证与性能实测
 
-合回 `main` 及发布 Web 前，先在单张地图上控制面数预算完成样板验证：
+### 自动化验证
 
-1. **按需倒角：** 将 `tools/toy_bevel.py` 接入地图套件，仅对出生点与主战区近景掩体、门框、压顶、柱子启用 1 至 2 段倒角加权法线；大面积地面与图外远景建筑保持硬边不倒角。
-2. **单点替换：** 先选 `sandgate` 或 `bb_office` 起点正前方视野内的 3 至 4 类核心构件（矮墙、门窗框、遮阳棚或工位风管）按上述五点改写生成函数，保留原有 `layout["boxes"]` 碰撞体与导航网格不变。
-3. **同机位验收：** 重新运行烘焙与 `tools/maps/capture_map_compare.gd`，在相同 `1600 x 900` 机位下对比前后剪影、阴影层次、三角面增量与帧时间。
+已通过以下自动化检查（尚未进行人工完整对局手感试玩）：
+
+- `godot --headless --path . --editor --import`
+- `godot --headless --path . --script tests/rules_test.gd`
+- `godot --headless --path . --script tests/map_scene_test.gd`
+- `godot --headless --path . --script tests/color_material_check.gd`
+- `godot --headless --path . --script tests/aim_sights_check.gd`
+- `godot --headless --path . --fixed-fps 60 --script tests/sandgate_check.gd`（开局爆头视线、全图巡游路线、高低护栏阻挡、狂暴破墙捷径、终局与重置全部通过）
+- `godot --headless --path . --fixed-fps 60 --script tests/bb_office_check.gd`（开局视线、全走廊连通、双经理门破拆、48 张办公桌破坏、6 盏狂暴扫光、电弧与重置全部通过）
+
+### 资源体积与本地渲染性能
+
+测试环境：Apple M4 Pro，Godot 4.7.2 `gl_compatibility`（OpenGL on Metal），窗口 `1280 x 720`（内部视口 `1440 x 810`），VSync 开启，敌人 AI 实时运行、镜头缓慢扫动采样 `8` 秒（`tools/maps/capture_visual_performance.gd`）：
+
+| 地图 | 烘焙后静态建筑三角面 | 模型目录体积 | Draw Calls P50 | 图元数 P50 | 帧间隔 P50 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `sandgate` | `118,006` | `4.7 MB` | `930` | `391,998` | `9.88 ms` |
+| `bb_office` | `89,588` | `4.4 MB` | `2,629` | `717,803` | `15.60 ms` |
+
+### 后续推广与合入 `main` 前注意事项
+
+1. **其余地图按同管线铺开：** [`tools/maps/arena_kit.py`](../../../tools/maps/arena_kit.py) 已接入 `export_toy_parts` 选择性单段加权倒角与 `plinth` / `coping` / `taper` 接口，后续重跑 `hogwarts`、`palm_house`、`snowline`、`baggage_below`、`ginza_station`、`rain_market` 构建与烘焙脚本即可直接继承倒角高光，并按每图 5 个核心构件逐步深化轮廓。
+2. **高频实例道具减面（Web 预算）：** `bb_office` 静态建筑仅 `8.96` 万面，但场内实例化了 `48` 套高细节工位（含键盘按键、马克杯、手办与多层显示器），使总图元达到 `71.8` 万。合回 `main` 发布 Web 前，建议为 `8` 米外工位桌面小摆件设置 `visibility_range_end` 距离裁剪或合并远景桌面细节。
+
+### 复现命令
+
+```sh
+blender --background --python-exit-code 1 --python tools/build_sandgate.py
+blender --background --python-exit-code 1 --python tools/maps/bake_vertex_light.py -- sandgate
+blender --background --python-exit-code 1 --python tools/build_bb_office.py
+blender --background --python-exit-code 1 --python tools/maps/bake_vertex_light.py -- bb_office
+godot --headless --path . --editor --import
+```
