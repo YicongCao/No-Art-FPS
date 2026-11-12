@@ -192,11 +192,21 @@ for side in (-1, 1):
     za, zb = half * side, end * side
     left, right = x - ramp_width / 2, x + ramp_width / 2
     vertices = [(left,h,za),(right,h,za),(right,0,zb),(left,0,zb),
-                (left,h-.24,za),(right,h-.24,za),(right,-.24,zb),(left,-.24,zb)]
+                (left,h-.28,za),(right,h-.28,za),(right,-.28,zb),(left,-.28,zb)]
     faces = [(0,1,2,3),(7,6,5,4),(0,4,5,1),(1,5,6,2),(2,6,7,3),(3,7,4,0)]
     ramp.mesh("Ramp", vertices, faces if side < 0 else [tuple(reversed(f)) for f in faces], "blue")
-    for edge in (left + .08, right - .08):
-        railing(ramp, (edge, h, za), (edge, 0, zb), "blue_light")
+    for s_t in range(12):
+        u0, u1 = s_t / 12, (s_t + 1) / 12
+        um = (u0 + u1) * .5
+        ry = h * (1 - um)
+        rz = za + (zb - za) * um
+        ramp.box("Ramp tread rib", (x, ry + .018, rz), (ramp_width - .22, .045, .14), "gold" if s_t % 3 == 0 else "blue_light")
+    for edge in (left + .04, right - .04):
+        c_top = [(edge-.09,h+.16,za),(edge+.09,h+.16,za),(edge+.09,.16,zb),(edge-.09,.16,zb)]
+        c_bot = [(edge-.09,h-.32,za),(edge+.09,h-.32,za),(edge+.09,-.32,zb),(edge-.09,-.32,zb)]
+        c_faces = [(0,1,2,3),(7,6,5,4),(0,4,5,1),(1,5,6,2),(2,6,7,3),(3,7,4,0)]
+        ramp.mesh("Ramp stringer cheek", c_top + c_bot, c_faces if side < 0 else [tuple(reversed(f)) for f in c_faces], "cream")
+        railing(ramp, (edge, h, za), (edge, 0, zb), "gold")
 
 cabin = Kit("deckhouse", LAYOUT["deckhouse"])
 kits.append(cabin)
@@ -226,13 +236,18 @@ cabin.rod("Steam whistle", (0, 3.35, -.14), (0, 4.45, -.14), .075, "gold", 8)
 
 mast = Kit("mast", LAYOUT["mast"])
 kits.append(mast)
-mast.rod("Mast", (0, 0, 0), (0, 12, 0), .34, "cream", 10, .13)
-mast.rod("Foot", (0, 0, 0), (0, 1.5, 0), .46, "gold", 10)
-mast.rod("Yardarm", (-3.5, 8.2, 0), (3.5, 8.2, 0), .14, "gold", 8, .1)
+stepped_plinth(mast.mesh, "Mast deck plinth", (0, .18, 0), 1.48, .36, 1.48, "metal", flare=.06)
+mast.rod("Foot", (0, .32, 0), (0, 1.65, 0), .54, "gold", 12, .42)
+mast.rod("Mast", (0, 1.5, 0), (0, 12, 0), .38, "cream", 12, .15)
+for y_ring in (2.8, 5.2, 7.8, 10.2):
+    mast.rod("Mast brass collar", (0, y_ring, 0), (0, y_ring + .22, 0), .42 - y_ring * .018, "gold", 12)
+mast.box("Crow's nest hub", (0, 8.2, 0), (.88, .54, .88), "blue", taper=(.06, .06))
+mast.rod("Yardarm", (-3.6, 8.2, 0), (3.6, 8.2, 0), .17, "gold", 10, .12)
 for side in (-1, 1):
-    mast.rod("Stay", (0, 11.4, 0), (side * 6, 1, -8.4), .037, "metal", 5)
-    mast.rod("Arm stay", (0, 11.4, 0), (side * 3.45, 8.22, 0), .038, "metal", 5)
-    mast.box("Deck spotlight", (side * 2.95, 7.95, 0), (.52, .24, .38), "lamp")
+    mast.rod("Stay", (0, 11.4, 0), (side * 6, 1, -8.4), .045, "metal", 6)
+    mast.rod("Arm stay", (0, 11.4, 0), (side * 3.45, 8.22, 0), .045, "metal", 6)
+    mast.box("Spotlight housing", (side * 2.95, 8.02, 0), (.62, .30, .46), "blue", taper=(.06, .06))
+    mast.box("Deck spotlight", (side * 2.95, 7.90, 0), (.52, .18, .38), "lamp")
 for i, color in enumerate(("coral","cream","teal","gold","violet")):
     z = -2.0 - 1.05 * i
     y = 11.4 + z * 1.238

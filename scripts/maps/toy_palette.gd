@@ -100,8 +100,9 @@ const PALETTES = {
 		"rim": [Color("ffb36b"),.58],
 	},
 	"ginza_station": {
-		# Underground platform: cool fluorescent fill, warm signage and lamps, glow on tubes.
-		"ambient": [Color("d2defc"),.46],
+		# Underground platform: crisp daylight-warm key down the stairs, cool ceramic shade, glow on tubes.
+		"sun": [Color("fff2d6"),.44,Vector3(-52,-28,0)],
+		"ambient": [Color("cad8fc"),.46],
 		"glow": [.36,1.0],
 		"emission": 1.4,
 		"rim": [Color("ffb36b"),.6],

@@ -51,13 +51,13 @@ func _ready() -> void:
 	print("TERRACE_WALK_POOL_EXIT_PASS")
 	# A trunk is solid; broad leaves remain above the walking area.
 	var palm = game.arena.palms[0]
-	game.player.position = palm.position+Vector3(0,.05,2)
+	game.player.position = palm.global_position+Vector3(0,.05,2)
 	game.player.rotation.y = 0
 	game.player.velocity = Vector3.ZERO
 	Input.action_press("forward")
 	await get_tree().create_timer(.5).timeout
 	Input.action_release("forward")
-	assert(game.player.position.z>palm.position.z+.45,"Palm trunk must stop the player")
+	assert(game.player.position.z>palm.global_position.z+.45,"Palm trunk must stop the player")
 	print("TERRACE_PALM_COLLISION_PASS")
 	game.player.enabled = false
 	game.set_physics_process(false)

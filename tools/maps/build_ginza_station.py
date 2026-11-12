@@ -159,17 +159,19 @@ def stair(x0,x1,z_top,z_foot,escalators=0):
         zb=z_foot+(z_top-z_foot)*(i+1)/n
         y=BY*(i+1)/n
         bridges.box("Stair tread",((x0+stair_x1)/2,y/2,(za+zb)/2),(stair_x1-x0,y,abs(zb-za)+.01),"terrazzo" if i%2 else "terrazzo_dark")
-        bridges.box("Yellow stair nosing",((x0+stair_x1)/2,y+.005,za+(zb-za)*.85),(stair_x1-x0,.02,.08),"tactile")
+        bridges.box("Yellow stair nosing",((x0+stair_x1)/2,y+.008,za+(zb-za)*.85),(stair_x1-x0,.028,.09),"tactile")
         for e in range(escalators):
             ex=stair_x1+.15+e*1.15+.45
             bridges.box("Escalator truss",(ex,y/2,(za+zb)/2),(.9,y,abs(zb-za)+.01),"grey")
-            bridges.box("Escalator tread",(ex,y+.004,(za+zb)/2),(.86,.02,abs(zb-za)*.8),"rail")
-            bridges.box("Escalator step edge",(ex,y+.005,za+(zb-za)*.85),(.9,.02,.05),"tactile")
+            bridges.box("Escalator tread",(ex,y+.004,(za+zb)/2),(.86,.024,abs(zb-za)*.8),"rail")
+            bridges.box("Escalator step edge",(ex,y+.008,za+(zb-za)*.85),(.9,.025,.055),"tactile")
     length=math.hypot(z_top-z_foot,BY)
     for x in [x0,x1]+[stair_x1+.075+e*1.15 for e in range(escalators)]:
-        bridges.beam("Stair balustrade glass",(x,.55,z_foot),(x,BY+.55,z_top),.05,.9,"glass")
-        bridges.beam("Stair handrail",(x,1.06,z_foot),(x,BY+1.06,z_top),.1,.08,"black" if escalators else "grey_dark")
-        bridges.beam("Stair stringer",(x,.0,z_foot),(x,BY-.1,z_top),.14,.18,"grey")
+        bridges.plinth("Stair newel foot",(x,.14,z_foot),.26,.28,.34,"grey_dark",flare=.03)
+        bridges.box("Stair newel post",(x,.58,z_foot),(.18,1.12,.22),"orange" if x in (x0,x1) else "grey",taper=(.05,.05))
+        bridges.beam("Stair balustrade glass",(x,.55,z_foot),(x,BY+.55,z_top),.06,.9,"glass")
+        bridges.beam("Stair handrail",(x,1.08,z_foot),(x,BY+1.08,z_top),.14,.10,"orange" if escalators and x!=x0 else "grey_dark")
+        bridges.beam("Stair stringer",(x,.02,z_foot),(x,BY-.08,z_top),.18,.24,"grey")
     for x in (x0,x1):
         dx=.05
         a.layout["slabs"].append([[(x-dx,1.1,z_foot),(x+dx,1.1,z_foot),(x+dx,BY+1.1,z_top),(x-dx,BY+1.1,z_top)],1.14])
