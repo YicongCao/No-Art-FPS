@@ -21,6 +21,8 @@ from toy_kit import (
     tapered_box,
 )
 
+from hero_geometry import profile_shell, rounded_profile
+
 OUTPUT = ROOT / "assets/models/park"
 OUTPUT.mkdir(parents=True, exist_ok=True)
 bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -130,7 +132,7 @@ class Asset:
             bevel=(self.name != "coaster_track"),
             max_bevel=0.028,
             skip_labels=(
-                "Paving seam", "Promenade", "Terracotta curb", "Plaza ring",
+                "Hero curved canopy", "Hero continuous fascia", "Hero booth", "Hero cap", "Paving seam", "Promenade", "Terracotta curb", "Plaza ring",
                 "Entrance walk", "Cross walk", "Diamond mesh", "Exterior",
                 "Apron", "Bowl", "Walk-in ramp", "Plaza access ramp", "Raised edge",
                 "Riding surface", "Side panels", "Bank surface", "Blue sides",
@@ -217,19 +219,44 @@ place("Grounds","grounds")
 gate = Asset("entry", "02 Entrance")
 for x in (-5,5):
     stepped_plinth(gate.part, "Booth plinth", (x,.15,0), 2.38, .30, 2.58, "brick", flare=.045)
-    gate.box("Ticket booth", (x,1.40,0), (2.28,2.52,2.48), "teal", taper=(.04,.04))
-    for sx in (-1, 1):
-        for sz in (-1, 1):
-            gate.box("Booth corner pilaster", (x+sx*1.08,1.42,sz*1.18), (.20,2.48,.20), "cream", taper=(.05,.05))
-    gate.box("Inset booth window", (x,1.65,1.22), (1.56,1.14,.08), "ink")
-    for sx in (-1, 1):
-        gate.box("Window jamb", (x+sx*.82,1.65,1.29), (.12,1.24,.15), "cream")
-    gate.box("Window head", (x,2.27,1.30), (1.84,.14,.18), "gold")
-    gate.box("Booth sill", (x,1.03,1.34), (1.92,.15,.36), "edge", taper=(.02,.04))
-    for sx in (-1, 1):
-        gate.box("Booth sill corbel", (x+sx*.66,.90,1.30), (.14,.14,.26), "gold")
-    gate.box("Booth cornice", (x,2.68,0), (2.58,.12,2.74), "gold", taper=(-.04,-.04))
-    segmented_coping(gate.part, "Booth cap", (x,2.84,0), 2.82, .24, 2.94, "blue", seg_len=1.4, gap=.025)
+    # Closed booth shell, with genuinely recessed windows on the park and
+    # entrance sides. The center backplates preserve the solid collider meaning.
+    outer=rounded_profile(2.28,2.52,.20,y=1.40)
+    outer_end=rounded_profile(2.12,2.48,.19,y=1.40)
+    inner=rounded_profile(1.56,1.14,.12,y=1.65)
+    verts=[]
+    loops=[(-1.24,outer_end),(-1.16,outer),(1.16,outer),(1.24,outer_end)]
+    loops += [(1.25,inner),(.65,inner),(-1.25,inner),(-.65,inner)]
+    for depth,loop in loops:
+        verts += [(x+u,v,depth) for u,v in loop]
+    n=len(outer)
+    faces=[]
+    for r0,r1 in [(0,1),(1,2),(2,3),(3,4),(4,5),(6,0),(7,6)]:
+        faces += [(r0*n+i,r0*n+(i+1)%n,r1*n+(i+1)%n,r1*n+i) for i in range(n)]
+    gate.part("Hero booth molded wall",verts,faces,"teal")
+    for sign in (-1,1):
+        gate.box("Closed window back",(x,1.65,sign*.645),(1.57,1.15,.045),"ink")
+        # Four-loop cream reveal: wall, outer lip, inner lip and recessed sill.
+        out=rounded_profile(1.79,1.37,.17,y=1.65)
+        inside=rounded_profile(1.56,1.14,.12,y=1.65)
+        v=[(x+u,y,sign*d) for d,loop in [(1.25,out),(1.33,out),(1.33,inside),(.70,inside)] for u,y in loop]
+        f=[(r*n+i,r*n+(i+1)%n,(r+1)*n+(i+1)%n,(r+1)*n+i) for r in range(3) for i in range(n)]
+        if sign<0:f=[tuple(reversed(face)) for face in f]
+        gate.part("Hero booth deep reveal",v,f,"cream")
+        gate.box("Booth sill",(x,1.03,sign*1.27),(1.92,.15,.36),"edge",taper=(.02,.04))
+        gate.box("Window head",(x,2.31,sign*1.29),(1.84,.14,.18),"gold")
+    profile_shell(gate.part,"Hero cap cornice",(x,2.69,0),[
+        (-1.37,rounded_profile(2.50,.12,.05)),
+        (-1.22,rounded_profile(2.58,.16,.07)),
+        (1.22,rounded_profile(2.58,.16,.07)),
+        (1.37,rounded_profile(2.50,.12,.05)),
+    ],"gold")
+    profile_shell(gate.part,"Hero cap blue roof",(x,2.86,0),[
+        (-1.47,rounded_profile(2.62,.21,.095)),
+        (-1.28,rounded_profile(2.82,.24,.11)),
+        (1.28,rounded_profile(2.82,.24,.11)),
+        (1.47,rounded_profile(2.62,.21,.095)),
+    ],"blue")
     collider((x,1.35,24),(2.3,2.7,2.5),"Entry")
 for x in (-3.38,3.38):
     gate.box("Gate pier", (x,1.82,0), (.48,3.44,.52), "gold", taper=(.09,.09))
@@ -347,20 +374,54 @@ roof.rod("Central spindle",(0,.1,0),(0,5.05,0),.40,"purple",12)
 roof.rod("Spindle skirt",(0,.1,0),(0,.74,0),.94,"gold",24,.82)
 for y_ring in (1.45, 2.65, 3.65):
     roof.rod("Spindle brass collar",(0,y_ring,0),(0,y_ring+.14,0),.47,"gold",16)
+def p(r,h,t):
+    return (r*math.cos(t),h,r*math.sin(t))
+def canopy_height(t):
+    return 3.72 + 1.76*(1-t)**1.72
 for i in range(16):
     a,b=i*math.tau/16,(i+1)*math.tau/16
-    p=lambda r,h,t:(r*math.cos(t),h,r*math.sin(t))
-    top_q = [p(.28,5.48,a),p(4.36,3.72,a),p(4.36,3.72,b),p(.28,5.48,b)]
-    bot_q = [p(.28,5.38,a),p(4.36,3.62,a),p(4.36,3.62,b),p(.28,5.38,b)]
-    w_faces = [(3,2,1,0),(4,5,6,7),(0,1,5,4),(1,2,6,5),(2,3,7,6),(3,0,4,7)]
-    roof.part("Canopy wedge", top_q + bot_q, w_faces, "brick" if i%2==0 else "white")
-    roof.rod("Canopy gold rib", p(.30,5.49,a), p(4.38,3.73,a), .048, "gold", 6)
-    f_out = [p(4.36,3.77,a),p(4.36,3.77,b),p(4.36,3.19,b),p(4.36,3.02,(a+b)/2),p(4.36,3.19,a)]
-    f_in = [p(4.24,3.77,a),p(4.24,3.77,b),p(4.24,3.19,b),p(4.24,3.02,(a+b)/2),p(4.24,3.19,a)]
-    f_faces = [(0,1,2,3,4),(9,8,7,6,5)] + [(k,(k+1)%5,(k+1)%5+5,k+5) for k in range(5)]
-    roof.part("Scalloped fascia", f_out + f_in, f_faces, "gold")
-    roof.part("Blue inset",[p(4.38,3.65,a+.025),p(4.38,3.65,b-.025),
-                            p(4.38,3.32,b-.025),p(4.38,3.15,(a+b)/2),p(4.38,3.32,a+.025)],[(0,1,2,3,4)],"blue")
+    radial,angular=12,4
+    verts=[]
+    for underside in (0,1):
+        for j in range(radial+1):
+            t=j/radial
+            for k in range(angular+1):
+                theta=a+(b-a)*k/angular
+                # Broad curved radial profile and a restrained rise between ribs.
+                y=canopy_height(t)+.065*math.sin(math.pi*k/angular)*math.sin(math.pi*t)-underside*.10
+                verts.append(p(.28+4.08*t,y,theta))
+    layer=(radial+1)*(angular+1)
+    faces=[]
+    for j in range(radial):
+        for k in range(angular):
+            q=j*(angular+1)+k
+            faces += [(q,q+1,q+angular+2,q+angular+1),
+                      (layer+q+angular+1,layer+q+angular+2,layer+q+1,layer+q)]
+    # Adjacent stripes share boundaries; no internal side walls between colors.
+    for k in range(angular):
+        q=radial*(angular+1)+k
+        faces += [(k,layer+k,layer+k+1,k+1),(q+1,layer+q+1,layer+q,q)]
+    roof.part("Hero curved canopy cloth",verts,faces,"brick" if i%2==0 else "white")
+    for j in range(6):
+        t0,t1=j/6,(j+1)/6
+        roof.rod("Curved canopy rib",p(.28+4.08*t0,canopy_height(t0)+.028,a),
+                 p(.28+4.08*t1,canopy_height(t1)+.028,a),.035,"gold",6)
+    # A continuous scalloped rim with thickness; the inset follows its curve.
+    for radius,color,top,bottom,thick in [(4.36,"gold",3.77,3.19,.12),(4.385,"blue",3.64,3.33,.025)]:
+        steps=8
+        trim=.023 if color=="blue" else 0
+        pts=[]
+        for back in (0,1):
+            for k in range(steps+1):
+                t=k/steps;theta=a+trim+(b-a-2*trim)*t
+                pts += [p(radius-back*thick,top,theta),p(radius-back*thick,bottom-.17*math.sin(math.pi*t),theta)]
+        layer=2*(steps+1);fs=[]
+        for k in range(steps):
+            q=2*k
+            fs += [(q,q+2,q+3,q+1),(layer+q+1,layer+q+3,layer+q+2,layer+q),
+                   (q,layer+q,layer+q+2,q+2),(q+3,layer+q+3,layer+q+1,q+1)]
+        fs += [(0,1,layer+1,layer),(2*steps+1,2*steps,layer+2*steps,layer+2*steps+1)]
+        roof.part("Hero continuous fascia",pts,fs,color)
     roof.ellipsoid("Fascia bulb",p(4.44,3.46,(a+b)/2),(.23,.23,.23),"gold_light")
 roof.ellipsoid("Finial",(0,5.67,0),(.62,.68,.62),"gold_light")
 for i in range(24):
@@ -656,5 +717,6 @@ camera.rotation_euler = (Vector(xyz((0,0,-2)))-camera.location).to_track_quat("-
 preview.collection.objects.link(camera)
 preview.camera = camera
 bpy.context.window.scene = preview
+bpy.context.preferences.filepaths.save_version = 0
 bpy.ops.wm.save_as_mainfile(filepath=str(ROOT/"art_source/amusement_park.blend"), compress=True)
 print("PARK_ASSETS_READY",len(layout["instances"]),len(track),len(layout["colliders"]))

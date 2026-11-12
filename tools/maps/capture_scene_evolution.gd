@@ -3,6 +3,12 @@ extends SceneTree
 ## godot --path . --script tools/maps/capture_scene_evolution.gd -- sandgate before
 
 const VIEWS := {
+	"amusement_park": {
+		"combat": [Vector3(0, .05, 20.6), Vector3(0, 3.4, 1)],
+		"near": [Vector3(7.0, .05, 8.8), Vector3(0, 3.65, 1)],
+		"side": [Vector3(-7.5, .05, 2.2), Vector3(0, 3.5, 1)],
+		"booth": [Vector3(2.0, .05, 19.8), Vector3(5, 1.7, 24)],
+	},
 	"bb_office": {
 		"combat": [Vector3(7, .05, 14.7), Vector3(0, 1.3, 10)],
 		"near": [Vector3(2.8, .05, 13.3), Vector3(1.25, 1.0, 10.7)],

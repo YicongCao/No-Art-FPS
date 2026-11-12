@@ -1,0 +1,205 @@
+[
+  {
+    "file": "bench.glb",
+    "bytes": 13536,
+    "triangles": 572,
+    "vertices": 312,
+    "surfaces": 3
+  },
+  {
+    "file": "carousel_deck.glb",
+    "bytes": 18496,
+    "triangles": 1140,
+    "vertices": 576,
+    "surfaces": 3
+  },
+  {
+    "file": "carousel_roof.glb",
+    "bytes": 189512,
+    "triangles": 9920,
+    "vertices": 5300,
+    "surfaces": 6
+  },
+  {
+    "file": "coaster_car.glb",
+    "bytes": 18704,
+    "triangles": 784,
+    "vertices": 424,
+    "surfaces": 6
+  },
+  {
+    "file": "coaster_track.glb",
+    "bytes": 413232,
+    "triangles": 15012,
+    "vertices": 13320,
+    "surfaces": 4
+  },
+  {
+    "file": "entry.glb",
+    "bytes": 117084,
+    "triangles": 5752,
+    "vertices": 3136,
+    "surfaces": 9
+  },
+  {
+    "file": "fence_0.glb",
+    "bytes": 210444,
+    "triangles": 5696,
+    "vertices": 7272,
+    "surfaces": 5
+  },
+  {
+    "file": "fence_1.glb",
+    "bytes": 75816,
+    "triangles": 2112,
+    "vertices": 2504,
+    "surfaces": 5
+  },
+  {
+    "file": "fence_2.glb",
+    "bytes": 380816,
+    "triangles": 10160,
+    "vertices": 13320,
+    "surfaces": 5
+  },
+  {
+    "file": "fence_3.glb",
+    "bytes": 75824,
+    "triangles": 2112,
+    "vertices": 2504,
+    "surfaces": 5
+  },
+  {
+    "file": "fence_4.glb",
+    "bytes": 540804,
+    "triangles": 14432,
+    "vertices": 18984,
+    "surfaces": 5
+  },
+  {
+    "file": "fence_5.glb",
+    "bytes": 75816,
+    "triangles": 2112,
+    "vertices": 2504,
+    "surfaces": 5
+  },
+  {
+    "file": "fence_6.glb",
+    "bytes": 380804,
+    "triangles": 10160,
+    "vertices": 13320,
+    "surfaces": 5
+  },
+  {
+    "file": "fence_7.glb",
+    "bytes": 75804,
+    "triangles": 2112,
+    "vertices": 2504,
+    "surfaces": 5
+  },
+  {
+    "file": "fence_8.glb",
+    "bytes": 210432,
+    "triangles": 5696,
+    "vertices": 7272,
+    "surfaces": 5
+  },
+  {
+    "file": "grind_rail.glb",
+    "bytes": 7280,
+    "triangles": 268,
+    "vertices": 144,
+    "surfaces": 3
+  },
+  {
+    "file": "grounds.glb",
+    "bytes": 448548,
+    "triangles": 15110,
+    "vertices": 11058,
+    "surfaces": 4
+  },
+  {
+    "file": "horse_blue.glb",
+    "bytes": 38276,
+    "triangles": 1828,
+    "vertices": 962,
+    "surfaces": 5
+  },
+  {
+    "file": "horse_brick.glb",
+    "bytes": 38280,
+    "triangles": 1828,
+    "vertices": 962,
+    "surfaces": 5
+  },
+  {
+    "file": "kiosk.glb",
+    "bytes": 45236,
+    "triangles": 2068,
+    "vertices": 1128,
+    "surfaces": 7
+  },
+  {
+    "file": "lamp.glb",
+    "bytes": 9004,
+    "triangles": 296,
+    "vertices": 160,
+    "surfaces": 4
+  },
+  {
+    "file": "planter.glb",
+    "bytes": 16024,
+    "triangles": 676,
+    "vertices": 356,
+    "surfaces": 4
+  },
+  {
+    "file": "quarter_pipe.glb",
+    "bytes": 10944,
+    "triangles": 376,
+    "vertices": 222,
+    "surfaces": 4
+  },
+  {
+    "file": "skate.glb",
+    "bytes": 160448,
+    "triangles": 3600,
+    "vertices": 4130,
+    "surfaces": 7
+  },
+  {
+    "file": "skate_bank.glb",
+    "bytes": 2048,
+    "triangles": 6,
+    "vertices": 10,
+    "surfaces": 2
+  },
+  {
+    "file": "station_foundation.glb",
+    "bytes": 59100,
+    "triangles": 1476,
+    "vertices": 1412,
+    "surfaces": 5
+  },
+  {
+    "file": "station_roof.glb",
+    "bytes": 66860,
+    "triangles": 3396,
+    "vertices": 1828,
+    "surfaces": 3
+  },
+  {
+    "file": "station_stairs_north.glb",
+    "bytes": 25956,
+    "triangles": 1336,
+    "vertices": 720,
+    "surfaces": 3
+  },
+  {
+    "file": "station_stairs_south.glb",
+    "bytes": 25948,
+    "triangles": 1336,
+    "vertices": 720,
+    "surfaces": 3
+  }
+]

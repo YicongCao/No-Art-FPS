@@ -1,0 +1,254 @@
+[
+  {
+    "version": "before",
+    "trial": 1,
+    "display": "macOS",
+    "gpu": "Apple M5",
+    "maps": [
+      {
+        "draw_calls_p50": 1341.0,
+        "draw_calls_p95": 1438.0,
+        "end_state": "RUNNING",
+        "frame_ms_max": 111.53,
+        "frame_ms_p50": 9.135,
+        "frame_ms_p95": 12.587,
+        "frame_ms_p99": 21.836,
+        "frames": 823,
+        "frames_over_16_67_ms": 23,
+        "frames_over_33_33_ms": 1,
+        "map": "amusement_park",
+        "objects_p50": 1563.0,
+        "observed_destroy_frame": 322,
+        "phase": "natural_transition",
+        "primitives_p50": 357816.0,
+        "seconds": 8.0,
+        "stalls_over_100_ms": [
+          {
+            "elapsed_ms": 3112.743,
+            "frame": 323,
+            "frame_ms": 111.53,
+            "physics_ms": 0.866,
+            "process_ms": 21.977
+          }
+        ],
+        "static_bytes": 86764568.0,
+        "texture_bytes": 149760680.0,
+        "toggle_cpu_ms": 0.0
+      }
+    ],
+    "note": "Live AI, stationary player, gentle camera yaw. Frame intervals include CPU/GPU scheduling and VSync; not GPU timer queries. Memory counters are engine process totals, not incremental per-map allocations.",
+    "renderer": "Compatibility",
+    "viewport": "(1280, 720)",
+    "vsync": 1
+  },
+  {
+    "version": "after",
+    "trial": 1,
+    "display": "macOS",
+    "gpu": "Apple M5",
+    "maps": [
+      {
+        "draw_calls_p50": 1346.0,
+        "draw_calls_p95": 1446.0,
+        "end_state": "RUNNING",
+        "frame_ms_max": 102.39,
+        "frame_ms_p50": 9.195,
+        "frame_ms_p95": 12.65,
+        "frame_ms_p99": 21.851,
+        "frames": 805,
+        "frames_over_16_67_ms": 31,
+        "frames_over_33_33_ms": 1,
+        "map": "amusement_park",
+        "objects_p50": 1567.0,
+        "observed_destroy_frame": 322,
+        "phase": "natural_transition",
+        "primitives_p50": 372842.0,
+        "seconds": 8.0,
+        "stalls_over_100_ms": [
+          {
+            "elapsed_ms": 3059.827,
+            "frame": 323,
+            "frame_ms": 102.39,
+            "physics_ms": 0.546,
+            "process_ms": 10.465
+          }
+        ],
+        "static_bytes": 86807314.0,
+        "texture_bytes": 149760680.0,
+        "toggle_cpu_ms": 0.0
+      }
+    ],
+    "note": "Live AI, stationary player, gentle camera yaw. Frame intervals include CPU/GPU scheduling and VSync; not GPU timer queries. Memory counters are engine process totals, not incremental per-map allocations.",
+    "renderer": "Compatibility",
+    "viewport": "(1280, 720)",
+    "vsync": 1
+  },
+  {
+    "version": "after",
+    "trial": 2,
+    "display": "macOS",
+    "gpu": "Apple M5",
+    "maps": [
+      {
+        "draw_calls_p50": 1423.0,
+        "draw_calls_p95": 1533.0,
+        "end_state": "RUNNING",
+        "frame_ms_max": 213.347,
+        "frame_ms_p50": 11.579,
+        "frame_ms_p95": 17.21,
+        "frame_ms_p99": 24.404,
+        "frames": 650,
+        "frames_over_16_67_ms": 46,
+        "frames_over_33_33_ms": 1,
+        "map": "amusement_park",
+        "objects_p50": 1648.0,
+        "observed_destroy_frame": 217,
+        "phase": "natural_transition",
+        "primitives_p50": 409030.0,
+        "seconds": 8.0,
+        "stalls_over_100_ms": [
+          {
+            "elapsed_ms": 3186.25,
+            "frame": 218,
+            "frame_ms": 213.347,
+            "physics_ms": 1.036,
+            "process_ms": 23.753
+          }
+        ],
+        "static_bytes": 86749620.0,
+        "texture_bytes": 149760680.0,
+        "toggle_cpu_ms": 0.0
+      }
+    ],
+    "note": "Live AI, stationary player, gentle camera yaw. Frame intervals include CPU/GPU scheduling and VSync; not GPU timer queries. Memory counters are engine process totals, not incremental per-map allocations.",
+    "renderer": "Compatibility",
+    "viewport": "(1280, 720)",
+    "vsync": 1
+  },
+  {
+    "version": "before",
+    "trial": 2,
+    "display": "macOS",
+    "gpu": "Apple M5",
+    "maps": [
+      {
+        "draw_calls_p50": 1355.0,
+        "draw_calls_p95": 1464.0,
+        "end_state": "RUNNING",
+        "frame_ms_max": 162.75,
+        "frame_ms_p50": 10.683,
+        "frame_ms_p95": 21.251,
+        "frame_ms_p99": 23.53,
+        "frames": 691,
+        "frames_over_16_67_ms": 45,
+        "frames_over_33_33_ms": 3,
+        "map": "amusement_park",
+        "objects_p50": 1576.0,
+        "observed_destroy_frame": 266,
+        "phase": "natural_transition",
+        "primitives_p50": 353346.0,
+        "seconds": 8.0,
+        "stalls_over_100_ms": [
+          {
+            "elapsed_ms": 3141.312,
+            "frame": 267,
+            "frame_ms": 162.75,
+            "physics_ms": 0.911,
+            "process_ms": 21.744
+          }
+        ],
+        "static_bytes": 86749472.0,
+        "texture_bytes": 149760680.0,
+        "toggle_cpu_ms": 0.0
+      }
+    ],
+    "note": "Live AI, stationary player, gentle camera yaw. Frame intervals include CPU/GPU scheduling and VSync; not GPU timer queries. Memory counters are engine process totals, not incremental per-map allocations.",
+    "renderer": "Compatibility",
+    "viewport": "(1280, 720)",
+    "vsync": 1
+  },
+  {
+    "version": "before",
+    "trial": 3,
+    "display": "macOS",
+    "gpu": "Apple M5",
+    "maps": [
+      {
+        "draw_calls_p50": 1347.0,
+        "draw_calls_p95": 1452.0,
+        "end_state": "RUNNING",
+        "frame_ms_max": 201.306,
+        "frame_ms_p50": 10.817,
+        "frame_ms_p95": 22.152,
+        "frame_ms_p99": 24.25,
+        "frames": 676,
+        "frames_over_16_67_ms": 60,
+        "frames_over_33_33_ms": 1,
+        "map": "amusement_park",
+        "objects_p50": 1568.0,
+        "observed_destroy_frame": 238,
+        "phase": "natural_transition",
+        "primitives_p50": 350622.0,
+        "seconds": 8.0,
+        "stalls_over_100_ms": [
+          {
+            "elapsed_ms": 3191.381,
+            "frame": 239,
+            "frame_ms": 201.306,
+            "physics_ms": 1.343,
+            "process_ms": 23.642
+          }
+        ],
+        "static_bytes": 86749448.0,
+        "texture_bytes": 149760680.0,
+        "toggle_cpu_ms": 0.0
+      }
+    ],
+    "note": "Live AI, stationary player, gentle camera yaw. Frame intervals include CPU/GPU scheduling and VSync; not GPU timer queries. Memory counters are engine process totals, not incremental per-map allocations.",
+    "renderer": "Compatibility",
+    "viewport": "(1280, 720)",
+    "vsync": 1
+  },
+  {
+    "version": "after",
+    "trial": 3,
+    "display": "macOS",
+    "gpu": "Apple M5",
+    "maps": [
+      {
+        "draw_calls_p50": 1334.0,
+        "draw_calls_p95": 1509.0,
+        "end_state": "RUNNING",
+        "frame_ms_max": 175.907,
+        "frame_ms_p50": 11.701,
+        "frame_ms_p95": 21.4,
+        "frame_ms_p99": 26.765,
+        "frames": 640,
+        "frames_over_16_67_ms": 49,
+        "frames_over_33_33_ms": 3,
+        "map": "amusement_park",
+        "objects_p50": 1556.0,
+        "observed_destroy_frame": 289,
+        "phase": "natural_transition",
+        "primitives_p50": 361934.0,
+        "seconds": 8.0,
+        "stalls_over_100_ms": [
+          {
+            "elapsed_ms": 3158.577,
+            "frame": 290,
+            "frame_ms": 175.907,
+            "physics_ms": 0.894,
+            "process_ms": 20.918
+          }
+        ],
+        "static_bytes": 86767464.0,
+        "texture_bytes": 149760680.0,
+        "toggle_cpu_ms": 0.0
+      }
+    ],
+    "note": "Live AI, stationary player, gentle camera yaw. Frame intervals include CPU/GPU scheduling and VSync; not GPU timer queries. Memory counters are engine process totals, not incremental per-map allocations.",
+    "renderer": "Compatibility",
+    "viewport": "(1280, 720)",
+    "vsync": 1
+  }
+]
