@@ -4,6 +4,7 @@ Author in Godot coordinates (Y up, forward -Z); convert to Blender on creation.
 The saved blend presents each asset separately; GLBs retain origin-at-ground.
 """
 import bpy
+import bmesh
 import math
 import sys
 from pathlib import Path
@@ -11,6 +12,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 from toy_bevel import toy_soften
+sys.path.insert(0, str(ROOT / 'tools/maps'))
+from hero_geometry import profile_shell, rounded_profile
+from mathutils import Vector
 OUT = ROOT / 'assets/models'
 OUT.mkdir(parents=True, exist_ok=True)
 bpy.ops.object.select_all(action='SELECT')
@@ -66,6 +70,41 @@ def cyl(name, p, r, depth, color, vertices=8, axis='y'):
     toy_soften(obj, min(2*r, depth))
     return finish_obj(obj, name, color)
 
+def mesh(name, vertices, faces, color):
+    data=bpy.data.meshes.new(name)
+    data.from_pydata([xyz(p) for p in vertices],[],faces)
+    bm=bmesh.new();bm.from_mesh(data)
+    bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces))
+    bm.to_mesh(data);bm.free()
+    obj=bpy.data.objects.new(name,data)
+    bpy.context.collection.objects.link(obj)
+    bpy.ops.object.select_all(action='DESELECT')
+    bpy.context.view_layer.objects.active=obj
+    obj.select_set(True)
+    toy_soften(obj,.10,segments=1)
+    return finish_obj(obj,name,color)
+
+def beam(name,a,b,thickness,color):
+    start,end=Vector(xyz(a)),Vector(xyz(b))
+    bpy.ops.mesh.primitive_cube_add(size=1,location=(start+end)/2)
+    obj=bpy.context.object
+    obj.dimensions=(thickness,thickness,(end-start).length)
+    obj.rotation_euler=(end-start).to_track_quat('Z','Y').to_euler()
+    bpy.ops.object.transform_apply(location=False,rotation=False,scale=True)
+    toy_soften(obj,thickness)
+    return finish_obj(obj,name,color)
+
+def wheel_arch(x,z,r):
+    steps=10
+    verts=[(x+dx,.36+rad*math.sin(i*math.pi/steps),z+rad*math.cos(i*math.pi/steps))
+           for dx in (-.10,.10) for rad in (r,r+.12) for i in range(steps+1)]
+    n=steps+1;faces=[]
+    for i in range(steps):
+        faces += [(i,i+1,n+i+1,n+i),(2*n+i,3*n+i,3*n+i+1,2*n+i+1),
+                  (i,2*n+i,2*n+i+1,i+1),(n+i+1,3*n+i+1,3*n+i,n+i)]
+    faces += [(0,n,3*n,2*n),(steps,2*n+steps,3*n+steps,n+steps)]
+    mesh('cast_wheel_arch',verts,faces,'yellow')
+
 def export(name, merge=False):
     if merge:
         for color in MATS:
@@ -87,7 +126,7 @@ def export(name, merge=False):
 for color in ('green', 'red', 'cream', 'purple'):
     name = 'container_' + color
     begin(name)
-    box('body', (0,1.45,0), (6,2.9,2.8), color)
+    box('body', (0,1.45,0), (5.68,2.9,2.8), color)
     for x in (-2.96, 2.96):
         for z in (-1.39,1.39):
             box('corner', (x,1.45,z), (.12,2.9,.12), 'ink')
@@ -97,6 +136,13 @@ for color in ('green', 'red', 'cream', 'purple'):
             box('rib',(-2.7+i*.3375,1.46,z),(.045,2.55,.035),color)
         for y in (.12,2.78):box('rim',(0,y,z),(5.9,.12,.07),'ink')
     for x in (-3.02,3.02):
+        sign=1 if x>0 else -1
+        box('door_gasket',(sign*2.88,1.45,0),(.09,2.65,2.56),'ink')
+        for z in (-.65,.65):
+            box('inset_door',(sign*2.93,1.45,z),(.08,2.48,1.20),color,.025)
+            for y in (.34,2.56):box('pressed_door_panel',(sign*2.985,y,z),(.06,.27,1.01),color,.02)
+        for z in (-1.27,0,1.27):box('door_jamb',(x,1.45,z),(.13,2.7,.12),color,.02)
+        for y in (.15,2.75):box('door_header',(x,y,0),(.13,.17,2.66),color,.02)
         box('door_seam',(x,1.45,0),(.03,2.65,.04),'ink')
         for z in (-.78,.78):
             box('locking_bar',(x,1.45,z),(.055,2.45,.045),'cream')
@@ -145,21 +191,49 @@ box('EnemyGun',(.22,1.12,-.35),(.1,.12,.45),'dark')
 export('enemy')
 
 begin('forklift')
-box('base',(0,.48,0),(1.6,.68,2.4),'yellow',.04)
-box('rear',(0,1.0,.7),(1.55,.65,.75),'yellow')
+def hull_ring(w,bottom,top,r=.16):
+    return rounded_profile(w,top-bottom,r,y=(top+bottom)/2)
+profile_shell(mesh,'base',(0,0,0),[
+    (-1.18,hull_ring(1.24,.18,.65)),(-.80,hull_ring(1.50,.18,.78)),
+    (.45,hull_ring(1.54,.18,.85)),(.95,hull_ring(1.48,.22,.87)),
+    (1.16,hull_ring(1.30,.28,.78))],'yellow')
+profile_shell(mesh,'cast_counterweight',(0,0,0),[
+    (.40,hull_ring(1.45,.62,1.18)),(.68,hull_ring(1.58,.57,1.38)),
+    (1.02,hull_ring(1.50,.52,1.34)),(1.16,hull_ring(1.28,.53,1.18))],'yellow')
+box('rear_bumper',(0,.40,1.13),(1.44,.20,.14),'blue',.035)
+for y in (.73,.87,1.01):box('rear_vent',(0,y,1.17),(.72,.065,.025),'blue',.012)
 for x in (-.82,.82):
     for z in (-.7,.7):
-        cyl('wheel',(x,.36,z),.36,.24,'blue',10,'x')
+        cyl('wheel',(x,.36,z),.36,.24,'blue',16,'x')
         cyl('hub',(x*1.02,.36,z),.14,.26,'cream',8,'x')
+        wheel_arch(x*.94,z,.395)
 for x in (-.68,.68):
-    for z in (-.65,.65):box('cab_post',(x,1.65,z),(.09,1.75,.09),'blue')
-box('roof',(0,2.55,0),(1.65,.16,1.7),'yellow')
-box('seat',(0,1.05,.2),(.65,.15,.65),'ink')
-box('seat_back',(0,1.35,.5),(.65,.6,.12),'ink')
+    beam('front_cab_pillar',(x,.83,-.68),(x*.91,2.47,-.49),.115,'blue')
+    beam('rear_cab_pillar',(x,.90,.68),(x*.91,2.47,.53),.115,'blue')
+    box('entry_step',(x,.42,-.05),(.19,.12,.66),'blue',.02)
+profile_shell(mesh,'cast_roof',(0,0,0),[
+    (-.85,hull_ring(1.48,2.44,2.55,.06)),(-.65,hull_ring(1.73,2.46,2.63,.075)),
+    (.62,hull_ring(1.73,2.46,2.63,.075)),(.85,hull_ring(1.48,2.44,2.55,.06))],'yellow')
+profile_shell(mesh,'seat_cushion',(0,0,0),[
+    (-.20,hull_ring(.54,1.00,1.14,.06)),(.05,hull_ring(.68,.98,1.17,.08)),
+    (.45,hull_ring(.60,1.02,1.18,.07))],'ink')
+profile_shell(mesh,'seat_back',(0,0,0),[
+    (.40,hull_ring(.62,1.10,1.65,.12)),(.55,hull_ring(.54,1.12,1.61,.12))],'ink')
+beam('steering_column',(0,.78,-.36),(0,1.32,-.55),.065,'blue')
+bpy.ops.mesh.primitive_torus_add(major_segments=16,minor_segments=6,
+    major_radius=.22,minor_radius=.027,location=xyz((0,1.32,-.55)))
+steering=bpy.context.object
+steering.rotation_euler.x=math.radians(20)
+finish_obj(steering,'steering_wheel','ink')
+beam('steering_spoke',(-.2,1.32,-.55),(.2,1.32,-.55),.028,'blue')
 for x in (-.55,.55):
-    box('mast',(x,1.2,-1.3),(.15,2.4,.15),'cream')
+    box('mast',(x,1.2,-1.3),(.16,2.4,.18),'cream')
+    box('mast_inner_guide',(x,1.22,-1.42),(.085,2.24,.07),'blue')
     box('fork',(x,.16,-1.9),(.14,.12,1.25),'ink')
-box('cross',(0,.8,-1.3),(1.2,.15,.15),'cream')
+for y in (.38,.82):box('carriage',(0,y,-1.40),(1.26,.15,.18),'cream')
+cyl('hydraulic_barrel',(0,.67,-1.31),.095,.92,'blue',12)
+cyl('hydraulic_rod',(0,1.38,-1.31),.043,.62,'cream',10)
+box('mast_crown',(0,2.31,-1.3),(1.21,.18,.19),'cream',.025)
 export('forklift',True)
 
 begin('barrel')

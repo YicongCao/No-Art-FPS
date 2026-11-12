@@ -1,0 +1,8 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 4.1 Metal - 91.7 - Compatibility - Using Device: Apple - Apple M5
+
+SCENERY_BLAST_PASS: actual two-hit prop, lethal core, rim damage, cover and score
+DESTROY_NONSTRUCTURAL_HITS_PASS: real burning head/body/ground/barrel shots and unmarked area
+DESTROY_COLLISION_NAV_SCORE_PASS
+DESTROY_CHECK_PASS: boundary, real fire shots, burn/pause, rubble, burial score, collision/nav, deadline, full reset
+

@@ -3,6 +3,12 @@ extends SceneTree
 ## godot --path . --script tools/maps/capture_scene_evolution.gd -- sandgate before
 
 const VIEWS := {
+	"score_attack": {
+		"combat": [Vector3(0, .05, 10.5), Vector3(-2, 1.4, -1)],
+		"near": [Vector3(.2, .05, 2.3), Vector3(-2, 1.3, -1)],
+		"side": [Vector3(-5.4, .05, 1.0), Vector3(-2, 1.2, -1)],
+		"container": [Vector3(-.6, .05, -5.3), Vector3(-3.0, 1.5, -3)],
+	},
 	"sandgate": {
 		"combat": [Vector3(15.73, .05, 13.48), Vector3(12.0, 3.3, 7.5)],
 		"near": [Vector3(14.0, .05, 11.0), Vector3(11.75, 3.6, 9.15)],
@@ -45,6 +51,8 @@ func run() -> void:
 	player.enabled = false
 	player.set_process_unhandled_input(false)
 	for enemy in game.live_enemies(): enemy.set_physics_process(false)
+	if id == "score_attack":
+		for room in game.arena.containers: room.set_physics_process(false)
 	for label in VIEWS[id]:
 		var pose: Array = VIEWS[id][label]
 		player.global_position = pose[0]

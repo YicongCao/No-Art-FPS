@@ -1,0 +1,52 @@
+{
+  "models": [
+    {
+      "file": "container_cream.glb",
+      "bytes": 186540,
+      "triangles": 6696,
+      "vertices": 4464,
+      "surfaces": 3
+    },
+    {
+      "file": "container_green.glb",
+      "bytes": 187576,
+      "triangles": 6696,
+      "vertices": 4464,
+      "surfaces": 4
+    },
+    {
+      "file": "container_openable.glb",
+      "bytes": 225688,
+      "triangles": 7884,
+      "vertices": 5256,
+      "surfaces": 73
+    },
+    {
+      "file": "container_purple.glb",
+      "bytes": 187580,
+      "triangles": 6696,
+      "vertices": 4464,
+      "surfaces": 4
+    },
+    {
+      "file": "container_red.glb",
+      "bytes": 187564,
+      "triangles": 6696,
+      "vertices": 4464,
+      "surfaces": 4
+    },
+    {
+      "file": "forklift.glb",
+      "bytes": 70288,
+      "triangles": 2344,
+      "vertices": 1616,
+      "surfaces": 4
+    }
+  ],
+  "total": {
+    "bytes": 1045236,
+    "triangles": 37012,
+    "vertices": 24728,
+    "surfaces": 92
+  }
+}

@@ -76,7 +76,18 @@ def pivot(name,p,objects):
         child.matrix_world=matrix
     return o
 
-def export(name):
+def export(name,merge_by_pivot=False):
+    if merge_by_pivot:
+        # Preserve each moving door's pivot; batch only siblings of one material.
+        for parent in [current]+[o for o in current.children_recursive if o.type=='EMPTY']:
+            for color,material in MATS.items():
+                parts=[o for o in parent.children if o.type=='MESH' and o.data.materials[0]==material]
+                if len(parts)>1:
+                    bpy.ops.object.select_all(action='DESELECT')
+                    for o in parts:o.select_set(True)
+                    bpy.context.view_layer.objects.active=parts[0]
+                    bpy.ops.object.join()
+                    parts[0].name=parent.name+'_'+color
     bpy.ops.object.select_all(action='DESELECT')
     current.select_set(True)
     for o in current.children_recursive:o.select_set(True)
@@ -99,14 +110,19 @@ for x in [-2.95,2.95]:
 for sign,name in [(-1,'DoorLeft'),(1,'DoorRight')]:
     before=set(current.children)
     z=sign*.665
-    box('DoorPanel',(3,1.4,z),(.12,2.66,1.31),'paint')
-    for y in [.14,2.66]:box('DoorEdge',(3.08,y,z),(.05,.10,1.28),'ink')
+    # A folded perimeter surrounds a genuinely inset closed steel panel.
+    box('DoorPanel',(2.95,1.4,z),(.075,2.66,1.31),'paint',.025)
+    for y in [.17,2.63]:
+        box('DoorEdge',(3.045,y,z),(.15,.17,1.28),'paint',.025)
+        box('DoorGasket',(3.00,y,z),(.04,.22,1.29),'ink',.008)
+    for dz in [-.59,.59]:box('DoorFold',(3.045,1.4,z+dz),(.15,2.50,.12),'paint',.02)
+    for y in [.46,2.34]:box('PressedDoorPanel',(3.005,y,z),(.07,.27,.98),'paint',.025)
     for dz in [-.3,.3]:
         box('LockBar',(3.09,1.4,z+dz),(.065,2.45,.055),'cream')
         box('Handle',(3.15,1.3,z+dz),(.10,.10,.26),'ink')
     for y in [.5,2.25]:box('Hinge',(3.08,y,sign*1.31),(.18,.20,.16),'cream')
     pivot(name,(3,0,sign*1.34),[o for o in current.children if o not in before])
-export('container_openable')
+export('container_openable',merge_by_pivot=True)
 
 begin('knife')
 # Origin at the hand; blade points along local +Y for a readable raised chop.

@@ -1,0 +1,8 @@
+{
+  "after_sha256": "01383cf3efd8a1ae0d372ab9b51b67f61d08aebeb4728c51f33a0dc3ce16cc10",
+  "before_sha256": "01383cf3efd8a1ae0d372ab9b51b67f61d08aebeb4728c51f33a0dc3ce16cc10",
+  "nonvisual_nodes": 1025,
+  "scope": "All non-mesh node transforms; collider geometry/layers; nav vertices/polygons; stored script data including destruction/reset paths. No gameplay nodes are replaced.",
+  "unchanged": true,
+  "visual_roots_updated": 13
+}

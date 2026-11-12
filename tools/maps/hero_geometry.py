@@ -84,3 +84,17 @@ def profile_shell(emit, label, origin, rings, color, angle=0):
     faces += [(r*n+i,r*n+(i+1)%n,(r+1)*n+(i+1)%n,(r+1)*n+i)
               for r in range(len(rings)-1) for i in range(n)]
     emit(label,verts,faces,color)
+
+
+def rounded_profile(width, height, radius, *, y=0, steps=3):
+    """Counter-clockwise rounded rectangle for authored loft sections."""
+    radius=min(radius,width*.49,height*.49)
+    result=[]
+    for cx,cy,start in [(width/2-radius,height/2-radius,0),
+                        (-width/2+radius,height/2-radius,90),
+                        (-width/2+radius,-height/2+radius,180),
+                        (width/2-radius,-height/2+radius,270)]:
+        for step in range(steps+1):
+            a=math.radians(start+90*step/steps)
+            result.append((cx+radius*math.cos(a),y+cy+radius*math.sin(a)))
+    return result

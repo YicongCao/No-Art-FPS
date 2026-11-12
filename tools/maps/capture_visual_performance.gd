@@ -4,6 +4,7 @@ func _initialize() -> void:run.call_deferred()
 func run() -> void:
  seed(20261112)
  var game = load("res://scenes/main.tscn").instantiate()
+ game.remember_title_selection=false
  root.add_child(game)
  for i in range(900):
   await process_frame
@@ -16,6 +17,8 @@ func run() -> void:
  if seconds<1:seconds=20
  var frenzy := OS.get_environment("PERF_FRENZY")=="1"
  var transition := OS.get_environment("PERF_TRANSITION")=="1"
+ var natural := OS.get_environment("PERF_NATURAL_TRANSITION")=="1"
+ assert(not natural or (not transition and not frenzy))
  var results: Array=[]
  for id in sessions:
   if id=="rain_market" or (not selected.is_empty() and not id in selected):continue
@@ -29,19 +32,32 @@ func run() -> void:
    game.set_destroy_active(true)
   var yaw: float=game.player.rotation.y
   for i in range(60):await process_frame
+  if natural:
+   while game.rules.elapsed < game.rules.duration-game.rules.destroy_duration-3.0:
+    assert(game.state=="RUNNING")
+    await process_frame
   var frame_ms: Array[float]=[]
   var draws: Array[float]=[]
   var objects: Array[float]=[]
   var primitives: Array[float]=[]
+  var stalls: Array=[]
   var start:=Time.get_ticks_usec()
   var last:=start
+  var toggle_us:=0
+  var observed_destroy_frame: int = -1
   if transition:
+   var toggle_start:=Time.get_ticks_usec()
    game.rules.elapsed=game.rules.duration-game.rules.destroy_duration
    game.set_destroy_active(true)
+   toggle_us=Time.get_ticks_usec()-toggle_start
   while (Time.get_ticks_usec()-start)/1000000.0<seconds:
    game.player.rotation.y=yaw+sin((Time.get_ticks_usec()-start)/1000000.0*.45)*.55
    await process_frame
    var now:=Time.get_ticks_usec()
+   if natural and game.destroy_active and observed_destroy_frame<0:
+    observed_destroy_frame=frame_ms.size()
+   if now-last>100000:
+    stalls.append({"frame":frame_ms.size(),"elapsed_ms":(now-start)/1000.0,"frame_ms":(now-last)/1000.0,"process_ms":Performance.get_monitor(Performance.TIME_PROCESS)*1000.0,"physics_ms":Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS)*1000.0})
    frame_ms.append((now-last)/1000.0);last=now
    draws.append(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME))
    objects.append(Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME))
@@ -52,6 +68,12 @@ func run() -> void:
   var row={"map":id,"phase":"transition" if transition else ("frenzy" if frenzy else "normal"),"seconds":seconds,"frames":frame_ms.size(),"frame_ms_max":frame_ms[-1],"frame_ms_p50":percentile(frame_ms,.5),"frame_ms_p95":percentile(frame_ms,.95),"frame_ms_p99":percentile(frame_ms,.99),"draw_calls_p50":percentile(draws,.5),"draw_calls_p95":percentile(draws,.95),"objects_p50":percentile(objects,.5),"primitives_p50":percentile(primitives,.5),"texture_bytes":Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED),"static_bytes":Performance.get_monitor(Performance.MEMORY_STATIC),"end_state":game.state}
   row["frames_over_16_67_ms"] = over_16
   row["frames_over_33_33_ms"] = over_33
+  row["toggle_cpu_ms"] = toggle_us/1000.0
+  row["stalls_over_100_ms"] = stalls
+  if natural:
+   row["phase"]="natural_transition"
+   row["observed_destroy_frame"]=observed_destroy_frame
+   assert(observed_destroy_frame>=0)
   results.append(row);print("VISUAL_PERF ",JSON.stringify(row))
  var path:=OS.get_environment("PERF_OUTPUT")
  if path.is_empty():path="res://artifacts/local/visual-perf.json"
