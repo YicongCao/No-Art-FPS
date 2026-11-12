@@ -84,8 +84,9 @@ const PALETTES = {
 		"rim": [Color("ffcf8a"),.62],
 	},
 	"bb_office": {
-		# Office afternoon: warm window light, lavender-blue shade under desks and partitions.
-		"ambient": [Color("bfc3f2"),.5],
+		# Office afternoon: warm window key through the glazing, lavender-blue shade under desks.
+		"sun": [Color("ffe6c4"),.46,Vector3(-38,-61,0)],
+		"ambient": [Color("bfc3f2"),.48],
 		"glow": [.3,1.05],
 		"emission": 1.3,
 		"rim": [Color("ffb36b"),.58],
