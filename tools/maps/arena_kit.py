@@ -8,7 +8,7 @@ import bpy
 from mathutils import Vector
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from toy_kit import export_toy_parts, tapered_box, stepped_plinth, segmented_coping
+from toy_kit import cambered_canopy, export_toy_parts, tapered_box, stepped_plinth, segmented_coping
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -54,6 +54,10 @@ class Kit:
     def coping(self, label, center, width, height, depth, color, angle=0.0, seg_len=1.75):
         segmented_coping(self.mesh, label, center, width, height, depth, color, angle=angle, seg_len=seg_len)
 
+    def canopy(self, origin, width, depth, drop, angle, stripe_a, stripe_b, wood_color, post_h=2.06, posts=True):
+        cambered_canopy(self.mesh, origin, width, depth, drop, angle, stripe_a, stripe_b, wood_color,
+                        post_h=post_h, posts=posts)
+
     def rod(self, label, start, finish, radius, color, sides=8, end_radius=None):
         start, finish = Vector(start), Vector(finish)
         axis = (finish-start).normalized()
@@ -76,7 +80,18 @@ class Kit:
             bl_parts,
             self.materials,
             self.destination / f"{self.name}.glb",
-            bevel=self.name not in ("lake", "landscape", "harbour_water"),
+            bevel=self.name not in ("lake", "landscape", "harbour_water", "ridge", "garden_ground"),
+            max_bevel=0.028,
+            skip_labels=(
+                "Individual worn paving block", "Paved lane", "Path surface",
+                "Glazed turquoise floor tile", "Service lane paint", "Arrivals guide line",
+                "Door threshold hazard mark", "West service route stripe",
+                "Apron runway", "Apron stand", "Apron safety",
+                "Entrance yellow tactile tile", "Raised tactile stud", "Bus lane road marking",
+                "Individual ceramic tile", "Turquoise ceramic tile",
+                "Compacted snowcat rut", "Snowcat tread imprint", "Snow pushed up", "Service road tracks",
+                "Tactile warning strip", "Bridge tactile guide", "Subdivided banner cloth",
+            ),
         )
 
 
