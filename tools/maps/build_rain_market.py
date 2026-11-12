@@ -151,7 +151,11 @@ for row,z in enumerate((-21,-15,-9,-3,3,9,15,21)):
         tone=("pink","lilac","warm")[row%3] if side==1 else ("lilac","steel","concrete")[row%3]
         a.solid(district,"Tong lau wall" if side==1 else "Service façade",(x,y+4.9,z),(.70,10.6,6.02),tone)
         front=x+side*.38
-        district.box("Mosaic skirting",(front,y+.65,z),(.065,1.32,5.96),"tile")
+        district.plinth("Tenement granite plinth",(front+side*.03,y+.16,z),.18,.32,5.98,"grout",flare=.025)
+        district.box("Mosaic skirting",(front,y+.68,z),(.08,1.26,5.96),"tile")
+        for f_y in (y+3.38, y+5.84, y+8.30):
+            district.coping("Tong lau floor cornice",(front+side*.08,f_y,z),.24,.16,5.98,"white",seg_len=1.98)
+        district.coping("Tong lau parapet cap",(x,y+10.28,z),.86,.24,6.06,"white",seg_len=1.98)
         for i in range(13):
             for j in range(3):
                 if (i*7+j+row)%4!=0:
@@ -187,7 +191,9 @@ for row,z in enumerate((-21,-15,-9,-3,3,9,15,21)):
         else:
             district.box("Recessed green door",(front+side*.15,y+1.40,z),(.075,2.76,1.22),"green")
             district.box("Frosted shop pane",(front+side*.15,y+1.67,z+1.09),(.075,1.60,.81),"window")
-        district.box("Shop rain hood",(front+side*.57,y+3.12,z),(.99,.16,3.7),"teal" if row%2 else "blue")
+        district.coping("Shop rain hood",(front+side*.58,y+3.12,z),1.06,.19,3.76,"teal" if row%2 else "blue",seg_len=1.85)
+        for sz_tie in (-1.45, 1.45):
+            district.beam("Rain hood tie rod",(front+side*.05,y+3.72,z+sz_tie),(front+side*.96,y+3.18,z+sz_tie),.045,.045,"steel")
         district.box("Warm wall fixture",(front+side*.21,y+2.68,z-2),(.31,.17,.65),"light")
         district.rod("Vertical rain pipe",(front+side*.20,y,z+2.62),(front+side*.20,y+9.3,z+2.62),.052,"steel",6)
         if side==1 and row in (3,4,5):
@@ -298,35 +304,38 @@ for x in (-6.2,6.2):
         canopy.rod("Glowing lamp underside",(x,y+2.57,z),(x,y+2.61,z),.34,"light",10)
 
 fish=a.kit("fish_counter")
-fish.box("Tiled seafood counter",(0,.53,0),(2.24,1.06,3.35),"teal")
+fish.plinth("Fish counter plinth",(0,.11,0),2.30,.22,3.42,"grout",flare=.03)
+fish.box("Tiled seafood counter",(0,.56,0),(2.22,.94,3.33),"teal",taper=(.02,.02))
+fish.coping("Counter stainless rim",(0,1.05,0),2.30,.09,3.42,"white",seg_len=1.7)
 for i in range(8):
     for j in range(3):
         fish.box("Turquoise ceramic tile",(1.126,.21+j*.31,-1.43+i*.41),(.055,.275,.365),("turq","mint","teal")[(i+j)%3])
         fish.box("Turquoise ceramic tile",(-1.126,.21+j*.31,-1.43+i*.41),(.055,.275,.365),("turq","mint","teal")[(i+j)%3])
 for i in range(3):
     z=(i-1)*1.06
-    fish.box("Stainless seafood tray",(0,1.095,z),(2.18,.11,.94),"metal")
-    fish.box("Crushed ice bed",(0,1.16,z),(1.97,.075,.78),"ice")
+    fish.box("Stainless seafood tray",(0,1.11,z),(2.18,.12,.94),"metal")
+    fish.box("Crushed ice bed",(0,1.175,z),(1.97,.075,.78),"ice")
     for j in range(5):
         x=(j-2)*.34
         tint="fish" if (i+j)%3 else "salmon"
-        fish.rod("Faceted whole fish",(x-.09,1.26,z-.19),(x+.10,1.28,z+.22),.098,tint,5,.041)
-        fish.facet("Fish tail",[(x+.10,1.28,z+.21),(x+.22,1.25,z+.31),(x+.04,1.25,z+.32)],tint)
-        fish.box("Fish eye",(x-.075,1.334,z-.13),(.038,.019,.04),"ink")
-    fish.box("Blank price card",(.67,1.30,z-.34),(.20,.18,.055),"yellow")
-fish.box("Red scale base",(-.68,1.21,1.42),(.56,.16,.35),"red")
-fish.rod("Scale dial",(-.67,1.42,1.52),(-.67,1.42,1.58),.163,"white",12)
-fish.rod("Stainless scale pan",(-.67,1.54,1.42),(-.67,1.64,1.42),.16,"metal",12,.28)
-fish.box("Scale needle",(-.66,1.43,1.588),(.028,.15,.026),"red",.30)
+        fish.rod("Faceted whole fish",(x-.09,1.27,z-.19),(x+.10,1.29,z+.22),.098,tint,5,.041)
+        fish.facet("Fish tail",[(x+.10,1.29,z+.21),(x+.22,1.26,z+.31),(x+.04,1.26,z+.32)],tint)
+        fish.box("Fish eye",(x-.075,1.344,z-.13),(.038,.019,.04),"ink")
+    fish.box("Blank price card",(.67,1.31,z-.34),(.20,.18,.055),"yellow")
+fish.box("Red scale base",(-.68,1.22,1.42),(.56,.16,.35),"red")
+fish.rod("Scale dial",(-.67,1.43,1.52),(-.67,1.43,1.58),.163,"white",12)
+fish.rod("Stainless scale pan",(-.67,1.55,1.42),(-.67,1.65,1.42),.16,"metal",12,.28)
+fish.box("Scale needle",(-.66,1.44,1.588),(.028,.15,.026),"red",.30)
 
 tank=a.kit("live_fish_tank")
-tank.box("Tiled tank plinth",(0,.39,0),(2.12,.78,3.28),"teal")
+tank.plinth("Tank stone plinth",(0,.10,0),2.20,.20,3.36,"grout",flare=.03)
+tank.box("Tiled tank plinth",(0,.44,0),(2.10,.68,3.26),"teal",taper=(.02,.02))
 tank.box("Tank recessed water",(0,1.13,0),(1.96,.07,3.07),"turq")
 for side in (-1,1):
-    tank.box("Tall blue tank wall",(side*1.01,1.04,0),(.16,.53,3.32),"teal")
-    tank.box("White overflow lip",(side*1.01,1.32,0),(.20,.10,3.34),"white")
-    tank.box("Tank end wall",(0,1.04,side*1.59),(2.04,.53,.16),"teal")
-    tank.box("Tank end lip",(0,1.32,side*1.59),(2.18,.10,.19),"white")
+    tank.box("Tall blue tank wall",(side*1.01,1.04,0),(.17,.53,3.32),"teal")
+    tank.coping("White overflow lip",(side*1.01,1.33,0),.23,.11,3.36,"white",seg_len=1.68)
+    tank.box("Tank end wall",(0,1.04,side*1.59),(2.04,.53,.17),"teal")
+    tank.coping("Tank end lip",(0,1.33,side*1.59),2.20,.11,.22,"white",seg_len=1.1)
 for z in (-1.0,0,1.0):
     tank.box("Green pump return channel",(.71,1.19,z),(.46,.06,.13),"mint")
     for x in (-.54,.13):
@@ -356,9 +365,10 @@ for x in (-.23,.23):
     prep.rod("Scale pan wire",(-.35,1.52,1.38),(-.35+x,1.43,1.38),.018,"steel",6)
 
 produce=a.kit("produce_counter")
-produce.box("Wooden produce table",(0,.47,0),(2.18,.92,3.38),"bamboo")
+produce.plinth("Produce table skid",(0,.09,0),2.22,.18,3.42,"grout",flare=.025)
+produce.box("Wooden produce table",(0,.50,0),(2.16,.84,3.36),"bamboo",taper=(.03,.02))
 for i,z in enumerate((-1,0,1)):
-    produce.box("Vegetable crate rim",(0,1.02,z),(2.05,.23,.88),"orange")
+    produce.box("Vegetable crate rim",(0,1.03,z),(2.08,.25,.90),"orange",taper=(-.03,-.03))
     for j in range(8):
         for k in range(2):
             x=(j-3.5)*.235

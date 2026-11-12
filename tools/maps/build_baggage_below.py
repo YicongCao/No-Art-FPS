@@ -47,17 +47,26 @@ for x in (-22,22):
     for z in range(-21,13,3):
         hall.box("Apron glazing mullion",(x,3.29,z),(.24,4.98,.15),"blue")
     for z in (-18,-12,-6,0,6,10):
-        hall.box("Blue structural column",(x-math.copysign(.42,x),4.05,z),(.61,8.1,.56),"blue")
-        hall.box("Impact bollard",(x-math.copysign(.73,x),.52,z),(.25,1.02,.21),"yellow")
+        col_x = x-math.copysign(.42,x)
+        hall.plinth("Column base plinth",(col_x,.20,z),.74,.40,.70,"steel",flare=.045)
+        hall.box("Blue structural column",(col_x,4.10,z),(.62,7.60,.58),"blue",taper=(.04,.04))
+        hall.box("Column capital",(col_x,7.92,z),(.76,.32,.72),"cobalt",taper=(-.05,-.05))
+        bx = x-math.copysign(.73,x)
+        hall.plinth("Bollard base plate",(bx,.06,z),.34,.12,.30,"black",flare=.025)
+        hall.box("Impact bollard",(bx,.54,z),(.26,.96,.22),"yellow",taper=(.08,.08))
 a.layout["ceiling_lamps"]=[]
 for z in (-18,-12,-6,0,6,10,15,21):
     y=7.92 if z<12 else 5.24
-    roof.box("Transverse ceiling girder",(0,y,z),(44,.45,.44),"blue")
+    roof.box("Transverse ceiling girder",(0,y,z),(44,.46,.46),"blue")
     for x in (-13,-6,2,10,17):
-        roof.box("Industrial LED strip housing",(x,y-.29,z),(2.72,.15,.34),"black")
+        roof.box("Industrial LED strip housing",(x,y-.29,z),(2.74,.18,.38),"black",taper=(.02,.06))
+        for end in (-1, 1):
+            roof.box("LED fixture end cap",(x+end*1.38,y-.28,z),(.09,.20,.40),"steel")
         a.layout["ceiling_lamps"].append((x,y-.378,z))
 for x in (-15.5,-8,8,15.5):
-    roof.box("Longitudinal overhead girder",(x,7.75,-4.7),(.42,.45,33.2),"blue")
+    roof.box("Longitudinal overhead girder",(x,7.75,-4.7),(.44,.46,33.2),"blue")
+    for z_g in (-18,-12,-6,0,6,10):
+        roof.box("Girder gusset collar",(x,7.82,z_g),(.62,.54,.62),"cobalt")
 
 # The outer windows retain the runway view while providing a solid boundary.
 for x in (-22,22):
@@ -78,30 +87,40 @@ a.layout["glass"].extend([[(x,3.30,-5),(33.85,4.95),math.pi/2] for x in (-22,22)
 for left,right in [(-22,-17.15),(-13.65,-4.10),(4.10,22)]:
     x=(left+right)*.5
     width=right-left
-    a.solid(hall,"Secure area lower wall",(x,.86,11),(width,1.72,.46),"white")
+    a.layout["boxes"].append([(x,.86,11),(width,1.72,.46),0])
+    hall.plinth("Divider base plinth",(x,.13,11),width,.26,.54,"navy",flare=.03)
+    hall.box("Divider spine core",(x,.92,11),(width-.02,1.42,.38),"steel")
+    bays=max(1,round(width/1.9))
+    step=width/bays
+    for bi in range(bays):
+        bx=left+(bi+.5)*step
+        hall.box("Secure area lower wall",(bx,.92,11),(max(.20,step-.028),1.38,.46),"white")
     a.layout["boxes"].append([(x,2.89,11),(width,2.34,.15),0])
     a.layout["glass"].append([(x,2.89,11),(width,2.34),0])
-    for y in (1.70,4.06):
-        hall.box("Divider glazing frame",(x,y,11),(width,.11,.53),"blue")
+    hall.coping("Divider glazing sill",(x,1.70,11),width,.15,.58,"blue",seg_len=1.9)
+    hall.coping("Divider glazing head",(x,4.06,11),width,.14,.56,"blue",seg_len=1.9)
     for i in range(1,math.ceil(width/2.7)):
         rail_x=left+i*2.7
-        hall.box("Window mullion",(rail_x,2.9,11.33),(.095,2.29,.08),"blue")
-    hall.box("Sorting-side impact rail",(x,1.1,10.72),(width-.18,.12,.15),"yellow")
+        hall.box("Window mullion",(rail_x,2.9,11.0),(.12,2.29,.22),"blue")
+    hall.box("Sorting-side impact rail",(x,1.06,10.71),(width-.14,.15,.17),"yellow")
 for x in (-13.05,13.05):
     a.solid(hall,"Secure area upper wall",(x,4.73,11),(17.9,1.25,.46),"white")
 for x in (-17.15,-13.65):
-    hall.box("West service opening jamb",(x,1.83,11),(.19,3.65,.57),"teal")
-hall.box("West service opening lintel",(-15.4,3.70,11),(3.61,.21,.55),"teal")
-hall.box("West service opening lamp",(-15.4,3.55,11),(1.41,.075,.39),"light")
+    hall.plinth("West opening plinth",(x,.14,11),.28,.28,.64,"navy",flare=.025)
+    hall.box("West service opening jamb",(x,1.86,11),(.22,3.58,.58),"teal",taper=(.03,.03))
+hall.coping("West service opening lintel",(-15.4,3.72,11),3.72,.24,.62,"teal",seg_len=1.85)
+hall.box("West service opening lamp",(-15.4,3.55,11),(1.41,.085,.39),"light")
 for z in (9.75,10.72,11.53,12.34):
     for x in (-16.95,-13.86):
         floor.box("West service route stripe",(x,.02,z),(.10,.026,.60),"yellow")
 a.solid(hall,"Orange employee doorway header",(0,4.52,11),(8.35,1.68,.49),"blue")
 for x in (-4.13,4.13):
-    hall.box("Orange doorway trim",(x,1.91,11.04),(.24,3.85,.53),"orange")
+    hall.plinth("Orange doorway plinth",(x,.15,11.04),.34,.30,.62,"navy",flare=.03)
+    hall.box("Orange doorway trim",(x,1.94,11.04),(.28,3.78,.56),"orange",taper=(.03,.03))
     a.solid(hall,"Propped service door",(x*.94,1.48,11.86),(.19,2.95,1.78),"orange",.20*math.copysign(1,x))
-    hall.box("Door window",(x*.94,1.96,12.35),(.21,.64,.62),"glass")
-hall.box("Orange doorway top trim",(0,3.70,11.28),(8.35,.14,.15),"orange")
+    hall.box("Door window frame",(x*.94,1.96,12.35),(.23,.74,.72),"navy",.20*math.copysign(1,x))
+    hall.box("Door window",(x*.94,1.96,12.35),(.25,.60,.58),"glass",.20*math.copysign(1,x))
+hall.coping("Orange doorway top trim",(0,3.72,11.24),8.52,.18,.28,"orange",seg_len=1.7)
 a.sign("ArrivalsBoard","arrivals",(0,4.38,11.27),(4.8,.67))
 for x in (-16.8,16.8):
     a.solid(hall,"Rear service wall",(x,4.1,-21.8),(10.4,8.2,.36),"white")
@@ -142,23 +161,26 @@ for x in (-16,16):
             machines.beam("Stair safety rail",(xr,3.12+dy,-6),(xr,dy,3),.08,.08,"yellow")
         a.layout["slabs"].append([[(xr-.06,4.17,-6),(xr+.06,4.17,-6),(xr+.06,1.05,3),(xr-.06,1.05,3)],1.02])
     for z in (-15.8,-10.4):
-        machines.box("Catwalk blue support",(x,1.55,z),(.27,3.10,.27),"blue")
+        machines.plinth("Catwalk support foot",(x,.14,z),.42,.28,.42,"navy",flare=.035)
+        machines.box("Catwalk blue support",(x,1.58,z),(.30,2.96,.30),"blue",taper=(.05,.05))
 for x,w,z,d in [(0,35,-16.77,.14),(0,28.7,-13.23,.14),(-17.49,.14,-9.72,7.25),
                 (-14.51,.14,-9.72,7.25),(17.49,.14,-9.72,7.25),(14.51,.14,-9.72,7.25)]:
     a.layout["boxes"].append([(x,3.66,z),(w,1.08,d),0])
     for dy in (.10,.61,1.05):
-        machines.box("Yellow catwalk rail",(x,3.12+dy,z),(w,.075,d),"yellow")
+        machines.box("Yellow catwalk rail",(x,3.12+dy,z),(w,.085,d),"yellow")
     n=round(max(w,d)/.80)
     for i in range(n):
         dx=(i+.5-n*.5)*w/n if w>d else 0
         dz=(i+.5-n*.5)*d/n if d>w else 0
-        machines.box("Catwalk picket",(x+dx,3.64,z+dz),(.064,1.03,.064),"yellow")
+        machines.box("Catwalk picket",(x+dx,3.64,z+dz),(.072,1.03,.072),"yellow")
 
 for i,x in enumerate((-4.6,4.6)):
     color="turquoise" if i==0 else "amber"
     for edge in (-1,1):
-        machines.box("Opposing belt casing",(x+edge*1.70,.44,-1.3),(.25,.81,17.5),color)
-        machines.box("Dark belt frame",(x+edge*1.70,.19,-1.3),(.31,.30,17.5),"blue")
+        machines.box("Opposing belt casing",(x+edge*1.70,.46,-1.3),(.27,.76,17.5),color)
+        machines.plinth("Dark belt frame",(x+edge*1.70,.16,-1.3),.35,.32,17.5,"blue",flare=.025)
+        for z_rib in range(-9, 9, 3):
+            machines.box("Belt casing rib",(x+edge*1.74,.48,z_rib),(.32,.78,.14),"navy")
         a.solid(machines,"Low belt-side safety guide",(x+edge*1.77,.44,-1.3),(.16,.88,17.5),color)
         for z0,z1 in ((-12.3,-10.05),(7.45,9.7)):
             a.solid(machines,"Belt run-off safety guide",(x+edge*1.77,.44,(z0+z1)*.5),(.16,.88,z1-z0),color)
@@ -214,15 +236,17 @@ for z in (-6,-10,-14):
 a.layout["boxes"].append([(10.8,.93,-9.6),(3.30,1.85,10.6),0])
 
 scanner=a.kit("scanner")
-scanner.box("Scanner base",(0,.50,0),(2.15,.80,2.2),"steel")
+scanner.plinth("Scanner plinth",(0,.11,0),2.24,.22,2.28,"navy",flare=.035)
+scanner.box("Scanner base",(0,.52,0),(2.14,.74,2.18),"steel",taper=(.03,.03))
 for x in (-.91,.91):
-    scanner.box("Scanner upright",(x,1.27,0),(.36,1.64,2.19),"white")
-scanner.box("Scanner roof",(0,1.98,0),(2.18,.43,2.19),"white")
+    scanner.box("Scanner upright",(x,1.28,0),(.38,1.62,2.18),"white",taper=(.04,.02))
+scanner.coping("Scanner roof",(0,2.00,0),2.26,.44,2.26,"white",seg_len=1.15)
 for x in (-.63,-.38,-.13,.12,.37,.62):
-    scanner.box("Scanner soft-strip curtain",(x,1.28,1.12),(.205,1.00,.047),"glass" if int((x+.7)*10)%2 else "blue")
-scanner.box("Scan status lamp",(0,2.25,.10),(.17,.15,.17),"signal")
-scanner.box("Operator terminal",(-1.17,1.17,.62),(.50,.44,.24),"black")
-scanner.box("Operator LCD",(-1.17,1.18,.755),(.41,.31,.028),"cyan")
+    scanner.box("Scanner soft-strip curtain",(x,1.28,1.12),(.205,1.00,.052),"glass" if int((x+.7)*10)%2 else "blue")
+scanner.box("Scan status lamp",(0,2.28,.10),(.20,.16,.20),"signal")
+scanner.box("Operator terminal",(-1.17,1.18,.62),(.54,.46,.26),"black",taper=(.04,.04))
+scanner.box("Operator rear hood",(-1.17,1.18,.44),(.38,.32,.14),"steel",taper=(.12,.12))
+scanner.box("Operator LCD",(-1.17,1.18,.76),(.42,.32,.035),"cyan")
 a.prop("scanner",(10.6,0,3.4),(2.45,2.24,2.26),effect="metal")
 for z in (1,-2,-5):
     machines.box("Dispatch chute",(19.8,.86,z),(2.0,.29,1.3),"steel")
@@ -257,33 +281,34 @@ for x,y,z in [(4.6,.82,-4.3),(12.7,0,6.1),(-12.3,0,2),(-8.3,0,16),(6.9,0,18.5)]:
     a.prop("suitcase",(x,y,z),(1.11,.60,.71),effect="luggage")
 
 tug=a.kit("tractor")
-tug.box("Airport electric tow tractor base",(0,.44,0),(1.52,.56,2.63),"yellow")
-tug.box("Tow tractor cab",(0,1.19,.35),(1.42,1.31,1.27),"white")
-tug.box("Cab front windscreen",(0,1.37,1.0),(1.13,.62,.043),"glass")
+tug.box("Airport electric tow tractor base",(0,.44,0),(1.54,.58,2.65),"yellow",taper=(.04,.03))
+tug.box("Tow tractor cab",(0,1.20,.35),(1.44,1.32,1.28),"white",taper=(.08,.06))
+tug.coping("Tow cab roof",(0,1.88,.35),1.50,.12,1.34,"blue",seg_len=1.35)
+tug.box("Cab front windscreen",(0,1.37,1.00),(1.13,.62,.05),"glass")
 for x in (-.74,.74):
-    tug.box("Tow cab side glazing",(x,1.41,.36),(.054,.60,.81),"glass")
+    tug.box("Tow cab side glazing",(x,1.41,.36),(.06,.60,.81),"glass")
     for z in (-.84,.76):
         tug.rod("Tow tractor tire",(x-.11,.37,z),(x+.11,.37,z),.34,"black",10)
         tug.rod("Wheel center",(x,.37,z),(x+math.copysign(.135,x),.37,z),.18,"metal",8)
-tug.box("Amber roof beacon",(0,1.96,.37),(.29,.15,.23),"orange")
-tug.box("Tow bumper",(0,.46,1.32),(1.47,.19,.15),"black")
+tug.box("Amber roof beacon",(0,1.98,.37),(.30,.16,.24),"orange")
+tug.box("Tow bumper",(0,.46,1.34),(1.50,.22,.18),"black")
 a.prop("tractor",(-17.8,0,4.3),(1.68,2.03,2.77),effect="metal")
 cart=a.kit("baggage_cart")
-cart.box("Baggage cart tub",(0,.57,0),(1.65,.69,2.35),"blue")
-cart.box("Hollow cart top",(0,.93,0),(1.39,.044,2.11),"navy")
+cart.box("Baggage cart tub",(0,.57,0),(1.66,.70,2.36),"blue",taper=(-.04,-.03))
+cart.box("Hollow cart top",(0,.93,0),(1.39,.05,2.11),"navy")
 for x in (-.84,.84):
-    cart.box("Baggage cart side rim",(x,.99,0),(.087,.13,2.38),"turquoise")
+    cart.box("Baggage cart side rim",(x,.99,0),(.11,.14,2.40),"turquoise")
     for z in (-.79,.79):
-        cart.rod("Baggage cart wheel",(x-.085,.20,z),(x+.085,.20,z),.175,"black",8)
-cart.beam("Dolly tongue",(0,.37,-1.2),(0,.25,-1.65),.13,.09,"metal")
+        cart.rod("Baggage cart wheel",(x-.085,.20,z),(x+.085,.20,z),.18,"black",8)
+cart.beam("Dolly tongue",(0,.37,-1.2),(0,.25,-1.65),.14,.10,"metal")
 for x,z in [(-18,-.2),(-18,-4.0),(-18,-7.7),(18,6.2),(18,-9.5),(11,-16.5)]:
     a.prop("baggage_cart",(x,0,z),(1.79,1.06,2.41),effect="metal")
 
 # A rounded stainless reclaim carousel, with a walkable perimeter on all sides.
 for x in (-1.06,1.06):
-    machines.rod("Reclaim sign ceiling hanger",(x,4.54,17.6),(x,5.38,17.6),.038,"steel",8)
-    machines.box("Reclaim sign ceiling plate",(x,5.337,17.6),(.21,.084,.21),"blue")
-machines.box("Double-sided reclaim sign housing",(0,4.28,17.6),(2.94,.70,.16),"black")
+    machines.rod("Reclaim sign ceiling hanger",(x,4.54,17.6),(x,5.38,17.6),.042,"steel",8)
+    machines.box("Reclaim sign ceiling plate",(x,5.337,17.6),(.24,.09,.24),"blue")
+machines.box("Double-sided reclaim sign housing",(0,4.28,17.6),(2.98,.74,.16),"black")
 for side in (-1,1):
     a.sign("Reclaim12Front" if side==1 else "Reclaim12Rear","reclaim-12",
            (0,4.28,17.6+side*.085),(2.89,.65),0 if side==1 else math.pi)
@@ -296,8 +321,10 @@ for i in range(32):
              (cx+5.85*math.cos(t0),.65,cz+1.10*math.sin(t0))]
     machines.slab("Carousel rubber sector",segment[::-1],.32,"rubber" if i%2 else "slat")
     p0,p1=segment[0],segment[1]
-    machines.beam("Stainless carousel lip",p0,p1,.14,.19,"metal")
-machines.box("Carousel center island",(0,.48,17.6),(11.65,.94,2.16),"white")
+    machines.beam("Stainless carousel lip",p0,p1,.16,.21,"metal")
+machines.plinth("Carousel island plinth",(0,.14,17.6),11.72,.28,2.24,"steel",flare=.03)
+machines.box("Carousel center island",(0,.50,17.6),(11.62,.72,2.14),"white",taper=(.01,.04))
+machines.coping("Carousel island cap",(0,.91,17.6),11.74,.12,2.24,"blue",seg_len=1.95)
 a.layout["slabs"].append([[(cx+8*math.cos(i*math.tau/16),.67,cz+2.28*math.sin(i*math.tau/16))
                             for i in range(16)],.70])
 a.layout["boxes"].append([(0,.46,17.6),(11.65,.92,2.16),0])
