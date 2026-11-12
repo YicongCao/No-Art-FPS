@@ -3,6 +3,8 @@ var game: Node
 
 func _ready() -> void:
 	Engine.max_fps = 60
+	# These checks follow one telegraphed round to its target; misses are covered by enemy_accuracy_check.
+	game.enemy_hit_chance = 1.0
 	game.start_run()
 	game.begin_running()
 	game.clear_round()

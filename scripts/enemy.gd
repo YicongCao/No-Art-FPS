@@ -259,13 +259,20 @@ func advance_ranged_attack(delta: float, can_aim: bool) -> void:
 		windup = maxf(0,windup-delta)
 		if windup==0:
 			cancel_ranged_aim()
-			game.enemy_shoot(origin,target,self)
+			game.enemy_shoot(origin,shot_target(origin,target),self)
 			attack = 2.3 if patrol_brain else 1.8+randf()*1.2
 			return
 	var progress = 1.0-windup/aim_duration
 	aim_line.material_override.albedo_color = Color("d6dce390").lerp(Color("8a2a2aed"),progress)
 	aim_line.set_segment(origin,target,lerpf(.018,.031,progress))
 	update_glint(origin,progress)
+
+# Misses clear the player's 0.3 m capsule but stay inside the near-miss whiz radius.
+func shot_target(origin: Vector3, aimed: Vector3) -> Vector3:
+	if randf()<game.enemy_hit_chance:return aimed
+	var side := origin.direction_to(aimed).cross(Vector3.UP).normalized()
+	var lateral := randf_range(.65,1.05)*(1.0 if randf()<.5 else -1.0)
+	return aimed+side*lateral+Vector3.UP*randf_range(-.1,.55)
 
 func set_killer_highlight(active: bool) -> void:
 	if killer_glow==null:

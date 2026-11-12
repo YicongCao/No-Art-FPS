@@ -78,6 +78,9 @@ const DEATH_VIEW_TURN = .6
 # Hold the killer above the respawn skull in the screen centre.
 const DEATH_VIEW_DROP = .16
 const NEAR_MISS_RADIUS = 1.3
+# Ranged enemy rounds aimed to hit; the rest pass beside the player's head or shoulder.
+const ENEMY_HIT_CHANCE = .3
+var enemy_hit_chance := ENEMY_HIT_CHANCE
 const DESTROY_RESPAWN_DELAY = 1.25
 const RANGED_ATTACK_LIMIT = 3
 const SCENERY_TARGET_LAYER = 16
@@ -330,6 +333,7 @@ func _ready() -> void:
 		if "--blast-range" in OS.get_cmdline_user_args():test_path = "res://tests/barrel_range_check.gd"
 		if "--barrel-routes" in OS.get_cmdline_user_args():test_path = "res://tools/analysis/barrel_routes.gd"
 		if "--awareness" in OS.get_cmdline_user_args():test_path = "res://tests/awareness_check.gd"
+		if "--enemy-accuracy" in OS.get_cmdline_user_args():test_path = "res://tests/enemy_accuracy_check.gd"
 		if "--damage-feedback" in OS.get_cmdline_user_args():test_path = "res://tests/damage_feedback_check.gd"
 		var qa = load(test_path).new()
 		qa.game = self
