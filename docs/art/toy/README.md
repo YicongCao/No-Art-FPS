@@ -140,3 +140,7 @@ godot --headless --path . --script tools/maps/apply_toy_kit.gd
 ## 敌人概念轮廓细化
 
 在已有替换基础上进一步制作重装步枪兵与后掠头盔突击兵，实机图、资源规模与验证见 [造型细化记录](actors-refined/README.md)。
+
+## 敌人主体重建
+
+针对上一轮轮廓变化不足的反馈，进一步重建头盔、躯干和四肢曲面。见 [同机位前后对比](actors-rebuild/comparison.html) 与 [实现和验证记录](actors-rebuild/README.md)。
