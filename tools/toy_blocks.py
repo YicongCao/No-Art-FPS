@@ -38,7 +38,7 @@ PAINT = {
     'toy_visor': ('FF5A3C', .25, 0, 1.1),
     'toy_gun': ('5B6476', .40, 0, 0),
     'toy_gun_light': ('7C8496', .42, 0, 0),
-    'toy_rush': ('F17C28', .36, 0, 0),
+    'toy_rush': ('E9631D', .36, 0, 0),
     'toy_cream': ('EFE6D2', .40, 0, 0),
     'toy_joint': ('3A3F4A', .50, 0, 0),
     'toy_thrust': ('FFB347', .30, 0, 2.2),

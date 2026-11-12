@@ -1,0 +1,8 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 4.1 Metal - 91.7 - Compatibility - Using Device: Apple - Apple M5
+
+QA_START: loading transition, rendered full-minute autoplay and restart
+QA_MOVEMENT_PASS
+QA_ROUND_PASS {"baseline_nodes":2819,"duration_game_seconds":60.0,"frames":1617,"headshots":68,"kills":69,"node_count_at_end":3211,"note":"Automated perfect-aim test with scripted repositioning; not human gameplay or long-run validation. Frame intervals include a 60 fps cap.","p95_frame_ms":50.0,"p99_frame_ms":84.3323333333333,"shots":199}
+QA_RESTART_PASS
+

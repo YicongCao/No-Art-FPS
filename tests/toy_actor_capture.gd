@@ -38,6 +38,22 @@ func check() -> void:
 		foe.rotate_y(-.5 if foe==rifleman else .45)
 	look(player,Vector3(18.2,1.1,10.7))
 	await capture("pair")
+	# Readability views use the same actors and game renderer at measured distances.
+	for foe in [rifleman,rusher]:foe.position.z -= 16.0
+	player.gun.hide()
+	var scout = Camera3D.new()
+	root.add_child(scout)
+	scout.fov = player.camera.fov
+	scout.cull_mask = player.camera.cull_mask
+	for distance in [15,25]:
+		scout.global_position = Vector3(18.2,1.65,-5.3+distance)
+		scout.look_at(Vector3(18.2,1.1,-5.3))
+		scout.current = true
+		await capture("readability-"+str(distance)+"m")
+	scout.queue_free()
+	player.camera.current = true
+	player.gun.show()
+	for foe in [rifleman,rusher]:foe.position.z += 16.0
 	for i in range(rifleman.limbs.size()):
 		if rifleman.limbs[i].name!="RightArm":rifleman.limbs[i].rotation.x = .5*(1 if i%2==0 else -1)
 	rifleman.rotation.y += 1.1

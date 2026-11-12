@@ -87,7 +87,7 @@ func _ready() -> void:
 	add_toy_rim(visual)
 	if fast:
 		orange = StandardMaterial3D.new()
-		orange.albedo_color = Color("f17c28")
+		orange.albedo_color = Color("e9631d")
 		orange.roughness = .36
 		orange.next_pass = toy_rim()
 		for part in ["Torso","Vest","Helmet","LeftArm","RightArm","LeftLeg","RightLeg"]:
@@ -439,7 +439,7 @@ func recover_charge() -> void:
 	rush_time = .65
 	velocity.x = 0
 	velocity.z = 0
-	orange.albedo_color = Color("f17c28")
+	orange.albedo_color = Color("e9631d")
 
 func process_rusher(delta: float) -> void:
 	var to_player = game.player.global_position-global_position
@@ -474,13 +474,13 @@ func process_rusher(delta: float) -> void:
 				speed = 0
 		"WINDUP":
 			rush_time -= delta
-			orange.albedo_color = Color("fff1b7") if int(rush_time*12)%2==0 else Color("f17c28")
+			orange.albedo_color = Color("fff1b7") if int(rush_time*12)%2==0 else Color("e9631d")
 			knife_arm.rotation.x = lerpf(0,-2.35,clampf(1-rush_time/.4,0,1))
 			if rush_time<=0:
 				if in_front:
 					rush_state = "SLASH"
 					rush_time = .24
-					orange.albedo_color = Color("f17c28")
+					orange.albedo_color = Color("e9631d")
 				else:
 					recover_charge()
 		"SLASH":

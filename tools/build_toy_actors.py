@@ -45,41 +45,68 @@ box('right_cuff', (.07, -.33, .39), (.18, .06, .2), 'toy_cuff', .022, (.35, 0, -
 box('right_sleeve', (.1, -.42, .45), (.2, .34, .23), 'toy_sleeve', .05)
 export('rifle')
 
+# Profile extrusions give armor an authored silhouette instead of stacked boxes.
+def armor_profile(name, points, depth, at, material, width=.02, side=False, taper=None):
+    import bmesh
+    vertices = []
+    for layer in (-depth/2, depth/2):
+        for j, (a, b) in enumerate(points):
+            thickness = layer*(taper[j] if taper else 1.0)
+            local = (thickness, a, b) if side else (a, b, thickness)
+            vertices.append(xyz(tuple(at[i]+local[i] for i in range(3))))
+    n = len(points)
+    faces = [tuple(reversed(range(n))), tuple(range(n, 2*n))]
+    faces += [(i, (i+1)%n, (i+1)%n+n, i+n) for i in range(n)]
+    mesh = bpy.data.meshes.new(name)
+    mesh.from_pydata(vertices, [], faces)
+    mesh.update()
+    bm = bmesh.new(); bm.from_mesh(mesh)
+    bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
+    bm.to_mesh(mesh); bm.free()
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.collection.objects.link(obj)
+    bpy.ops.object.select_all(action='DESELECT')
+    obj.select_set(True)
+    return finish(obj, name, material, width)
+
 # Enemy rifleman, after docs/art/toy/concepts/tripo/rifleman: big helmet, coral pads, boots.
 # Gameplay names stay; limbs pivot at shoulder and hip. Head hit sphere stays at y 1.70,
 # the shot origin at (.22, 1.12, -.58) is the blaster's front opening.
 begin('enemy')
-torso = box('Torso', (0, 1.30, 0), (.56, .38, .32), 'toy_body', .08)
-attach(box('Backpack', (0, 1.29, .22), (.38, .36, .14), 'toy_body_dark', .04), torso)
+torso = box('Torso', (0, 1.30, 0), (.62, .40, .36), 'toy_body', .08)
+attach(box('Backpack', (0, 1.29, .22), (.42, .40, .18), 'toy_body_dark', .04), torso)
 attach(box('PackPlate', (0, 1.30, .295), (.18, .08, .02), 'toy_vest', .01), torso)
 attach(box('Belt', (0, 1.11, 0), (.48, .08, .33), 'toy_vest', .02), torso)
 attach(box('Pelvis', (0, 1.0, 0), (.40, .17, .27), 'toy_body_dark', .04), torso)
 attach(cyl('Neck', (0, 1.51, 0), .075, .10, 'toy_body_dark'), torso)
 merge_rigid(torso)
-vest = box('Vest', (0, 1.32, -.165), (.44, .30, .07), 'toy_vest', .03)
-attach(box('ChestMark', (0, 1.36, -.203), (.15, .045, .02), 'toy_visor', .008), vest)
-head = box('Head', (0, 1.68, 0), (.36, .29, .33), 'toy_body', .07)
+vest = armor_profile('Vest', [(-.29,.18),(.29,.18),(.27,-.09),(.19,-.20),(-.19,-.20),(-.27,-.09)], .09, (0,1.32,-.20), 'toy_vest', .035)
+attach(box('ChestMark', (0, 1.37, -.254), (.17, .065, .02), 'toy_visor', .008), vest)
+head = box('Head', (0, 1.68, 0), (.39, .30, .36), 'toy_body', .07)
 for side, x in [('Left', -.195), ('Right', .195)]:
     attach(cyl(side + 'Ear', (x, 1.68, .01), .075, .05, 'toy_body_dark', 'x', 16, .012), head)
 merge_rigid(head)
-helmet = box('Helmet', (0, 1.835, .01), (.39, .11, .37), 'toy_body_dark', .045)
-attach(box('Crest', (0, 1.915, 0), (.08, .075, .38), 'toy_team', .025), helmet)
-box('Visor', (0, 1.70, -.167), (.28, .08, .04), 'toy_visor', .015)
+helmet = box('Helmet', (0, 1.835, .01), (.43, .14, .40), 'toy_body_dark', .045)
+attach(armor_profile('Crest', [(-.04,-.18),(.15,-.16),(.18,-.07),(.14,.15),(-.04,.18)], .095, (0,1.88,0), 'toy_team', .025, side=True), helmet)
+merge_rigid(helmet)
+box('Visor', (0, 1.70, -.185), (.30, .085, .04), 'toy_visor', .015)
 for side, x in [('Left', -.16), ('Right', .16)]:
-    leg = pivot(box(side + 'Leg', (x, .81, 0), (.20, .32, .22), 'toy_body', .05), (x, .98, 0))
-    attach(box(side + 'Shin', (x, .38, .01), (.22, .40, .24), 'toy_body', .055), leg)
+    leg = pivot(box(side + 'Leg', (x, .81, 0), (.235, .32, .26), 'toy_body', .05), (x, .98, 0))
+    attach(box(side + 'Shin', (x, .38, .01), (.25, .40, .28), 'toy_body', .055), leg)
     attach(cyl(side + 'KneeJoint', (x, .62, 0), .08, .17, 'toy_body_dark', 'x', 12, .01), leg)
     attach(box(side + 'Knee', (x, .60, -.13), (.19, .15, .06), 'toy_vest', .025), leg)
-    attach(box(side + 'Foot', (x, .095, -.05), (.26, .19, .37), 'toy_body_dark', .05), leg)
+    attach(box(side + 'Foot', (x, .095, -.05), (.29, .21, .39), 'toy_body_dark', .05), leg)
+    attach(box(side + 'Sole', (x,.025,-.05), (.30,.05,.40), 'toy_body_dark', .015), leg)
+    attach(box(side + 'ShinPlate', (x,.36,-.14), (.20,.27,.035), 'toy_vest', .025), leg)
     merge_rigid(leg)
 hands = {'Left': (.20, 1.07, -.50), 'Right': (.25, 1.03, -.24)}
 elbows = {'Left': (-.30, 1.17, -.27), 'Right': (.40, 1.20, -.04)}
 for side, s in [('Left', -1), ('Right', 1)]:
     shoulder = (.37 * s, 1.43, 0)
     arm = pivot(segment(side + 'Arm', shoulder, elbows[side], (.18, .19), 'toy_body', .05), shoulder)
-    attach(segment(side + 'Forearm', elbows[side], hands[side], (.16, .17), 'toy_body', .05), arm)
+    attach(segment(side + 'Forearm', elbows[side], hands[side], (.20, .21), 'toy_body', .055), arm)
     attach(cyl(side + 'Elbow', elbows[side], .088, .17, 'toy_body_dark', 'x', 12, .01), arm)
-    attach(box(side + 'Pad', (.39 * s, 1.47, 0), (.25, .16, .27), 'toy_team', .06), arm)
+    attach(box(side + 'Pad', (.39 * s, 1.47, 0), (.28, .25, .33), 'toy_team', .10), arm)
     merge_rigid(arm)
     box(side + 'Hand', hands[side], (.14, .14, .15), 'toy_rubber', .045)
 G = (.22, 1.12, -.36)
@@ -106,14 +133,14 @@ export('enemy', False)
 # they carry the orange shell; cream and dark parts are child meshes. The right hand sits where the
 # knife arm holds the blade, (.3, .94, -.18); the head hit sphere stays at y 1.70.
 begin('rusher')
-torso = box('Torso', (0, 1.33, 0), (.40, .28, .24), 'toy_rush', .06)
-attach(box('ChestPlate', (0, 1.33, -.125), (.24, .17, .04), 'toy_cream', .02), torso)
+torso = armor_profile('Torso', [(-.23,.16),(.23,.16),(.20,-.10),(.12,-.20),(-.12,-.20),(-.20,-.10)], .27, (0,1.33,0), 'toy_rush', .04)
+attach(armor_profile('ChestPlate', [(-.18,.10),(-.08,.05),(.08,.05),(.18,.10),(.16,-.08),(0,-.17),(-.16,-.08)], .055, (0,1.33,-.15), 'toy_cream', .02), torso)
 attach(box('BackPlate', (0, 1.35, .125), (.20, .18, .03), 'toy_cream', .015), torso)
 attach(box('Waist', (0, 1.13, 0), (.20, .16, .16), 'toy_joint', .03), torso)
 attach(box('Hips', (0, 1.0, 0), (.30, .13, .20), 'toy_rush', .04), torso)
 attach(cyl('Neck', (0, 1.52, 0), .05, .09, 'toy_joint'), torso)
 for s in (-1, 1):
-    attach(box('Fin', (.12 * s, 1.52, .15), (.05, .22, .11), 'toy_rush', .02, (.55, 0, -.35 * s)), torso)
+    attach(armor_profile('Fin', [(-.06,-.05),(.07,-.04),(.25,.27),(.21,.33)], .055, (.16*s,1.48,.14), 'toy_rush', .012, side=True), torso)
     attach(cyl('Thruster', (.19 * s, 1.0, .02), .075, .09, 'toy_rush', 'x', 16, .015), torso)
     attach(cyl('ThrusterGlow', (.24 * s, 1.0, .02), .05, .012, 'toy_thrust', 'x', 16, .003), torso)
 merge_rigid(torso)
@@ -121,15 +148,13 @@ head = box('Head', (0, 1.66, -.01), (.24, .22, .25), 'toy_cream', .05)
 for side, x in [('Left', -.13), ('Right', .13)]:
     attach(cyl(side + 'Ear', (x, 1.69, .02), .062, .05, 'toy_joint', 'x', 16, .012), head)
 merge_rigid(head)
-helmet = box('Helmet', (0, 1.79, .02), (.28, .13, .32), 'toy_rush', .05)
-attach(box('HelmetSweep', (0, 1.84, .2), (.18, .09, .26), 'toy_rush', .035, (.32, 0, 0)), helmet)
-attach(box('HelmetBrim', (0, 1.735, -.13), (.27, .05, .07), 'toy_rush', .02), helmet)
-attach(box('HelmetStripe', (0, 1.858, .03), (.07, .012, .30), 'toy_cream', .005), helmet)
+helmet = armor_profile('Helmet', [(-.06,-.23),(.07,-.22),(.29,.30),(.22,.37),(-.04,.17)], .31, (0,1.78,0), 'toy_rush', .035, side=True, taper=[.9,1.0,.06,.15,.85])
+attach(armor_profile('HelmetStripe', [(.075,-.205),(.29,.30),(.22,.37),(.06,.13)], .065, (0,1.785,0), 'toy_cream', .008, side=True, taper=[1, .1, .15, 1]), helmet)
 merge_rigid(helmet)
 box('Visor', (0, 1.685, -.135), (.20, .05, .03), 'toy_visor', .012)
 for side, x in [('Left', -.12), ('Right', .12)]:
-    leg = pivot(segment(side + 'Leg', (x, .98, 0), (x, .58, -.01), (.13, .15), 'toy_rush', .04), (x, .98, 0))
-    attach(segment(side + 'Shin', (x, .55, -.01), (x, .14, .01), (.15, .17), 'toy_cream', .045), leg)
+    leg = pivot(segment(side + 'Leg', (x, .98, 0), (x, .58, -.01), (.16, .18), 'toy_rush', .04), (x, .98, 0))
+    attach(segment(side + 'Shin', (x, .55, -.01), (x, .14, .01), (.18, .20), 'toy_cream', .045), leg)
     attach(box(side + 'KneeCap', (x, .52, -.085), (.135, .13, .05), 'toy_rush', .02), leg)
     attach(cyl(side + 'Knee', (x, .58, -.01), .062, .14, 'toy_joint', 'x', 12, .01), leg)
     attach(box(side + 'Foot', (x, .06, -.04), (.15, .12, .27), 'toy_joint', .035), leg)
@@ -139,10 +164,12 @@ elbows = {'Left': (-.29, 1.20, -.02), 'Right': (.30, 1.20, -.03)}
 for side, s in [('Left', -1), ('Right', 1)]:
     shoulder = (.27 * s, 1.43, 0)
     arm = pivot(segment(side + 'Arm', shoulder, elbows[side], (.11, .12), 'toy_rush', .035), shoulder)
-    attach(box(side + 'Shoulder', (.29 * s, 1.45, 0), (.13, .12, .15), 'toy_rush', .035), arm)
+    attach(box(side + 'Shoulder', (.29 * s, 1.45, 0), (.18, .17, .21), 'toy_rush', .035), arm)
     attach(cyl(side + 'Elbow', elbows[side], .058, .12, 'toy_joint', 'x', 12, .01), arm)
     attach(segment(side + 'Forearm', elbows[side], wrists[side], (.13, .14), 'toy_cream', .04), arm)
     if side == 'Left':
+        attach(cyl('WristShieldRim', (-.375,1.08,-.11), .14, .045, 'toy_rush', 'x', 20, .015), arm)
+        attach(cyl('WristShieldFace', (-.40,1.08,-.11), .112, .014, 'toy_cream', 'x', 20, .01), arm)
         attach(box('LeftHand', (-.29, .95, -.14), (.09, .10, .10), 'toy_joint', .03), arm)
     merge_rigid(arm, ('LeftHand',))
 box('RightHand', (.30, .94, -.17), (.09, .10, .10), 'toy_joint', .03)

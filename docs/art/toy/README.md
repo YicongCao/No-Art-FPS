@@ -136,3 +136,7 @@ godot --headless --path . --script tools/maps/apply_toy_kit.gd
 ## 第四轮：霍格沃茨光照与色彩方案样板
 
 烘焙顶点光照（`tools/maps/bake_vertex_light.py`）加每张地图的色彩方案（`scripts/maps/toy_palette.gd`），目前只做了霍格沃茨。对比图与参数见 [`hogwarts/README.md`](hogwarts/README.md)。
+
+## 敌人概念轮廓细化
+
+在已有替换基础上进一步制作重装步枪兵与后掠头盔突击兵，实机图、资源规模与验证见 [造型细化记录](actors-refined/README.md)。
