@@ -30,7 +30,7 @@ for name, code in COLORS.items():
     m.use_nodes = True
     p = next(n for n in m.node_tree.nodes if n.type == 'BSDF_PRINCIPLED')
     p.inputs['Base Color'].default_value = rgba
-    p.inputs['Roughness'].default_value = .7
+    p.inputs['Roughness'].default_value = .44 if name in ('yellow', 'red', 'green', 'purple', 'blue') else .52
     p.inputs['Metallic'].default_value = 0
     MATS[name] = m
 
@@ -169,10 +169,13 @@ cyl('cap',(0,1.21,0),.42,.04,'ink',10)
 export('barrel',True)
 
 begin('tree')
-cyl('trunk',(0,.9,0),.16,1.8,'ink',6)
-for y,r in [(1.7,1.1),(2.5,.85),(3.2,.6)]:
-    bpy.ops.mesh.primitive_cone_add(vertices=4, radius1=r, radius2=0, depth=1.8, location=xyz((0,y,0)))
-    finish_obj(bpy.context.object,'foliage','leaf')
+cyl('trunk',(0,.9,0),.18,1.8,'ink',8)
+box('trunk_foot',(0,.08,0),(.48,.16,.48),'cream',.02)
+for y,r in [(1.7,1.12),(2.5,.87),(3.2,.62)]:
+    bpy.ops.mesh.primitive_cone_add(vertices=6, radius1=r, radius2=.08, depth=1.75, location=xyz((0,y,0)))
+    cone = bpy.context.object
+    toy_soften(cone, r*.4, .02, 1)
+    finish_obj(cone,'foliage','leaf')
 export('tree',True)
 
 begin('cloud')

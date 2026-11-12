@@ -1,5 +1,5 @@
 shader_type spatial;
-render_mode cull_back, specular_disabled;
+render_mode cull_back, diffuse_burley, specular_schlick_ggx;
 
 uniform vec4 base_color : source_color = vec4(1.0);
 uniform int paint_count = 0;
@@ -11,6 +11,7 @@ uniform vec3 paint_normal_0 = vec3(0.0, 0.0, 1.0);
 uniform vec3 paint_normal_1 = vec3(0.0, 0.0, 1.0);
 uniform vec2 paint_size_0 = vec2(1.0);
 uniform vec2 paint_size_1 = vec2(1.0);
+uniform float wall_gradient = 0.14;
 varying vec3 world_position;
 varying vec3 world_normal;
 
@@ -41,6 +42,10 @@ void fragment() {
 	if (paint_count > 1) {
 		color = apply_paint(color, artwork_1, paint_center_1, paint_normal_1, paint_size_1);
 	}
+	float wall = 1.0 - abs(world_normal.y);
+	color *= mix(1.0 - wall_gradient * wall, 1.0, smoothstep(0.0, 3.2, world_position.y));
+	color *= mix(vec3(1.0), vec3(0.90, 0.94, 1.02), smoothstep(0.3, 0.9, -world_normal.y));
 	ALBEDO = color;
-	ROUGHNESS = .9;
+	ROUGHNESS = 0.54;
+	SPECULAR = 0.5;
 }

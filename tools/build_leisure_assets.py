@@ -1,10 +1,13 @@
 """Original pool terrace props. blender --background --python tools/build_leisure_assets.py"""
 import bpy
 import math
+import sys
 from pathlib import Path
 from mathutils import Vector
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'tools'))
+from toy_bevel import toy_soften
 OUT = ROOT / 'assets/models'
 bpy.ops.object.select_all(action='SELECT')
 bpy.ops.object.delete(use_global=False)
@@ -20,7 +23,7 @@ for name, code in COLORS.items():
     m.use_nodes=True
     p=next(n for n in m.node_tree.nodes if n.type=='BSDF_PRINCIPLED')
     p.inputs['Base Color'].default_value=rgba
-    p.inputs['Roughness'].default_value=.85
+    p.inputs['Roughness'].default_value=.54
     MATS[name]=m
 roots=[]
 current=None
@@ -43,9 +46,7 @@ def box(name,p,size,color,bevel=0):
     o=bpy.context.object
     o.dimensions=(size[0],size[2],size[1])
     bpy.ops.object.transform_apply(location=False,rotation=False,scale=True)
-    if bevel:
-        mod=o.modifiers.new('Edge','BEVEL');mod.width=bevel;mod.segments=1
-        bpy.ops.object.modifier_apply(modifier=mod.name)
+    toy_soften(o,min(size),bevel)
     return finish(o,name,color)
 
 def mesh(name,vertices,faces,color):
@@ -58,9 +59,11 @@ def mesh(name,vertices,faces,color):
 
 def beam(name,a,b,r,color,vertices=8):
     start,end=Vector(xyz(a)),Vector(xyz(b))
-    bpy.ops.mesh.primitive_cylinder_add(vertices=vertices,radius=r,depth=(end-start).length,location=(start+end)/2)
+    depth=(end-start).length
+    bpy.ops.mesh.primitive_cylinder_add(vertices=vertices,radius=r,depth=depth,location=(start+end)/2)
     o=bpy.context.object
     o.rotation_euler=(end-start).to_track_quat('Z','Y').to_euler()
+    toy_soften(o,min(2*r,depth))
     return finish(o,name,color)
 
 def pivot(name,p,objects):
@@ -130,22 +133,35 @@ box('Pillow',(0,1.0,-1.00),(.50,.12,.20),'gold',.04)
 export('lounger')
 
 begin('parasol')
-beam('Pole',(0,0,0),(0,2.6,0),.045,'cream')
-box('Base',(0,.045,0),(.65,.09,.65),'cream',.04)
-vertices=[(0,2.75,0)]+[(math.cos(i*math.tau/8)*1.5,2.25,math.sin(i*math.tau/8)*1.5) for i in range(8)]
+beam('Pole',(0,0,0),(0,2.65,0),.052,'cream')
+box('Base',(0,.06,0),(.72,.12,.72),'cream',.03)
+box('BaseCollar',(0,.16,0),(.26,.10,.26),'gold',.02)
+beam('Finial',(0,2.72,0),(0,2.88,0),.065,'gold')
+vertices=[(0,2.76,0)]+[(math.cos(i*math.tau/8)*1.52,2.25,math.sin(i*math.tau/8)*1.52) for i in range(8)]
 for i in range(8):
-    cloth=mesh('Canopy',[vertices[0],vertices[i+1],vertices[(i+1)%8+1]],[(0,1,2),(2,1,0)],'cream' if i%2 else 'blue')
-    beam('Rib',vertices[0],vertices[i+1],.025,'cream')
+    p1, p2 = vertices[i+1], vertices[(i+1)%8+1]
+    cloth=mesh('Canopy',[vertices[0],p1,p2],[(0,1,2)],'cream' if i%2 else 'blue')
+    mod=cloth.modifiers.new('Thickness','SOLIDIFY');mod.thickness=.045
+    bpy.context.view_layer.objects.active=cloth
+    bpy.ops.object.modifier_apply(modifier=mod.name)
+    toy_soften(cloth,.04,.008,1)
+    mid=((p1[0]+p2[0])*.5, 2.15, (p1[2]+p2[2])*.5)
+    ang=math.atan2(p2[0]-p1[0], p2[2]-p1[2])
+    val=box('Valance',mid,(math.hypot(p2[0]-p1[0],p2[2]-p1[2])-.03,.18,.055),'cream' if i%2 else 'blue',.012)
+    val.rotation_euler.z=ang-math.pi/2
+    beam('Rib',vertices[0],p1,.030,'cream')
 export('parasol')
 
 begin('pool')
 box('BasinFloor',(0,-.53,0),(6,.12,7),'teal')
 for x in [-2.83,2.83]:
-    box('BasinSide',(x,-.24,0),(.34,.6,7),'cream')
-    box('BlueTile',(x,.055,0),(.34,.025,7),'blue')
+    box('BasinSide',(x,-.24,0),(.36,.6,7),'cream')
+    box('CopingRim',(x,.08,0),(.44,.08,7.08),'cream',.018)
+    box('BlueTile',(x,.03,0),(.38,.04,7),'blue')
 for z in [-3.33,3.33]:
-    box('BasinEnd',(0,-.24,z),(5.65,.6,.34),'cream')
-    box('BlueTile',(0,.055,z),(5.65,.025,.34),'blue')
+    box('BasinEnd',(0,-.24,z),(5.65,.6,.36),'cream')
+    box('CopingEnd',(0,.08,z),(5.74,.08,.44),'cream',.018)
+    box('BlueTile',(0,.03,z),(5.65,.04,.38),'blue')
 for x in [-1.5,0,1.5]:box('Lane',(x,-.459,0),(.055,.008,5.8),'blue')
 for x in [-2.82,2.82]:
     for z in [-3,-2,-1,0,1,2,3]:box('TileJoint',(x,.073,z),(.35,.008,.025),'cream')

@@ -43,8 +43,7 @@ func _ready() -> void:
 	for key in PALETTE:
 		var mat = StandardMaterial3D.new()
 		mat.albedo_color = Color(PALETTE[key])
-		mat.roughness = 0.9
-		mat.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
+		mat.roughness = 0.54
 		materials[key] = mat
 		if key in ["red","cream","yellow","ink"]:
 			var painted = ShaderMaterial.new()
@@ -56,13 +55,82 @@ func _ready() -> void:
 	build()
 	batch_boxes()
 
+func _add_tri(verts: PackedVector3Array, norms: PackedVector3Array,
+		p0: Vector3, p1: Vector3, p2: Vector3, n0: Vector3, n1: Vector3, n2: Vector3, out: Vector3) -> void:
+	if (p1-p0).cross(p2-p0).dot(out)<0.0:
+		verts.append(p0);verts.append(p2);verts.append(p1)
+		norms.append(n0);norms.append(n2);norms.append(n1)
+	else:
+		verts.append(p0);verts.append(p1);verts.append(p2)
+		norms.append(n0);norms.append(n1);norms.append(n2)
+
+func _add_quad(verts: PackedVector3Array, norms: PackedVector3Array,
+		p0: Vector3, p1: Vector3, p2: Vector3, p3: Vector3,
+		n0: Vector3, n1: Vector3, n2: Vector3, n3: Vector3, out: Vector3) -> void:
+	_add_tri(verts,norms,p0,p1,p2,n0,n1,n2,out)
+	_add_tri(verts,norms,p0,p2,p3,n0,n2,n3,out)
+
+func beveled_box_mesh(size: Vector3, mat: Material) -> Mesh:
+	var min_d := minf(size.x,minf(size.y,size.z))
+	if min_d < .045:
+		var flat := BoxMesh.new()
+		flat.size = size
+		flat.material = mat
+		return flat
+	var b := minf(.032,min_d*.16)
+	var hx := size.x*.5;var hy := size.y*.5;var hz := size.z*.5
+	var ix := hx-b;var iy := hy-b;var iz := hz-b
+	var verts := PackedVector3Array()
+	var norms := PackedVector3Array()
+	# 6 main flat faces
+	for s in [-1.0,1.0]:
+		var nx := Vector3(s,0,0)
+		_add_quad(verts,norms,Vector3(s*hx,-iy,-iz),Vector3(s*hx,iy,-iz),Vector3(s*hx,iy,iz),Vector3(s*hx,-iy,iz),nx,nx,nx,nx,nx)
+		var ny := Vector3(0,s,0)
+		_add_quad(verts,norms,Vector3(-ix,s*hy,-iz),Vector3(ix,s*hy,-iz),Vector3(ix,s*hy,iz),Vector3(-ix,s*hy,iz),ny,ny,ny,ny,ny)
+		var nz := Vector3(0,0,s)
+		_add_quad(verts,norms,Vector3(-ix,-iy,s*hz),Vector3(ix,-iy,s*hz),Vector3(ix,iy,s*hz),Vector3(-ix,iy,s*hz),nz,nz,nz,nz,nz)
+	# 12 edge bevel strips
+	for s1 in [-1.0,1.0]:
+		for s2 in [-1.0,1.0]:
+			var nx := Vector3(s1,0,0);var ny := Vector3(0,s2,0);var nz := Vector3(0,0,s2)
+			# X-Y edge along Z
+			_add_quad(verts,norms,Vector3(s1*hx,s2*iy,-iz),Vector3(s1*ix,s2*hy,-iz),Vector3(s1*ix,s2*hy,iz),Vector3(s1*hx,s2*iy,iz),nx,ny,ny,nx,nx+ny)
+			# X-Z edge along Y
+			_add_quad(verts,norms,Vector3(s1*hx,-iy,s2*iz),Vector3(s1*ix,-iy,s2*hz),Vector3(s1*ix,iy,s2*hz),Vector3(s1*hx,iy,s2*iz),nx,nz,nz,nx,nx+nz)
+			# Y-Z edge along X
+			var ny2 := Vector3(0,s1,0);var nz2 := Vector3(0,0,s2)
+			_add_quad(verts,norms,Vector3(-ix,s1*hy,s2*iz),Vector3(-ix,s1*iy,s2*hz),Vector3(ix,s1*iy,s2*hz),Vector3(ix,s1*hy,s2*iz),ny2,nz2,nz2,ny2,ny2+nz2)
+	# 8 corner triangles
+	for sx in [-1.0,1.0]:
+		for sy in [-1.0,1.0]:
+			for sz in [-1.0,1.0]:
+				var px := Vector3(sx*hx,sy*iy,sz*iz)
+				var py := Vector3(sx*ix,sy*hy,sz*iz)
+				var pz := Vector3(sx*ix,sy*iy,sz*hz)
+				_add_tri(verts,norms,px,py,pz,Vector3(sx,0,0),Vector3(0,sy,0),Vector3(0,0,sz),Vector3(sx,sy,sz))
+	var arrays := [];arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = verts
+	arrays[Mesh.ARRAY_NORMAL] = norms
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,arrays)
+	mesh.surface_set_material(0,mat)
+	return mesh
+
+func toy_box(pos: Vector3, size: Vector3, color: String, collision: bool = false) -> void:
+	var visual = MeshInstance3D.new()
+	visual.mesh = beveled_box_mesh(size,materials[color])
+	visual.position = pos
+	add_child(visual)
+	if active_structure:active_structure.register(visual)
+	if collision:collider(pos,size)
+	elif active_structure and active_structure.scenery and not active_structure.keep_boundary:
+		collider(pos,size,16)
+
 func solid(pos: Vector3, size: Vector3, color: String, collision: bool = true) -> void:
 	if active_structure and not active_structure.scenery:
 		var visual = MeshInstance3D.new()
-		var mesh = BoxMesh.new()
-		mesh.size = size
-		mesh.material = materials[color]
-		visual.mesh = mesh
+		visual.mesh = beveled_box_mesh(size,materials[color])
 		visual.position = pos
 		add_child(visual)
 		active_structure.register(visual)
@@ -245,8 +313,16 @@ func build() -> void:
 	deck_structure = structure(AABB(Vector3(-12,0,-23.6),Vector3(21.5,7.3,22.1)),"purple")
 	active_structure = deck_structure
 	solid(Vector3(0,1.45,-11),Vector3(13,2.9,4),"yellow")
+	# Grounding plinth & corner pilasters around the deck support building (clear of the front mural).
+	for sx in [-1.0,1.0]:
+		solid(Vector3(sx*6.46,1.45,-11),Vector3(.24,2.88,4.14),"blue",false)
+		solid(Vector3(sx*6.52,.13,-11),Vector3(.34,.26,4.24),"ink",false)
+	solid(Vector3(0,.13,-13.02),Vector3(13.1,.26,.16),"ink",false)
 	# Full-width landing meets the terrace at z=-13.2, including both outer wings.
 	solid(Vector3(0,3,-11),Vector3(18,.2,4.4),"purple")
+	for seg_i in range(10):
+		var cx := -8.1 + seg_i*1.8
+		solid(Vector3(cx,3.02,-8.76),Vector3(1.76,.22,.16),"cream",false)
 	for x in [-5,-1,3]:
 		solid(Vector3(x,1.3,-8.97),Vector3(2.0,2.6,.06),"cream",false)
 		solid(Vector3(x+1,1.4,-8.92),Vector3(.06,2.8,.08),"ink",false)
@@ -259,12 +335,15 @@ func build() -> void:
 	pool_terrace()
 	# Blue lookout frame breaks the skyline.
 	for x in [-1.5,1.5]:
-		for z in [-12.5,-10]:solid(Vector3(x,4.55,z),Vector3(.15,3,.15),"blue",false)
-	solid(Vector3(0,6.1,-11.25),Vector3(4,.22,3.5),"blue",false)
+		for z in [-12.5,-10]:
+			solid(Vector3(x,3.20,z),Vector3(.28,.20,.28),"cream",false)
+			solid(Vector3(x,4.55,z),Vector3(.18,3,.18),"blue",false)
+	solid(Vector3(0,6.1,-11.25),Vector3(4.12,.26,3.62),"blue",false)
+	solid(Vector3(0,6.26,-11.25),Vector3(4.24,.10,3.74),"cream",false)
 	solid(Vector3(0,4.55,-12.45),Vector3(3,.18,.16),"yellow",false)
 	solid(Vector3(0,3.9,-9.9),Vector3(3,.85,.18),"blue",false)
-	solid(Vector3(0,6.75,-11.2),Vector3(.06,1.2,.06),"ink",false)
-	solid(Vector3(.5,7,-11.2),Vector3(1,.5,.035),"red",false)
+	solid(Vector3(0,6.75,-11.2),Vector3(.08,1.2,.08),"ink",false)
+	solid(Vector3(.5,7,-11.2),Vector3(1,.5,.055),"red",false)
 	active_structure = null
 	# Foreground cover and recognizable props.
 	start_scenery(Vector3(-2,0,-1),"yellow")
@@ -275,8 +354,14 @@ func build() -> void:
 		explosive_barrel(p)
 	for p in [Vector3(-13,0,-2),Vector3(12,0,3),Vector3(-4,0,10)]:
 		start_scenery(p,"yellow")
-		solid(p+Vector3(0,.55,0),Vector3(1.5,1.1,1.2),"yellow")
-		solid(p+Vector3(0,1.13,0),Vector3(1.56,.08,1.26),"cream",false)
+		toy_box(p+Vector3(0,.09,0),Vector3(1.62,.18,1.32),"ink",false)
+		toy_box(p+Vector3(0,.56,0),Vector3(1.48,.94,1.18),"yellow",false)
+		collider(p+Vector3(0,.55,0),Vector3(1.5,1.1,1.2))
+		for sx in [-1.0,1.0]:
+			for sz in [-1.0,1.0]:
+				toy_box(p+Vector3(sx*.70,.56,sz*.55),Vector3(.14,.92,.14),"blue",false)
+		for sx in [-.40,.40]:
+			toy_box(p+Vector3(sx,1.10,0),Vector3(.77,.13,1.30),"cream",false)
 		active_structure = null
 	street()
 	warehouse()
@@ -334,7 +419,10 @@ func pool_terrace() -> void:
 		[Vector3(1,3,-13.85),Vector3(6,.2,1.3)]]:
 		solid(slab[0],slab[1],"cream")
 	for x in [-8.6,8.6]:
-		for z in [-14,-21.6]:solid(Vector3(x,1.5,z),Vector3(.25,3,.25),"blue")
+		for z in [-14,-21.6]:
+			solid(Vector3(x,.16,z),Vector3(.42,.32,.42),"ink",false)
+			solid(Vector3(x,1.5,z),Vector3(.28,2.8,.28),"blue")
+			solid(Vector3(x,2.82,z),Vector3(.40,.18,.40),"cream",false)
 	rail(Vector3(-9,3.1,-23.5),Vector3(9,3.1,-23.5),"blue")
 	for x in [-9,9]:rail(Vector3(x,3.1,-23.5),Vector3(x,3.1,-12.8),"blue")
 	pool = model("pool",Vector3(1,3.1,-18))
@@ -505,20 +593,39 @@ func warehouse() -> void:
 	warehouse_structure = structure(AABB(Vector3(23.6,0,-16.4),Vector3(12.9,5.8,25.8)),"green")
 	active_structure = warehouse_structure
 	solid(Vector3(36,2.7,-3.5),Vector3(.3,5.4,25),"green")
+	solid(Vector3(36,.15,-3.5),Vector3(.42,.30,25.2),"ink",false)
 	solid(Vector3(30,2.7,-16),Vector3(12,5.4,.3),"green")
+	solid(Vector3(30,.15,-16),Vector3(12.2,.30,.42),"ink",false)
 	for segment in [Vector2(-16,-11.5),Vector2(-6.5,1.5),Vector2(6.5,9)]:
 		solid(Vector3(24,2.7,(segment.x+segment.y)*.5),Vector3(.3,5.4,segment.y-segment.x),"cream")
+	for segment in [Vector2(-16,-11.5),Vector2(6.5,9)]:
+		solid(Vector3(24,.14,(segment.x+segment.y)*.5),Vector3(.40,.28,segment.y-segment.x),"ink",false)
 	for z in [-9.0,4.0]:
 		solid(Vector3(24,4.65,z),Vector3(.35,1.5,5),"green")
-		for dz in [-2.5,2.5]:solid(Vector3(23.8,1.9,z+dz),Vector3(.14,3.8,.16),"yellow")
-	for x in [25.5,34.5]:solid(Vector3(x,2.7,9),Vector3(3,5.4,.3),"green")
+		solid(Vector3(23.80,3.92,z),Vector3(.24,.18,5.32),"yellow",false)
+		for dz in [-2.5,2.5]:
+			solid(Vector3(23.80,.15,z+dz),Vector3(.28,.30,.28),"ink",false)
+			solid(Vector3(23.8,1.9,z+dz),Vector3(.18,3.8,.20),"yellow")
+	for x in [25.5,34.5]:
+		solid(Vector3(x,2.7,9),Vector3(3,5.4,.3),"green")
+		solid(Vector3(x,.15,9),Vector3(3.1,.30,.42),"ink",false)
 	solid(Vector3(30,4.65,9),Vector3(6,1.5,.3),"cream")
-	for x in [27,33]:solid(Vector3(x,1.9,9.2),Vector3(.16,3.8,.14),"yellow")
+	solid(Vector3(30,3.92,9.14),Vector3(6.32,.18,.24),"yellow",false)
+	for x in [27,33]:
+		solid(Vector3(x,.15,9.2),Vector3(.28,.30,.28),"ink",false)
+		solid(Vector3(x,1.9,9.2),Vector3(.20,3.8,.18),"yellow")
 	# Roof sections leave a long skylight; columns and rafters remain visible from inside.
-	for x in [26.1,33.9]:solid(Vector3(x,5.5,-3.5),Vector3(4.2,.22,25.4),"blue")
+	for x in [26.1,33.9]:
+		solid(Vector3(x,5.5,-3.5),Vector3(4.2,.24,25.4),"blue")
+		var edge_x := 23.92 if x<30.0 else 36.08
+		for r_i in range(12):
+			var rz := -15.0 + r_i*2.1
+			solid(Vector3(edge_x,5.56,rz),Vector3(.30,.22,2.04),"cream",false)
 	for z in [-15,-9,-3,3,8]:
-		solid(Vector3(30,5.15,z),Vector3(12,.18,.18),"ink",false)
-		for x in [24.35,35.65]:solid(Vector3(x,2.7,z),Vector3(.18,5.4,.18),"blue",true)
+		solid(Vector3(30,5.15,z),Vector3(12,.20,.20),"ink",false)
+		for x in [24.35,35.65]:
+			solid(Vector3(x,.15,z),Vector3(.30,.30,.30),"ink",false)
+			solid(Vector3(x,2.7,z),Vector3(.20,5.4,.20),"blue",true)
 	for p in [Vector3(27,0,-13),Vector3(33.5,0,-12),Vector3(33,0,-4),Vector3(27,0,-2),Vector3(33,0,4)]:
 		var support = start_scenery(p,"timber")
 		model("pallet",p)

@@ -164,6 +164,39 @@ func configure_materials() -> void:
      cache[key] = material
    if index==-1:mesh.material_override=cache[key]
    else:mesh.set_surface_override_material(index,cache[key])
+ for multi: MultiMeshInstance3D in arena.find_children("*","MultiMeshInstance3D",true,false):
+  if not multi.has_meta("palette") or not multi.multimesh or not multi.multimesh.mesh or multi.material_override is ShaderMaterial:continue
+  var palette_key := str(multi.get_meta("palette"))
+  if palette_key in ["net","light"]:continue
+  var original := multi.multimesh.mesh.surface_get_material(0) as StandardMaterial3D
+  if not original or original.transparency!=BaseMaterial3D.TRANSPARENCY_DISABLED:continue
+  var key := "mm:"+palette_key+":"+str(original.get_instance_id())
+  if not cache.has(key):
+   var kind := classify(palette_key)
+   if kind==0:
+    var coat := ShaderMaterial.new()
+    coat.shader = surface_shader(original.cull_mode,PAINT)
+    coat.set_shader_parameter("base_color",original.albedo_color)
+    coat.set_shader_parameter("use_vertex_color",false)
+    coat.set_shader_parameter("roughness_value",.54)
+    coat.set_shader_parameter("metallic_value",0.0)
+    coat.set_shader_parameter("specular_value",.5)
+    coat.set_shader_parameter("floor_height",arena.global_position.y)
+    cache[key] = coat
+   else:
+    var material := ShaderMaterial.new()
+    material.shader = surface_shader(original.cull_mode,SURFACE)
+    var roughness := .68 if kind==2 else .58
+    material.set_shader_parameter("base_color",original.albedo_color)
+    material.set_shader_parameter("use_vertex_color",false)
+    material.set_shader_parameter("detail_noise",DETAIL)
+    material.set_shader_parameter("kind",kind)
+    material.set_shader_parameter("roughness_value",roughness)
+    material.set_shader_parameter("metallic_value",0.0)
+    material.set_shader_parameter("roof_pattern",false)
+    material.set_shader_parameter("floor_height",arena.global_position.y)
+    cache[key] = material
+  multi.material_override = cache[key]
 
 func surface_shader(cull: int, base: Shader) -> Shader:
  var key := str(base.get_instance_id())+":"+str(cull)
