@@ -65,7 +65,7 @@ func _ready() -> void:
 	rusher.attack = 0
 	await get_tree().create_timer(.8).timeout
 	assert(rusher.position.z<5,"Knife enemy must quickly close distance")
-	assert(rusher.knife.visible and not rusher.visual.find_child("EnemyGun",true,false).visible)
+	assert(rusher.knife.visible and rusher.visual.find_child("EnemyGun",true,false)==null)
 	for frame in range(120):
 		if rusher.rush_state=="WINDUP":break
 		await get_tree().physics_frame

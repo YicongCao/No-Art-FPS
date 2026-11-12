@@ -62,6 +62,7 @@
 
 ```sh
 blender --background --python tools/build_toy_actors.py
+blender --background --python tools/build_comedy_weapons.py
 blender --background --python tools/build_assets.py
 blender --background --python tools/build_playbox_assets.py
 godot --headless --path . --editor --import
@@ -110,4 +111,24 @@ godot --headless --path . --script tools/maps/apply_toy_kit.gd
 
 院子性能基准（12 个敌人、不限帧）：draw call 2128 -> 2256，帧时间 P50 7.58 -> 7.41 毫秒，P99 11.9 -> 12.8 毫秒，在测量波动范围内。多出的 draw call 来自每个敌人多 5 个网格，各带一次边缘光绘制。
 
-已知问题：快攻敌人仍共用步枪手模型，只换成橙色并隐藏枪，左手会停在原本握枪的位置。下一步按 `concepts/tripo/rusher/` 单独建模。
+## 第三轮：突击手、刀与搞笑模式武器
+
+同样照四视图程序化重建，共用的倒角、塑料材质和合并逻辑抽到 `tools/toy_blocks.py`。
+
+- **突击手（`toy/rusher.glb`）：**
+  - 橙色外壳、奶油色胸板和小腿、深色关节，楔形头盔、背鳍和髋部推进器；
+  - 快攻敌人不再借用步枪手模型，也去掉了横向 0.92 的缩放；
+  - 蓄力闪烁仍作用在 `Torso`、`Helmet` 和四肢上，所以这些主体是橙色，奶油色和深色部分是子网格；
+  - 右手落在刀臂的握刀点，头部判定仍在 1.70 米；共 7968 面。
+- **刀（`toy/rusher_blade.glb`）：** 青色刀身、橙色护手、深色握柄、奶油色尾帽，替换旧的 `knife.glb`。
+- **滋水枪（`comedy/water_blaster.glb`）：** 蓝色机身、黄色水箱、橙色喷嘴和金色套环、绿色泵把；枪口坐标不变。
+- **拖把枪（`comedy/mop_launcher.glb`）：** 紫色机匣、淡紫色杆、整块薄荷绿拖把头，杆上夹一只拖鞋；替换 `slipper_launcher.glb`，枪口坐标不变，仍然发射拖鞋。
+- **拖鞋弹体（`comedy/slipper.glb`）：** 改为橙色鞋底、奶油色鞋垫和橙色鞋带，与拖把枪上的一致。
+
+| 滋水枪 | 拖把枪 |
+| --- | --- |
+| ![滋水枪](actors/water-blaster.png) | ![拖把枪](actors/mop-launcher.png) |
+
+自动检查：`--combat`（含刀可见、没有枪）、`--dodge`、`--awareness`、`--enemy-accuracy`、`--damage-feedback`、`--finale`、瞄准照门、颜色材质和一局 60 秒自动对局，全部通过。两种搞笑模式的检查都通过了武器文件断言，之后停在原有的第 87 行。尚未人工试玩。
+
+性能：这次测量时机器负载很高（load average 13 到 18），和上一提交交替测了三轮，帧时间与 draw call 持平。完整的性能排查放到后面再做。

@@ -3,6 +3,7 @@ extends CharacterBody3D
 const ShotLine = preload("res://scripts/shot_line.gd")
 const ComedyFX = preload("res://scripts/comedy_fx.gd")
 const TOY_MODEL = "res://assets/models/toy/enemy.glb"
+const RUSHER_MODEL = "res://assets/models/toy/rusher.glb"
 static var rim_pass: ShaderMaterial
 
 var game: Node
@@ -80,11 +81,11 @@ func _ready() -> void:
 	hs.position.y = 1.70
 	head_area.add_child(hs)
 	add_child(head_area)
-	visual = (game.enemy_model if game.enemy_model else load(TOY_MODEL)).instantiate()
+	var model: PackedScene = game.rusher_model if fast else game.enemy_model
+	visual = (model if model else load(RUSHER_MODEL if fast else TOY_MODEL)).instantiate()
 	add_child(visual)
 	add_toy_rim(visual)
 	if fast:
-		visual.scale = Vector3(.92,1,.92)
 		orange = StandardMaterial3D.new()
 		orange.albedo_color = Color("f17c28")
 		orange.roughness = .36
@@ -92,13 +93,12 @@ func _ready() -> void:
 		for part in ["Torso","Vest","Helmet","LeftArm","RightArm","LeftLeg","RightLeg"]:
 			var mesh = visual.find_child(part,true,false)
 			if mesh:mesh.material_override = orange
-		visual.find_child("EnemyGun",true,false).hide()
 		knife_arm = Node3D.new()
 		visual.add_child(knife_arm)
 		knife_arm.position = Vector3(.3,1.4,0)
 		for part in ["RightArm","RightHand"]:
 			visual.find_child(part,true,false).reparent(knife_arm)
-		knife = preload("res://assets/models/knife.glb").instantiate()
+		knife = preload("res://assets/models/toy/rusher_blade.glb").instantiate()
 		knife_arm.add_child(knife)
 		knife.position = Vector3(0,-.46,-.18)
 		knife.rotation.x = PI

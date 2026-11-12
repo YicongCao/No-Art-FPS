@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://c18g4wt3iswug"
-path="res://.godot/imported/slipper_launcher.glb-a013cfa35dd2895245d9796d2f95f869.scn"
+uid="uid://dxg2ktute7sqr"
+path="res://.godot/imported/rusher.glb-2d27616769ca2bdeb63e479ec141fab1.scn"
 
 [deps]
 
-source_file="res://assets/models/comedy/slipper_launcher.glb"
-dest_files=["res://.godot/imported/slipper_launcher.glb-a013cfa35dd2895245d9796d2f95f869.scn"]
+source_file="res://assets/models/toy/rusher.glb"
+dest_files=["res://.godot/imported/rusher.glb-2d27616769ca2bdeb63e479ec141fab1.scn"]
 
 [params]
 

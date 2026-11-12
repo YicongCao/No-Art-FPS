@@ -135,6 +135,7 @@ var load_ticket = 0
 var opening_prepared = false
 var destroy_effects_warmed = false
 var enemy_model: PackedScene
+var rusher_model: PackedScene
 var title_frame_ready = false
 var title_session_id = DefaultSession.session_id
 var remember_title_selection = true
@@ -705,6 +706,7 @@ func prepare_loaded_run(ticket: int) -> void:
 				return
 			await loading_frame()
 			if ticket!=load_ticket:return
+	if not rusher_model:rusher_model = load("res://assets/models/toy/rusher.glb")
 	# Instantiate and render one actor per frame before gameplay to warm
 	# imported meshes/materials without a single eight-enemy creation burst.
 	for i in range(opening.size()):

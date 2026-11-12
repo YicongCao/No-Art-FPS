@@ -1,182 +1,15 @@
 """Painted-plastic toy actors. Run: blender --background --python tools/build_toy_actors.py
 
-Coordinates are authored in Godot space (Y up, forward -Z). Node names, iron-sight
-points and muzzle position match the original actors so gameplay code is unchanged.
-Every block is bevelled, then weighted normals keep faces flat while edges catch light.
+Node names, iron-sight points and muzzle position match the original actors so gameplay
+code is unchanged. Shapes follow docs/art/toy/concepts/tripo/.
 """
-import bpy
-import math
-from mathutils import Vector
+import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'assets/models/toy'
-OUT.mkdir(parents=True, exist_ok=True)
-bpy.ops.object.select_all(action='SELECT')
-bpy.ops.object.delete(use_global=False)
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from toy_blocks import *
 
-# name: (hex, roughness, metallic, emission strength)
-PAINT = {
-    'toy_shell': ('DED7C6', .38, 0, 0),
-    'toy_primary': ('2F5FD6', .32, 0, 0),
-    'toy_metal': ('3B4553', .40, .55, 0),
-    'toy_rubber': ('232B35', .68, 0, 0),
-    'toy_glow': ('3FE2D2', .30, 0, 3.0),
-    'toy_accent': ('F4B33E', .34, 0, 0),
-    'toy_glove': ('2C3542', .58, 0, 0),
-    'toy_sleeve': ('4C8C78', .82, 0, 0),
-    'toy_cuff': ('ECE6D6', .5, 0, 0),
-    'toy_body': ('2B3447', .40, 0, 0),
-    'toy_body_dark': ('1D2431', .50, 0, 0),
-    'toy_vest': ('4D5B72', .44, 0, 0),
-    'toy_team': ('E0513F', .34, 0, 0),
-    'toy_visor': ('FF5A3C', .25, 0, 1.1),
-    'toy_gun': ('5B6476', .40, 0, 0),
-    'toy_gun_light': ('7C8496', .42, 0, 0),
-}
-MATS = {}
-
-def linear(c):
-    return c / 12.92 if c < .04045 else ((c + .055) / 1.055) ** 2.4
-
-def paint(name):
-    if name in MATS:
-        return MATS[name]
-    code, rough, metal, glow = PAINT[name]
-    rgba = tuple(linear(int(code[i:i+2], 16) / 255) for i in (0, 2, 4)) + (1,)
-    m = bpy.data.materials.new(name)
-    m.diffuse_color = rgba
-    m.use_nodes = True
-    p = next(n for n in m.node_tree.nodes if n.type == 'BSDF_PRINCIPLED')
-    p.inputs['Base Color'].default_value = rgba
-    p.inputs['Roughness'].default_value = rough
-    p.inputs['Metallic'].default_value = metal
-    if glow:
-        p.inputs['Emission Color'].default_value = rgba
-        p.inputs['Emission Strength'].default_value = glow
-    MATS[name] = m
-    return m
-
-current = None
-roots = []
-
-def xyz(p):
-    return (p[0], -p[2], p[1])
-
-def begin(name):
-    global current
-    current = bpy.data.objects.new(name, None)
-    bpy.context.collection.objects.link(current)
-    roots.append(current)
-
-def soften(obj, width, segments=3):
-    bpy.context.view_layer.objects.active = obj
-    if width > 0:
-        bevel = obj.modifiers.new('Toy bevel', 'BEVEL')
-        bevel.width = width
-        bevel.segments = segments
-        bevel.limit_method = 'ANGLE'
-        bevel.angle_limit = math.radians(40)
-        bevel.harden_normals = True
-        bevel.use_clamp_overlap = True
-        bpy.ops.object.modifier_apply(modifier=bevel.name)
-    bpy.ops.object.shade_smooth()
-    weighted = obj.modifiers.new('Flat faces', 'WEIGHTED_NORMAL')
-    weighted.keep_sharp = True
-    weighted.weight = 100
-    bpy.ops.object.modifier_apply(modifier=weighted.name)
-
-def finish(obj, name, material, width, rotation=None):
-    obj.name = name
-    if rotation:
-        obj.rotation_euler = (rotation[0], -rotation[2], rotation[1])
-        bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
-    soften(obj, width)
-    obj.data.materials.append(paint(material))
-    obj.parent = current
-    return obj
-
-def box(name, p, size, material, width=.012, rotation=None):
-    bpy.ops.mesh.primitive_cube_add(size=1, location=xyz(p))
-    obj = bpy.context.object
-    obj.dimensions = (size[0], size[2], size[1])
-    bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
-    return finish(obj, name, material, width, rotation)
-
-def attach(child, parent):
-    child.parent = parent
-    child.matrix_parent_inverse = parent.matrix_world.inverted()
-    return child
-
-def cyl(name, p, r, depth, material, axis='y', vertices=16, width=.008):
-    bpy.ops.mesh.primitive_cylinder_add(vertices=vertices, radius=r, depth=depth, location=xyz(p))
-    obj = bpy.context.object
-    rotation = {'x': (0, 0, math.pi / 2), 'z': (math.pi / 2, 0, 0)}.get(axis)
-    return finish(obj, name, material, width, rotation)
-
-def export(name, merge=True):
-    if merge:
-        for material in list(MATS.values()):
-            parts = [o for o in current.children if o.type == 'MESH' and o.data.materials[0] == material]
-            if len(parts) > 1:
-                bpy.ops.object.select_all(action='DESELECT')
-                for o in parts:
-                    o.select_set(True)
-                bpy.context.view_layer.objects.active = parts[0]
-                bpy.ops.object.join()
-                parts[0].name = name + '_' + material.name
-    bpy.ops.object.select_all(action='DESELECT')
-    current.select_set(True)
-    for o in current.children_recursive:
-        o.select_set(True)
-    bpy.context.view_layer.objects.active = current
-    bpy.ops.export_scene.gltf(filepath=str(OUT / (name + '.glb')), use_selection=True,
-                              export_format='GLB', export_yup=True, export_normals=True)
-    current.location = ((len(roots) - 1) * 2.5, 0, 0)
-
-def segment(name, a, b, section, material, width=.03):
-    a, b = Vector(xyz(a)), Vector(xyz(b))
-    bpy.ops.mesh.primitive_cube_add(size=1, location=(a + b) / 2)
-    obj = bpy.context.object
-    obj.dimensions = (section[0], section[1], (b - a).length)
-    bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
-    obj.rotation_mode = 'QUATERNION'
-    obj.rotation_quaternion = Vector((0, 0, 1)).rotation_difference((b - a).normalized())
-    bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
-    obj.rotation_mode = 'XYZ'
-    return finish(obj, name, material, width)
-
-def ring(name, p, major, minor, material):
-    bpy.ops.mesh.primitive_torus_add(major_radius=major, minor_radius=minor, major_segments=20,
-                                     minor_segments=8, location=xyz(p), rotation=(math.pi / 2, 0, 0))
-    bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
-    return finish(bpy.context.object, name, material, 0)
-
-def pivot(obj, p):
-    bpy.context.scene.cursor.location = xyz(p)
-    bpy.ops.object.select_all(action='DESELECT')
-    obj.select_set(True)
-    bpy.context.view_layer.objects.active = obj
-    bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
-    return obj
-
-def merge_rigid(main):
-    """Join attached parts into as few meshes as possible without changing gameplay node names.
-    Parts painted like the main mesh join it; every other colour becomes one child mesh."""
-    groups = {}
-    for o in main.children:
-        groups.setdefault(o.data.materials[0].name, []).append(o)
-    for material, parts in groups.items():
-        target = main if main.data.materials[0].name == material else parts[0]
-        rest = [o for o in parts if o is not target]
-        if not rest:
-            continue
-        bpy.ops.object.select_all(action='DESELECT')
-        for o in rest + [target]:
-            o.select_set(True)
-        bpy.context.view_layer.objects.active = target
-        bpy.ops.object.join()
-    return main
+reset(ROOT / 'assets/models/toy')
 
 # Rifle: rear aperture centre (0,.269,-.17), front post tip (0,.205,-.65), muzzle near z -1.0.
 # Layout follows docs/art/toy/concepts/tripo/player-rifle: blue receiver, cream handguard and
@@ -267,5 +100,62 @@ for part in [
     attach(part, gun)
 merge_rigid(gun)
 export('enemy', False)
+
+# Rusher, after docs/art/toy/concepts/tripo/rusher: slim orange shell, cream panels, wedge helmet,
+# back fins and hip thrusters. Torso, Helmet and limb meshes take the flashing orange override, so
+# they carry the orange shell; cream and dark parts are child meshes. The right hand sits where the
+# knife arm holds the blade, (.3, .94, -.18); the head hit sphere stays at y 1.70.
+begin('rusher')
+torso = box('Torso', (0, 1.33, 0), (.40, .28, .24), 'toy_rush', .06)
+attach(box('ChestPlate', (0, 1.33, -.125), (.24, .17, .04), 'toy_cream', .02), torso)
+attach(box('BackPlate', (0, 1.35, .125), (.20, .18, .03), 'toy_cream', .015), torso)
+attach(box('Waist', (0, 1.13, 0), (.20, .16, .16), 'toy_joint', .03), torso)
+attach(box('Hips', (0, 1.0, 0), (.30, .13, .20), 'toy_rush', .04), torso)
+attach(cyl('Neck', (0, 1.52, 0), .05, .09, 'toy_joint'), torso)
+for s in (-1, 1):
+    attach(box('Fin', (.12 * s, 1.52, .15), (.05, .22, .11), 'toy_rush', .02, (.55, 0, -.35 * s)), torso)
+    attach(cyl('Thruster', (.19 * s, 1.0, .02), .075, .09, 'toy_rush', 'x', 16, .015), torso)
+    attach(cyl('ThrusterGlow', (.24 * s, 1.0, .02), .05, .012, 'toy_thrust', 'x', 16, .003), torso)
+merge_rigid(torso)
+head = box('Head', (0, 1.66, -.01), (.24, .22, .25), 'toy_cream', .05)
+for side, x in [('Left', -.13), ('Right', .13)]:
+    attach(cyl(side + 'Ear', (x, 1.69, .02), .062, .05, 'toy_joint', 'x', 16, .012), head)
+merge_rigid(head)
+helmet = box('Helmet', (0, 1.79, .02), (.28, .13, .32), 'toy_rush', .05)
+attach(box('HelmetSweep', (0, 1.84, .2), (.18, .09, .26), 'toy_rush', .035, (.32, 0, 0)), helmet)
+attach(box('HelmetBrim', (0, 1.735, -.13), (.27, .05, .07), 'toy_rush', .02), helmet)
+attach(box('HelmetStripe', (0, 1.858, .03), (.07, .012, .30), 'toy_cream', .005), helmet)
+merge_rigid(helmet)
+box('Visor', (0, 1.685, -.135), (.20, .05, .03), 'toy_visor', .012)
+for side, x in [('Left', -.12), ('Right', .12)]:
+    leg = pivot(segment(side + 'Leg', (x, .98, 0), (x, .58, -.01), (.13, .15), 'toy_rush', .04), (x, .98, 0))
+    attach(segment(side + 'Shin', (x, .55, -.01), (x, .14, .01), (.15, .17), 'toy_cream', .045), leg)
+    attach(box(side + 'KneeCap', (x, .52, -.085), (.135, .13, .05), 'toy_rush', .02), leg)
+    attach(cyl(side + 'Knee', (x, .58, -.01), .062, .14, 'toy_joint', 'x', 12, .01), leg)
+    attach(box(side + 'Foot', (x, .06, -.04), (.15, .12, .27), 'toy_joint', .035), leg)
+    merge_rigid(leg)
+wrists = {'Left': (-.29, 1.0, -.12), 'Right': (.30, .99, -.15)}
+elbows = {'Left': (-.29, 1.20, -.02), 'Right': (.30, 1.20, -.03)}
+for side, s in [('Left', -1), ('Right', 1)]:
+    shoulder = (.27 * s, 1.43, 0)
+    arm = pivot(segment(side + 'Arm', shoulder, elbows[side], (.11, .12), 'toy_rush', .035), shoulder)
+    attach(box(side + 'Shoulder', (.29 * s, 1.45, 0), (.13, .12, .15), 'toy_rush', .035), arm)
+    attach(cyl(side + 'Elbow', elbows[side], .058, .12, 'toy_joint', 'x', 12, .01), arm)
+    attach(segment(side + 'Forearm', elbows[side], wrists[side], (.13, .14), 'toy_cream', .04), arm)
+    if side == 'Left':
+        attach(box('LeftHand', (-.29, .95, -.14), (.09, .10, .10), 'toy_joint', .03), arm)
+    merge_rigid(arm, ('LeftHand',))
+box('RightHand', (.30, .94, -.17), (.09, .10, .10), 'toy_joint', .03)
+export('rusher', False)
+
+# Rusher blade, after concepts/tripo/rusher-blade. Grip centred on the origin, blade along +Y;
+# enemy.gd flips it so the blade hangs below the hand.
+begin('rusher_blade')
+box('Handle', (0, 0, 0), (.04, .14, .05), 'toy_joint', .012)
+box('Guard', (0, .085, 0), (.075, .035, .08), 'toy_rush', .012)
+box('Cap', (0, -.085, 0), (.05, .035, .06), 'toy_cream', .012)
+box('Blade', (0, .25, 0), (.035, .30, .085), 'toy_blade', .015)
+box('Tip', (0, .43, .012), (.035, .08, .06), 'toy_blade', .015, (-.45, 0, 0))
+export('rusher_blade')
 
 bpy.ops.wm.save_as_mainfile(filepath=str(ROOT / 'art_source/toy_actors.blend'), compress=True)

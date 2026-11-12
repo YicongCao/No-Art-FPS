@@ -99,7 +99,7 @@ func set_weapon_style(mode: String) -> void:
 	if not weapon_models.has(mode):
 		var asset = "res://assets/models/toy/rifle.glb"
 		if mode=="comedy":asset = "res://assets/models/comedy/water_blaster.glb"
-		if mode=="roach":asset = "res://assets/models/comedy/slipper_launcher.glb"
+		if mode=="roach":asset = "res://assets/models/comedy/mop_launcher.glb"
 		var model = load(asset).instantiate()
 		gun.add_child(model)
 		for part in model.find_children("*","MeshInstance3D",true,false):

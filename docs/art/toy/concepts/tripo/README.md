@@ -25,7 +25,7 @@
 | `water-blaster/` | 大便模式的滋水枪 |
 | `mop-launcher/` | 蟑螂模式的拖把枪 |
 
-当前代码里，蟑螂模式用的是发射拖鞋的 `slipper_launcher.glb`，所以拖把枪的杆上保留了一只拖鞋，开火逻辑和弹体都不用改。
+拖把枪的杆上保留了一只拖鞋，开火逻辑和弹体都不用改；成品是 `assets/models/comedy/mop_launcher.glb`，替换了原来的 `slipper_launcher.glb`。
 
 ## 上传建议
 

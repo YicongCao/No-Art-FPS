@@ -13,7 +13,7 @@ func check() -> void:
 	var alternative = "comedy" if roach else "roach"
 	var heads = ComedyFX.ROACH_ART if roach else ComedyFX.POOP_ART
 	var knockout = ComedyFX.ROACH_KNOCKOUT if roach else ComedyFX.SPLAT
-	var weapon = "slipper_launcher" if roach else "water_blaster"
+	var weapon = "mop_launcher" if roach else "water_blaster"
 	var bolt = "SlipperBolt" if roach else "WaterBolt"
 	game = load("res://scenes/main.tscn").instantiate()
 	game.remember_title_selection = false
