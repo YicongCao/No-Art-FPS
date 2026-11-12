@@ -1,0 +1,67 @@
+BlenderMCP addon registered
+BlenderMCP addon unregistered
+20:17:07 | INFO: Data are loaded, start creating Blender stuff
+20:17:07 | INFO: Blender create Mesh node ground
+20:17:07 | INFO: glTF import finished in 0.04s
+20:17:07 | INFO: Data are loaded, start creating Blender stuff
+20:17:07 | INFO: Blender create Mesh node a_long
+20:17:07 | INFO: glTF import finished in 0.08s
+20:17:07 | INFO: Data are loaded, start creating Blender stuff
+20:17:07 | INFO: Blender create Mesh node mid
+20:17:07 | INFO: glTF import finished in 0.06s
+20:17:07 | INFO: Data are loaded, start creating Blender stuff
+20:17:07 | INFO: Blender create Mesh node b_court
+20:17:07 | INFO: glTF import finished in 0.05s
+20:17:07 | INFO: Data are loaded, start creating Blender stuff
+20:17:07 | INFO: Blender create Mesh node b_tunnel
+20:17:07 | INFO: glTF import finished in 0.02s
+20:17:07 | INFO: Data are loaded, start creating Blender stuff
+20:17:07 | INFO: Blender create Mesh node skyline
+20:17:07 | INFO: glTF import finished in 0.03s
+/Users/cong/Documents/Projects/No-Art-FPS/tools/maps/bake_vertex_light.py:170: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  world.use_nodes = True
+/Users/cong/Documents/Projects/No-Art-FPS/tools/maps/bake_vertex_light.py:177: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  clear.use_nodes = True
+VERTEX_LIGHT sandgate sky refine 92218 -> 118814 triangles
+   ground 19270
+   a_long 35248
+   mid 27784
+   b_court 22500
+   b_tunnel 9220
+   skyline 4792
+INFO Draco is available, use library at /Applications/Blender.app/Contents/Resources/5.2/scripts/addons_core/io_scene_gltf2/libbf_intern_draco_bridge.dylib
+INFO MeshOptimizer is available, use library at /Applications/Blender.app/Contents/Resources/5.2/scripts/addons_core/io_scene_gltf2/libbf_intern_meshopt_bridge.dylib
+20:23:47 | INFO: Starting glTF 2.0 export
+20:23:47 | INFO: Extracting primitive: ground
+20:23:47 | INFO: Primitives created: 9
+20:23:47 | INFO: Finished glTF 2.0 export in 0.10243010520935059 s
+
+20:23:47 | INFO: Starting glTF 2.0 export
+20:23:47 | INFO: Extracting primitive: a_long
+20:23:47 | INFO: Primitives created: 17
+20:23:47 | INFO: Finished glTF 2.0 export in 0.1313939094543457 s
+
+20:23:47 | INFO: Starting glTF 2.0 export
+20:23:47 | INFO: Extracting primitive: mid
+20:23:47 | INFO: Primitives created: 14
+20:23:47 | INFO: Finished glTF 2.0 export in 0.09777021408081055 s
+
+20:23:47 | INFO: Starting glTF 2.0 export
+20:23:47 | INFO: Extracting primitive: b_court
+20:23:47 | INFO: Primitives created: 16
+20:23:48 | INFO: Finished glTF 2.0 export in 0.1141209602355957 s
+
+20:23:48 | INFO: Starting glTF 2.0 export
+20:23:48 | INFO: Extracting primitive: b_tunnel
+20:23:48 | INFO: Primitives created: 10
+20:23:48 | INFO: Finished glTF 2.0 export in 0.05069780349731445 s
+
+20:23:48 | INFO: Starting glTF 2.0 export
+20:23:48 | INFO: Extracting primitive: skyline
+20:23:48 | INFO: Primitives created: 9
+20:23:48 | INFO: Finished glTF 2.0 export in 0.039781808853149414 s
+
+VERTEX_LIGHT_DONE sandgate
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:49:19)
+
+Blender quit

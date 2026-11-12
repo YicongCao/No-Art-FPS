@@ -17,6 +17,7 @@ from toy_kit import (
     stepped_plinth,
     tapered_box,
 )
+from hero_geometry import cloth_canopy, profile_shell
 
 MODELS = ROOT / "assets/models/sandgate"
 MODELS.mkdir(parents=True, exist_ok=True)
@@ -165,26 +166,40 @@ def facade(label, x, z, w, d, h, color="pale", base=None, floor=0, solid=True):
 def shutter(x,y,z,angle=0):
     recessed_window(mesh,(x,y,z),.98,.88,angle,"stone","cap","shade","blue","blue_light",depth=.15)
 
-def long_house(x,z,w,d,h,windows):
+def long_house(x,z,w,d,h,windows,hero=False):
     # Recess the visual wall in the window band while keeping the full collider.
     face=x+w/2
     layout["boxes"].append([[x,h/2,z],[w,h,d],0])
-    facade("Long lane recessed plaster core",x-.18,z,w-.36,d,h,"pale","teal",solid=False)
-    sill,head=2.98,4.31
-    box("Solid base below window reveals",face-.18,sill/2,z,.36,sill,d,"pale")
+    reveal = .64 if hero else .36
+    facade("Long lane recessed plaster core",x-reveal/2,z,w-reveal,d,h,"pale","teal",solid=False)
+    sill,head=(2.82,4.50) if hero else (2.98,4.31)
+    box("Solid base below window reveals",face-reveal/2,sill/2,z,reveal,sill,d,"pale")
     box("Teal street plinth",face+.02,.62,z,.05,1.24,d,"teal")
-    box("Upper plaster above window reveals",face-.18,(h+head)/2,z,.36,h-head,d,"pale")
+    box("Upper plaster above window reveals",face-reveal/2,(h+head)/2,z,reveal,h-head,d,"pale")
     edge=z-d/2
     for at in sorted(windows):
-        left,right=at-.59,at+.59
-        box("Plaster pier between window reveals",face-.18,(sill+head)/2,(edge+left)/2,
-            .36,head-sill,left-edge,"pale")
-        box("Window back in shadow",face-.35,(sill+head)/2,at,.04,1.31,1.18,"shade")
-        shutter(face-.26,3.63,at,math.pi/2)
-        box("Deep projecting sandstone sill",face-.04,sill,at,.76,.15,1.41,"cap")
-        box("Stone lintel over recess",face-.09,head,at,.49,.16,1.40,"stone")
+        half=.73 if hero else .59
+        left,right=at-half,at+half
+        box("Plaster pier between window reveals",face-reveal/2,(sill+head)/2,(edge+left)/2,
+            reveal,head-sill,left-edge,"pale")
+        box("Window back in shadow",face-reveal+.01,(sill+head)/2,at,.04,head-sill-.02,half*2,"shade")
+        if hero:
+            recessed_window(mesh,(face-.56,(sill+head)/2,at),1.26,1.43,math.pi/2,
+                            "stone","cap","shade","blue","blue_light",depth=.16)
+            # Broad chamfered reveals join the flush wall to the recessed frame.
+            for sign in (-1,1):
+                profile_shell(mesh,"Hero splayed window jamb",(face,0,at),[
+                    (-.63,[(sign*.73,sill),(sign*.57,sill+.12),(sign*.57,head-.12),(sign*.73,head)]),
+                    (0,[(sign*.73,sill),(sign*.68,sill+.04),(sign*.68,head-.04),(sign*.73,head)])
+                ],"plaster",angle=math.pi/2)
+            box("Deep projecting sandstone sill",face-.22,sill,at,.96,.17,1.73,"cap")
+            box("Stone lintel over recess",face-.22,head,at,.82,.19,1.75,"stone")
+        else:
+            shutter(face-.26,3.63,at,math.pi/2)
+            box("Deep projecting sandstone sill",face-.04,sill,at,.76,.15,1.41,"cap")
+            box("Stone lintel over recess",face-.09,head,at,.49,.16,1.40,"stone")
         edge=right
-    box("Plaster end pier",face-.18,(sill+head)/2,(edge+z+d/2)/2,.36,head-sill,z+d/2-edge,"pale")
+    box("Plaster end pier",face-reveal/2,(sill+head)/2,(edge+z+d/2)/2,reveal,head-sill,z+d/2-edge,"pale")
 
 
 def canopy(x,z,y,width,angle=0,accent="stripe",depth=1.45):
@@ -238,7 +253,7 @@ def potted_agave(x,y,z,scale=1,rotation=0):
         prism("Agave shaded tip",[right,ridge,tip],(0,-.014,0),"leaf")
 
 
-def arch(label,x,z,y,r=1.75,spring=2.12,thick=.42,depth=.62,side=1.55,solid=True,angle=0):
+def arch(label,x,z,y,r=1.75,spring=2.12,thick=.42,depth=.62,side=1.55,solid=True,angle=0,hero=False):
     cos,sin=math.cos(angle),math.sin(angle)
     def at(u,v,w=0):
         return (x+u*cos+w*sin,y+v,z-u*sin+w*cos)
@@ -264,11 +279,18 @@ def arch(label,x,z,y,r=1.75,spring=2.12,thick=.42,depth=.62,side=1.55,solid=True
         ub,vb=ring(b,r)
         uo,vo=ring(b,outer)
         up,vp=ring(a,outer)
-        tone = "cap" if keystone else ("stone" if i%2==0 else "plaster")
+        tone = "cap" if keystone else ("stone" if hero or i%2==0 else "plaster")
         prism("Arch voussoir",[at(u,v,-depth*extrude*.5) for u,v in [(ua,va),(ub,vb),(uo,vo),(up,vp)]],
               (sin*depth*extrude,0,cos*depth*extrude),tone)
         prism("Arch spandrel",[at(u,v,-depth*.5) for u,v in [(up,vp),(uo,vo),(uo,top),(up,top)]],
               (sin*depth,0,cos*depth),"pale")
+        if hero:
+            # A continuous stepped archivolt reads as a thick carved opening.
+            # Its inner radius never enters the existing passage clearance.
+            inner,outer = r+thick*.70,r+thick+.22
+            points=[at(rad*math.cos(t),spring+rad*math.sin(t),depth*.51)
+                    for t,rad in [(a,inner),(b,inner),(b,outer),(a,outer)]]
+            prism("Hero gate stepped archivolt",points,(sin*.16,0,cos*.16),"cap")
     cx,cy,cz=at(0,top-.30)
     box("Gate cornice",cx,cy,cz,2*(r+side)+.14,.11,depth+.16,"stone",angle=angle,taper=(-.03,-.04))
     xx,yy,zz=at(0,top-.16)
@@ -278,6 +300,12 @@ def arch(label,x,z,y,r=1.75,spring=2.12,thick=.42,depth=.62,side=1.55,solid=True
     for sign in [-1,1]:
         xx,yy,zz=at(sign*(r+side/2),top/2)
         box("Upper gate pier",xx,yy+.98,zz,side-.05,top-1.96,depth,"pale",angle=angle,taper=(.04,.04))
+        if hero:
+            # Sloping buttress mass stays over the solid pier, outside the door.
+            profile=[(sign*(r+thick+.06),.30),(sign*(r+side-.12),.30),
+                     (sign*(r+side-.34),top-.40),(sign*(r+thick+.20),top-.40)]
+            profile_shell(mesh,"Hero gate tapered buttress",(x,y,z),
+                          [(depth*.38,profile),(depth*.63,profile)],"plaster",angle)
 
 
 def arch_recess(x,y,z,angle=0,r=.42,h=.75):
@@ -355,7 +383,11 @@ def prop(name,kind,x,y,z,w,h,d,angle=0):
             for sz in (-1, 1):
                 box("Counter recessed panel",bay,.52,sz*(d*.5-.015),w*.34,.52,.045,"crate")
         segmented_coping(mesh,"Counter top",(0,.98,0),w+.20,.14,d+.18,"cap",seg_len=1.4,gap=.022)
-        canopy(0,-d*.5,h-.12,w+.22,depth=d+.38)
+        if name in ("a_stall_south","a_stall_north"):
+            cloth_canopy(mesh,(0,h-.12,-d*.5),w+.22,d+.38,.42,0,
+                         ("stripe","cap"),"wood",post_h=h-.12-.42*.85)
+        else:
+            canopy(0,-d*.5,h-.12,w+.22,depth=d+.38)
         pot(-.56,.18,.63,1.05)
         pot(.36,.14,.83,1.05)
         lathe("Counter display bowl",.08,1.05,-.12,[(.18,0),(.26,.09),(.28,.16),(.22,.16)],"teal",12)
@@ -430,12 +462,12 @@ for x,z,w,d in [(-24.4,0,.8,40),(24.4,0,.8,40),(0,-20.4,48,.8),(0,20.4,48,.8)]:
     layout["boxes"].append([[x,2.8,z],[w,6,d],0])
 
 zone("a_long")
-arch("Long gate",16.3,15.2,0,r=2.52,spring=2.27,depth=.85,side=2.4)
+arch("Long gate",16.3,15.2,0,r=2.52,spring=2.27,depth=.85,side=2.4,hero=True)
 gate_leaf("Long gate left",13.78,15.46,2.17,3.06,-1.32)
 gate_leaf("Long gate right",18.82,15.46,-2.17,3.06,1.32)
 facade("Long gate wing",10.74,15.18,3.9,.83,4.85,"pale","red")
 facade("Long gate outer wing",22.58,15.18,2.5,.83,4.85,"pale","red")
-long_house(10.75,9.3,2.1,8.8,5.95,[6.8,9.15,12.4])
+long_house(10.75,9.3,2.1,8.8,5.95,[6.8,9.15,12.4],hero=True)
 long_house(10.75,-.55,2.1,5.05,5.6,[-1.28,1.05])
 facade("Pit boundary houses",23.56,5.4,.82,18.8,5.55,"pale",None)
 box("Lavender pit wall",23.12,.6,8.5,.12,2.7,6.7,"purple")

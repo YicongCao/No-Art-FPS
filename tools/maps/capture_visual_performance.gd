@@ -2,6 +2,7 @@ extends SceneTree
 ## Fixed-resolution, reproducible render workload with live enemies and a gentle camera sweep.
 func _initialize() -> void:run.call_deferred()
 func run() -> void:
+ seed(20261112)
  var game = load("res://scenes/main.tscn").instantiate()
  root.add_child(game)
  for i in range(900):
@@ -45,8 +46,12 @@ func run() -> void:
    draws.append(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME))
    objects.append(Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME))
    primitives.append(Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME))
+  var over_16 := frame_ms.filter(func(ms): return ms > 16.667).size()
+  var over_33 := frame_ms.filter(func(ms): return ms > 33.334).size()
   frame_ms.sort();draws.sort();objects.sort();primitives.sort()
   var row={"map":id,"phase":"transition" if transition else ("frenzy" if frenzy else "normal"),"seconds":seconds,"frames":frame_ms.size(),"frame_ms_max":frame_ms[-1],"frame_ms_p50":percentile(frame_ms,.5),"frame_ms_p95":percentile(frame_ms,.95),"frame_ms_p99":percentile(frame_ms,.99),"draw_calls_p50":percentile(draws,.5),"draw_calls_p95":percentile(draws,.95),"objects_p50":percentile(objects,.5),"primitives_p50":percentile(primitives,.5),"texture_bytes":Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED),"static_bytes":Performance.get_monitor(Performance.MEMORY_STATIC),"end_state":game.state}
+  row["frames_over_16_67_ms"] = over_16
+  row["frames_over_33_33_ms"] = over_33
   results.append(row);print("VISUAL_PERF ",JSON.stringify(row))
  var path:=OS.get_environment("PERF_OUTPUT")
  if path.is_empty():path="res://artifacts/local/visual-perf.json"
