@@ -1,0 +1,184 @@
+[
+  {
+    "file": "architecture.glb",
+    "bytes": 1304704,
+    "triangles": 35420,
+    "vertices": 33884,
+    "surfaces": 8
+  },
+  {
+    "file": "building_services.glb",
+    "bytes": 1366248,
+    "triangles": 41612,
+    "vertices": 34580,
+    "surfaces": 10
+  },
+  {
+    "file": "camp_cot.glb",
+    "bytes": 30008,
+    "triangles": 1220,
+    "vertices": 720,
+    "surfaces": 8
+  },
+  {
+    "file": "chair.glb",
+    "bytes": 41296,
+    "triangles": 1740,
+    "vertices": 1112,
+    "surfaces": 6
+  },
+  {
+    "file": "city.glb",
+    "bytes": 131240,
+    "triangles": 2376,
+    "vertices": 4752,
+    "surfaces": 6
+  },
+  {
+    "file": "copy_station.glb",
+    "bytes": 51592,
+    "triangles": 1896,
+    "vertices": 1400,
+    "surfaces": 8
+  },
+  {
+    "file": "executive.glb",
+    "bytes": 95772,
+    "triangles": 3860,
+    "vertices": 2582,
+    "surfaces": 13
+  },
+  {
+    "file": "huddle_table.glb",
+    "bytes": 14568,
+    "triangles": 356,
+    "vertices": 280,
+    "surfaces": 8
+  },
+  {
+    "file": "locker.glb",
+    "bytes": 24088,
+    "triangles": 644,
+    "vertices": 648,
+    "surfaces": 7
+  },
+  {
+    "file": "manager_door.glb",
+    "bytes": 7680,
+    "triangles": 264,
+    "vertices": 144,
+    "surfaces": 4
+  },
+  {
+    "file": "meeting_table.glb",
+    "bytes": 311964,
+    "triangles": 14316,
+    "vertices": 9112,
+    "surfaces": 9
+  },
+  {
+    "file": "pantry_counter.glb",
+    "bytes": 31792,
+    "triangles": 1184,
+    "vertices": 712,
+    "surfaces": 10
+  },
+  {
+    "file": "partition.glb",
+    "bytes": 78620,
+    "triangles": 3168,
+    "vertices": 2208,
+    "surfaces": 8
+  },
+  {
+    "file": "partition_low.glb",
+    "bytes": 88356,
+    "triangles": 3656,
+    "vertices": 2512,
+    "surfaces": 8
+  },
+  {
+    "file": "partition_storage.glb",
+    "bytes": 54416,
+    "triangles": 2160,
+    "vertices": 1488,
+    "surfaces": 7
+  },
+  {
+    "file": "phone_booth.glb",
+    "bytes": 14116,
+    "triangles": 500,
+    "vertices": 272,
+    "surfaces": 7
+  },
+  {
+    "file": "planter.glb",
+    "bytes": 13868,
+    "triangles": 508,
+    "vertices": 309,
+    "surfaces": 4
+  },
+  {
+    "file": "programmer.glb",
+    "bytes": 200276,
+    "triangles": 6620,
+    "vertices": 6028,
+    "surfaces": 22
+  },
+  {
+    "file": "programmer_lunch.glb",
+    "bytes": 226588,
+    "triangles": 7252,
+    "vertices": 6868,
+    "surfaces": 24
+  },
+  {
+    "file": "project_manager.glb",
+    "bytes": 106680,
+    "triangles": 4072,
+    "vertices": 2800,
+    "surfaces": 19
+  },
+  {
+    "file": "project_manager_lunch.glb",
+    "bytes": 135492,
+    "triangles": 4792,
+    "vertices": 3688,
+    "surfaces": 23
+  },
+  {
+    "file": "reception.glb",
+    "bytes": 159308,
+    "triangles": 3928,
+    "vertices": 4056,
+    "surfaces": 6
+  },
+  {
+    "file": "rooms.glb",
+    "bytes": 356992,
+    "triangles": 8628,
+    "vertices": 9172,
+    "surfaces": 12
+  },
+  {
+    "file": "shade_leaf.glb",
+    "bytes": 9800,
+    "triangles": 350,
+    "vertices": 212,
+    "surfaces": 3
+  },
+  {
+    "file": "snack_rack.glb",
+    "bytes": 74116,
+    "triangles": 2900,
+    "vertices": 2184,
+    "surfaces": 10
+  },
+  {
+    "file": "water_cooler.glb",
+    "bytes": 37636,
+    "triangles": 1340,
+    "vertices": 956,
+    "surfaces": 8
+  }
+]

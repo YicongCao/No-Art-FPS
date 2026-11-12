@@ -10,6 +10,7 @@ from mathutils import Vector
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools/maps"))
 from toy_kit import export_toy_parts, segmented_coping, stepped_plinth, tapered_box
+from hero_geometry import profile_shell, rounded_profile
 
 OUT = ROOT / "assets/models/bb_office"
 OUT.mkdir(parents=True, exist_ok=True)
@@ -101,6 +102,16 @@ class Kit:
         faces += [(i,(i+1)%sides,(i+1)%sides+sides,i+sides) for i in range(sides)]
         self.mesh(label, points, faces, color)
 
+    def molded(self, label, center, size, color, angle=0, radius=.09):
+        w,h,d = size
+        edge = min(.035, d*.22)
+        profile_shell(self.mesh, "Molded " + label, center, [
+            (-d/2, rounded_profile(w-.025,h-.025,radius)),
+            (-d/2+edge, rounded_profile(w,h,radius)),
+            (d/2-edge, rounded_profile(w,h,radius)),
+            (d/2, rounded_profile(w-.025,h-.025,radius)),
+        ], color, angle)
+
     def export(self):
         bl_parts = [(label, [xyz(p) for p in verts], polys, color)
                     for label, verts, polys, color in self.parts]
@@ -111,7 +122,7 @@ class Kit:
             OUT / f"{self.name}.glb",
             bevel=(self.name != "city"),
             max_bevel=0.026,
-            skip_labels=("Carpet tile", "Syntax token", "Waterfall", "Revenue", "Keyboard key", "Sesame seed"),
+            skip_labels=("Molded ", "Sculpted ", "Carpet tile", "Syntax token", "Waterfall", "Revenue", "Keyboard key", "Sesame seed"),
         )
 
 
@@ -383,17 +394,47 @@ for i,x in enumerate((-9,9)):
 
 chair = kit("chair")
 def seat(item,x,z,angle=0):
-    item.box("Task chair seat",(x,.46,z),(.64,.15,.60),"slate",angle,taper=(.05,.05))
-    item.box("Task chair back",(x-.25*math.sin(angle),.75,z-.25*math.cos(angle)),(.62,.54,.15),"dark_teal",angle,taper=(.06,.08))
-    item.box("Chair contrast headrest",(x-.25*math.sin(angle),1.03,z-.25*math.cos(angle)),(.58,.085,.16),"orange",angle,taper=(.04,.04))
-    for side in (-1, 1):
-        ax = x + side*.31*math.cos(angle) - .04*math.sin(angle)
-        az = z - side*.31*math.sin(angle) - .04*math.cos(angle)
-        item.box("Chair armrest",(ax,.63,az),(.085,.07,.34),"ink",angle)
-    item.rod("Pedestal",(x,.06,z),(x,.43,z),.078,"ink",8)
-    for a in range(5):
-        a *= math.tau/5
-        item.rod("Caster base",(x,.10,z),(x+.29*math.cos(a),.06,z+.29*math.sin(a)),.042,"ink",6)
+    ca,sa=math.cos(angle),math.sin(angle)
+    def pt(u,v,w):
+        return (x+ca*u+sa*w,v,z-sa*u+ca*w)
+    def emit(label,points,faces,color):
+        item.mesh(label,[pt(*v) for v in points],faces,color)
+    # A continuous compound-curved shell: narrow lumbar waist, broad shoulders,
+    # swept upper corners and a bowed face. Rear structure is visible from aisles.
+    rows=[(.53,.23),(.61,.30),(.76,.25),(.94,.31),(1.04,.28),(1.075,.20)]
+    points=[]
+    cols=9
+    for depth in (-.045,.045):
+        for v,width in rows:
+            for j in range(cols):
+                u=width*(2*j/(cols-1)-1)
+                points.append((u,v,-.24+.065*(u/.31)**2-.07*((v-.53)/.545)+depth))
+    layer=len(rows)*cols
+    faces=[]
+    for row in range(len(rows)-1):
+        for j in range(cols-1):
+            q=row*cols+j
+            faces.extend([(q,q+cols,q+cols+1,q+1),
+                          (layer+q+1,layer+q+cols+1,layer+q+cols,layer+q)])
+    boundary=list(range(cols)) + [r*cols+cols-1 for r in range(1,len(rows))]
+    boundary += list(range(layer-2,layer-cols-1,-1)) + [r*cols for r in range(len(rows)-2,0,-1)]
+    for i,a in enumerate(boundary):
+        b=boundary[(i+1)%len(boundary)]
+        faces.append((a,b,layer+b,layer+a))
+    emit("Sculpted ergonomic chair back",points,faces,"dark_teal")
+    item.molded("Chair shoulder cap",pt(0,1.07,-.31),(.49,.10,.19),"orange",angle,.04)
+    item.molded("Chair cushion",pt(0,.46,.025),(.64,.14,.57),"slate",angle,.065)
+    item.molded("Chair lumbar pad",pt(0,.68,-.165),(.46,.18,.095),"teal",angle,.075)
+    for side in (-1,1):
+        item.rod("Chair back suspension",pt(side*.10,.40,-.29),pt(side*.17,.87,-.345),.033,"ink",7)
+        item.rod("Chair arm stalk",pt(side*.28,.44,-.12),pt(side*.31,.61,-.06),.028,"ink",7)
+        item.molded("Chair arm pad",pt(side*.31,.635,.015),(.085,.065,.33),"ink",angle,.03)
+    item.rod("Pedestal",pt(0,.10,0),pt(0,.40,0),.062,"galvanized",8)
+    for i in range(5):
+        a=i*math.tau/5
+        u,w=.27*math.cos(a),.27*math.sin(a)
+        item.rod("Caster base",pt(0,.16,0),pt(u,.085,w),.035,"ink",6)
+        item.rod("Caster wheel",pt(u-.037,.065,w),pt(u+.037,.065,w),.06,"ink",8)
 seat(chair,0,0)
 
 meeting = kit("meeting_table")
@@ -410,11 +451,14 @@ for z in (-1.55,.28,1.3):
 instance("meeting_table","ConferenceTable",(0,0,-16.8),(3.56,1.1,4.55),impact="paper")
 
 def desk(item,width=2.4):
-    item.box("Laminate work surface",(0,.855,0),(width,.145,.96),"ivory",taper=(-.015,-.03))
+    item.molded("Laminate work surface",(0,.855,0),(width,.145,.96),"ivory",radius=.065)
     item.box("Desk bumper rail",(0,.785,0),(width-.06,.055,.90),"teal")
     for x in (-width*.44,width*.44):
-        item.box("Desk leg",(x,.43,0),(.115,.82,.82),"slate",taper=(.08,.06))
-        stepped_plinth(item.mesh,"Desk leg foot",(x,.045,0),.15,.09,.88,"navy",flare=.02)
+        # Open cast A-frame rather than a solid slab under each desk.
+        for side in (-1,1):
+            item.rod("Desk splayed frame",(x,.08,side*.35),(x,.77,side*.18),.064,"slate",8)
+        item.molded("Desk sled foot",(x,.065,0),(.15,.11,.88),"navy",radius=.05)
+        item.box("Desk upper joint",(x,.76,0),(.17,.13,.51),"teal")
     item.box("Cable tray",(0,.68,-.33),(width*.82,.20,.16),"teal")
     item.box("Document stack",(-width*.37,.936,.19),(.31,.032,.22),"paper")
     item.box("Note",(-width*.36,.958,.17),(.15,.013,.11),"gold",.16)
@@ -440,17 +484,24 @@ def penguin(item,x,y,z,s):
     item.box("Beak",(x,y+s*.67,z+s*.245),(s*.19,s*.085,s*.13),"gold")
 
 def screen(item,x,y,z,w,h,kind):
-    # Chunky retro-toy CRT/terminal casing visible from both front and aisle-facing rear
-    item.box("Display main body",(x,y,z-.025),(w+.10,h+.10,.13),"ivory",taper=(.04,.04))
-    item.box("Display rear CRT hood",(x,y-.01,z-.135),(w*.78,h*.74,.14),"teal",taper=(.16,.16))
-    item.box("Display rear cap",(x,y-.015,z-.215),(w*.52,h*.48,.065),"slate",taper=(.14,.14))
-    for vy in (-.07, 0.0, .07):
-        item.box("Display rear vent",(x,y+vy,z-.195),(w*.42,.028,.045),"ink")
-    rim = .056
-    for sy in (-1, 1):
-        item.box("Display bezel rail",(x,y+sy*(h*.5+rim*.42),z+.048),(w+rim*2.0,rim,.074),"ivory")
-    for sx in (-1, 1):
-        item.box("Display bezel stile",(x+sx*(w*.5+rim*.42),y,z+.048),(rim,h+.02,.074),"ivory")
+    # Rounded front surround and a single lofted rear casing, without layered blocks.
+    profile_shell(item.mesh,"Molded display rear shell",(x,y,z),[
+        (-.245,rounded_profile(w*.58,h*.60,.07)),
+        (-.18,rounded_profile(w*.84,h*.90,.095)),
+        (-.055,rounded_profile(w+.10,h+.10,.075)),
+        (.005,rounded_profile(w+.10,h+.10,.075)),
+    ],"teal")
+    for vy in (-.055, .015, .085):
+        item.box("Display rear vent",(x,y+vy,z-.249),(w*.36,.022,.018),"ink")
+    # A ring with a real recessed glass opening, rather than a solid front slab.
+    outer=rounded_profile(w+.11,h+.11,.075)
+    inner=rounded_profile(w+.012,h+.012,.028)
+    points=[(x+u,y+v,z+depth) for depth,loop in ((.035,outer),(.081,outer),(.081,inner),(.018,inner)) for u,v in loop]
+    n=len(outer)
+    faces=[]
+    for ring in range(3):
+        faces += [(ring*n+i,ring*n+(i+1)%n,(ring+1)*n+(i+1)%n,(ring+1)*n+i) for i in range(n)]
+    item.mesh("Molded display surround",points,faces,"ivory")
     item.box("Display inner shadow",(x,y,z+.024),(w+.02,h+.02,.032),"ink")
     item.box("Lit display",(x,y,z+.041),(w,h,.018),"laptop_glass" if kind=="waterfall" else "display_glass")
     item.box("Power LED",(x+w*.42,y-h*.5-.022,z+.080),(.036,.022,.026),"code")
@@ -559,8 +610,8 @@ for variant,asset in enumerate(partition_assets):
     partition.box("Partition spine core",(0,.96,0),(5.04,1.34,.085),"navy")
     stepped_plinth(partition.mesh,"Partition base rail",(0,.14,0),5.06,.24,.175,"slate",flare=.022)
     for bay_x in (-1.64, 0.0, 1.64):
-        partition.box("Teal fabric baffle",(bay_x,1.00,0),(1.54,1.20,.145),"teal",taper=(.02,.04))
-    segmented_coping(partition.mesh,"Blue acoustic cap",(0,1.66,0),5.18,.10,.195,"ivory",seg_len=1.72,gap=.024)
+        partition.molded("Teal fabric baffle",(bay_x,1.00,0),(1.54,1.20,.145),"teal",radius=.18)
+    partition.molded("Acoustic cap",(0,1.66,0),(5.18,.10,.195),"ivory",radius=.045)
     for x in (-2.46,-0.82,0.82,2.46):
         partition.box("Baffle post",(x,.86,0),(.105,1.68,.195),"slate",taper=(.04,.04))
         if abs(x) > 2.0:
@@ -573,8 +624,8 @@ for variant,asset in enumerate(partition_assets):
             partition.box("Privacy wing core",(x,.82,0),(.09,1.52,2.92),"navy")
             stepped_plinth(partition.mesh,"Wing base plinth",(x,.09,0),.24,.18,2.98,"slate",flare=.03)
             for bz in (-.73, .73):
-                partition.box("Privacy wing lower panel",(x,.64,bz),(.16,.86,1.34),"dark_teal",taper=(.04,.02))
-                partition.box("Wing inset accent",(x,.64,bz),(.185,.62,1.12),"teal")
+                partition.molded("Privacy wing lower panel",(x,.64,bz),(1.34,.86,.16),"dark_teal",math.pi/2,.16)
+                partition.molded("Wing inset accent",(x,.64,bz),(1.12,.62,.185),"teal",math.pi/2,.14)
                 partition.box("Frosted upper window",(x,1.38,bz),(.08,.42,1.32),"screen")
             partition.box("Wing window sill",(x,1.14,0),(.24,.095,2.98),"ivory")
             for z in (-1.45,0.0,1.45):
@@ -584,19 +635,25 @@ for variant,asset in enumerate(partition_assets):
                     partition.box("Wing post cap",(x,1.67,z),(.25,.12,.16),"gold")
             segmented_coping(partition.mesh,"Window frame rail",(x,1.63,0),.25,.11,3.00,"ivory",seg_len=1.48,gap=.026)
         elif variant==1:
-            partition.box("Low wing core",(x,.62,0),(.09,1.08,2.92),"navy")
+            # Continuous molded wing with rounded shoulders, without the old
+            # square stiles breaking its outline into six small blocks.
+            partition.molded("Low wing shell",(x,.67,0),(2.98,1.12,.23),"violet",math.pi/2,.23)
             stepped_plinth(partition.mesh,"Low wing plinth",(x,.09,0),.24,.18,2.98,"slate",flare=.03)
-            for bz in (-.73, .73):
-                partition.box("Low acoustic wing",(x,.66,bz),(.155,.86,1.34),"violet",taper=(.04,.02))
-                partition.box("Low wing cushion panel",(x,.66,bz),(.185,.64,1.14),"lilac")
-            for z in (-1.45,0.0,1.45):
-                partition.box("Low wing post",(x,.63,z),(.23,1.14,.13),"slate",taper=(.05,.04))
-                if abs(z) > 1.0:
-                    stepped_plinth(partition.mesh,"Low wing end foot",(x,.06,z),.34,.12,.26,"navy",flare=.03)
-            segmented_coping(partition.mesh,"Low screen top rail",(x,1.19,0),.25,.11,3.00,"ivory",seg_len=1.48,gap=.026)
+            for bz in (-.72,.72):
+                partition.molded("Low wing cushion panel",(x,.66,bz),(1.30,.77,.255),"lilac",math.pi/2,.19)
+            for z in (-1.30,1.30):
+                partition.molded("Low wing end sleeve",(x,.35,z),(.30,.56,.22),"slate",radius=.08)
+                stepped_plinth(partition.mesh,"Low wing end foot",(x,.06,z),.34,.12,.26,"navy",flare=.03)
+            # Ivory rail follows the rounded shoulder profile.
+            for side in (-1,1):
+                for j in range(4):
+                    a0=j*math.pi/8; a1=(j+1)*math.pi/8
+                    partition.rod("Rounded wing cap",(x,1.00+.23*math.cos(a0),side*(1.26+.23*math.sin(a0))),
+                                  (x,1.00+.23*math.cos(a1),side*(1.26+.23*math.sin(a1))),.043,"ivory",6)
+            partition.rod("Continuous wing cap",(x,1.23,-1.26),(x,1.23,1.26),.043,"ivory",8)
         else:
             stepped_plinth(partition.mesh,"Cabinet plinth",(x,.08,0),.48,.16,2.98,"slate",flare=.03)
-            partition.box("End-of-row storage cabinet",(x,.68,0),(.42,1.14,2.92),"dark_teal",taper=(.02,.01))
+            partition.molded("End-of-row storage cabinet",(x,.68,0),(2.92,1.14,.42),"dark_teal",math.pi/2,.19)
             segmented_coping(partition.mesh,"Laminate cabinet worktop",(x,1.31,0),.50,.11,3.00,"ivory",seg_len=1.48,gap=.026)
             for z in (-1.04,-.36,.36,1.04):
                 face=x+math.copysign(.224,x)
@@ -711,12 +768,15 @@ for i,(x,z) in enumerate(((-24.5,-12.3),(24.5,-12.3),(-25,7),(25,7),(-6.8,19.5),
     instance("planter",f"Planter{i}",(x,0,z),(.72,1.22,.72),impact="leaf")
 
 cooler = kit("water_cooler")
-cooler.box("Water cooler cabinet",(0,.49,0),(.63,.98,.59),"ivory")
-cooler.box("Dispenser dark recess",(0,.80,.302),(.46,.40,.038),"navy")
-cooler.box("Drip tray",(0,.59,.353),(.47,.055,.17),"galvanized")
+cooler.molded("Water cooler lower cabinet",(0,.30,0),(.63,.60,.59),"ivory",radius=.11)
+cooler.molded("Water cooler crown",(0,.96,0),(.63,.14,.59),"ivory",radius=.06)
+cooler.molded("Dispenser recess back",(0,.75,-.15),(.48,.34,.19),"navy",radius=.07)
+for side in (-1,1):
+    cooler.molded("Dispenser side cheek",(side*.267,.76,0),(.096,.34,.59),"ivory",radius=.04)
+cooler.molded("Drip tray",(0,.59,.215),(.47,.055,.28),"galvanized",radius=.025)
 for x,color in ((-.13,"blue"),(.13,"red")):
-    cooler.box("Hot or cold tap",(x,.89,.349),(.104,.071,.105),color)
-    cooler.rod("Tap spout",(x,.88,.401),(x,.82,.401),.028,"galvanized",7)
+    cooler.box("Hot or cold tap",(x,.84,.08),(.104,.071,.105),color)
+    cooler.rod("Tap spout",(x,.83,.13),(x,.77,.13),.028,"galvanized",7)
 cooler.rod("Blue refill bottle neck",(0,.96,0),(0,1.14,0),.095,"blue",10)
 cooler.rod("Refill bottle shoulder",(0,1.14,0),(0,1.29,0),.12,"screen",10,.236)
 cooler.rod("Refill bottle body",(0,1.28,0),(0,1.73,0),.236,"laptop_glass",10,.218)
@@ -727,15 +787,23 @@ for i,(x,z,angle) in enumerate(((-24.1,10.8,math.pi/2),(24.1,-4.3,-math.pi/2),(9
     instance("water_cooler",f"WaterCooler{i}",(x,0,z),(.70,1.75,.77),angle,impact="water")
 
 copy = kit("copy_station")
-copy.box("Shared printer pedestal",(0,.46,0),(1.44,.92,.77),"slate")
-copy.box("Copier white body",(0,1.12,0),(1.41,.47,.76),"ivory")
-copy.box("Document feeder",(0,1.40,-.12),(1.24,.13,.55),"carpet_dark")
-copy.box("Output tray",(.26,1.01,.41),(.67,.072,.22),"ink")
-copy.box("Half-printed report",(.26,1.066,.44),(.36,.021,.23),"paper")
-copy.box("Copier control display",(-.48,1.382,.29),(.26,.11,.057),"screen")
-for y in (.16,.42,.66):
-    copy.box("Copy paper drawer",(0,y,.402),(1.28,.20,.067),"galvanized")
-    copy.box("Paper drawer pull",(0,y+.025,.445),(.28,.05,.035),"slate")
+copy.molded("Printer lower casting",(0,.40,-.015),(1.44,.78,.74),"slate",radius=.13)
+copy.molded("Copier rear bridge",(0,1.03,-.22),(1.41,.50,.32),"ivory",radius=.12)
+for side in (-1,1):
+    copy.molded("Copier side pier",(side*.60,1.00,.09),(.21,.48,.53),"ivory",radius=.08)
+copy.molded("Scanner crown",(0,1.28,0),(1.41,.19,.76),"ivory",radius=.08)
+profile_shell(copy.mesh,"Molded document feeder",(0,0,-.10),[
+    (-.27,rounded_profile(1.19,.12,.05,y=1.40)),
+    (.08,rounded_profile(1.19,.12,.05,y=1.40)),
+    (.27,rounded_profile(1.02,.065,.025,y=1.37)),
+],"carpet_dark")
+copy.molded("Recessed output bed",(0,.82,.095),(1.03,.065,.58),"ink",radius=.03)
+copy.box("Paper inside output well",(.16,.861,.17),(.41,.021,.30),"paper")
+copy.molded("Copier control console",(-.48,1.27,.37),(.32,.18,.12),"slate",radius=.05)
+copy.molded("Copier control display",(-.48,1.28,.435),(.25,.105,.015),"screen",radius=.025)
+for y in (.17,.40,.63):
+    copy.molded("Copy paper drawer",(0,y,.372),(1.25,.20,.067),"galvanized",radius=.065)
+    copy.molded("Inset drawer grip",(0,y+.025,.408),(.30,.045,.018),"slate",radius=.02)
 copy.box("Paper carton",(-.98,.24,.05),(.43,.48,.51),"card")
 copy.box("Carton tape",(-.98,.486,.05),(.086,.018,.52),"paper")
 for i,(x,z) in enumerate(((-7.45,6.15),(7.65,-5.95))):
