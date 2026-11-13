@@ -1,0 +1,74 @@
+[
+	{
+		"draw_calls_intact": 725.0,
+		"embedded_targets": [],
+		"groups": 9,
+		"map": "amusement_park",
+		"placement_warnings": [],
+		"targets": 39
+	},
+	{
+		"draw_calls_intact": 2678.0,
+		"embedded_targets": [],
+		"groups": 9,
+		"map": "bb_office",
+		"placement_warnings": [],
+		"targets": 21
+	},
+	{
+		"draw_calls_intact": 438.0,
+		"embedded_targets": [],
+		"groups": 9,
+		"map": "ginza_station",
+		"placement_warnings": [],
+		"targets": 30
+	},
+	{
+		"draw_calls_intact": 212.0,
+		"embedded_targets": [],
+		"groups": 9,
+		"map": "hogwarts",
+		"placement_warnings": [],
+		"targets": 21
+	},
+	{
+		"draw_calls_intact": 412.0,
+		"embedded_targets": [],
+		"groups": 9,
+		"map": "last_ferry",
+		"placement_warnings": [],
+		"targets": 24
+	},
+	{
+		"draw_calls_intact": 851.0,
+		"embedded_targets": [],
+		"groups": 9,
+		"map": "night_studio",
+		"placement_warnings": [],
+		"targets": 33
+	},
+	{
+		"draw_calls_intact": 440.0,
+		"embedded_targets": [],
+		"groups": 9,
+		"map": "palm_house",
+		"placement_warnings": [],
+		"targets": 27
+	},
+	{
+		"draw_calls_intact": 440.0,
+		"embedded_targets": [],
+		"groups": 9,
+		"map": "sandgate",
+		"placement_warnings": [],
+		"targets": 33
+	},
+	{
+		"draw_calls_intact": 368.0,
+		"embedded_targets": [],
+		"groups": 9,
+		"map": "snowline",
+		"placement_warnings": [],
+		"targets": 30
+	}
+]

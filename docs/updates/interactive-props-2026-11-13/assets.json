@@ -1,0 +1,218 @@
+[
+  {
+    "family": "armor",
+    "bytes": 60512,
+    "surfaces": 4,
+    "vertices": 1224,
+    "triangles": 580,
+    "targets": 0
+  },
+  {
+    "family": "balloons",
+    "bytes": 60900,
+    "surfaces": 4,
+    "vertices": 1248,
+    "triangles": 602,
+    "targets": 0
+  },
+  {
+    "family": "bottles",
+    "bytes": 66400,
+    "surfaces": 4,
+    "vertices": 1356,
+    "triangles": 704,
+    "targets": 0
+  },
+  {
+    "family": "brooms",
+    "bytes": 45756,
+    "surfaces": 4,
+    "vertices": 912,
+    "triangles": 484,
+    "targets": 0
+  },
+  {
+    "family": "cans",
+    "bytes": 67568,
+    "surfaces": 7,
+    "vertices": 1344,
+    "triangles": 748,
+    "targets": 0
+  },
+  {
+    "family": "chairs",
+    "bytes": 63004,
+    "surfaces": 4,
+    "vertices": 1296,
+    "triangles": 616,
+    "targets": 0
+  },
+  {
+    "family": "clapper",
+    "bytes": 69644,
+    "surfaces": 4,
+    "vertices": 1404,
+    "triangles": 704,
+    "targets": 0
+  },
+  {
+    "family": "figures",
+    "bytes": 86808,
+    "surfaces": 3,
+    "vertices": 1824,
+    "triangles": 900,
+    "targets": 0
+  },
+  {
+    "family": "foam",
+    "bytes": 51848,
+    "surfaces": 11,
+    "vertices": 936,
+    "triangles": 484,
+    "targets": 0
+  },
+  {
+    "family": "frost",
+    "bytes": 47500,
+    "surfaces": 7,
+    "vertices": 888,
+    "triangles": 440,
+    "targets": 0
+  },
+  {
+    "family": "fruit",
+    "bytes": 106696,
+    "surfaces": 4,
+    "vertices": 2256,
+    "triangles": 1028,
+    "targets": 0
+  },
+  {
+    "family": "icicles",
+    "bytes": 29268,
+    "surfaces": 5,
+    "vertices": 528,
+    "triangles": 308,
+    "targets": 0
+  },
+  {
+    "family": "newspapers",
+    "bytes": 64428,
+    "surfaces": 4,
+    "vertices": 1320,
+    "triangles": 660,
+    "targets": 0
+  },
+  {
+    "family": "nozzles",
+    "bytes": 34964,
+    "surfaces": 4,
+    "vertices": 672,
+    "triangles": 396,
+    "targets": 0
+  },
+  {
+    "family": "paper_roll",
+    "bytes": 44728,
+    "surfaces": 4,
+    "vertices": 888,
+    "triangles": 440,
+    "targets": 0
+  },
+  {
+    "family": "popcorn",
+    "bytes": 77248,
+    "surfaces": 6,
+    "vertices": 1560,
+    "triangles": 756,
+    "targets": 0
+  },
+  {
+    "family": "pots",
+    "bytes": 54464,
+    "surfaces": 6,
+    "vertices": 1080,
+    "triangles": 660,
+    "targets": 0
+  },
+  {
+    "family": "screens",
+    "bytes": 80916,
+    "surfaces": 3,
+    "vertices": 1656,
+    "triangles": 792,
+    "targets": 0
+  },
+  {
+    "family": "seedlings",
+    "bytes": 149200,
+    "surfaces": 7,
+    "vertices": 3144,
+    "triangles": 1600,
+    "targets": 0
+  },
+  {
+    "family": "slats",
+    "bytes": 52916,
+    "surfaces": 6,
+    "vertices": 1056,
+    "triangles": 484,
+    "targets": 0
+  },
+  {
+    "family": "snowman",
+    "bytes": 80772,
+    "surfaces": 4,
+    "vertices": 1632,
+    "triangles": 776,
+    "targets": 0
+  },
+  {
+    "family": "soilbags",
+    "bytes": 82496,
+    "surfaces": 7,
+    "vertices": 1680,
+    "triangles": 800,
+    "targets": 0
+  },
+  {
+    "family": "takeout",
+    "bytes": 56056,
+    "surfaces": 4,
+    "vertices": 1104,
+    "triangles": 528,
+    "targets": 0
+  },
+  {
+    "family": "target",
+    "bytes": 20624,
+    "surfaces": 2,
+    "vertices": 384,
+    "triangles": 220,
+    "targets": 0
+  },
+  {
+    "family": "umbrellas",
+    "bytes": 41120,
+    "surfaces": 4,
+    "vertices": 816,
+    "triangles": 440,
+    "targets": 0
+  },
+  {
+    "family": "vending",
+    "bytes": 65636,
+    "surfaces": 6,
+    "vertices": 1296,
+    "triangles": 704,
+    "targets": 0
+  },
+  {
+    "family": "vests",
+    "bytes": 38812,
+    "surfaces": 5,
+    "vertices": 744,
+    "triangles": 352,
+    "targets": 0
+  }
+]

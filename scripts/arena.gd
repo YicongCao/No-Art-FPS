@@ -20,6 +20,7 @@ const RESPAWN_CLEAR_LANE = 3.0
 @export var decoration_paths: Array[NodePath] = []
 @export var static_collision_paths: Array[NodePath] = []
 var structures: Array[Node3D] = []
+var interactive_props: Node3D
 var barrels: Array[Node3D] = []
 var containers: Array[Node3D] = []
 var traffic_lights: Array[Node3D] = []
@@ -81,6 +82,10 @@ func _ready() -> void:
 			batch.set_instance_transform(i,transform)
 		node.multimesh = batch
 		initial_batches[node] = transforms
+
+	interactive_props = preload("res://scripts/maps/interactive_props.gd").new()
+	add_child(interactive_props)
+	interactive_props.setup(self)
 
 func bake_navigation() -> void:
 	nav = get_node(navigation_path)
@@ -172,6 +177,7 @@ func zone_intact(zone: String) -> bool:
 	return true
 
 func restore_structures() -> void:
+	if interactive_props:interactive_props.restore()
 	var changed = false
 	for node in structures:
 		changed = changed or (node.collapsed and not node.scenery)

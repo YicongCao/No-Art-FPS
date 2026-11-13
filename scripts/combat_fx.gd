@@ -1,6 +1,6 @@
 extends Node3D
 
-enum Shape { CHUNK, FLAME, BLOOM }
+enum Shape { CHUNK, FLAME, BLOOM, ORB }
 
 static var meshes: Dictionary = {}
 static var paints: Dictionary = {}
@@ -38,7 +38,7 @@ static func mesh_for(shape: Shape) -> PrimitiveMesh:
 				cone.height = 1.7
 				cone.radial_segments = 5
 				meshes[shape] = cone
-			Shape.BLOOM:
+			Shape.BLOOM, Shape.ORB:
 				var sphere = SphereMesh.new()
 				sphere.radius = 1
 				sphere.height = 2
@@ -59,7 +59,7 @@ static func paint_for(lit: bool) -> StandardMaterial3D:
 
 func show_pieces(lit_chunks: bool = true) -> void:
 	for shape in pieces:
-		var falling = shape==Shape.CHUNK
+		var falling = shape==Shape.CHUNK or shape==Shape.ORB
 		var lit = falling and lit_chunks
 		var instances: Array = pieces[shape]
 		var batch = MultiMesh.new()
@@ -98,7 +98,7 @@ func _physics_process(delta: float) -> void:
 		for i in range(instances.size()):
 			var piece = instances[i]
 			var basis = Basis.IDENTITY
-			if shape==Shape.CHUNK:
+			if shape==Shape.CHUNK or shape==Shape.ORB:
 				piece.velocity.y -= 14*delta
 				piece.at += piece.velocity*delta
 				piece.rotation += piece.spin*delta

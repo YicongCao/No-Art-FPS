@@ -269,7 +269,7 @@ func _ready() -> void:
 	layer.add_child(hud)
 	achievements.unlocked.connect(hud.queue_badge_toast)
 	achievements.changed.connect(queue_progress_save)
-	for key in ["shot","hit","kill","headshot","reload","hurt","tick","end","fuse","explosion","charge","cartridge_insert","magazine_latch","comedy_plop","roach_buzz","water_shot","slipper_shot","roach_grenade","enemy_raise","hit_impact","whiz"]:
+	for key in ["shot","hit","kill","headshot","reload","hurt","tick","end","fuse","explosion","charge","cartridge_insert","magazine_latch","comedy_plop","roach_buzz","water_shot","slipper_shot","roach_grenade","enemy_raise","hit_impact","whiz","prop_ceramic","prop_wood","prop_glass","prop_metal","prop_paper","prop_soft","prop_soil"]:
 		sounds[key] = load("res://assets/audio/"+key+".wav")
 	for i in range(12):
 		var voice = AudioStreamPlayer.new()
@@ -1358,6 +1358,9 @@ func resolve_shot(result: Dictionary, origin: Vector3, target: Vector3, burning:
 	if state!="RUNNING" or not rules.active:return
 	if not result.is_empty():
 		var collider = result.collider
+		if collider.has_meta("interactive_prop"):
+			collider.get_meta("interactive_prop").hit(collider.get_meta("target_id"),target,burning)
+			return
 		if collider.has_meta("comedy_toilet"):
 			var fixture = collider.get_meta("comedy_toilet")
 			if fixture.shot_hit(collider.get_meta("charge",false),burning):hud.hit = .12
@@ -1463,6 +1466,7 @@ func grenade_blast(center: Vector3, style: String) -> void:
 			if center.distance_to(target)<=GRENADE_OUTER_RADIUS and blast_clear(center,target,[charge.get_rid()]):
 				comedy_toilet.shot_hit(true,destroy_active)
 				break
+	if arena.interactive_props:arena.interactive_props.blast(center,GRENADE_OUTER_RADIUS)
 	if destroy_active:grenade_hit_scenery(center)
 	grenade_blast_fx(center,style)
 

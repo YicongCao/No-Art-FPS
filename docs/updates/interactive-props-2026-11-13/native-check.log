@@ -1,0 +1,13 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 4.1 Metal - 91.7 - Compatibility - Using Device: Apple - Apple M5
+
+INTERACTIVE_MAP_PASS {"draw_calls_intact":725.0,"embedded_targets":[],"groups":9,"map":"amusement_park","placement_warnings":[],"targets":39}
+INTERACTIVE_MAP_PASS {"draw_calls_intact":2678.0,"embedded_targets":[],"groups":9,"map":"bb_office","placement_warnings":[],"targets":21}
+INTERACTIVE_MAP_PASS {"draw_calls_intact":438.0,"embedded_targets":[],"groups":9,"map":"ginza_station","placement_warnings":[],"targets":30}
+INTERACTIVE_MAP_PASS {"draw_calls_intact":212.0,"embedded_targets":[],"groups":9,"map":"hogwarts","placement_warnings":[],"targets":21}
+INTERACTIVE_MAP_PASS {"draw_calls_intact":412.0,"embedded_targets":[],"groups":9,"map":"last_ferry","placement_warnings":[],"targets":24}
+INTERACTIVE_MAP_PASS {"draw_calls_intact":851.0,"embedded_targets":[],"groups":9,"map":"night_studio","placement_warnings":[],"targets":33}
+INTERACTIVE_MAP_PASS {"draw_calls_intact":440.0,"embedded_targets":[],"groups":9,"map":"palm_house","placement_warnings":[],"targets":27}
+INTERACTIVE_MAP_PASS {"draw_calls_intact":440.0,"embedded_targets":[],"groups":9,"map":"sandgate","placement_warnings":[],"targets":33}
+INTERACTIVE_MAP_PASS {"draw_calls_intact":368.0,"embedded_targets":[],"groups":9,"map":"snowline","placement_warnings":[],"targets":30}
+INTERACTIVE_PROPS_PASS: 9 maps, normal/frenzy rays, grenade LOS, reset and unchanged navigation
