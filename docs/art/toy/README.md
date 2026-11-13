@@ -144,3 +144,7 @@ godot --headless --path . --script tools/maps/apply_toy_kit.gd
 ## 敌人主体重建
 
 针对上一轮轮廓变化不足的反馈，进一步重建头盔、躯干和四肢曲面。见 [同机位前后对比](actors-rebuild/comparison.html) 与 [实现和验证记录](actors-rebuild/README.md)。
+
+## 方案 A 反派玩具机甲与非爆头战损
+
+按方案 A（「黑曜重装卫兵」与「狂飙剃刀猎犬」）补齐曲面装甲内的机械关节、怒眉裂隙眼、胸口反应炉、左腕能量圆盾与宽刃电浆刀，并修复及强化单发非爆头命中的 3D 崩甲与电弧裂痕战损。详见 [设定稿与实机战损对比](actors-mecha/README.md)。
