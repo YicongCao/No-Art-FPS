@@ -5,7 +5,7 @@ const WEB_RENDER_SCALES = [1.0,.85,.70]
 const WEB_SHADOW_RANGES = [65.0,45.0,32.0]
 const FINALE_FX_CELL_SIZE = 16.0
 
-const DefaultSession = preload("res://data/sessions/score_attack.tres")
+const DefaultSession = preload("res://data/sessions/sandgate.tres")
 const PARK_SESSION_PATH = "res://data/sessions/amusement_park.tres"
 const FERRY_SESSION_PATH = "res://data/sessions/last_ferry.tres"
 const STUDIO_SESSION_PATH = "res://data/sessions/night_studio.tres"
@@ -13,7 +13,6 @@ const SANDGATE_SESSION_PATH = "res://data/sessions/sandgate.tres"
 const OFFICE_SESSION_PATH = "res://data/sessions/bb_office.tres"
 const HOGWARTS_SESSION_PATH = "res://data/sessions/hogwarts.tres"
 const TITLE_SESSIONS = {
-	"score_attack":"res://data/sessions/score_attack.tres",
 	"amusement_park":PARK_SESSION_PATH,
 	"last_ferry":FERRY_SESSION_PATH,
 	"night_studio":STUDIO_SESSION_PATH,
@@ -22,8 +21,6 @@ const TITLE_SESSIONS = {
 	"hogwarts":HOGWARTS_SESSION_PATH,
 }
 const CONCEPT_SESSIONS = {
-	"rain_market":"res://data/sessions/rain_market.tres",
-	"baggage_below":"res://data/sessions/baggage_below.tres",
 	"snowline":"res://data/sessions/snowline.tres",
 	"palm_house":"res://data/sessions/palm_house.tres",
 	"ginza_station":"res://data/sessions/ginza_station.tres",
@@ -364,11 +361,9 @@ func set_destroy_active(active: bool) -> void:
 	if arena.has_node("MapLookdev"):arena.get_node("MapLookdev").apply_state(active)
 
 func score_record_key() -> String:
-	if session.session_id==DefaultSession.session_id:return "score"
 	return "score_%s_v%d"%[session.session_id,session.layout_version]
 
 func map_best_score(map_id: String) -> int:
-	if map_id==DefaultSession.session_id:return achievements.scores.get("score",0)
 	var prefix = "score_%s_v"%map_id
 	var record = 0
 	for key in achievements.scores:
@@ -1095,7 +1090,7 @@ func menu_action(action: String) -> void:
 			select_session(OFFICE_SESSION_PATH,action)
 		"hogwarts":
 			select_session(HOGWARTS_SESSION_PATH,action)
-		"rain_market", "baggage_below", "snowline", "palm_house", "ginza_station":
+		"snowline", "palm_house", "ginza_station":
 			select_session(CONCEPT_SESSIONS[action],action)
 		"comedy", "roach":
 			if state!="TITLE":return

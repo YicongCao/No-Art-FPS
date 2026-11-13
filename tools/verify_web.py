@@ -35,6 +35,8 @@ for _ in range(count):
     offset += length + 36
 for path in paths:
     assert not any(part in path for part in ['docs/', 'art_source/', 'artifacts/', 'tests/', '.mov', '.blend']), f'Non-runtime content in pack: {path}'
+for retired in ['data/sessions/score_attack.tres', 'data/sessions/rain_market.tres', 'data/sessions/baggage_below.tres', 'scenes/maps/yard.tscn', 'scenes/maps/rain_market.tscn', 'scenes/maps/baggage_below.tscn', 'assets/models/rain_market/', 'assets/models/baggage_below/']:
+    assert not any(retired in path for path in paths), f'Retired map in pack: {retired}'
 assert not list(bundle.glob('*worker*')), 'Unexpected service worker export'
 assert not list(bundle.glob('*.import')), 'Editor import metadata must not ship'
 allowed = set(required + ['index.audio.worklet.js', 'index.audio.position.worklet.js', 'manifest.json'])

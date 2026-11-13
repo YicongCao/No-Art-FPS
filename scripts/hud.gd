@@ -9,14 +9,11 @@ const DAMAGE_MARK_LIMIT = 3
 const BULLET_ARC = Color("ff4d4d")
 const BLAST_ARC = Color("ff9a3c")
 const SIDE_WARNING_LIMIT = 2
-const YARD_THUMBNAIL = preload("res://assets/ui/maps/yard.webp")
 const PARK_THUMBNAIL = preload("res://assets/ui/maps/amusement-park.webp")
 const FERRY_THUMBNAIL = preload("res://assets/ui/maps/last-ferry.webp")
 const STUDIO_THUMBNAIL = preload("res://assets/ui/maps/night-studio.webp")
 const SANDGATE_THUMBNAIL = preload("res://assets/ui/maps/sandgate.webp")
 const OFFICE_THUMBNAIL = preload("res://assets/ui/maps/bb-office.webp")
-const RAIN_THUMBNAIL = preload("res://assets/ui/maps/rain_market.webp")
-const BAGGAGE_THUMBNAIL = preload("res://assets/ui/maps/baggage_below.webp")
 const SNOWLINE_THUMBNAIL = preload("res://assets/ui/maps/snowline.webp")
 const HOGWARTS_THUMBNAIL = preload("res://assets/ui/maps/hogwarts.webp")
 const PALM_THUMBNAIL = preload("res://assets/ui/maps/palm_house.webp")
@@ -928,22 +925,19 @@ func rebuild_menu() -> void:
 		map_grid = Control.new()
 		map_grid.name = "MapGrid"
 		map_grid.mouse_filter = Control.MOUSE_FILTER_PASS
-		map_grid.custom_minimum_size = Vector2(viewport_extent.x,4*height+3*gap)
+		map_grid.custom_minimum_size = Vector2(viewport_extent.x,3*height+2*gap)
 		map_scroll.add_child(map_grid)
 		map_scroll.set_deferred("scroll_vertical",map_scroll_offset)
 		var maps = [
-			["MapYard",tr("Container Yard"),"arena",YARD_THUMBNAIL,"score_attack",2],
+			["MapSandgate",tr("Sandgate"),"sandgate",SANDGATE_THUMBNAIL,"sandgate",4],
 			["MapPark",tr("Sunset Park"),"amusement_park",PARK_THUMBNAIL,"amusement_park",2],
 			["MapFerry",tr("Last Ferry"),"last_ferry",FERRY_THUMBNAIL,"last_ferry",4],
 			["MapStudio",tr("Night Studio"),"night_studio",STUDIO_THUMBNAIL,"night_studio",3],
-			["MapSandgate",tr("Sandgate"),"sandgate",SANDGATE_THUMBNAIL,"sandgate",4],
 			["MapOffice",tr("BB Office"),"bb_office",OFFICE_THUMBNAIL,"bb_office",3],
-			["MapRainMarket",tr("Hong Kong Rain Market"),"rain_market",RAIN_THUMBNAIL,"rain_market",1],
 			["MapGinza",tr("Ginza Station"),"ginza_station",GINZA_THUMBNAIL,"ginza_station",4],
 			["MapSnowline",tr("Snowline Observatory"),"snowline",SNOWLINE_THUMBNAIL,"snowline",4],
 			["MapHogwarts",tr("Hogwarts"),"hogwarts",HOGWARTS_THUMBNAIL,"hogwarts",3],
 			["MapPalmHouse",tr("Palm House"),"palm_house",PALM_THUMBNAIL,"palm_house",5],
-			["MapBaggage",tr("Baggage Below"),"baggage_below",BAGGAGE_THUMBNAIL,"baggage_below",3],
 		]
 		var tab_order = [fire_button]
 		for i in range(maps.size()):
@@ -978,7 +972,7 @@ func rebuild_menu() -> void:
 			tab_order[i].focus_next = tab_order[i].get_path_to(tab_order[(i+1)%tab_order.size()])
 			tab_order[i].focus_previous = tab_order[i].get_path_to(tab_order[i-1])
 		if game.dust_unlocked:
-			menu_button(tr("SCORE ATTACK"),Rect2(c.x-130,c.y-75,260,62),"arena",game.title_session_id=="score_attack")
+			menu_button(tr("SCORE ATTACK"),Rect2(c.x-130,c.y-75,260,62),"arena",game.title_session_id=="sandgate")
 			menu_button(tr("DEFUSE C4"),Rect2(c.x-130,c.y+5,260,62),"defuse",game.title_session_id=="defuse_mission")
 
 	elif menu_state == "RESULTS":
