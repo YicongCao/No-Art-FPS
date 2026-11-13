@@ -54,7 +54,7 @@ void fragment() {
 	float mid_mask = 1.0 - smoothstep(22.0, 56.0, dist);
 
 	vec3 color = base_color.rgb;
-	color *= 1.0 + ((macro - 0.5) * 0.055 + (brush - 0.5) * 0.035) * wear_amount * mid_mask;
+	color *= 1.0 + ((macro - 0.5) * 0.022 + (brush - 0.5) * 0.014) * wear_amount * mid_mask;
 
 	if (paint_count > 0) {
 		color = apply_paint(color, artwork_0, paint_center_0, paint_normal_0, paint_size_0, brush);
@@ -65,12 +65,12 @@ void fragment() {
 
 	float wall = 1.0 - abs(world_normal.y);
 	float h = max(0.0, world_position.y);
-	float base_dust = wall * (1.0 - smoothstep(0.01, 0.18 + macro * 0.12, h)) * smoothstep(0.38, 0.72, brush);
-	color = mix(color, mix(color * 0.90, grime_tint, 0.35), clamp(base_dust * 0.22 * wear_amount, 0.0, 0.18));
+	float base_dust = wall * (1.0 - smoothstep(0.01, 0.12, h)) * smoothstep(0.42, 0.76, brush);
+	color = mix(color, mix(color * 0.94, grime_tint, 0.25), clamp(base_dust * 0.12 * wear_amount, 0.0, 0.09));
 
 	float curv = length(fwidth(world_normal)) / max(length(fwidth(world_position)) * 15.0, 0.028);
-	float edge_chip = smoothstep(0.24, 0.70, curv) * smoothstep(0.36, 0.68, brush) * near_mask * wear_amount;
-	color = mix(color, mix(edge_tint, color * 1.32 + vec3(0.08), 0.42), clamp(edge_chip * 0.52, 0.0, 0.34));
+	float edge_chip = smoothstep(0.26, 0.72, curv) * smoothstep(0.36, 0.70, brush) * near_mask * wear_amount;
+	color = mix(color, mix(edge_tint, color * 1.28 + vec3(0.07), 0.45), clamp(edge_chip * 0.46, 0.0, 0.28));
 
 	color *= mix(1.0 - wall_gradient * wall, 1.0, smoothstep(0.0, 3.2, h));
 	color *= mix(vec3(1.0), vec3(0.90, 0.94, 1.02), smoothstep(0.3, 0.9, -world_normal.y));

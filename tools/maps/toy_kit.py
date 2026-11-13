@@ -41,24 +41,380 @@ def stepped_plinth(emit, label, center, width, height, depth, color, angle=0.0, 
     tapered_box(emit, label, center, (w_bot, height, d_bot), color, angle=angle, taper=(tx, tz))
 
 
+def _det_hash(seed_val):
+    """Deterministic float in [0, 1) from any tuple/number so procedural wear stays reproducible."""
+    x = math.sin(seed_val * 127.1 + 311.7) * 43758.5453123
+    return x - math.floor(x)
+
+
+def _coord_seed(center, salt=0.0):
+    return center[0] * 19.19 + center[1] * 7.31 + center[2] * 23.47 + salt
+
+
+def chipped_box(emit, label, center, size, color, angle=0.0, taper=(0.05, 0.05),
+                chips=None, core_color=None, seed=None):
+    """Manifold tapered block with clean, sculptural corner/edge chips cut via BMesh planes."""
+    w, h, d = size
+    tx, tz = taper if isinstance(taper, tuple) else (taper, taper)
+    cos_a, sin_a = math.cos(angle), math.sin(angle)
+    s_base = _coord_seed(center, 3.7) if seed is None else float(seed)
+
+    bm = bmesh.new()
+    local_pts = []
+    for sy, sx_scale, sz_scale in ((-0.5, 1.0, 1.0), (0.5, 1.0 - tx, 1.0 - tz)):
+        for sx, sz in ((-0.5, -0.5), (0.5, -0.5), (0.5, 0.5), (-0.5, 0.5)):
+            local_pts.append((sx * w * sx_scale, sy * h, sz * d * sz_scale))
+    v_objs = [bm.verts.new(p) for p in local_pts]
+    for f in [(3, 2, 1, 0), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)]:
+        bm.faces.new([v_objs[i] for i in f])
+    bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
+
+    min_dim = min(w, h, d)
+    if chips is None:
+        sx = 1.0 if _det_hash(s_base + 1.1) > 0.5 else -1.0
+        sz = 1.0 if _det_hash(s_base + 2.3) > 0.45 else -1.0
+        cut = min(0.46, max(0.055, min_dim * (0.28 + 0.18 * _det_hash(s_base + 3.9))))
+        chips = [((sx, 1.0, sz), cut)]
+        if _det_hash(s_base + 5.7) > 0.48 and max(w, h, d) > 0.50:
+            cut2 = min(0.36, max(0.045, min_dim * (0.22 + 0.14 * _det_hash(s_base + 7.1))))
+            sy2 = -1.0 if h > 1.1 and _det_hash(s_base + 8.3) > 0.55 else 1.0
+            chips.append(((-sx, sy2, sz), cut2))
+
+    core_insets = []
+    for idx, spec in enumerate(chips):
+        signs, cut_depth = spec[0], spec[1]
+        csx, csy, csz = signs
+        top_scale_x = (1.0 - tx) if csy > 0 else 1.0
+        top_scale_z = (1.0 - tz) if csy > 0 else 1.0
+        corner = Vector((csx * w * 0.5 * top_scale_x, csy * h * 0.5, csz * d * 0.5 * top_scale_z))
+        nx = csx * (0.56 + 0.24 * _det_hash(s_base + idx * 4.1 + 0.7)) if abs(csx) > 0.1 else 0.12
+        ny = csy * (0.48 + 0.26 * _det_hash(s_base + idx * 4.1 + 1.9)) if abs(csy) > 0.1 else 0.18
+        nz = csz * (0.54 + 0.24 * _det_hash(s_base + idx * 4.1 + 2.8)) if abs(csz) > 0.1 else 0.12
+        normal = Vector((nx, ny, nz)).normalized()
+        plane_co = corner - normal * cut_depth
+        geom_all = list(bm.verts) + list(bm.edges) + list(bm.faces)
+        ret = bmesh.ops.bisect_plane(
+            bm, geom=geom_all, plane_co=plane_co, plane_no=normal, clear_outer=True
+        )
+        cut_edges = [g for g in ret["geom_cut"] if isinstance(g, bmesh.types.BMEdge) and g.is_valid]
+        if len(cut_edges) >= 3:
+            bmesh.ops.contextual_create(bm, geom=cut_edges)
+            core_insets.append((plane_co - normal * (cut_depth * 0.12), cut_depth))
+
+    bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
+    bm.verts.ensure_lookup_table()
+    bm.faces.ensure_lookup_table()
+    pts = [_rot_pt(center, v.co.x, v.co.y, v.co.z, cos_a, sin_a) for v in bm.verts]
+    faces = [tuple(v.index for v in f.verts) for f in bm.faces]
+    bm.free()
+    emit(label, pts, faces, color)
+
+    if core_color and core_insets:
+        co, c_depth = core_insets[0]
+        sub = max(0.055, c_depth * 0.72)
+        tapered_box(
+            emit, label + " core",
+            _rot_pt(center, co.x, co.y, co.z, cos_a, sin_a),
+            (sub, sub * 0.78, sub),
+            core_color, angle=angle + 0.28, taper=(0.14, 0.14),
+        )
+
+
 def segmented_coping(emit, label, center, width, height, depth, color, angle=0.0,
-                     seg_len=1.75, gap=0.028, taper=0.05):
-    """Splits a monolithic wall cap into bevel-ready molded coping stones along its longer axis."""
+                     seg_len=1.75, gap=0.028, taper=0.05, slant=0.16, wear=0.58):
+    """Splits a monolithic wall cap into slanted-joint coping stones with subtle settling & chipped corners."""
     cos_a, sin_a = math.cos(angle), math.sin(angle)
     along_x = width >= depth
     span = width if along_x else depth
+    cross = depth if along_x else width
     count = max(1, round(span / seg_len))
+    s_base = _coord_seed(center, 11.3)
     if count == 1 or span < 1.1:
-        tapered_box(emit, label, center, (width, height, depth), color, angle=angle, taper=(taper, taper))
+        if wear >= 0.55 and min(width, depth) >= 0.24 and height >= 0.12:
+            chipped_box(emit, label, center, (width, height, depth), color, angle=angle,
+                        taper=(taper, taper), seed=s_base)
+        else:
+            tapered_box(emit, label, center, (width, height, depth), color, angle=angle, taper=(taper, taper))
         return
+
     step = span / count
-    piece_span = max(0.18, step - gap)
+    max_slant = min(step * 0.20, cross * slant * 0.5) if wear > 0.05 else 0.0
+    # Alternating slanted joint offsets along the coping run
+    joint_slants = [0.0]
+    for i in range(1, count):
+        sign = 1.0 if (i + int(_det_hash(s_base + i) * 4)) % 2 == 0 else -1.0
+        joint_slants.append(sign * max_slant * (0.65 + 0.35 * _det_hash(s_base + i * 2.7)))
+    joint_slants.append(0.0)
+
+    chip_idx = int(_det_hash(s_base + 9.1) * count) if (wear >= 0.42 and count >= 3) else -1
+    breach_idx = int(_det_hash(s_base + 17.4) * count) if (wear >= 0.72 and count >= 4) else -1
+    if breach_idx == chip_idx and count >= 4:
+        breach_idx = (chip_idx + 2) % count
+
     for i in range(count):
-        offset = -span * 0.5 + (i + 0.5) * step
-        u, w = (offset, 0.0) if along_x else (0.0, offset)
-        sub_center = _rot_pt(center, u, 0.0, w, cos_a, sin_a)
-        sub_size = (piece_span, height, depth) if along_x else (width, height, piece_span)
-        tapered_box(emit, label, sub_center, sub_size, color, angle=angle, taper=(taper, taper))
+        h_rand = _det_hash(s_base + i * 5.3 + 1.7)
+        # Subtle settling / height & lateral jitter so stones feel hand-laid & lived-in
+        dy = (h_rand - 0.52) * 0.026 * wear if count >= 3 else 0.0
+        d_lat = (_det_hash(s_base + i * 3.1 + 4.2) - 0.5) * 0.024 * wear if count >= 3 else 0.0
+        s0 = -span * 0.5 + i * step + gap * 0.5
+        s1 = -span * 0.5 + (i + 1) * step - gap * 0.5
+        if s1 - s0 < 0.14:
+            continue
+
+        # Weathered notch / broken coping gap: two asymmetric broken stubs flanking a visible V-breach
+        if i == breach_idx and (s1 - s0) >= 0.65 and height >= 0.12:
+            stub_a = (s1 - s0) * 0.34
+            stub_b = (s1 - s0) * 0.28
+            for st_mid, st_len, st_h, st_sign in (
+                (s0 + stub_a * 0.5, stub_a, height * 0.86, 1.0),
+                (s1 - stub_b * 0.5, stub_b, height * 0.72, -1.0),
+            ):
+                u, w = (st_mid, d_lat) if along_x else (d_lat, st_mid)
+                sub_c = _rot_pt(center, u, dy - (height - st_h) * 0.5, w, cos_a, sin_a)
+                sub_sz = (st_len, st_h, cross * 0.96) if along_x else (cross * 0.96, st_h, st_len)
+                cut_s = (st_sign, 1.0, 1.0) if along_x else (1.0, 1.0, st_sign)
+                chipped_box(emit, label, sub_c, sub_sz, color, angle=angle,
+                            taper=(taper, taper), chips=[(cut_s, min(0.16, st_h * 0.58))], seed=s_base + i * 7.0)
+            continue
+
+        h_piece = height
+        sl0, sl1 = joint_slants[i], joint_slants[i + 1]
+
+        if i == chip_idx and cross >= 0.22 and h_piece >= 0.11:
+            mid = (s0 + s1) * 0.5
+            u, w = (mid, d_lat) if along_x else (d_lat, mid)
+            sub_center = _rot_pt(center, u, dy - (height - h_piece) * 0.5, w, cos_a, sin_a)
+            sub_size = (s1 - s0, h_piece, cross) if along_x else (cross, h_piece, s1 - s0)
+            chipped_box(emit, label, sub_center, sub_size, color, angle=angle,
+                        taper=(taper, taper), seed=s_base + i * 13.0)
+            continue
+
+        # Build trapezoid prism with slanted mortar joints at both ends
+        pts = []
+        for sy, t_scale in ((-0.5, 1.0), (0.5, 1.0 - taper)):
+            vy = dy - (height - h_piece) * 0.5 + sy * h_piece
+            half_c = cross * 0.5 * t_scale
+            if along_x:
+                ring = [
+                    (s0 - sl0 * t_scale, vy, d_lat - half_c),
+                    (s1 - sl1 * t_scale, vy, d_lat - half_c),
+                    (s1 + sl1 * t_scale, vy, d_lat + half_c),
+                    (s0 + sl0 * t_scale, vy, d_lat + half_c),
+                ]
+            else:
+                ring = [
+                    (d_lat - half_c, vy, s0 - sl0 * t_scale),
+                    (d_lat + half_c, vy, s0 + sl0 * t_scale),
+                    (d_lat + half_c, vy, s1 + sl1 * t_scale),
+                    (d_lat - half_c, vy, s1 - sl1 * t_scale),
+                ]
+            for ux, uy, uz in ring:
+                pts.append(_rot_pt(center, ux, uy, uz, cos_a, sin_a))
+        faces = [(3, 2, 1, 0), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)]
+        emit(label, pts, faces, color)
+
+
+def _wall_prism(emit, label, origin, angle, poly_uv, w0, w1, color, inset=0.012):
+    """Extrude a 2D polygon on a wall's `(u, v)` plane from depth `w0` to `w1` with slight bevel-ready inset."""
+    cos_a, sin_a = math.cos(angle), math.sin(angle)
+    cx = sum(p[0] for p in poly_uv) / len(poly_uv)
+    cy = sum(p[1] for p in poly_uv) / len(poly_uv)
+    back = [_rot_pt(origin, u, v, w0, cos_a, sin_a) for u, v in poly_uv]
+    front = []
+    for u, v in poly_uv:
+        du, dv = u - cx, v - cy
+        ln = max(math.hypot(du, dv), 1e-4)
+        sh = max(0.4, (ln - inset) / ln)
+        front.append(_rot_pt(origin, cx + du * sh, cy + dv * sh, w1, cos_a, sin_a))
+    n = len(poly_uv)
+    faces = [tuple(reversed(range(n))), tuple(range(n, 2 * n))]
+    for i in range(n):
+        j = (i + 1) % n
+        faces.append((i, j, n + j, n + i))
+    emit(label, back + front, faces, color)
+
+
+def slanted_wall_seam(emit, origin, span, rise, angle, seam_color, trim_color,
+                      tie_color=None, flip=False, seed=None):
+    """Sculpted architectural slanted panel/ashlar wall seam: two opposing chamfered wall flanges
+    meeting along a clean diagonal recessed joint, optionally bridged by a metal cramp tie."""
+    cos_a, sin_a = math.cos(angle), math.sin(angle)
+    s_base = _coord_seed(origin, 29.1) if seed is None else float(seed)
+    sign = -1.0 if flip else 1.0
+
+    def pt_t(u, v, w):
+        return _rot_pt(origin, u, v, w, cos_a, sin_a)
+
+    # Clean two-stage slanted seam line across the wall
+    mid_u = sign * span * (0.04 + 0.06 * _det_hash(s_base + 1.3))
+    mid_v = rise * (0.04 - 0.08 * _det_hash(s_base + 2.9))
+    nodes = [
+        (-sign * span * 0.36, rise * 0.48),
+        (mid_u, mid_v),
+        (sign * span * 0.36, -rise * 0.48),
+    ]
+    gap_half = 0.024
+    flange_w = 0.165
+    for idx, ((u0, v0), (u1, v1)) in enumerate(zip(nodes, nodes[1:])):
+        du, dv = u1 - u0, v1 - v0
+        seg_l = math.hypot(du, dv)
+        if seg_l < 0.16:
+            continue
+        nu, nv = -dv / seg_l, du / seg_l
+        # Recessed dark joint bed sitting flush against the host wall
+        bed_poly = [
+            (u0 - nu * 0.055, v0 - nv * 0.055),
+            (u1 - nu * 0.055, v1 - nv * 0.055),
+            (u1 + nu * 0.055, v1 + nv * 0.055),
+            (u0 + nu * 0.055, v0 + nv * 0.055),
+        ]
+        _wall_prism(emit, "Slanted wall seam groove", origin, angle, bed_poly, 0.004, 0.018, seam_color, inset=0.004)
+        # Opposing slanted chamfer flanges flanking the recessed diagonal joint
+        for side_s, trim_s in ((-1.0, 0.86), (1.0, 0.72)):
+            a0 = 0.08 if side_s > 0 else 0.02
+            a1 = 0.92 if side_s < 0 else 0.98
+            su0, sv0 = u0 + du * a0, v0 + dv * a0
+            su1, sv1 = u0 + du * a1, v0 + dv * a1
+            fw = flange_w * trim_s
+            inner = gap_half * side_s
+            outer = (gap_half + fw) * side_s
+            poly = [
+                (su0 + nu * inner, sv0 + nv * inner),
+                (su1 + nu * inner, sv1 + nv * inner),
+                (su1 + nu * outer, sv1 + nv * outer),
+                (su0 + nu * outer, sv0 + nv * outer),
+            ]
+            if side_s < 0:
+                poly.reverse()
+            _wall_prism(emit, "Slanted seam flange", origin, angle, poly, 0.006, 0.034, trim_color, inset=0.014)
+
+    # Optional iron staple tie bridging across the slanted joint
+    if tie_color:
+        dx, dy = nodes[2][0] - nodes[0][0], nodes[2][1] - nodes[0][1]
+        dl = max(math.hypot(dx, dy), 1e-4)
+        nu, nv = -dy / dl, dx / dl
+        p_a = Vector(pt_t(mid_u - nu * 0.13, mid_v - nv * 0.13, 0.038))
+        p_b = Vector(pt_t(mid_u + nu * 0.13, mid_v + nv * 0.13, 0.038))
+        _strut(emit, "Wall seam iron tie", p_a, p_b, 0.052, tie_color)
+
+
+def exposed_masonry_patch(emit, origin, width, height, angle, mortar_color, brick_color,
+                          alt_color=None, lip_color=None, seed=None):
+    """Low-relief stepped plaster-peel patch exposing clean, broad beveled masonry blocks."""
+    cos_a, sin_a = math.cos(angle), math.sin(angle)
+    s_base = _coord_seed(origin, 43.7) if seed is None else float(seed)
+    alt = alt_color or brick_color
+
+    def at(u, v, w):
+        return _rot_pt(origin, u, v, w, cos_a, sin_a)
+
+    # Low-profile recessed mortar bed
+    tapered_box(emit, "Peel mortar bed", at(-width * 0.05, height * 0.07, 0.008),
+                (width * 0.86, height * 0.66, 0.014), mortar_color, angle=angle, taper=(0.04, 0.08))
+    tapered_box(emit, "Peel mortar lower bed", at(width * 0.09, -height * 0.15, 0.008),
+                (width * 0.74, height * 0.54, 0.014), mortar_color, angle=angle, taper=(0.04, 0.08))
+
+    rows = 3 if height >= 0.56 else 2
+    row_h = min(0.20, height / (rows + 0.30))
+    for r in range(rows):
+        vy = (r - (rows - 1) * 0.5) * (row_h + 0.026)
+        cols = 2
+        stagger = (0.09 if r % 2 == 0 else -0.08) * width
+        brick_w = min(0.44, (width * 0.78) / cols - 0.024)
+        for c in range(cols):
+            if r == rows - 1 and c == cols - 1 and _det_hash(s_base + 9.4) > 0.30:
+                continue
+            ux = stagger + (c - (cols - 1) * 0.5) * (brick_w + 0.030)
+            thick = 0.026 + 0.010 * _det_hash(s_base + r * 7.1 + c * 3.3)
+            b_col = brick_color if (r + c) % 2 == 0 else alt
+            if r == 0 and c == 0:
+                chipped_box(emit, "Exposed chipped brick", at(ux, vy, thick * 0.5 + 0.006),
+                            (brick_w, row_h, thick), b_col, angle=angle,
+                            taper=(0.05, 0.10), seed=s_base + r * 11 + c)
+            else:
+                tapered_box(emit, "Exposed worn brick", at(ux, vy, thick * 0.5 + 0.006),
+                            (brick_w, row_h, thick), b_col, angle=angle, taper=(0.05, 0.10))
+
+    if lip_color:
+        # Slanted broken plaster edge framing the upper boundary
+        lip_poly = [
+            (-width * 0.46, height * 0.34),
+            (width * 0.18, height * 0.44),
+            (width * 0.14, height * 0.52),
+            (-width * 0.48, height * 0.42),
+        ]
+        _wall_prism(emit, "Broken plaster lip", origin, angle, lip_poly, 0.005, 0.024, lip_color, inset=0.008)
+
+
+def sand_drift(emit, center, rx, rz, height, angle, color, alt_color=None):
+    """Low, clean faceted wind-blown sand/earth drift tucked against wall bases & corners."""
+    cos_a, sin_a = math.cos(angle), math.sin(angle)
+    s_base = _coord_seed(center, 61.9)
+
+    def at(u, v, w):
+        return _rot_pt(center, u, v, w, cos_a, sin_a)
+
+    sides = 7
+    ring = []
+    for i in range(sides):
+        th = i * math.tau / sides
+        irr = 0.82 + 0.30 * _det_hash(s_base + i * 2.9)
+        ring.append(at(math.cos(th) * rx * irr, 0.0, math.sin(th) * rz * irr))
+    bot = [at(math.cos(i * math.tau / sides) * rx * 0.75, -0.04, math.sin(i * math.tau / sides) * rz * 0.75)
+           for i in range(sides)]
+    crest_a = at(-rx * 0.18, height, -rz * 0.22)
+    fan_pts = ring + bot + [crest_a]
+    peak_i = sides * 2
+    fan_faces = [tuple(range(sides, sides * 2))]
+    for i in range(sides):
+        j = (i + 1) % sides
+        fan_faces.append((sides + i, sides + j, j, i))
+        fan_faces.append((i, j, peak_i))
+    emit("Windblown sand drift", fan_pts, fan_faces, color)
+    if alt_color and rx > 0.7:
+        # Secondary smaller leeward ripple lobe
+        sub_c = at(rx * 0.42, 0.0, rz * 0.24)
+        sand_drift(emit, sub_c, rx * 0.52, rz * 0.48, height * 0.62, angle + 0.4, alt_color, None)
+
+
+def weathered_rubble(emit, center, spread, angle, colors, count=3, seed=None):
+    """Small scatter of clean chipped stone/brick chunks beside weathered walls or broken pots."""
+    s_base = _coord_seed(center, 79.3) if seed is None else float(seed)
+    palette = colors if isinstance(colors, (list, tuple)) else (colors,)
+    for i in range(count):
+        ang = angle + i * 2.15 + _det_hash(s_base + i * 3.7) * 0.9
+        dist = spread * (0.28 + 0.68 * _det_hash(s_base + i * 5.1))
+        w = 0.14 + 0.13 * _det_hash(s_base + i * 7.3)
+        h = 0.075 + 0.065 * _det_hash(s_base + i * 9.7)
+        d = 0.12 + 0.11 * _det_hash(s_base + i * 11.9)
+        pos = (center[0] + math.cos(ang) * dist, center[1] + h * 0.46, center[2] + math.sin(ang) * dist)
+        col = palette[i % len(palette)]
+        chipped_box(emit, "Chipped stone rubble", pos, (w, h, d), col,
+                    angle=ang * 1.3, taper=(0.14, 0.12), seed=s_base + i * 19.0)
+
+
+def repair_patch_plate(emit, origin, width, height, angle, plate_color, bolt_color, chipped=True, seed=None):
+    """Beveled industrial/marine/station repair patch plate with corner rivets & notched corner."""
+    cos_a, sin_a = math.cos(angle), math.sin(angle)
+    s_base = _coord_seed(origin, 97.1) if seed is None else float(seed)
+
+    def at(u, v, w):
+        return _rot_pt(origin, u, v, w, cos_a, sin_a)
+
+    if chipped:
+        chipped_box(emit, "Repair patch plate", at(0.0, 0.0, 0.020),
+                    (width, height, 0.036), plate_color, angle=angle,
+                    taper=(0.05, 0.10), chips=[((1.0, 1.0, 1.0), min(width, height) * 0.26)], seed=s_base)
+    else:
+        tapered_box(emit, "Repair patch plate", at(0.0, 0.0, 0.020),
+                    (width, height, 0.036), plate_color, angle=angle, taper=(0.05, 0.10))
+    for su in (-1.0, 1.0):
+        for sv in (-1.0, 1.0):
+            if chipped and su > 0 and sv > 0:
+                continue
+            tapered_box(emit, "Repair patch bolt",
+                        at(su * (width * 0.5 - 0.065), sv * (height * 0.5 - 0.065), 0.042),
+                        (0.048, 0.048, 0.030), bolt_color, angle=angle, taper=(0.12, 0.12))
 
 
 def recessed_window(emit, center, width, height, angle, frame_color, sill_color,

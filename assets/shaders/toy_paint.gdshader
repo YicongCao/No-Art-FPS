@@ -53,25 +53,21 @@ void fragment() {
 	float near_mask = 1.0 - smoothstep(12.0, 34.0, dist);
 	float mid_mask = 1.0 - smoothstep(22.0, 56.0, dist);
 
-	// 1. Keep broad toy colour reads clean: only whisper-soft tonal warmth, no muddy noise
-	float blotch = (macro - 0.5) * 0.055 + (brush - 0.5) * 0.035;
+	// 1. Keep broad toy colour reads crystal-clean: almost zero albedo noise
+	float blotch = (macro - 0.5) * 0.022 + (brush - 0.5) * 0.014;
 	color *= 1.0 + blotch * wear_amount * mid_mask;
-	float sun_fade = smoothstep(0.65, 0.96, world_normal.y) * smoothstep(0.48, 0.78, macro) * 0.07 * wear_amount;
-	color = mix(color, mix(color, edge_tint, 0.45), sun_fade * mid_mask);
 
-	// 2. Crisp grounding dust only right at the floor seam (no dark streaks or muddy patches)
+	// 2. Whisper-subtle foot-seam grounding (< 12 cm, warm tint, never muddy)
 	float wall = 1.0 - abs(world_normal.y);
 	float h = max(0.0, world.y - floor_height);
-	float dust_h = 0.16 + macro * 0.14;
-	float base_dust = wall * (1.0 - smoothstep(0.01, dust_h, h)) * smoothstep(0.38, 0.72, brush);
-	vec3 clean_dust = mix(color * 0.90, grime_tint, 0.35);
-	color = mix(color, clean_dust, clamp(base_dust * 0.22 * wear_amount, 0.0, 0.18));
+	float base_dust = wall * (1.0 - smoothstep(0.01, 0.11, h)) * smoothstep(0.42, 0.76, brush);
+	color = mix(color, mix(color * 0.94, grime_tint, 0.25), clamp(base_dust * 0.12 * wear_amount, 0.0, 0.09));
 
-	// 3. Clean dry-brushed highlight on 3D bevels, chipped corners & architectural seams
+	// 3. Clean dry-brushed highlight on 3D bevels, chipped corners & slanted architectural seams
 	float curv = length(fwidth(world_normal)) / max(length(fwidth(world)) * 15.0, 0.028);
-	float edge_chip = smoothstep(0.24, 0.70, curv) * smoothstep(0.36, 0.68, brush * 0.7 + fine * 0.3) * near_mask * wear_amount;
-	vec3 primer = mix(edge_tint, color * 1.32 + vec3(0.08), 0.42);
-	color = mix(color, primer, clamp(edge_chip * 0.52, 0.0, 0.34));
+	float edge_chip = smoothstep(0.26, 0.72, curv) * smoothstep(0.36, 0.70, brush * 0.7 + fine * 0.3) * near_mask * wear_amount;
+	vec3 primer = mix(edge_tint, color * 1.28 + vec3(0.07), 0.45);
+	color = mix(color, primer, clamp(edge_chip * 0.46, 0.0, 0.28));
 
 	// Subtle cotangent micro-relief breaks mirror-plastic flatness via specular only
 	float relief = brush * 0.65 + fine * 0.35;

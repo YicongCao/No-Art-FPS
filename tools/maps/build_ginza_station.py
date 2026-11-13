@@ -49,16 +49,21 @@ for side in (-1,1):
         ground.box("Track partition wall",(side*(TX+.2),(TRACK+3.12)/2,pz),(.40,2.92-TRACK,2*H/20-.03),"tile")
     ground.box("Partition orange band",(side*(TX+.2),2.35,0),(.415,.34,2*H),"orange" if side>0 else "red")
     ground.plinth("Partition skirting",(side*(TX+.2),.14,0),.46,.28,2*H,"grey_dark",flare=.025)
-    ground.coping("Partition top cap",(side*(TX+.2),3.22,0),.48,.16,2*H,"grey",seg_len=2.2)
+    ground.coping("Partition top cap",(side*(TX+.2),3.22,0),.48,.16,2*H,"grey",seg_len=2.2,slant=.16,wear=.64)
+    p_ang = -math.pi/2 if side > 0 else math.pi/2
+    for sz_seam in (-10.5, 6.2):
+        ground.seam((side*TX,1.25,sz_seam),1.35,1.15,p_ang,"tile_dark","white")
+    ground.masonry_patch((side*TX,1.12,-2.2),.96,.58,p_ang,"tile_dark","white",alt_color="tile",lip_color="tile_dark")
     a.solid(ground,"Outer wall",(side*(H+.3),CEIL/2,0),(.6,CEIL+2.2,2*H+1.2),"tile")
     ground.box("Outer wall line band",(side*(H-.02),2.35,0),(.08,.34,2*H),"orange" if side>0 else "red")
     ground.box("Outer wall skirting",(side*(H-.02),.14,0),(.10,.28,2*H),"grey_dark")
     a.solid(ground,"End wall",(0,CEIL/2,side*(H+.3)),(2*H+1.2,CEIL+2.2,.6),"tile")
     for x in (-7.3,7.3):
         ground.box("Tunnel mouth",(x,1.0,side*(H-.04)),(4.2,4.2,.08),"tunnel")
-        ground.coping("Tunnel lintel",(x,3.24,side*(H-.10)),4.76,.34,.22,"concrete",seg_len=1.6)
+        ground.coping("Tunnel lintel",(x,3.24,side*(H-.10)),4.76,.34,.22,"concrete",seg_len=1.55,slant=.20,wear=.78)
         for dx in (-2.2,2.2):
-            ground.box("Tunnel jamb",(x+dx,1.0,side*(H-.10)),(.34,4.2,.20),"concrete",taper=(.04,.04))
+            ground.chipped("Tunnel jamb",(x+dx,1.0,side*(H-.10)),(.34,4.2,.20),"concrete",taper=(.04,.04),
+                           chips=[((-math.copysign(1,dx),1.0,-side),.14)],core_color="grey_dark")
         ground.box("Signal mast",(x+1.6,1.4,side*(H-.6)),(.12,1.8,.12),"grey_dark")
         ground.box("Signal head",(x+1.6,2.5,side*(H-.6)),(.36,.8,.24),"black")
         ground.rod("Signal red lens",(x+1.6,2.7,side*(H-.6)),(x+1.6,2.7,side*(H-.74)),.11,"red_lamp",10)
@@ -97,7 +102,9 @@ def column(kit,x,z,band="orange"):
     height=BY-.36 if under else CEIL
     a.layout["boxes"].append([(x,height/2,z),(.8,height,.8),0])
     kit.plinth("Column skirting",(x,.16,z),.88,.32,.88,"grey_dark",flare=.035)
-    kit.box("Tiled column",(x,height/2+.04,z),(.79,height-.24,.79),"tile",taper=(.02,.02))
+    kit.chipped("Tiled column",(x,height/2+.04,z),(.79,height-.24,.79),"tile",taper=(.02,.02),
+                chips=[((1.0,1.0,1.0),.085)],core_color="tile_dark")
+    kit.seam((x,1.18,z+.40),.56,.68,0.0,"tile_dark","white")
     kit.box("Column capital",(x,height-.12,z),(.90,.24,.90),"grey",taper=(-.05,-.05))
     kit.box("Column line band",(x,2.35,z),(.83,.40,.83),band)
     for k,(dx,dz,ang) in enumerate(((0,.43,0),(0,-.43,math.pi),(.43,0,math.pi/2),(-.43,0,-math.pi/2))):

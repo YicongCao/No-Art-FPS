@@ -89,8 +89,12 @@ def rail(kit,p,q,color="stone",blocking=True,height=.88):
         t=i/max(2,round(length/1.9))
         px,py,pz = x+(X-x)*t, y+(Y-y)*t, z+(Z-z)*t
         kit.plinth("Parapet pier foot",(px,py+.09,pz),.58,.18,.58,"trim" if color=="stone" else "oak",angle=yaw,flare=.035)
-        kit.box("Parapet pier",(px,py+.46,pz),(.52,.78,.53),color,angle=yaw,taper=(.08,.08))
-        kit.box("Parapet pier cap",(px,py+.88,pz),(.59,.13,.60),"trim" if color=="stone" else "wood_light",angle=yaw)
+        if color=="stone" and i%2==1:
+            kit.chipped("Parapet pier",(px,py+.46,pz),(.52,.78,.53),color,angle=yaw,taper=(.08,.08),core_color="trim")
+            kit.chipped("Parapet pier cap",(px,py+.88,pz),(.59,.13,.60),"trim",angle=yaw,taper=(.04,.04))
+        else:
+            kit.box("Parapet pier",(px,py+.46,pz),(.52,.78,.53),color,angle=yaw,taper=(.08,.08))
+            kit.box("Parapet pier cap",(px,py+.88,pz),(.59,.13,.60),"trim" if color=="stone" else "wood_light",angle=yaw)
 
 
 def slope_x(x0,x1,z0,z1,y0,y1, label):
@@ -112,14 +116,17 @@ def arch(kit,x,y,z,r,legs,depth,color="stone", collision=False):
         at=(x+side*(r+.23),y+legs*.5,z)
         if collision:
             a.layout["boxes"].append([at,(.46,legs,depth),0])
-        kit.box("Stone arch jamb",at,(.48,legs,depth),color,taper=(.05,.04))
+        kit.chipped("Stone arch jamb",at,(.48,legs,depth),color,taper=(.05,.04),
+                    chips=[((-side,1.0,1.0),.14)],core_color="trim")
         kit.plinth("Stone arch foot",(x+side*(r+.23),y+.13,z),.56,.26,depth+.10,"trim",flare=.04)
-        kit.box("Arch impost",(x+side*(r+.22),y+legs-.08,z),(.56,.15,depth+.12),"trim",taper=(-.05,-.05))
+        kit.chipped("Arch impost",(x+side*(r+.22),y+legs-.08,z),(.56,.15,depth+.12),"trim",
+                    taper=(-.05,-.05),chips=[((-side,1.0,1.0),.06)])
     for i in range(11):
         t0,t1=math.pi*i/11,math.pi*(i+1)/11-.022
         keystone = (i == 5)
-        d_ext = depth * (1.22 if keystone else 1.0)
-        r_out = r + (.46 if keystone else .38)
+        jag = .05 if i in (2, 8) else (-.03 if i == 6 else 0.0)
+        d_ext = depth * ((1.24 if keystone else 1.0) + jag)
+        r_out = r + (.47 if keystone else (.41 if i in (2, 7) else .38))
         points=[(x+math.cos(t)*rr,y+legs+math.sin(t)*rr,z+d)
                 for d in (-d_ext/2,d_ext/2) for t,rr in
                 [(t0,r),(t1,r),(t1,r_out),(t0,r_out)]]
@@ -336,12 +343,20 @@ for z in (hall_z-4.70,hall_z+4.70):
 for x in (3.07,20.93):
     castle.facet("Great Hall end gable",[(x,11.7,-34.20),(x,15.82,hall_z),(x,11.7,-24.8)],"plaster")
 castle.beam("Great Hall roof crest",(2.8,15.86,hall_z),(21.2,15.86,hall_z),.26,.24,"slate_light")
-for x in (5.05,8.53,12.0,15.47,18.95):
+for i_b, x in enumerate((5.05,8.53,12.0,15.47,18.95)):
     lancet(castle,x,5.22,-25.007,2.12,5.86)
     castle.plinth("Hall buttress foot",(x+1.58,3.95,-24.78),.56,.46,.92,"stone",flare=.05)
-    castle.box("Hall buttress",(x+1.58,6.64,-24.85),(.44,5.85,.78),"trim",taper=(.10,.12))
+    if i_b % 2 == 1:
+        castle.chipped("Hall buttress",(x+1.58,6.64,-24.85),(.44,5.85,.78),"trim",taper=(.10,.12),
+                       chips=[((1.0,1.0,1.0),.18)],core_color="stone")
+    else:
+        castle.box("Hall buttress",(x+1.58,6.64,-24.85),(.44,5.85,.78),"trim",taper=(.10,.12))
     castle.box("Buttress set-off",(x+1.58,6.80,-24.76),(.50,.18,.88),"stone",taper=(.08,.12))
     cap(castle,"Buttress pinnacle",x+1.58,-24.87,9.60,.40,.02,1.88,"slate_dark",4)
+castle.seam((6.8,5.6,-25.04),1.45,1.30,0.0,"grout","trim",tie_color="ink")
+castle.seam((17.2,5.8,-25.04),1.45,1.30,0.0,"grout","trim",flip=True)
+castle.rubble((4.85,3.72,-13.85),.44,0.4,("stone","trim","flagstone"),count=3)
+castle.rubble((-4.85,3.72,-13.85),.44,-0.6,("stone","trim"),count=3)
 for y in (4.08,4.74,10.92,11.43):
     castle.box("Continuous hall stone belt",(12,y,-24.93),(17.83,.13,.22),"trim" if y>10 else "grout")
 for x in (6.76,10.25,13.73,17.17):
@@ -350,7 +365,8 @@ for x in (6.76,10.25,13.73,17.17):
 for x in range(-22,29,2):
     if x>1 and x<22:continue
     castle.box("Castle curtain wall",(x,7.38,-35.1),(2.0,7.3,1.42),"stone")
-    castle.box("Castle wall crenel",(x,11.28,-35.1),(1.12,.76,1.48),"trim")
+    c_h = .58 if x % 6 == 0 else .76
+    castle.chipped("Castle wall crenel",(x,10.90+c_h*.5,-35.1),(1.12,c_h,1.48),"trim",seed=abs(x))
 for x in (-11.5,-8.0,-4.5):
     arch(castle,x,3.72,-29.25,1.20,2.12,.59)
     castle.box("Recessed cloister back",(x,6.1,-30.23),(3.30,4.74,.24),"shade")
@@ -401,7 +417,9 @@ def shop(x,z,w,d,h,side,index):
     village.box("Timber and plaster shop",(x,h*.5+.06,z),(w,h-.12,d),tint,taper=(.03,.03))
     gable(village,x,h,z,w+.44,d+.40,2.0+index%3*.32,("slate","slate_dark","slate_light")[index%3])
     village.box("Stone chimney",(x+w*.27,h+1.88,z-d*.18),(.72,2.88,.68),"stone",taper=(.09,.09))
-    village.coping("Chimney coping",(x+w*.27,h+3.32,z-d*.18),.90,.18,.86,"trim",seg_len=.9)
+    village.coping("Chimney coping",(x+w*.27,h+3.32,z-d*.18),.90,.18,.86,"trim",seg_len=.9,wear=.78)
+    village.seam((x+w*.24,1.52,front),min(1.1,w*.28),1.05,0.0,"grout","trim",tie_color="ink" if index%2==0 else None)
+    village.masonry_patch((x+side*w*.5,1.02,z),0.90,0.58,math.pi*.5*side,"grout","stone",alt_color="flagstone",lip_color="trim")
     for dx in (-w*.46,0,w*.46):
         village.box("Exposed oak stud",(x+dx,h*.48,front+.06),(.16,h,.21),"oak")
     for y in (.36,h*.55,h-.10):

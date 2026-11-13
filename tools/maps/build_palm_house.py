@@ -103,7 +103,10 @@ def wall_section(theta,s0,s1,y0=0.0):
             bs1=s0+span*(b_i+1)/bays-.10
             if bs1-bs0>.22:
                 face_box(theta,bs0,bs1,.32,.86,"brick_dark",depth=.43,physical=False,label="Brick dado inset")
-        frame.coping("Stone sill",(cx,1.02,cz),span+.06,.14,.50,"stone",angle=angle,seg_len=1.6)
+        frame.coping("Stone sill",(cx,1.02,cz),span+.06,.14,.50,"stone",angle=angle,seg_len=1.55,slant=.22,wear=.76)
+        if span >= 2.2:
+            ox, oz = along(theta, (s0+s1)/2, A+.20)
+            frame.seam((ox,.58,oz),min(1.25,span*.46),.54,math.pi/2-theta,"brick_dark","stone")
         glazing(theta,s0,s1,1.08,EAVE)
     else:
         glazing(theta,s0,s1,y0,EAVE)
@@ -332,8 +335,12 @@ def flowers(kit,x,y,z,count=5,spread=.6):
 def planter(x,z,w,d,h=.9,color="stone"):
     a.layout["boxes"].append([(x,h/2,z),(w,h,d),0])
     interior.plinth("Planter foot",(x,.10,z),w+.08,.20,d+.08,"stone_dark" if color=="stone" else "brick_dark",flare=.035)
-    interior.box("Stone palm planter",(x,h*.52,z),(w-.04,h-.16,d-.04),color,taper=(.04,.04))
-    interior.coping("Planter cap",(x,h+.04,z),w+.16,.13,d+.16,"stone_dark" if color=="stone" else "brick_dark",seg_len=1.3)
+    interior.chipped("Stone palm planter",(x,h*.52,z),(w-.04,h-.16,d-.04),color,taper=(.04,.04),
+                     chips=[((1.0,1.0,1.0),.12)],core_color="stone_dark" if color=="stone" else "brick_dark")
+    interior.coping("Planter cap",(x,h+.04,z),w+.16,.13,d+.16,"stone_dark" if color=="stone" else "brick_dark",
+                    seg_len=1.25,slant=.22,wear=.78)
+    if w >= 2.0:
+        interior.seam((x,h*.48,z+d*.48),min(1.15,w*.48),h*.56,0.0,"stone_dark","stone")
     interior.box("Planter soil",(x,h+.06,z),(w-.3,.06,d-.3),"soil")
 
 for x,z,palm_h,size in [(-4.2,6.8,5.0,1.5),(5.6,5.6,5.2,2.6),(-5.6,-5.4,5.1,2.6),(5.6,-5.4,4.9,2.6)]:
@@ -475,9 +482,13 @@ for i in range(10):
 for x in (-2.6,2.6):
     a.layout["boxes"].append([(x,1.15,16.4),(.8,2.3,.8),0])
     annex.plinth("Gate pillar plinth",(x,.16,16.4),.96,.32,.96,"stone_dark",flare=.05)
-    annex.box("Gate pillar",(x,1.22,16.4),(.80,2.14,.80),"stone",taper=(.08,.08))
-    annex.coping("Pillar cap",(x,2.40,16.4),1.06,.22,1.06,"stone_dark",seg_len=1.1)
+    annex.chipped("Gate pillar",(x,1.22,16.4),(.80,2.14,.80),"stone",taper=(.08,.08),
+                  chips=[((-math.copysign(1,x),1.0,1.0),.18)],core_color="stone_dark")
+    annex.coping("Pillar cap",(x,2.40,16.4),1.06,.22,1.06,"stone_dark",seg_len=1.1,wear=.75)
     annex.rod("Pillar lamp",(x,2.52,16.4),(x,2.98,16.4),.20,"lamp",8)
+annex.rubble((-2.05,0,16.95),.34,0.5,("stone","stone_dark","brick"),count=3)
+annex.seam((9.5,2.2,-15.80),1.65,1.40,0.0,"brick_dark","stone",tie_color="navy")
+annex.masonry_patch((-9.5,1.35,-17.40),1.05,.62,0.0,"stone_dark","brick",alt_color="terracotta",lip_color="cream")
 for side in (-1,1):
     x0,x1=side*3.0,side*8.4
     for j in range(16):

@@ -8,7 +8,19 @@ import bpy
 from mathutils import Vector
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from toy_kit import cambered_canopy, export_toy_parts, tapered_box, stepped_plinth, segmented_coping
+from toy_kit import (
+    cambered_canopy,
+    chipped_box,
+    export_toy_parts,
+    exposed_masonry_patch,
+    repair_patch_plate,
+    sand_drift,
+    segmented_coping,
+    slanted_wall_seam,
+    stepped_plinth,
+    tapered_box,
+    weathered_rubble,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -51,8 +63,31 @@ class Kit:
     def plinth(self, label, center, width, height, depth, color, angle=0.0, flare=0.045):
         stepped_plinth(self.mesh, label, center, width, height, depth, color, angle=angle, flare=flare)
 
-    def coping(self, label, center, width, height, depth, color, angle=0.0, seg_len=1.75):
-        segmented_coping(self.mesh, label, center, width, height, depth, color, angle=angle, seg_len=seg_len)
+    def coping(self, label, center, width, height, depth, color, angle=0.0, seg_len=1.75, slant=0.16, wear=0.58):
+        segmented_coping(self.mesh, label, center, width, height, depth, color, angle=angle,
+                         seg_len=seg_len, slant=slant, wear=wear)
+
+    def chipped(self, label, center, size, color, angle=0.0, taper=(0.05, 0.05), chips=None, core_color=None, seed=None):
+        chipped_box(self.mesh, label, center, size, color, angle=angle, taper=taper,
+                    chips=chips, core_color=core_color, seed=seed)
+
+    def seam(self, origin, span, rise, angle, seam_color, trim_color, tie_color=None, flip=False, seed=None):
+        slanted_wall_seam(self.mesh, origin, span, rise, angle, seam_color, trim_color,
+                          tie_color=tie_color, flip=flip, seed=seed)
+
+    def masonry_patch(self, origin, width, height, angle, mortar_color, brick_color, alt_color=None, lip_color=None, seed=None):
+        exposed_masonry_patch(self.mesh, origin, width, height, angle, mortar_color, brick_color,
+                              alt_color=alt_color, lip_color=lip_color, seed=seed)
+
+    def drift(self, center, rx, rz, height, angle, color, alt_color=None):
+        sand_drift(self.mesh, center, rx, rz, height, angle, color, alt_color=alt_color)
+
+    def rubble(self, center, spread, angle, colors, count=3, seed=None):
+        weathered_rubble(self.mesh, center, spread, angle, colors, count=count, seed=seed)
+
+    def patch_plate(self, origin, width, height, angle, plate_color, bolt_color, chipped=True, seed=None):
+        repair_patch_plate(self.mesh, origin, width, height, angle, plate_color, bolt_color,
+                           chipped=chipped, seed=seed)
 
     def canopy(self, origin, width, depth, drop, angle, stripe_a, stripe_b, wood_color, post_h=2.06, posts=True):
         cambered_canopy(self.mesh, origin, width, depth, drop, angle, stripe_a, stripe_b, wood_color,

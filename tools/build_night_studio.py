@@ -9,7 +9,15 @@ from mathutils import Vector
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools/maps"))
-from toy_kit import export_toy_parts, segmented_coping, stepped_plinth, tapered_box
+from toy_kit import (
+    chipped_box,
+    export_toy_parts,
+    repair_patch_plate,
+    segmented_coping,
+    slanted_wall_seam,
+    stepped_plinth,
+    tapered_box,
+)
 
 OUT = ROOT / "assets/models/studio"
 OUT.mkdir(parents=True, exist_ok=True)
@@ -137,11 +145,17 @@ def wall(label, center, size, color, baffles=()):
             pos = -span*0.5 + (i+0.5)*step
             pw, pd = (max(.20, step-.028), d) if along_x else (w, max(.20, step-.028))
             cx, cz = (pos, 0.0) if along_x else (0.0, pos)
-            item.box("Wall", (cx, h/2, cz), (pw, h-.46, pd), color)
+            p_col = "lilac" if (color == "violet" and count >= 3 and i == 1) else color
+            item.box("Wall", (cx, h/2, cz), (pw, h-.46, pd), p_col)
+        if span >= 3.8 and h <= 5.0:
+            s_ang = 0.0 if along_x else math.pi/2
+            s_org = (0.0, 1.25, d*.5) if along_x else (w*.5, 1.25, 0.0)
+            slanted_wall_seam(item.mesh, s_org, 1.15, .88, s_ang, "ink", "slate")
+            repair_patch_plate(item.mesh, (-s_org[0], .68, -s_org[2]), .76, .46, s_ang + math.pi, "gold", "ink")
         # Extend grounding baseboard and segmented top header across the thickness
         trim_x, trim_z = (.075, 0) if d > w else (0, .075)
         stepped_plinth(item.mesh, "Dark baseboard", (0,.13,0), w+trim_x, .26, d+trim_z, "navy", flare=.024)
-        segmented_coping(item.mesh, "Header trim", (0,h-.12,0), w+trim_x, .24, d+trim_z, "slate", seg_len=1.85, gap=.026)
+        segmented_coping(item.mesh, "Header trim", (0,h-.12,0), w+trim_x, .24, d+trim_z, "slate", seg_len=1.85, gap=.026, slant=.15, wear=.54)
         for offset in baffles:
             item.box("Acoustic sound baffle",(offset,3.67,-.26),(2.2,2.8,.16),"slate",taper=(.02,.04))
             for rib in (-.70, 0.0, .70):
@@ -233,7 +247,13 @@ stage = kit("stage", True)
 solid(stage,"Stage deck",(0,.14,-5.1),(14.4,.28,6.8),"gold")
 stage.box("Ivory stage top",(0,.285,-5.1),(14.25,.02,6.65),"ivory")
 stage.box("Lower fascia",(0,.09,-1.67),(14.4,.12,.10),"amber")
-stage.box("Gold apron",(0,.044,-1.55),(13.4,.085,.23),"gold")
+chipped_box(stage.mesh,"Gold apron",(0,.044,-1.55),(13.4,.085,.23),"gold",
+            chips=[((1.0,1.0,1.0),.12),((-1.0,1.0,1.0),.10)])
+# Diagonal floor cable-protector ramps & gaffer-taped seams across stage approach
+stage.box("Diagonal cable ramp",(-3.8,.018,1.85),(3.4,.032,.22),"ink",angle=.32,taper=(.18,.04))
+stage.box("Cable ramp hazard strip",(-3.8,.036,1.85),(3.32,.010,.075),"gold",angle=.32)
+stage.box("Diagonal cable ramp",(4.2,.018,2.45),(2.9,.032,.22),"ink",angle=-.28,taper=(.18,.04))
+stage.box("Cable ramp hazard strip",(4.2,.036,2.45),(2.82,.010,.075),"gold",angle=-.28)
 apron = [(-6.7,.28,-1.72),(6.7,.28,-1.72),(6.7,0,-.65),(-6.7,0,-.65)]
 stage.mesh("Sloped stage entrance",apron,[(3,2,1,0)],"gold")
 layout["ramps"].append(apron)

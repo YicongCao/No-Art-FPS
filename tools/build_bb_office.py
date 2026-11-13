@@ -9,7 +9,15 @@ from mathutils import Vector
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools/maps"))
-from toy_kit import export_toy_parts, segmented_coping, stepped_plinth, tapered_box
+from toy_kit import (
+    chipped_box,
+    export_toy_parts,
+    repair_patch_plate,
+    segmented_coping,
+    slanted_wall_seam,
+    stepped_plinth,
+    tapered_box,
+)
 from hero_geometry import profile_shell, rounded_profile
 
 OUT = ROOT / "assets/models/bb_office"
@@ -156,11 +164,15 @@ def wall_between(item, label, left, right, z, color):
     step = span / n_panels
     for i in range(n_panels):
         px = left + (i + 0.5) * step
-        item.box(label, (px, 1.82, z), (max(.18, step - .026), 3.16, .22), color)
+        tint_p = "lilac" if (n_panels >= 4 and i == n_panels - 2) else color
+        item.box(label, (px, 1.82, z), (max(.18, step - .026), 3.16, .22), tint_p)
+    if span >= 4.5:
+        slanted_wall_seam(item.mesh, (cx - span*.18, 1.35, z - .11), 1.15, .92, math.pi, "navy", "lilac")
+        repair_patch_plate(item.mesh, (cx + span*.22, .68, z + .11), .74, .44, 0.0, "galvanized", "navy")
     # Grounding double-sided baseboard plinth + top crown header rail
     stepped_plinth(item.mesh, "Skirting plinth", (cx, .115, z), span, .23, .29, "slate", flare=.022)
     item.box("Skirting lip", (cx, .245, z), (span, .048, .265), "lilac")
-    segmented_coping(item.mesh, "Wall crown rail", (cx, 3.50, z), span, .20, .285, "navy", seg_len=1.65, gap=.024)
+    segmented_coping(item.mesh, "Wall crown rail", (cx, 3.50, z), span, .20, .285, "navy", seg_len=1.65, gap=.024, slant=.14, wear=.48)
 
 
 shell = kit("architecture")

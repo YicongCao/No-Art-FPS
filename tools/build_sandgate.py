@@ -11,11 +11,16 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools/maps"))
 from toy_kit import (
     cambered_canopy,
+    chipped_box,
     export_toy_parts,
+    exposed_masonry_patch,
     recessed_window,
+    sand_drift,
     segmented_coping,
+    slanted_wall_seam,
     stepped_plinth,
     tapered_box,
+    weathered_rubble,
 )
 from hero_geometry import cloth_canopy, profile_shell
 
@@ -150,17 +155,49 @@ def facade(label, x, z, w, d, h, color="pale", base=None, floor=0, solid=True):
     if base:
         box("Painted wall skirt",x,floor+.64,z,w+.036,1.20,d+.036,base,taper=(.015,.015))
         box("Skirt belt rail",x,floor+1.27,z,w+.095,.085,d+.095,"cap",taper=(.03,.03))
-    # 3. Corner pilasters on substantial facades to break straight box silhouettes
+    # 3. Corner pilasters on substantial facades (with chipped corners on weathered desert walls)
+    h_seed = abs(int(round(x * 13 + z * 17)))
     if w >= 1.6 and d >= .58:
         pw, pd = min(.22, w*.16), min(.22, d*.28)
+        c_idx = 0
         for sx in (-1, 1):
             for sz in (-1, 1):
                 px = x + sx*(w*.5 - pw*.38)
                 pz = z + sz*(d*.5 - pd*.38)
-                box("Corner pilaster",px,floor+h*.5,pz,pw+.055,h-.04,pd+.055,"plaster",taper=(.035,.035))
-    # 4. Stepped cornice lip + segmented overhanging roof coping
+                if (h_seed + c_idx) % 3 == 0:
+                    chipped_box(mesh,"Chipped corner pilaster",(px,floor+h*.5,pz),
+                                (pw+.055,h-.04,pd+.055),"plaster",taper=(.035,.035),
+                                chips=[((sx,1.0,sz),.14)],core_color="stone")
+                else:
+                    box("Corner pilaster",px,floor+h*.5,pz,pw+.055,h-.04,pd+.055,"plaster",taper=(.035,.035))
+                c_idx += 1
+    # 4. Sculpted slanted wall seams & exposed sandstone brick patches on broad desert facades
+    broad_x = w >= d and w >= 2.4 and h >= 3.0
+    broad_z = d > w and d >= 2.8 and h >= 3.0
+    if broad_x:
+        for sz, ang in ((1.0, 0.0), (-1.0, math.pi)):
+            wy = floor + (2.35 if base else 1.75)
+            if wy + .85 < floor + h - .35:
+                slanted_wall_seam(mesh,(x - w*.16*sz, wy, z + sz*d*.5),min(1.55, w*.38),min(1.45, h*.34),
+                                  ang,"shade","plaster",tie_color="iron" if (h_seed % 2 == 0) else None,
+                                  flip=(sz < 0))
+            if w >= 3.4 and floor + 2.2 < floor + h - .4:
+                exposed_masonry_patch(mesh,(x + w*.22*sz, floor + (1.88 if base else 1.15), z + sz*d*.5),
+                                      .92,.64,ang,"shade","stone",alt_color="clay_light",lip_color="cap")
+    elif broad_z:
+        for sx, ang in ((1.0, math.pi/2), (-1.0, -math.pi/2)):
+            wy = floor + (2.35 if base else 1.75)
+            if wy + .85 < floor + h - .35:
+                slanted_wall_seam(mesh,(x + sx*w*.5, wy, z + d*.15*sx),min(1.55, d*.36),min(1.45, h*.34),
+                                  ang,"shade","plaster",tie_color="iron" if (h_seed % 2 == 1) else None,
+                                  flip=(sx < 0))
+            if d >= 4.2:
+                exposed_masonry_patch(mesh,(x + sx*w*.5, floor + (1.88 if base else 1.15), z - d*.22*sx),
+                                      .94,.66,ang,"shade","stone",alt_color="clay_light",lip_color="cap")
+    # 5. Stepped cornice lip + slanted-joint weathered roof coping
     box("Roof cornice lip",x,floor+h+.04,z,w+.15,.10,d+.15,"stone",taper=(-.04,-.04))
-    segmented_coping(mesh,"Roof coping",(x,floor+h+.18,z),w+.28,.22,d+.28,"cap",seg_len=1.7,gap=.028)
+    segmented_coping(mesh,"Roof coping",(x,floor+h+.18,z),w+.28,.22,d+.28,"cap",
+                     seg_len=1.65,gap=.030,slant=.22,wear=.78)
 
 
 def shutter(x,y,z,angle=0):
@@ -192,14 +229,22 @@ def long_house(x,z,w,d,h,windows,hero=False):
                     (-.63,[(sign*.73,sill),(sign*.57,sill+.12),(sign*.57,head-.12),(sign*.73,head)]),
                     (0,[(sign*.73,sill),(sign*.68,sill+.04),(sign*.68,head-.04),(sign*.73,head)])
                 ],"plaster",angle=math.pi/2)
-            box("Deep projecting sandstone sill",face-.22,sill,at,.96,.17,1.73,"cap")
+            chipped_box(mesh,"Deep projecting sandstone sill",(face-.22,sill,at),(.96,.17,1.73),"cap",
+                        taper=(.02,.02),chips=[((1.0,1.0,1.0),.12)])
             box("Stone lintel over recess",face-.22,head,at,.82,.19,1.75,"stone")
         else:
             shutter(face-.26,3.63,at,math.pi/2)
-            box("Deep projecting sandstone sill",face-.04,sill,at,.76,.15,1.41,"cap")
+            chipped_box(mesh,"Deep projecting sandstone sill",(face-.04,sill,at),(.76,.15,1.41),"cap",
+                        taper=(.02,.02),chips=[((1.0,1.0,-1.0),.10)])
             box("Stone lintel over recess",face-.09,head,at,.49,.16,1.40,"stone")
         edge=right
     box("Plaster end pier",face-reveal/2,(sill+head)/2,(edge+z+d/2)/2,reveal,head-sill,z+d/2-edge,"pale")
+    # Street-level slanted settling seams & exposed sandstone courses along the long house wall
+    slanted_wall_seam(mesh,(face,2.05,z-d*.22),1.50,1.18,math.pi/2,"shade","stone",tie_color="iron")
+    exposed_masonry_patch(mesh,(face,1.92,z+d*.24),1.06,.68,math.pi/2,"shade","stone",
+                          alt_color="clay_light",lip_color="cap")
+    if hero:
+        slanted_wall_seam(mesh,(face,5.08,z+d*.12),1.45,.92,math.pi/2,"shade","plaster",flip=True)
 
 
 def canopy(x,z,y,width,angle=0,accent="stripe",depth=1.45):
@@ -259,20 +304,27 @@ def arch(label,x,z,y,r=1.75,spring=2.12,thick=.42,depth=.62,side=1.55,solid=True
         return (x+u*cos+w*sin,y+v,z-u*sin+w*cos)
     for sign in [-1,1]:
         xx,yy,zz=at(sign*(r+side/2),spring/2)
-        box(label+" pier",xx,yy,zz,side,spring,depth,"pale",solid,angle,taper=(.055,.045))
+        if solid:
+            layout["boxes"].append([[xx,yy,zz],[side,spring,depth],angle])
+        chipped_box(mesh,label+" pier",(xx,yy,zz),(side,spring,depth),"pale",angle=angle,
+                    taper=(.055,.045),chips=[((-sign,1.0,1.0),.28),((sign,1.0,-1.0),.22)],core_color="stone")
         px,py,pz=at(sign*(r+side/2),.15)
         stepped_plinth(mesh,label+" pier plinth",(px,py,pz),side+.08,.30,depth+.10,"stone",angle=angle,flare=.05)
         xx,yy,zz=at(sign*(r+thick/2),spring/2,depth*.08)
-        box("Arch jamb",xx,yy,zz,thick,spring,depth*1.18,"stone",angle=angle,taper=(.03,.03))
+        chipped_box(mesh,"Arch jamb",(xx,yy,zz),(thick,spring,depth*1.18),"stone",angle=angle,
+                    taper=(.03,.03),chips=[((-sign,1.0,1.0),.15)])
         ix,iy,iz=at(sign*(r+thick*.48),spring-.08,depth*.08)
-        box("Arch impost capital",ix,iy,iz,thick+.12,.16,depth*1.26,"cap",angle=angle,taper=(-.06,-.06))
+        chipped_box(mesh,"Arch impost capital",(ix,iy,iz),(thick+.12,.16,depth*1.26),"cap",angle=angle,
+                    taper=(-.06,-.06),chips=[((-sign,1.0,1.0),.07)])
     n=11
     top=spring+r+thick+.52
     for i in range(n):
         a,b=i*math.pi/n,(i+1)*math.pi/n
         keystone = (i == n // 2)
-        extrude = 1.24 if keystone else 1.12
-        outer = r + thick + (.11 if keystone else 0.0)
+        # Subtle irregular voussoir settling: occasional blocks stand slightly proud or recessed
+        jag = .055 if i in (2, 7) else (-.035 if i in (4, 8) else 0.0)
+        extrude = (1.26 if keystone else 1.12) + jag
+        outer = r + thick + (.12 if keystone else (.035 if i in (2, 8) else (-.022 if i == 6 else 0.0)))
         def ring(t,d):
             return (d*math.cos(t),spring+d*math.sin(t))
         ua,va=ring(a,r)
@@ -296,10 +348,20 @@ def arch(label,x,z,y,r=1.75,spring=2.12,thick=.42,depth=.62,side=1.55,solid=True
     xx,yy,zz=at(0,top-.16)
     if solid:
         layout["boxes"].append([[xx,yy,zz],[2*(r+side),.32,depth+.20],angle])
-    segmented_coping(mesh,"Gate cap",(xx,yy+.02,zz),2*(r+side)+.26,.24,depth+.28,"cap",angle=angle,seg_len=1.6,gap=.028)
+    segmented_coping(mesh,"Gate cap",(xx,yy+.02,zz),2*(r+side)+.26,.24,depth+.28,"cap",
+                     angle=angle,seg_len=1.55,gap=.030,slant=.24,wear=.85)
     for sign in [-1,1]:
         xx,yy,zz=at(sign*(r+side/2),top/2)
-        box("Upper gate pier",xx,yy+.98,zz,side-.05,top-1.96,depth,"pale",angle=angle,taper=(.04,.04))
+        chipped_box(mesh,"Upper gate pier",(xx,yy+.98,zz),(side-.05,top-1.96,depth),"pale",
+                    angle=angle,taper=(.04,.04),chips=[((sign,1.0,1.0),.34),((-sign,1.0,1.0),.24)],core_color="stone")
+        if side >= 1.1:
+            for f_sign, f_ang in ((1.0, angle), (-1.0, angle + math.pi)):
+                sx, sy, sz = at(sign*(r+side*.52), spring*.62, f_sign*depth*.5)
+                if sign > 0:
+                    slanted_wall_seam(mesh,(sx,sy,sz),min(1.1,side*.78),min(1.15,spring*.56),f_ang,"shade","stone")
+                else:
+                    exposed_masonry_patch(mesh,(sx,sy,sz),min(.86,side*.68),.58,f_ang,"shade","stone",
+                                          alt_color="clay_light",lip_color="cap")
         if hero:
             # Sloping buttress mass stays over the solid pier, outside the door.
             profile=[(sign*(r+thick+.06),.30),(sign*(r+side-.12),.30),
@@ -360,9 +422,14 @@ def crate(x,y,z,w=1.65,h=1.15,d=1.4):
         box("Ivory crate binding",x,level,z,w+.065,.145,d+.065,"cap",taper=(.02,.02))
     for sx in (-1, 1):
         for sz in (-1, 1):
-            box("Corner cleat",x+sx*(w/2-.065),y+h/2,z+sz*(d/2-.065),.135,h-.06,.135,"gold",taper=(.03,.03))
+            if sx > 0 and sz > 0:
+                chipped_box(mesh,"Chipped corner cleat",(x+sx*(w/2-.065),y+h/2,z+sz*(d/2-.065)),
+                            (.135,h-.06,.135),"gold",taper=(.03,.03),chips=[((1.0,1.0,1.0),.065)])
+            else:
+                box("Corner cleat",x+sx*(w/2-.065),y+h/2,z+sz*(d/2-.065),.135,h-.06,.135,"gold",taper=(.03,.03))
     for sz in (-1, 1):
         box("Crate cross batten",x,y+h/2,z+sz*(d/2-.018),w-.22,.11,.055,"wood_light")
+        box("Crate diagonal brace",x,y+h*.5,z+sz*(d/2-.008),w*.52,.075,.038,"wood",angle=.28*sz)
     for sx in (-1, 1):
         box("Crate side batten",x+sx*(w/2-.018),y+h/2,z,.055,.11,d-.22,"wood_light")
 
@@ -409,26 +476,31 @@ ramp("Pit approach",16,22.5,3,7,0,-1.35,"plaster")
 box("South pit retaining",19.25,-.63,12.95,6.5,1.27,.21,"purple",True,taper=(.02,.04))
 box("West pit retaining",16.04,-.63,9.8,.18,1.27,6.35,"purple",True,taper=(.04,.02))
 layout["boxes"].append([[16.02,.20,9.65],[.34,.40,6.8],0])
-segmented_coping(mesh,"Pit coping",(16.02,.20,9.65),.40,.42,6.8,"cap",seg_len=1.7,gap=.026)
+segmented_coping(mesh,"Pit coping",(16.02,.20,9.65),.40,.42,6.8,"cap",seg_len=1.55,gap=.030,slant=.26,wear=.88)
 layout["boxes"].append([[19.25,.23,12.93],[6.47,.46,.32],0])
-segmented_coping(mesh,"South pit coping",(19.25,.23,12.93),6.47,.46,.38,"cap",seg_len=1.62,gap=.026)
+segmented_coping(mesh,"South pit coping",(19.25,.23,12.93),6.47,.46,.38,"cap",seg_len=1.50,gap=.030,slant=.26,wear=.88)
 layout["boxes"].append([[22.5,.18,9.8],[.27,.36,6.4],0])
-segmented_coping(mesh,"Pit rim at outer edge",(22.5,.18,9.8),.33,.38,6.4,"cap",seg_len=1.6,gap=.026)
+segmented_coping(mesh,"Pit rim at outer edge",(22.5,.18,9.8),.33,.38,6.4,"cap",seg_len=1.55,gap=.030,slant=.24,wear=.82)
+# Wind-drifted sand & chipped sandstone chunks along pit retaining walls and ramp bases
+sand_drift(mesh,(15.55,0,12.55),.95,.75,.16,0.3,"sand","pale")
+weathered_rubble(mesh,(15.48,0,11.75),.42,0.4,("cap","stone","plaster"),count=3)
+sand_drift(mesh,(21.85,0,13.45),1.10,.80,.18,-0.5,"sand","pale")
 slab("Raised A square",9.7,23.8,-17.7,-8.0,2.4,"pale",2.4)
 slab("Walk-out A lookout",7.65,9.7,-16.45,-13.55,2.4,"stone",.38)
 ramp("A Long ramp",12.1,22.8,-8,-2.0,2.4,0,"sand")
 box("A side ramp wall",11.83,.58,-5.23,.40,1.16,5.45,"plaster",True,taper=(.06,.02))
-segmented_coping(mesh,"A side ramp cap",(11.83,1.21,-5.23),.48,.14,5.52,"cap",seg_len=1.6,gap=.025)
+segmented_coping(mesh,"A side ramp cap",(11.83,1.21,-5.23),.48,.14,5.52,"cap",seg_len=1.5,gap=.028,slant=.24,wear=.84)
+slanted_wall_seam(mesh,(12.03,.58,-4.8),1.35,.72,math.pi/2,"shade","stone")
 slab("A Short landing",5.6,9.7,-13.0,-8.3,2.4,"pale",2.4)
 slab("A Short elevated lane",5.6,9.55,-8.3,-2.8,2.4,"pale",2.4)
 ramp("Short steps",5.6,9.55,2.4,-2.8,0,2.4,"plaster",steps=12)
 box("Short teal retaining wall",5.57,1.17,-5.45,.13,2.34,5.45,"teal")
 layout["boxes"].append([[5.60,2.75,-5.60],[.34,.7,5.7],0])
 box("Short parapet core",5.60,2.69,-5.60,.32,.58,5.68,"plaster",taper=(.06,.01))
-segmented_coping(mesh,"Short parapet",(5.60,3.04,-5.60),.42,.15,5.74,"cap",seg_len=1.45,gap=.025)
+segmented_coping(mesh,"Short parapet",(5.60,3.04,-5.60),.42,.15,5.74,"cap",seg_len=1.40,gap=.028,slant=.22,wear=.82)
 layout["boxes"].append([[5.62,2.75,-10.62],[.34,.7,4.45],0])
 box("Short landing parapet core",5.62,2.69,-10.62,.32,.58,4.43,"plaster",taper=(.06,.01))
-segmented_coping(mesh,"Short landing parapet",(5.62,3.04,-10.62),.42,.15,4.50,"cap",seg_len=1.5,gap=.025)
+segmented_coping(mesh,"Short landing parapet",(5.62,3.04,-10.62),.42,.15,4.50,"cap",seg_len=1.45,gap=.028,slant=.22,wear=.82)
 prism("Short stair teal cheek",[(5.51,0,2.39),(5.51,0,-2.79),(5.51,2.4,-2.79)],(.12,0,0),"teal")
 prism("Short stair rising coping",[(5.45,.21,2.39),(5.76,.21,2.39),(5.76,2.61,-2.79),(5.45,2.61,-2.79)],(0,-.18,0),"cap")
 for z,top in [(.85,.72),(-.85,1.5),(-2.51,2.28)]:
@@ -490,8 +562,9 @@ for x in (11.90,14.02,21.36):
     arch_recess(x,4.70,-17.35,0,.37,.88)
     box("High court deep stone ledge",x,4.27,-17.11,.97,.15,.54,"cap")
 arch("A lookout",17.7,-16.98,2.4,r=1.24,spring=1.91,side=1.25,solid=False)
-for x in [10.1,11.6,13.1,22.1]:
-    box("A parapet merlon",x,6.98,-17.6,.58,.42,.68,"cap",taper=(.10,.10))
+for i_m, x in enumerate([10.1,11.6,13.1,22.1]):
+    mh = .34 if i_m == 1 else .42
+    chipped_box(mesh,"A parapet merlon",(x,6.77+mh*.5,-17.6),(.58,mh,.68),"cap",taper=(.10,.10),seed=40+i_m)
 canopy(18.75,-15.85,5.4,3.7)
 facade("A lookout upper crown",18.56,-17.36,4.75,.70,1.90,"plaster",None,floor=6.48,solid=False)
 for x in [17.32,18.50,19.68]:
@@ -510,6 +583,12 @@ for z in [-4.8,-1.2,2.4,6.0,9.6,13.2]:
     box("Outer coping corbel",22.98,4.9,z,.33,.24,.30,"cap")
 pot(12.0,12.4,1.03)
 pot(12.3,11.8,.58)
+# Cracked terracotta shards & wind-drifted sand beside the long-lane entrance jars & gate piers
+weathered_rubble(mesh,(12.55,0,12.15),.36,0.7,("clay","clay_light","cap"),count=3)
+sand_drift(mesh,(12.45,0,14.55),1.05,.78,.17,0.4,"sand","pale")
+sand_drift(mesh,(20.25,0,14.55),1.05,.78,.17,-0.3,"sand","pale")
+weathered_rubble(mesh,(20.55,0,14.10),.40,-0.5,("stone","cap"),count=3)
+slanted_wall_seam(mesh,(23.06,1.35,10.2),1.45,1.05,-math.pi/2,"shade","plaster")
 cactus(12.23,-1.94)
 
 zone("mid")
@@ -522,8 +601,11 @@ for x in [-2.91,2.91]:
     arch_recess(x,5.03,1.99,0,.105,.35)
 facade("Mid left jamb",-4.02,1.55,1.31,.76,4.42,"pale","teal")
 arch("Mid B side arch",-6.7,1.55,0,r=1.48,spring=1.89,depth=.8,side=.84)
-for x in [-2.9,-1.9,-.9,.1,1.1,2.1,3.1]:
-    box("Mid gate crenellation",x,5.02,1.55,.56,.50,.82,"cap",taper=(.10,.10))
+for i_c, x in enumerate([-2.9,-1.9,-.9,.1,1.1,2.1,3.1]):
+    ch = .38 if i_c in (2, 5) else .50
+    chipped_box(mesh,"Mid gate crenellation",(x,4.77+ch*.5,1.55),(.56,ch,.82),"cap",taper=(.10,.10),seed=70+i_c)
+sand_drift(mesh,(3.55,0,2.25),.95,.70,.16,0.2,"sand","pale")
+weathered_rubble(mesh,(-3.25,0,2.35),.40,-0.4,("stone","cap","clay"),count=3)
 facade("Central market front",-5.82,8.5,4.8,5.7,5.7,"pale","teal")
 facade("Central market upper",-6.4,8.55,3.38,4.1,1.32,"plaster",None,floor=5.6)
 for z in [6.9,8.9,10.45]:
@@ -584,7 +666,10 @@ potted_agave(-13.30,0,-9.91,1.07,.3)
 layout["boxes"].append([[-17.40,.44,-9.10],[3.19,.88,2.48],0])
 box("B display plinth",-17.40,.41,-9.10,3.19,.82,2.48,"pale",False,taper=(.05,.05))
 stepped_plinth(mesh,"B display plinth foot",(-17.40,.11,-9.10),3.26,.22,2.55,"stone",flare=.045)
-segmented_coping(mesh,"B display plinth cap",(-17.40,.83,-9.10),3.30,.12,2.58,"cap",seg_len=1.65,gap=.024)
+segmented_coping(mesh,"B display plinth cap",(-17.40,.83,-9.10),3.30,.12,2.58,"cap",
+                 seg_len=1.55,gap=.026,slant=.22,wear=.82)
+sand_drift(mesh,(-15.55,0,-10.10),.95,.72,.16,0.5,"sand","pale")
+weathered_rubble(mesh,(-19.20,0,-8.25),.42,1.1,("stone","cap","clay"),count=3)
 lathe("Ochre tower",-20.3,0,-15.15,[(1.38,0),(1.38,6.98),(1.54,7.07),(1.54,7.41)],"gold",10)
 lathe("Faceted tower dome",-20.3,7.41,-15.15,[(1.55,0),(1.53,.45),(1.22,.98),(.62,1.34),(.12,1.43)],"cap",10)
 lathe("Tower finial",-20.3,8.8,-15.15,[(.085,0),(.074,1.01)],"wood",8)

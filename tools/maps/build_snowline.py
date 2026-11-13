@@ -87,9 +87,15 @@ for x,z in [(-21,7),(-21,13),(-21,-4),(-21,-13),(-14,-21),(-7,-21),(3,-21),
         terrain.rod("White snow gauge stripe",(x,y,z),(x,y+.18,z),.068,"white",8)
 for i in range(12):
     x=-18+i*3.25
-    terrain.box("Avalanche fence post",(x,.78,-22.5),(.18,1.56,.18),"wood")
+    if i in (3, 8):
+        terrain.chipped("Avalanche fence post",(x,.72,-22.5),(.18,1.44,.18),"wood",chips=[((1.0,1.0,1.0),.09)])
+    else:
+        terrain.box("Avalanche fence post",(x,.78,-22.5),(.18,1.56,.18),"wood")
     for y in (.38,.85,1.32):
-        terrain.box("Anti-drift timber snow fence",(x+1.6,y,-22.5),(3.28,.27,.15),"wood")
+        if i == 4 and y > 1.2:
+            terrain.chipped("Broken snow fence plank",(x+1.05,y-.03,-22.5),(2.10,.25,.15),"wood",angle=.06)
+        else:
+            terrain.box("Anti-drift timber snow fence",(x+1.6,y,-22.5),(3.28,.27,.15),"wood")
 
 # Faceted nearby rock masses and more distant layered mountain peaks.
 for i in range(31):
@@ -141,6 +147,11 @@ for i in range(n):
         building.box("Segmented drum wall",(x,y+.12,z),(1.79,4.32,.29),"orange" if i%3 else "orange_light",angle,taper=(.01,.03))
         building.box("Drum vertical rib",(pos(th-.5*math.tau/n,11.48,2.30)),(.09,4.28,.36),"navy",angle)
         building.box("Drum wall seam",(x,2.31,z),(1.82,.065,.40),"orange_dark",angle)
+        xo_face,_,zo_face=pos(th,11.58,0)
+        if i in (3, 14, 28, 35):
+            building.seam((xo_face,1.42,zo_face),1.28,1.10,angle,"orange_dark","cream",tie_color="steel")
+        elif i in (6, 17, 31):
+            building.patch_plate((xo_face,1.36,zo_face),.96,.68,angle,"steel","navy")
         if i%2==0:
             xo,_,zo=pos(th,11.61,0)
             building.box("Dark ribbon window",(xo,3.27,zo),(1.62,.84,.16),"cobalt",angle)
@@ -157,9 +168,11 @@ a.solid(building,"Insulated door header",(0,3.45,9.08),(3.7,.55,1.02),"cobalt")
 for x in (-1.77,1.77):
     a.layout["boxes"].append([(x,1.46,9.18),(.29,2.93,1.06),0])
     building.plinth("Entry jamb plinth",(x,.14,9.18),.38,.28,1.14,"navy",flare=.035)
-    building.box("Insulated south entry jamb",(x,1.52,9.18),(.31,2.80,1.08),"cobalt",taper=(.05,.03))
+    building.chipped("Insulated south entry jamb",(x,1.52,9.18),(.31,2.80,1.08),"cobalt",taper=(.05,.03),
+                     chips=[((-math.copysign(1,x),1.0,1.0),.12)],core_color="steel")
     building.box("Storm door sidelight",(x,1.78,9.68),(.21,1.40,.17),"glass")
-building.coping("Blue snow entry awning",(0,3.18,9.56),4.16,.30,2.02,"blue",seg_len=1.38)
+building.coping("Blue snow entry awning",(0,3.18,9.56),4.16,.30,2.02,"blue",seg_len=1.38,slant=.18,wear=.72)
+terrain.rubble((13.45,0,.45),.38,0.4,("rock","light_rock","cream"),count=3)
 for sx in (-1.55, 1.55):
     building.beam("Awning tie rod",(sx,3.88,9.05),(sx,3.26,10.35),.055,.055,"steel")
 building.box("Snow on entry awning",(0,3.38,9.58),(3.96,.15,1.88),"snow",taper=(.04,.06))

@@ -154,8 +154,14 @@ for row,z in enumerate((-21,-15,-9,-3,3,9,15,21)):
         district.plinth("Tenement granite plinth",(front+side*.03,y+.16,z),.18,.32,5.98,"grout",flare=.025)
         district.box("Mosaic skirting",(front,y+.68,z),(.08,1.26,5.96),"tile")
         for f_y in (y+3.38, y+5.84, y+8.30):
-            district.coping("Tong lau floor cornice",(front+side*.08,f_y,z),.24,.16,5.98,"white",seg_len=1.98)
-        district.coping("Tong lau parapet cap",(x,y+10.28,z),.86,.24,6.06,"white",seg_len=1.98)
+            district.coping("Tong lau floor cornice",(front+side*.08,f_y,z),.24,.16,5.98,"white",seg_len=1.90,slant=.20,wear=.78)
+        district.coping("Tong lau parapet cap",(x,y+10.28,z),.86,.24,6.06,"white",seg_len=1.90,slant=.22,wear=.82)
+        f_ang = math.pi/2 if side==1 else -math.pi/2
+        district.seam((front+side*.02,y+6.95,z+.35),1.55,1.25,f_ang,"grout","tile",tie_color="steel" if row%2==0 else None)
+        if row % 2 == 1:
+            district.masonry_patch((front+side*.02,y+4.45,z+.15),1.05,.66,f_ang,"grout","concrete",alt_color="warm",lip_color="white")
+        else:
+            district.patch_plate((front+side*.02,y+4.45,z-.20),.94,.62,f_ang,"metal","ink")
         for i in range(13):
             for j in range(3):
                 if (i*7+j+row)%4!=0:

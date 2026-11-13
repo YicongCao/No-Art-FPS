@@ -53,7 +53,11 @@ for x in (-22,22):
         hall.box("Column capital",(col_x,7.92,z),(.76,.32,.72),"cobalt",taper=(-.05,-.05))
         bx = x-math.copysign(.73,x)
         hall.plinth("Bollard base plate",(bx,.06,z),.34,.12,.30,"black",flare=.025)
-        hall.box("Impact bollard",(bx,.54,z),(.26,.96,.22),"yellow",taper=(.08,.08))
+        if z in (-12, 0, 10):
+            hall.chipped("Impact bollard",(bx,.54,z),(.26,.96,.22),"yellow",taper=(.08,.08),
+                         chips=[((-math.copysign(1,x),1.0,1.0),.085)],core_color="steel")
+        else:
+            hall.box("Impact bollard",(bx,.54,z),(.26,.96,.22),"yellow",taper=(.08,.08))
 a.layout["ceiling_lamps"]=[]
 for z in (-18,-12,-6,0,6,10,15,21):
     y=7.92 if z<12 else 5.24
@@ -95,6 +99,9 @@ for left,right in [(-22,-17.15),(-13.65,-4.10),(4.10,22)]:
     for bi in range(bays):
         bx=left+(bi+.5)*step
         hall.box("Secure area lower wall",(bx,.92,11),(max(.20,step-.028),1.38,.46),"white")
+    if width >= 8.0:
+        hall.seam((x-width*.18,.88,11.23),1.35,.92,0.0,"steel","sand")
+        hall.patch_plate((x+width*.22,.76,10.77),.88,.54,math.pi,"metal","navy")
     a.layout["boxes"].append([(x,2.89,11),(width,2.34,.15),0])
     a.layout["glass"].append([(x,2.89,11),(width,2.34),0])
     hall.coping("Divider glazing sill",(x,1.70,11),width,.15,.58,"blue",seg_len=1.9)
@@ -181,6 +188,7 @@ for i,x in enumerate((-4.6,4.6)):
         machines.plinth("Dark belt frame",(x+edge*1.70,.16,-1.3),.35,.32,17.5,"blue",flare=.025)
         for z_rib in range(-9, 9, 3):
             machines.box("Belt casing rib",(x+edge*1.74,.48,z_rib),(.32,.78,.14),"navy")
+        machines.patch_plate((x+edge*1.84,.48,1.5*edge),.78,.44,math.pi/2*edge,"metal","navy")
         a.solid(machines,"Low belt-side safety guide",(x+edge*1.77,.44,-1.3),(.16,.88,17.5),color)
         for z0,z1 in ((-12.3,-10.05),(7.45,9.7)):
             a.solid(machines,"Belt run-off safety guide",(x+edge*1.77,.44,(z0+z1)*.5),(.16,.88,z1-z0),color)

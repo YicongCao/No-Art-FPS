@@ -9,7 +9,15 @@ from mathutils import Vector
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools/maps"))
-from toy_kit import export_toy_parts, segmented_coping, stepped_plinth, tapered_box
+from toy_kit import (
+    chipped_box,
+    export_toy_parts,
+    repair_patch_plate,
+    segmented_coping,
+    slanted_wall_seam,
+    stepped_plinth,
+    tapered_box,
+)
 
 OUT = ROOT / "assets/models/ferry"
 LAYOUT = json.loads((ROOT / "tools/maps/last_ferry_layout.json").read_text())
@@ -218,7 +226,10 @@ for sx in (-1, 1):
     for sz in (-1, 1):
         cabin.box("Cabin corner pilaster", (sx * 2.80, 1.48, sz * 2.50), (.24, 2.38, .24), "cream", taper=(.05, .05))
 cabin.box("Roof cornice", (0, 2.64, 0), (6.08, .14, 5.50), "green", taper=(-.04, -.04))
-segmented_coping(cabin.mesh, "Roof", (0, 2.82, 0), 6.40, .28, 5.82, "green_dark", seg_len=1.6, gap=.028)
+segmented_coping(cabin.mesh, "Roof", (0, 2.82, 0), 6.40, .28, 5.82, "green_dark", seg_len=1.55, gap=.028, slant=.18, wear=.74)
+for side in (-1, 1):
+    slanted_wall_seam(cabin.mesh, (side * 1.15, .54, side * 2.64), 1.25, .44, 0.0 if side > 0 else math.pi, "green_dark", "gold")
+    repair_patch_plate(cabin.mesh, (side * 2.88, .54, .85), .86, .42, math.pi/2 * side, "gold", "metal")
 for side in (-1, 1):
     cabin.box("Bridge sun visor", (0, 2.32, side * 2.74), (5.50, .12, .34), "green_dark", taper=(.02, .06))
     for offset in (-1.65, 0, 1.65):
@@ -282,10 +293,16 @@ for name, color in (("crates_teal","teal"), ("crates_purple","violet"), ("locker
             kit.box("Binding rail", (0,y_band,0), (w+.06,.14,d+.06), "cream")
         for sx in (-1, 1):
             for sz in (-1, 1):
-                kit.box("Corner post", (sx*(w*.5-.08),height/2+.02,sz*(d*.5-.08)), (.18,height-.04,.18), "cream", taper=(.03,.03))
+                if sx > 0 and sz > 0:
+                    chipped_box(kit.mesh, "Chipped corner post", (sx*(w*.5-.08),height/2+.02,sz*(d*.5-.08)),
+                                (.18,height-.04,.18), "cream", taper=(.03,.03), chips=[((1.0,1.0,1.0),.09)])
+                else:
+                    kit.box("Corner post", (sx*(w*.5-.08),height/2+.02,sz*(d*.5-.08)), (.18,height-.04,.18), "cream", taper=(.03,.03))
         for side in (-1, 1):
             kit.box("Corner straps", (side * w*.28,height/2+.02,0), (.16,height+.04,d+.06), "gold")
             kit.box("Side batten", (0,height*.54,side*(d*.5-.01)), (w-.26,.13,.065), "cream")
+            repair_patch_plate(kit.mesh, (side * .68, height*.54, side*(d*.5-.03)), .58, .38,
+                               0.0 if side > 0 else math.pi, "gold", "metal")
         kit.box("Latch", (0,height*.54,d*.53), (.40,.18,.08), "metal")
 
 light = Kit("lighthouse", LAYOUT["lighthouse"])
@@ -306,9 +323,11 @@ light.rod("Roof", (0,12.05,0), (0,13.05,0), 1.12, "coral", 10, .12)
 pier = Kit("pier", LAYOUT["pier"])
 kits.append(pier)
 pier.box("Quay", (0,.31,0), (33,1.5,13), "shore")
-segmented_coping(pier.mesh, "Quay coping", (0,1.08,6.35), 33.2, .20, .55, "cream", seg_len=2.4, gap=.04)
+segmented_coping(pier.mesh, "Quay coping", (0,1.08,6.35), 33.2, .20, .55, "cream", seg_len=2.2, gap=.04, slant=.24, wear=.86)
 stepped_plinth(pier.mesh, "Terminal plinth", (0,1.22,-.75), 16.8, .44, 6.5, "metal", flare=.06)
 pier.box("Terminal", (0,2.65,-.75), (16.5,4.3,6.2), "shore_light", taper=(.03,.03))
+slanted_wall_seam(pier.mesh, (-5.8,2.6,2.35), 1.65, 1.45, 0.0, "shore", "cream", tie_color="metal")
+repair_patch_plate(pier.mesh, (5.8,1.8,2.35), 1.15, .72, 0.0, "gold", "metal")
 segmented_coping(pier.mesh, "Terminal roof", (0,4.96,-.75), 18.2, .36, 7.1, "green_dark", seg_len=2.2, gap=.035)
 for i in range(8):
     wx = (i-3.5)*1.87

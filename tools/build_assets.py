@@ -62,6 +62,29 @@ def box(name, p, size, color, bevel=0):
     toy_soften(obj, min(size), bevel)
     return finish_obj(obj, name, color)
 
+def chipped_box(name, p, size, color, corner=(1, 1, 1), cut=.075, bevel=0):
+    bpy.ops.mesh.primitive_cube_add(size=1, location=xyz(p))
+    obj = bpy.context.object
+    obj.dimensions = (size[0], size[2], size[1])
+    bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+    bm = bmesh.new()
+    bm.from_mesh(obj.data)
+    cx, cy, cz = corner[0], -corner[2], corner[1]
+    c_pt = Vector((cx * size[0] * .5, cy * size[2] * .5, cz * size[1] * .5))
+    n_vec = Vector((cx * .64, cy * .56, cz * .52)).normalized()
+    ret = bmesh.ops.bisect_plane(
+        bm, geom=list(bm.verts)+list(bm.edges)+list(bm.faces),
+        plane_co=c_pt - n_vec * cut, plane_no=n_vec, clear_outer=True,
+    )
+    edges = [g for g in ret['geom_cut'] if isinstance(g, bmesh.types.BMEdge) and g.is_valid]
+    if len(edges) >= 3:
+        bmesh.ops.contextual_create(bm, geom=edges)
+    bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
+    bm.to_mesh(obj.data)
+    bm.free()
+    toy_soften(obj, min(size), bevel)
+    return finish_obj(obj, name, color)
+
 def cyl(name, p, r, depth, color, vertices=8, axis='y'):
     bpy.ops.mesh.primitive_cylinder_add(vertices=vertices, radius=r, depth=depth, location=xyz(p))
     obj = bpy.context.object
@@ -130,11 +153,27 @@ for color in ('green', 'red', 'cream', 'purple'):
     for x in (-2.96, 2.96):
         for z in (-1.39,1.39):
             box('corner', (x,1.45,z), (.12,2.9,.12), 'ink')
-            for y in (.12,2.78): box('casting',(x,y,z),(.24,.24,.2),'cream')
+            for y in (.12,2.78):
+                if y > 2.0 and x * z > 0:
+                    chipped_box('casting', (x,y,z), (.24,.24,.2), 'cream',
+                                corner=(1 if x>0 else -1, 1, 1 if z>0 else -1), cut=.075)
+                else:
+                    box('casting',(x,y,z),(.24,.24,.2),'cream')
     for z in (-1.42,1.42):
         for i in range(17):
-            box('rib',(-2.7+i*.3375,1.46,z),(.045,2.55,.035),color)
+            rh = 2.28 if i in (3, 13) else 2.55
+            ry = 1.32 if i in (3, 13) else 1.46
+            box('rib',(-2.7+i*.3375,ry,z),(.045,rh,.035),color)
         for y in (.12,2.78):box('rim',(0,y,z),(5.9,.12,.07),'ink')
+        # Riveted repair patch plate near lower corner (clear of center graffiti)
+        pz = z + (.028 if z > 0 else -.028)
+        chipped_box('repair_patch', (2.02, .68, pz), (.68, .46, .036), 'cream',
+                    corner=(1, 1, 1 if z > 0 else -1), cut=.09)
+        for rx in (1.76, 2.28):
+            for ry_b in (.52, .84):
+                if rx > 2.1 and ry_b > .7:
+                    continue
+                box('patch_rivet', (rx, ry_b, pz + (.018 if z > 0 else -.018)), (.045, .045, .024), 'ink')
     for x in (-3.02,3.02):
         sign=1 if x>0 else -1
         box('door_gasket',(sign*2.88,1.45,0),(.09,2.65,2.56),'ink')
@@ -200,7 +239,7 @@ profile_shell(mesh,'base',(0,0,0),[
 profile_shell(mesh,'cast_counterweight',(0,0,0),[
     (.40,hull_ring(1.45,.62,1.18)),(.68,hull_ring(1.58,.57,1.38)),
     (1.02,hull_ring(1.50,.52,1.34)),(1.16,hull_ring(1.28,.53,1.18))],'yellow')
-box('rear_bumper',(0,.40,1.13),(1.44,.20,.14),'blue',.035)
+chipped_box('rear_bumper',(0,.40,1.13),(1.44,.20,.14),'blue',corner=(1,1,1),cut=.075,bevel=.035)
 for y in (.73,.87,1.01):box('rear_vent',(0,y,1.17),(.72,.065,.025),'blue',.012)
 for x in (-.82,.82):
     for z in (-.7,.7):
@@ -262,13 +301,23 @@ export('cloud',True)
 
 begin('pallet')
 for z in [-.55,0,.55]:box('runner',(0,.12,z),(1.3,.24,.15),'yellow')
-for x in [-.57,-.28,0,.28,.57]:box('slat',(x,.27,0),(.22,.08,1.4),'cream')
+for i,x in enumerate([-.57,-.28,0,.28,.57]):
+    if i == 1:
+        chipped_box('slat',(x,.27,.06),(.22,.08,1.24),'cream',corner=(-1,1,-1),cut=.06)
+    else:
+        box('slat',(x,.27,0),(.22,.08,1.4),'cream')
 export('pallet',True)
 
 begin('crate')
 box('cargo',(0,.55,0),(1.1,1.1,1.1),'yellow',.025)
 for y in [.09,1.01]:
-    for z in [-.56,.56]:box('brace',(0,y,z),(1.15,.13,.07),'cream')
+    for z in [-.56,.56]:
+        if y > .5 and z > 0:
+            chipped_box('brace',(0,y,z),(1.15,.13,.07),'cream',corner=(1,1,1),cut=.055)
+        else:
+            box('brace',(0,y,z),(1.15,.13,.07),'cream')
+for z in [-.57,.57]:
+    beam('diag_brace',(-.44,.16,z),(.44,.94,z),.055,'cream')
 for x in [-.48,.48]:
     for z in [-.56,.56]:box('strap',(x,.55,z),(.07,1.1,.035),'ink')
 box('label',(0,.7,-.58),(.32,.22,.02),'cream')

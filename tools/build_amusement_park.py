@@ -15,8 +15,12 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools/maps"))
 from toy_kit import (
     cambered_canopy,
+    chipped_box,
     export_toy_parts,
+    exposed_masonry_patch,
+    repair_patch_plate,
     segmented_coping,
+    slanted_wall_seam,
     stepped_plinth,
     tapered_box,
 )
@@ -259,10 +263,14 @@ for x in (-5,5):
     ],"blue")
     collider((x,1.35,24),(2.3,2.7,2.5),"Entry")
 for x in (-3.38,3.38):
-    gate.box("Gate pier", (x,1.82,0), (.48,3.44,.52), "gold", taper=(.09,.09))
+    chipped_box(gate.part, "Gate pier", (x,1.82,0), (.48,3.44,.52), "gold", taper=(.09,.09),
+                chips=[((-math.copysign(1,x),1.0,1.0),.12)], core_color="cream")
     stepped_plinth(gate.part, "Pier foot", (x,.16,0), .66, .32, .70, "cream", flare=.05)
     gate.box("Pier capital", (x,3.42,0), (.62,.20,.66), "cream", taper=(-.06,-.06))
     collider((x,1.8,24),(.42,3.6,.46),"Entry")
+for x in (-5,5):
+    slanted_wall_seam(gate.part, (x+math.copysign(1.14,x),1.25,0), 1.05, 1.05, math.pi/2*math.copysign(1,x), "teal_dark", "cream")
+    exposed_masonry_patch(gate.part, (x,.56,1.25), .88, .44, 0.0, "grout", "brick", alt_color="gold", lip_color="cream")
 gate.box("Gate roof core", (0,3.60,0), (8.2,.28,2.72), "deep_blue")
 segmented_coping(gate.part, "Gate roof", (0,3.82,0), 8.46, .24, 2.96, "blue", seg_len=1.68, gap=.028)
 gate.box("Cream marquee", (0,3.65,1.44), (7.54,.60,.22), "edge", taper=(.02,.04))
@@ -521,7 +529,9 @@ for z_pil in (-3.6, 1.0, 5.6):
         platform.box("Station pilaster",(25.6+sx*2.56,1.12,z_pil),(.26,1.66,.34),"deep_blue",taper=(.05,.05))
 platform.box("Platform floor",(25.6,2.02,1),(5.34,.36,10.04),"purple")
 platform.box("Platform top",(25.6,2.202,1),(5.22,.024,9.92),"cream")
-segmented_coping(platform.part,"Gold fascia",(22.94,2.04,1),.22,.36,10.12,"gold",seg_len=1.68,gap=.026)
+segmented_coping(platform.part,"Gold fascia",(22.94,2.04,1),.22,.36,10.12,"gold",seg_len=1.62,gap=.028,slant=.20,wear=.74)
+slanted_wall_seam(platform.part,(22.98,1.08,-1.3),1.55,1.10,-math.pi/2,"deep_blue","cream")
+repair_patch_plate(platform.part,(22.98,1.02,3.3),.92,.62,-math.pi/2,"gold","ink")
 collider((25.6,1.97,1),(5.3,.46,10))
 platform.export()
 place("StationFoundation","station_foundation")
@@ -587,7 +597,9 @@ kiosk.box("Counter",(0,1.03,1.08),(2.06,.16,.44),"cream",taper=(.02,.04))
 for sx in (-1, 1):
     kiosk.box("Counter bracket",(sx*.72,.90,1.04),(.13,.14,.30),"gold")
 kiosk.box("Roof cornice",(0,2.14,0),(2.52,.11,2.12),"gold",taper=(-.04,-.04))
-segmented_coping(kiosk.part,"Roof",(0,2.30,0),2.72,.24,2.32,"edge",seg_len=1.35,gap=.024)
+segmented_coping(kiosk.part,"Roof",(0,2.30,0),2.72,.24,2.32,"edge",seg_len=1.35,gap=.026,slant=.20,wear=.72)
+slanted_wall_seam(kiosk.part,(0,.56,.96),1.10,.58,0.0,"teal_dark","cream")
+exposed_masonry_patch(kiosk.part,(1.16,.92,0),.84,.54,math.pi/2,"grout","brick",alt_color="gold",lip_color="cream")
 cambered_canopy(kiosk.part,(0,2.16,.98),2.48,.76,.30,0.0,"gold","white","brick",posts=False)
 kiosk.export()
 for i,(x,z,yaw) in enumerate([(-15,15,.1),(14,15,-.1),(-13,-13,0),(15,-12,.3),(-28,12,1.1),(30,13,-.8)]):

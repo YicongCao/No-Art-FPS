@@ -117,6 +117,31 @@ func beveled_box_mesh(size: Vector3, mat: Material) -> Mesh:
 	mesh.surface_set_material(0,mat)
 	return mesh
 
+func slanted_seam(center: Vector3, span: float, rise: float, normal: Vector3, groove_color: String, flange_color: String) -> void:
+	var right := Vector3.UP.cross(normal).normalized()
+	if right.length_squared() < .01:right = Vector3.RIGHT
+	var p0 := center - right * (span * .36) + Vector3.UP * (rise * .46)
+	var p1 := center + right * (span * .36) - Vector3.UP * (rise * .46)
+	var dir := (p1 - p0).normalized()
+	var perp := normal.cross(dir).normalized()
+	var length := p0.distance_to(p1)
+	var basis := Basis(perp, dir, normal)
+	for spec in [
+		[groove_color, 0.0, .052, length, .018],
+		[flange_color, -.095, .13, length * .88, .034],
+		[flange_color, .095, .11, length * .76, .032]]:
+		var m_col: String = spec[0]
+		var lat: float = spec[1]
+		var w_s: float = spec[2]
+		var l_s: float = spec[3]
+		var d_s: float = spec[4]
+		var pos := (p0 + p1) * .5 + perp * lat + normal * (d_s * .5)
+		var visual = MeshInstance3D.new()
+		visual.mesh = beveled_box_mesh(Vector3(w_s, l_s, d_s), materials[m_col])
+		visual.transform = Transform3D(basis, pos)
+		add_child(visual)
+		if active_structure:active_structure.register(visual)
+
 func toy_box(pos: Vector3, size: Vector3, color: String, collision: bool = false) -> void:
 	var visual = MeshInstance3D.new()
 	visual.mesh = beveled_box_mesh(size,materials[color])
@@ -322,7 +347,14 @@ func build() -> void:
 	solid(Vector3(0,3,-11),Vector3(18,.2,4.4),"purple")
 	for seg_i in range(10):
 		var cx := -8.1 + seg_i*1.8
-		solid(Vector3(cx,3.02,-8.76),Vector3(1.76,.22,.16),"cream",false)
+		var dy := (.014 if seg_i%3==0 else (-.012 if seg_i%4==1 else 0.0))
+		if seg_i == 2:
+			solid(Vector3(cx-.54,3.00,-8.76),Vector3(.62,.19,.16),"cream",false)
+			solid(Vector3(cx+.56,2.99,-8.76),Vector3(.56,.17,.16),"cream",false)
+		else:
+			solid(Vector3(cx,3.02+dy,-8.76),Vector3(1.74,.22,.16),"cream",false)
+	slanted_seam(Vector3(-5.15,1.52,-8.94),1.25,1.10,Vector3.BACK,"ink","cream")
+	slanted_seam(Vector3(5.15,1.48,-8.94),1.25,1.10,Vector3.BACK,"ink","cream")
 	for x in [-5,-1,3]:
 		solid(Vector3(x,1.3,-8.97),Vector3(2.0,2.6,.06),"cream",false)
 		solid(Vector3(x+1,1.4,-8.92),Vector3(.06,2.8,.08),"ink",false)
@@ -360,8 +392,9 @@ func build() -> void:
 		for sx in [-1.0,1.0]:
 			for sz in [-1.0,1.0]:
 				toy_box(p+Vector3(sx*.70,.56,sz*.55),Vector3(.14,.92,.14),"blue",false)
-		for sx in [-.40,.40]:
-			toy_box(p+Vector3(sx,1.10,0),Vector3(.77,.13,1.30),"cream",false)
+		toy_box(p+Vector3(-.40,1.10,0),Vector3(.76,.13,1.30),"cream",false)
+		toy_box(p+Vector3(.34,1.085,.02),Vector3(.64,.11,1.26),"cream",false)
+		slanted_seam(p+Vector3(0,.56,.59),.78,.54,Vector3.BACK,"ink","cream")
 		active_structure = null
 	street()
 	warehouse()
@@ -620,7 +653,14 @@ func warehouse() -> void:
 		var edge_x := 23.92 if x<30.0 else 36.08
 		for r_i in range(12):
 			var rz := -15.0 + r_i*2.1
-			solid(Vector3(edge_x,5.56,rz),Vector3(.30,.22,2.04),"cream",false)
+			var r_dy := (.016 if r_i%3==1 else (-.014 if r_i%4==2 else 0.0))
+			if r_i == 4 and x < 30.0:
+				solid(Vector3(edge_x,5.54,rz-.62),Vector3(.30,.19,.72),"cream",false)
+				solid(Vector3(edge_x,5.53,rz+.64),Vector3(.30,.17,.68),"cream",false)
+			else:
+				solid(Vector3(edge_x,5.56+r_dy,rz),Vector3(.30,.22,2.02),"cream",false)
+	slanted_seam(Vector3(23.85,2.45,-13.6),1.45,1.35,Vector3.LEFT,"ink","yellow")
+	slanted_seam(Vector3(23.85,2.35,7.75),1.25,1.20,Vector3.LEFT,"ink","yellow")
 	for z in [-15,-9,-3,3,8]:
 		solid(Vector3(30,5.15,z),Vector3(12,.20,.20),"ink",false)
 		for x in [24.35,35.65]:
