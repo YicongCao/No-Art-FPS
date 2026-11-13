@@ -1,0 +1,28 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 4.1 Metal - 91.7 - Compatibility - Using Device: Apple - Apple M5
+
+ART_AUDIT_SHOT res://docs/research/overwatch-map-style-2026-11-13/current/score_attack-play.png map=yard camera=(0.0, 1.7, 10.5) fov=63.0
+ART_AUDIT_SHOT res://docs/research/overwatch-map-style-2026-11-13/current/score_attack-view.png map=yard camera=(0.0, 1.7, 10.5) fov=63.0
+ART_AUDIT_SHOT res://docs/research/overwatch-map-style-2026-11-13/current/amusement_park-play.png map=amusement_park camera=(0.0, 1.7, 20.6) fov=63.0
+ART_AUDIT_SHOT res://docs/research/overwatch-map-style-2026-11-13/current/amusement_park-view.png map=amusement_park camera=(0.0, 1.7, 20.6) fov=63.0
+ART_AUDIT_SHOT res://docs/research/overwatch-map-style-2026-11-13/current/last_ferry-play.png map=last_ferry camera=(-8.0, 1.7, 22.0) fov=63.0
+ART_AUDIT_SHOT res://docs/research/overwatch-map-style-2026-11-13/current/last_ferry-view.png map=last_ferry camera=(-8.0, 1.7, 22.0) fov=63.0
+ART_AUDIT_SHOT res://docs/research/overwatch-map-style-2026-11-13/current/night_studio-play.png map=night_studio camera=(-7.1, 1.7, 8.9) fov=63.0
+ART_AUDIT_SHOT res://docs/research/overwatch-map-style-2026-11-13/current/night_studio-view.png map=night_studio camera=(-7.1, 1.7, 8.9) fov=63.0
+ART_AUDIT_SHOT res://docs/research/overwatch-map-style-2026-11-13/current/sandgate-play.png map=sandgate camera=(15.73, 1.7, 17.48) fov=63.0
+ART_AUDIT_SHOT res://docs/research/overwatch-map-style-2026-11-13/current/sandgate-view.png map=sandgate camera=(15.73, 1.7, 17.48) fov=63.0
+ART_AUDIT_SHOT res://docs/research/overwatch-map-style-2026-11-13/current/bb_office-play.png map=bb_office camera=(7.0, 1.7, 14.7) fov=63.0
+ART_AUDIT_SHOT res://docs/research/overwatch-map-style-2026-11-13/current/bb_office-view.png map=bb_office camera=(7.0, 1.7, 14.7) fov=63.0
+ART_AUDIT_SHOT res://docs/research/overwatch-map-style-2026-11-13/current/hogwarts-play.png map=hogwarts camera=(-24.0, 1.71, 27.0) fov=63.0
+ART_AUDIT_SHOT res://docs/research/overwatch-map-style-2026-11-13/current/hogwarts-view.png map=hogwarts camera=(-35.8, 3.5, 29.4) fov=70.0
+ART_AUDIT_SHOT res://docs/research/overwatch-map-style-2026-11-13/current/rain_market-play.png map=rain_market camera=(0.0, 1.71, 19.0) fov=63.0
+ART_AUDIT_SHOT res://docs/research/overwatch-map-style-2026-11-13/current/rain_market-view.png map=rain_market camera=(0.1, 2.29, 22.15) fov=78.0
+ART_AUDIT_SHOT res://docs/research/overwatch-map-style-2026-11-13/current/baggage_below-play.png map=baggage_below camera=(3.3, 1.71, 14.0) fov=63.0
+ART_AUDIT_SHOT res://docs/research/overwatch-map-style-2026-11-13/current/baggage_below-view.png map=baggage_below camera=(9.8, 1.73, 21.2) fov=66.0
+ART_AUDIT_SHOT res://docs/research/overwatch-map-style-2026-11-13/current/snowline-play.png map=snowline camera=(-0.15, 1.71, 14.2) fov=63.0
+ART_AUDIT_SHOT res://docs/research/overwatch-map-style-2026-11-13/current/snowline-view.png map=snowline camera=(-0.75, 1.76, 20.1) fov=78.0
+ART_AUDIT_SHOT res://docs/research/overwatch-map-style-2026-11-13/current/palm_house-play.png map=palm_house camera=(0.0, 1.71, 19.4) fov=63.0
+ART_AUDIT_SHOT res://docs/research/overwatch-map-style-2026-11-13/current/palm_house-view.png map=palm_house camera=(0.0, 1.72, 20.6) fov=76.0
+ART_AUDIT_SHOT res://docs/research/overwatch-map-style-2026-11-13/current/ginza_station-play.png map=ginza_station camera=(0.0, 1.71, 19.6) fov=63.0
+ART_AUDIT_SHOT res://docs/research/overwatch-map-style-2026-11-13/current/ginza_station-view.png map=ginza_station camera=(-2.6, 1.72, 21.2) fov=74.0
+ART_AUDIT_CAPTURE_COMPLETE

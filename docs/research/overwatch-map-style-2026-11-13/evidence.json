@@ -1,0 +1,32 @@
+{
+  "source_commit": "79b1a3cbf4a69987ddaf1ecc3ab23010a4b236e8",
+  "date": "2026-11-13",
+  "engine": "Godot 4.7.2",
+  "renderer": "Compatibility",
+  "device": "Apple M5",
+  "resolution": [
+    1600,
+    900
+  ],
+  "captured_views": 24,
+  "retained_views": 16,
+  "method": "Adapted capture_map_compare.gd; two staged stationary enemies, frozen game clock; normal state only. Play FOV 63; secondary camera varies. Not human playtesting or a performance benchmark.",
+  "files": {
+    "amusement_park-play.png": "5bf168006c2ac04022b39a1a69db023d5173e60215b951a9167e086886ae900d",
+    "baggage_below-play.png": "2b9584e809909c1dfa3bda9e7ccf0500fd67e822ca26e9edd7d0f705d8eb19f5",
+    "bb_office-play.png": "f3f33fce79417ab0ebb2b196c25801a86fb8172f26d2ecf55fabd841d554cb8d",
+    "bb_office-view.png": "9ba96feef1e46d7e51397e2ef60a415f9c2831a05773489912a552a3ee4b14a2",
+    "ginza_station-play.png": "6cbb7dcb8feb11664e1cb2f61fe0d028b7f8ed35fbbb0b63a1b69ba639fb5aba",
+    "hogwarts-play.png": "e46d143784b75a323b68f45329f973ae25222ae9228c5be0219a68e7a2169544",
+    "last_ferry-play.png": "55fbd71486aed7c74c366a603cd75439153e8b8493cd5147e2821295d73bfd96",
+    "night_studio-play.png": "497401b486f139432f5c1bc54bf6b0d9fa7e084ad563e47e6c915dc8baca5306",
+    "palm_house-play.png": "96e5ff9ced1ddb6ac931a655954ed19a99f3595345a095165588591ce593401f",
+    "palm_house-view.png": "a54851b40b52d1590dc7c894bc20b830efd9dffc435d5351f40f455b561fdbb9",
+    "rain_market-play.png": "15867b0210c9a672a05f55cfc5000ad8fafa3096929f5f6396581f92b99fdfbc",
+    "rain_market-view.png": "950e565a1bd41850855482ac44853483ec97529228c52f6b9437b45ace569125",
+    "sandgate-play.png": "5646f35a6d59b63bcb31632ed467ec4acc666d9310cce14e9acd455f6840bfd4",
+    "sandgate-view.png": "b3eeff3be9f90aca14098e36593f94769b4f9e4a9c8a95d1d90606895496bffd",
+    "score_attack-play.png": "54b12ea616f1851262f1c9235f9fc121d20481ee4f3d9a2325110e208ac6ee22",
+    "snowline-play.png": "292d1501594a2223c60ea16a7164d0d0ed695698510f969e977127d73e4d3206"
+  }
+}

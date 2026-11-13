@@ -1,0 +1,118 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>地图风格研究 · No-Art-FPS</title>
+<style>
+:root{color-scheme:light;--paper:#f5f3ed;--ink:#222a2e;--muted:#596369;--line:#d0d1c9;--accent:#235e68}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.8 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}header,main,footer{max-width:1280px;margin:auto;padding:28px}header{border-bottom:1px solid var(--line)}h1{font-size:32px;line-height:1.35;margin:12px 0}h2{font-size:26px;line-height:1.4;margin:36px 0 16px}h3{font-size:22px;margin-top:32px}h4{font-size:19px}p{margin:10px 0}a{color:var(--accent);text-underline-offset:4px}.eyebrow,.muted{color:var(--muted);font-size:14px}.lead{max-width:880px;font-size:19px}nav{display:flex;gap:24px;flex-wrap:wrap}button,select{font:inherit;padding:8px 12px;border:1px solid #919e9f;border-radius:4px;background:white;color:var(--ink)}button{cursor:pointer}button[aria-pressed=true]{background:var(--accent);color:white}button:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #b66a28;outline-offset:3px}.controls{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:18px 0}.inspect{display:grid;grid-template-columns:minmax(0,3fr) minmax(260px,1fr);gap:24px}.frame{position:relative;align-self:start;overflow:hidden;background:#19242d}.frame>img{width:100%;display:block;aspect-ratio:16/9}.frame.gray>img{filter:grayscale(1)}.frame.blur>img{filter:blur(5px)}.frame.gray.blur>img{filter:grayscale(1) blur(5px)}.pin{position:absolute;transform:translate(-50%,-50%);background:#fff6d5;color:#242424;border:2px solid #79520c;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:700;line-height:1}.annotations-off .pin{display:none}aside h3{margin:0 0 8px}aside p{font-size:15px}aside ol{padding-left:22px;font-size:14px}.tag{font-size:13px;color:var(--accent);letter-spacing:.04em}.references{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}figure{margin:0}figure img{display:block;width:100%;aspect-ratio:16/9;object-fit:contain;background:#23303a}figcaption{font-size:14px;padding-top:12px}.table-scroll{overflow:auto;border:1px solid var(--line);margin:20px 0}table{border-collapse:collapse;width:100%;font-size:14px;min-width:680px}td,th{text-align:left;padding:12px;border-bottom:1px solid var(--line);vertical-align:top}th{background:#e6e7e0}td:first-child{min-width:96px}code{background:#e5e7e2;padding:2px 4px;overflow-wrap:anywhere}article{max-width:1040px}article>h2:first-child{display:none}.notice{border-left:4px solid var(--accent);padding:12px 20px;background:#e8eeeb}.source-note{font-size:13px;color:var(--muted)}footer{border-top:1px solid var(--line)}@media(max-width:850px){.inspect{grid-template-columns:1fr}.references{grid-template-columns:1fr}header,main,footer{padding:20px}h1{font-size:27px}}@media print{button,select,nav{display:none}.inspect{display:block}.references{display:block}.references figure{break-inside:avoid;margin-bottom:20px}body{background:white}article{max-width:none}}
+</style>
+<header><div class="eyebrow">No-Art-FPS / 环境美术研究 / 2026-11-13</div><h1>从精细的物件，走向有主次的场景</h1><p class="lead">我们的下一步：重新组织空间、形体、材质与光照。保留明快的上漆玩具风格，让地图在战斗视角中更有重量、层次与辨识度。</p><nav><a href="#inspect">12 图逐项检查</a><a href="#reference">一手参考</a><a href="#report">完整研究</a><a href="README.md">Markdown 原文</a></nav></header>
+<main><section id="inspect"><h2>当前版本实机与编辑建议</h2><p class="muted">新采集 24 个视角，保留 16 张。两名敌人由脚本摆放，普通模式；这是静态美术检查，不是完整游玩测试。图上标注是待实施建议。</p>
+<div class="controls"><label for="map">地图</label><select id="map"><option value="score_attack">堆货场</option><option value="sandgate">沙门</option><option value="bb_office">办公室</option><option value="amusement_park">游乐园</option><option value="last_ferry">渡轮</option><option value="night_studio">摄影棚</option><option value="hogwarts">城堡</option><option value="rain_market">香港雨市</option><option value="baggage_below">行李层</option><option value="snowline">雪线天文台</option><option value="palm_house">棕榈屋</option><option value="ginza_station">银座站</option></select><button id="view" aria-pressed="false">补充视角</button><button id="gray" aria-pressed="false">灰度检查</button><button id="blur" aria-pressed="false">虚化看大色块</button><button id="pins" aria-pressed="true">编辑标注</button><a id="original" href="current/score_attack-play.png" target="_blank">打开原图</a></div>
+<div class="inspect"><div class="frame" id="frame"><img id="shot" alt="当前地图实机"><div id="marks"></div></div><aside aria-live="polite"><span class="tag">观察 / 编辑动作 / 边界</span><h3 id="name"></h3><p id="issue"></p><p><strong>先做：</strong><span id="action"></span></p><p><strong>边界：</strong><span id="boundary"></span></p><ol id="notes"></ol></aside></div><p class="source-note">灰度和虚化仅是网页检查滤镜，不修改原始截图。各图补充机位的 FOV 不同；不要用画面中的物体大小直接比较地图尺度。</p></section>
+<section id="reference"><h2>守望先锋的一手视觉参考</h2><p class="muted">以下图片直接来自暴雪及参与制作的环境美术师，需要联网。展示机位、时段和画质不同，比较设计方法，不做像素或性能排名；点击图片可到原文。</p><div class="references"><figure><a href="https://news.blizzard.com/en-us/article/24215719/weekly-recall-flashpoint-map-reworks" target="_blank" rel="noopener"><img loading="lazy" src="https://bnetcmsus-a.akamaihd.net/cms/page_media/x0/X0NN0LIHG4K51751394084399.png" alt="Suravasa：入口与建筑层次，外部原作者图片"></a><figcaption><strong>Suravasa：入口与建筑层次</strong><p>观察拱门、平台、树木与远景的尺度差异，以及暖亮面和阴影的分区。</p><a href="https://news.blizzard.com/en-us/article/24215719/weekly-recall-flashpoint-map-reworks">Blizzard 官方重做说明；展示机位</a></figcaption></figure><figure><a href="https://philipklevestav.artstation.com/projects/eayYrG" target="_blank" rel="noopener"><img loading="lazy" src="https://cdna.artstation.com/p/assets/images/images/037/381/022/large/philip-klevestav-overwatch-dorado-01.jpg?1620228801" alt="Dorado：材质与局部光，外部原作者图片"></a><figcaption><strong>Dorado：材质与局部光</strong><p>观察灰泥、石材、屋瓦和植被各自的表面，以及拱廊暖灯对入口的强调。</p><a href="https://philipklevestav.artstation.com/projects/eayYrG">Philip Klevestav / Blizzard；作品展示</a></figcaption></figure><figure><a href="https://darkrusader.artstation.com/projects/oALwqJ" target="_blank" rel="noopener"><img loading="lazy" src="https://cdnb.artstation.com/p/assets/images/images/040/510/793/large/travis-castillo-blizzconline-newyork-02.jpg?1629096347" alt="Midtown：先读大形体，外部原作者图片"></a><figcaption><strong>Midtown：先读大形体</strong><p>细节很多，但桥体阴影、街角楼体、店面和街道先组织空间。</p><a href="https://darkrusader.artstation.com/projects/oALwqJ">Travis Castillo / Blizzard；历史预览</a></figcaption></figure></div></section>
+<section id="report"><h2>完整研究与执行方案</h2><div class="notice">先在沙门一个街角、办公室一条过道验证；依次隔离摆放、形体、光照和材质的贡献，再决定扩展。全图套用同一批细节不作为验收目标。</div><article><h2>地图风格研究：从上漆玩具场景到更成熟的风格化环境</h2>
+<p>2026-11-13。研究基线 <code>79b1a3c</code>，包含堆货场最新光照调整。范围是当前全部 12 张地图，上一轮删图建议尚未实施。本轮只研究与提出编辑方案。</p>
+<h3>结论</h3>
+<p>当前最需要补上的，是地图整体的视觉组织：主要形体、材料之间的区别、受光区域的层次，以及战斗区域与装饰区域的主次。继续平均添加倒角、破损、灯和反射，收益会越来越小。</p>
+<p>我们的上漆玩具目标本身成立，没必要改成守望先锋的复制品。可以保留明快纯色、简洁角色和短回合玩法，同时学习它如何让一组简化建筑具有真实的结构、重量和生活用途。</p>
+<p>推荐顺序：<strong>构图与删减 → 建筑和道具的中等尺度形体 → 分区材质与光照 → 接触关系 → 局部装饰 → 特效。</strong></p>
+<h3>证据与边界</h3>
+<ul>
+<li>本轮重新渲染 12 图、每图 2 个视角，共 24 张；报告保留全部 12 张战斗视角及 4 张补充视角。Godot 4.7.2、Compatibility、Apple M5、1600×900。战斗视角 FOV 为 63；补充视角不统一，不做像素级横向评分。原图无调色。</li>
+<li>两名敌人由脚本摆放并冻结，用于轮廓观察；它们不代表真实刷新点、移动路线或地图碰撞结论。核查了全部 12 张战斗视角和保留的 4 张补充视角，未声称完整走查全部路线。</li>
+<li>查阅现有模型生成器、材质装配、顶点烘焙和环境配置。旧文档有不同阶段的状态：<code>toy-evo/README.md</code> 的全图完成指第一轮；<code>evolution/README.md</code> 的下一轮主形体样板只明确完成沙门、货场、办公室、游乐园，不能混为一谈。</li>
+<li>外部依据来自暴雪官方说明、实际参与制作的环境美术师作品页和 GDC 讲座摘要。实际查看了 Suravasa 官方重做画面、Philip Klevestav 的 Dorado 庭院、Travis Castillo 的 Midtown 街角。</li>
+<li>外部图片是展示机位，不含正在战斗的完整 HUD；只能分析建筑、材质与构图，不能据此证明它们在相同设备上的性能或敌人可见性。未运行守望先锋客户端；GDC 只查阅了公开摘要，未把它当成已观看的完整演讲。</li>
+<li>下文“观察”是这些样本中的现象；“建议”是对本项目的设计判断。没有玩家视线追踪、盲测或本轮性能基准。</li>
+</ul>
+<p>交互图册见 <a href="index.html">index.html</a>，采集方法与版本见 <a href="evidence.json">evidence.json</a>，相机记录见 <a href="capture.log">capture.log</a>。</p>
+<h3>一、守望先锋值得学的具体内容</h3>
+<h4>1. 先有可玩的空间，再用美术解释这个空间</h4>
+<p>暴雪介绍的流程从经过测试的灰盒开始，再由环境美术转化为建筑与道具。Midtown 制作者也明确描述了从灰盒、概念设计到建筑、道具、布景和灯光的协作。<a href="https://news.blizzard.com/en-us/article/23674944/environment-states-in-overwatch-2-behind-the-scenes-with-the-engineering-team">暴雪环境状态说明</a>、<a href="https://darkrusader.artstation.com/projects/oALwqJ">Midtown 制作者资料</a></p>
+<p>对我们的含义：掩体首先是战斗约束，但最终应能读成售票亭、花池、工作台或设备机壳。地图编辑不能只把相同体块换成不同颜色，再散放一些主题小物件。</p>
+<h4>2. 细节并不少，但细节服从更大的形体</h4>
+<p>从本轮查看的 Midtown 街角看，砖缝、消防梯、店招和灯串很丰富，但桥体的大阴影、街角楼体、店面底层和天空开口先建立空间。Dorado 的庭院先通过拱廊、主入口、庭院中心形成结构，再用植物与暖灯补充。Suravasa 也并非“干净得没有纹理”，石材、植被和墙面变化都很多。</p>
+<p>这是对作品图的视觉分析，并非暴雪公布的统一比例规则。<a href="https://darkrusader.artstation.com/projects/oALwqJ">Midtown</a>、<a href="https://philipklevestav.artstation.com/projects/eayYrG">Dorado</a>、<a href="https://news.blizzard.com/en-us/article/24215719/weekly-recall-flashpoint-map-reworks">Suravasa</a></p>
+<p>对我们的含义：不能把“减少细节”等同于把墙面全部涂平，也不能把“增加细节”等同于全图加铆钉。需要的是主次，而不是统一的细节密度。</p>
+<h4>3. 地图美术也要做减法</h4>
+<p>暴雪的 Flashpoint 重做说明列出了降低部分遮挡、突出入口、减少杂物和强化区域主题等措施。美术编辑的价值包含让玩家更容易理解空间。<a href="https://news.blizzard.com/en-us/article/24215719/weekly-recall-flashpoint-map-reworks">官方重做说明</a></p>
+<p>我们可以先减少非交互的视觉噪声；改变掩体、道路或可穿越结构属于关卡调整，需要单独验证，不能冒充纯美术修改。</p>
+<h4>4. 光照效果可以大量预计算</h4>
+<p>暴雪公开描述了静态表面的方向性光照数据、AO 与移动物体使用的空间采样。其环境状态系统还允许组合光照变化。<a href="https://news.blizzard.com/en-us/article/23674944/environment-states-in-overwatch-2-behind-the-scenes-with-the-engineering-team">官方技术说明</a></p>
+<p>对我们的含义：优先研究可控的静态间接光和接触关系，动态灯留给角色与状态变化。不能把“实时效果多”当成接近目标的必要条件，也不应把当前顶点 AO 称为同等完整的光照方案。</p>
+<h3>二、当前画面的八个主要差异</h3>
+<div class="table-scroll"><table><thead><tr><th>维度</th><th>当前样本里的表现</th><th>地图编辑时应该改什么</th><th>优先级</th></tr></thead><tbody><tr><td>视觉主次</td><td>多张图的横梁、栏杆、地砖、屏风和边框同时清楚；背景也在竞争</td><td>为出生点、转角、主交战区各定义一个视觉中心，清理其周边非交互线条</td><td>P0</td></tr><tr><td>建筑体积</td><td>大平面加边框很多，突出边沿比凹入空间更显眼</td><td>屋檐、门廊、窗洞、墙裙形成不同深度；外壳改造服从现有碰撞边界</td><td>P0</td></tr><tr><td>尺度节奏</td><td>多数柱、栏杆、设备按相近粗细和等间距重复</td><td>建立主梁／次梁、主体／附件、近景／远景的层级；优先改已有组件</td><td>P0</td></tr><tr><td>色彩分工</td><td>多个物件都使用完整的高饱和颜色，部分图又被暖光统一染色</td><td>保留主色，降低次要区域的对比；用明度与冷暖分区，不全局去饱和</td><td>P0</td></tr><tr><td>光照结构</td><td>浅色大面容易平亮；阴影常像统一色块；局部灯池有但衔接弱</td><td>设计大面积明暗关系，再补门洞、檐底、设备底部和地面接触</td><td>P1</td></tr><tr><td>材料身份</td><td>石材、喷漆、塑料和金属常接近同一套平滑涂层</td><td>先区分高光宽度、粗糙度和结构，再按位置添加有限纹理</td><td>P1</td></tr><tr><td>使用痕迹</td><td>通用崩角、斜缝、补丁容易到处出现</td><td>只在脚踢、搬运、漏水、摩擦等有原因的位置做旧</td><td>P1</td></tr><tr><td>环境叙事</td><td>主题容易依赖少数标志物，空地和墙面缺少用途关系</td><td>每一区域安排一个可读的作业／生活组合，避免平均摆杂物</td><td>P2</td></tr></tbody></table></div>
+<h4>A. 构图：从“把物件放满”转向“给交战区留出安静背景”</h4>
+<p>办公室天花管线、屏幕文字、工位边框与角色同时抢眼；温室入口后面多层白骨架叠成线网；雨市顶棚和摊位也有强重复节奏。这些结构单看都合理，叠在同一视角会降低重点的辨识度。</p>
+<p>编辑动作：先标记常见敌人出现的屏幕区域；在这些区域后方保留较完整的墙面、幕布、植物暗面或设备侧面。通过合并相邻同类视觉块、减弱无用途的接缝、降低后排非交互装饰对比来实现。不要删除必要掩体，也不要给敌人背后永久画一个随镜头的亮斑。</p>
+<p>不要把所有常用入口都画成同样的高亮框。主入口、侧路、不可通行装饰门必须有不同的信息层级；当前爆炸桶等玩法标记应保持跨图一致。</p>
+<h4>B. 形体：我们缺的主要是中等尺度结构</h4>
+<p>宏观上能识别“货场／温室／城堡”；微观上已有倒角、缝和做旧。中间一层仍有空缺：檐口如何支撑、机壳如何包住内部、窗户如何坐入墙体、植物如何组成一簇。</p>
+<p>编辑动作：一次只改一组占画面面积大的组件。例如沙门的门洞—墙裙—棚布，温室的主拱肋—次肋—节点，渡轮的舱壁—舷窗—灯罩。让前后错层和遮蔽本身产生明暗，而不是增加线条模拟深度。</p>
+<p><code>toy_kit.py</code> 已有通用微锥体、压顶、窗口和棚布；导出器会按厚度与最短边选择单段倒角。它是生产工具，不是所有材质的最终造型规范。金属薄板应折边，石材应厚重斜切，塑料外壳可有更连续的曲面，植物应有弯曲脊线。不能把所有构件一起加粗或一起加倒角段数。</p>
+<h4>C. 光：减少泛白只是第一步</h4>
+<p>刚完成的堆货场降光使颜色关系更稳定，但无法单独补出墙脚、檐底和空间间接光。单纯继续压低太阳与环境光，会让整个场景变暗，却仍然平。</p>
+<p>当前顶点烘焙有两类：室外天空遮蔽与颜色渗透，室内短距离 AO；结果乘入 albedo。它能改善接触，但会连同受直射光的底色一起压暗，与独立的间接照明不是同一件事。重复放置的同一 kit 还会被排除为烘焙接收对象，避免把某个位置的结果用在全部实例上；不能假定每个重复件都有独立接触烘焙。</p>
+<p>建议保留顶点 AO 的轻量优势，先在一张样板图试验：用少量分区的间接光数据或 LightmapGI 表现稳定建筑；用已有局部灯服务移动敌人；让普通与狂暴状态只覆盖明确的光源和氛围。烘焙静态结构，不烘焙会开门、移动或破坏的遮挡。是否迁移 LightmapGI 要检查 UV2、资源体积、动态物体采样以及两种模式是否能共用，尚未验证。</p>
+<p>蓝天、温室白骨架和办公室紫墙是保留项。光照应改变表面的受光关系，不能再次把这些色彩洗灰。暖光冷影可以用于部分地图，不是所有地图、所有材质都必须套的滤镜。</p>
+<h4>D. 材质：需要的是材料之间的区别</h4>
+<p>当前 <code>map_lookdev.gd</code> 按材质资源名分类，并给多类材质赋粗糙度、金属度。它比全图一材质好，但“同名都套同一反应”仍比较粗。彩漆金属外壳和裸露金属边缘也应区别处理；不能为了反光把整块彩漆提高金属度。</p>
+<p>建议每图先把三个高频材料做清楚，例如货场的涂漆波纹板、粗混凝土、裸露滚轮／叉齿。几何负责轮廓、孔口与真实厚度；小尺度法线／粗糙度图负责不影响轮廓的细节。可尝试共用边框纹理条带（trim sheet）与小图集，替代远处密集几何缝和铆钉，但不预先承诺一定更快。</p>
+<p>现有材质刻意压低了随机颜色噪声，这是应保留的方向。补回纹理时优先增加有方向和用途的变化：轮胎经过的摩擦、雨棚下干燥区域、金属折边高光、墙脚局部积尘。不要用整面灰色噪声制造“真实感”。</p>
+<h4>E. 反射与雾：作为局部强调</h4>
+<p>雨市已经有很强的湿地身份；当前第一视角中的反光碎块也较密。下一步应调整干湿分布，让通行面和灯下反光形成更大的可读区域，而不是继续增加全地面反射强度。</p>
+<p>办公室、车站的干燥地面要以弱、宽高光表现，橡胶传送带保持哑光；沙门与雪地不应该迁移成雨市。雾优先用远景距离雾组织深度，室内光束只放在有来源的位置；透明光束是近似表现，不应在文档中称为真实体积光。</p>
+<h4>F. 描边：先解决背景，再减线</h4>
+<p>当前深度描边已经去掉颜色差检测，且有近远淡出。仍能在细杆、窗框、货柜波纹等结构看到不少细线；单纯降低描边不能消除几何本身带来的密集边缘。</p>
+<p>先简化非交互后景的线条，再在同机位比较环境描边开关。保留玩家必需的掩体边缘辨识。角色轮廓光也不能替代背景整理：摄影棚和雨市的暗色敌人仍容易主要靠亮边辨认，身体的体积信息比日间弱。</p>
+<h3>三、逐地图编辑任务</h3>
+<p>以下全部是待实施建议。A 表示尽量在现有布局、射线、掩体和导航约束内做视觉调整；B 表示会触及玩法空间，需单独方案与路线验证。即使 A 类，也要复核视觉体块是否误导碰撞判断。</p>
+<div class="table-scroll"><table><thead><tr><th>地图</th><th>本轮看到的问题</th><th>第一组值得做的调整（A）</th><th>暂时不做／边界</th></tr></thead><tbody><tr><td>堆货场</td><td>叉车已更完整，货柜边框与波纹仍较均质，空地缺少材料层级</td><td>统一货柜主／次部件明暗；弱化远处波纹；做清楚漆面、混凝土、裸金属；在既有装卸区组织轮迹与托盘用途</td><td>不再全图降光；托盘不得新增掩体或阻塞道路</td></tr><tr><td>沙门</td><td>厚窗与棚布有改善，长墙大面仍平；重复装饰接近同权重</td><td>用既有门楼作为重点，强化凹窗与檐底；墙面大尺度暖灰过渡；把摊位组织成一个生活场景</td><td>保留沙色与蓝百叶，压顶不要处处崩缺；新门洞属于 B</td></tr><tr><td>办公室</td><td>天花与工位重复线条多；前后排区别小</td><td>合并视觉上无意义的管线节奏；前区工位清晰、后区适度简化；明确过道与工作区照明；保留紫墙海报</td><td>不删掉全部细节，不统一把紫墙压灰；屏风高度影响掩体属 B</td></tr><tr><td>游乐园</td><td>木马棚有轮廓，但所有栏杆、灯柱、轨道同时争抢</td><td>木马／售票亭做主景，后方轨道和次要护栏降低对比；棚底保留深色，亮色集中在棚边与主体</td><td>不加一圈圈真实灯，不靠全局加饱和恢复鲜艳</td></tr><tr><td>渡轮</td><td>甲板与蓝色坡道很清楚，但船舱、岸景仍偏积木化</td><td>舱壁收分、嵌入舷窗和带内腔灯罩；甲板干燥区与边缘潮湿区分开；远岸建筑合并成低对比群</td><td>保留坡道净空；不增加第二个实时反射视口</td></tr><tr><td>摄影棚</td><td>舞台有主光，幕布、机械和观众席仍有均匀细节竞争</td><td>用背景翼板与幕布形成完整舞台框；摄影机做镜筒／机身／支架层次；让后台设备退后、过道可读</td><td>不再把每个区域照得同亮，也不把人物身后的幕布压成纯黑</td></tr><tr><td>城堡</td><td>城堡远景丰富，前景球场与重复木看台相对简单</td><td>加强已有近场门楼／看台入口的深度；看台横板分主次；远塔简化，近处木石材料区分</td><td>把主要交战移进城堡属于 B；不以增加远景砖块补近景体验</td></tr><tr><td>香港雨市</td><td>湿地与冷暖成立，棚架和反光碎片密度高</td><td>灯下形成较完整反光区；棚下加入可解释的干区；优先鱼池内胆、摊台退脚和棚架连接</td><td>保留现有湿地特色；不把每个灯都改成带阴影灯</td></tr><tr><td>行李层</td><td>入口大柱挡住部分画面，重复设备像同一组盒体</td><td>给安检机入口、滚筒和支撑真实层次；用机器组和灯排区分分拣／维护区域；橡胶与金属分开</td><td>移柱或改变传送带关系属于 B，不能只为截图好看直接移动</td></tr><tr><td>雪线天文台</td><td>门框厚重且辨识强，外墙与内壁同色接近；雪的折面明显</td><td>圆顶转动基座、开口覆边和门框区分；室内外形成冷暖明暗层次；近处积雪改为有悬挑的团块</td><td>不全图加雪粒；门洞与机关净空不变</td></tr><tr><td>棕榈屋</td><td>白骨架鲜明，但层层细杆交错，叶片三角剪影很突出</td><td>建立主拱肋／次肋粗细层级；成组曲面叶片留下空隙；连接节点真实套接，入口背景更安静</td><td>保留白骨架；植物不能遮挡新增射线，玻璃不能靠加雾显厚</td></tr><tr><td>银座站</td><td>信息牌过于抢眼，闸机／扶梯／顶灯重复，纵深层次偏弱</td><td>保留导向与车次信息，降低无关装饰亮度；区分闸机、扶梯入口、站台光区；重点重做近景闸机壳体</td><td>不随意缩小可读文字；扶梯坡度、列车关系改变属于 B</td></tr></tbody></table></div>
+<h3>四、性能与实现边界</h3>
+<p>我们的 Web 与原生目前均用 Compatibility。Godot 4.7 官方表列出：支持色调映射、调色、Glow、SSAO、ReflectionProbe 和已烘焙 LightmapGI 的显示；不支持引擎的 SSR、体积雾、SSIL、SDFGI，也没有原生 Decal 功能。不能套用早期版本“Compatibility 没有 Glow／SSAO”的结论。<a href="https://docs.godotengine.org/en/4.7/tutorials/rendering/renderers.html">Godot 4.7 渲染器比较</a></p>
+<p>这张能力表不证明项目里每个参数的视觉收益，也不证明手机开销可接受。实际启用效果要做开关对照和 Web 检查。地面贴花可采用受控网格或现有 shader 的投射遮罩；透明层多时仍可能增加开销。</p>
+<div class="table-scroll"><table><thead><tr><th>手段</th><th>可能的收益</th><th>需要支付与验证的成本</th></tr></thead><tbody><tr><td>重排／减少非交互装饰</td><td>大色块更清楚，可能减少绘制</td><td>验证不能丢失方向信息与玩法线索</td></tr><tr><td>重点物件重新建模</td><td>剪影、结合阴影、材质厚度更可信</td><td>局部面数；必须统计烘焙细分之后的规模</td></tr><tr><td>小图集、法线、粗糙度、trim sheet</td><td>减少不影响轮廓的小几何，材料更明确</td><td>下载、采样与显存；可能增加材质批次</td></tr><tr><td>顶点 AO / 选区静态光照</td><td>低运行时成本的接触与间接光</td><td>烘焙时间、顶点／光照图体积、模式切换一致性</td></tr><tr><td>静态环境反射</td><td>金属与玻璃身份更明确</td><td>探针内存、分区与错误反射；移动物体倒影不精确</td></tr><tr><td>动态灯、反射视口、透明光束</td><td>动态气氛</td><td>绘制次数、重叠与切换长帧；本轮不优先扩张</td></tr></tbody></table></div>
+<p>不能承诺“删掉小件就一定更快”或“换贴图必然降开销”。旧记录包含不同设备、版本与负载，不用于本轮计算提升百分比。</p>
+<h3>五、建议如何开始下一轮</h3>
+<h4>样板选择：沙门一个街角，随后办公室一条过道</h4>
+<p>沙门已有稳定色彩、厚窗与棚布，适合检验中尺度结构、门洞阴影和材质；办公室用于检验室内视觉降噪、光区组织和角色背景。雨市保留为已有效的风格标杆，优先做控制密度的局部修整。不是再给 12 图同时套一套参数。</p>
+<ul>
+<li><strong>编辑简报</strong>：每个样板一句主题、一个主要地标、三个保留色、三个关键观察点；标出必须保留的通路、掩体高度、射线和机关。</li>
+<li><strong>只做摆放与减法</strong>：不加灯、不换材质。沙门围绕主门楼整理视觉节奏；办公室先减少天花和后排无意义的重复线条。保留一张原版随时切换。</li>
+<li><strong>只改主形体和结合关系</strong>：重做一组高频组件。正常战斗距离下必须能指出变化，而不是放大找细缝。</li>
+<li><strong>锁定色板，分区打光</strong>：调整主光方向、环境补光、檐底接触和局部落光；保留被认可的蓝天与纯色。做普通、狂暴和重开检查。</li>
+<li><strong>最后补材料和使用痕迹</strong>：让近处有合理细节，远处保持形体。只有某个区域确实需要时才加反射或光束。</li>
+<li><strong>复核并扩展</strong>：相同机位、FOV、曝光；全彩、灰度、缩略图三种检查，再做带敌人的移动观察。至少覆盖逆光、阴影、亮墙和复杂背景；截图滤镜只用于分析，不算实际游戏改造。</li>
+</ul>
+<h4>完成条件</h4>
+<ul>
+<li>在 640×360 的缩略图里仍能辨认入口、主要活动区和地标；这是一项检查方法，不是声称已通过的测试。</li>
+<li>在游戏常见射程、包括 15–25 米的远端情况中，角色头肩与背景能分开；不能只靠强边缘光。先在固定目标上比较，再由人实际游玩确认。</li>
+<li>角色经过门洞、灯池和阴影时，材料颜色和受光变化连续；白墙有层次、阴影不死黑。</li>
+<li>通道、射击、掩体、破坏和重开维持原行为；视觉洞口与碰撞一致，无悬空支撑。</li>
+<li>相同设备、分辨率、路线下测普通与狂暴切换的 P50/P95/P99、长帧、draw calls、几何量和显存。目标沿用项目 60 FPS，不能用静态截图代替性能证据。</li>
+</ul>
+<h3>六、代码定位</h3>
+<ul>
+<li><code>scripts/maps/toy_palette.gd</code>：地图主光、环境补光、雾与角色轮廓色。</li>
+<li><code>scripts/maps/toy_look.gd:5</code>：全图共享曝光、饱和度与对比度。下一轮优先做地图区域关系，不先继续改这里。</li>
+<li><code>scripts/maps/map_lookdev.gd:113</code>：按原材质转换、按名称分类的入口。</li>
+<li><code>assets/shaders/toy_paint.gdshader</code>、<code>map_surface.gdshader</code>：原色、顶点颜色、微弱表面变化与高光。</li>
+<li><code>assets/shaders/comic_outline.gdshader</code>：深度边缘与距离淡出。</li>
+<li><code>tools/maps/toy_kit.py:543</code>：按尺寸选择单段倒角的导出器；各地图专属母版应决定最终造型。</li>
+<li><code>tools/maps/bake_vertex_light.py:1</code>：顶点光的适用边界；<code>:100</code> 附近的实例处理；不要误认为是完整方向性 LightmapGI。</li>
+</ul>
+<h3>来源与使用方式</h3>
+<p>检索日期 2026-11-13。历史制作资料用于解释设计与技术，不代表全部当代地图都使用完全相同参数。</p>
+<ul>
+<li><a href="https://news.blizzard.com/en-us/article/23674944/environment-states-in-overwatch-2-behind-the-scenes-with-the-engineering-team">Blizzard：Environment States</a>。依据：灰盒至美术流程、预计算照明与环境状态。文中的当时未来任务设想不作为当前可玩内容引用。</li>
+<li><a href="https://news.blizzard.com/en-us/article/24215719/weekly-recall-flashpoint-map-reworks">Blizzard：Flashpoint Map Reworks</a>。依据：入口、建筑高度、区域辨识与杂物删减；查看其 Suravasa 新版图片。</li>
+<li><a href="https://philipklevestav.artstation.com/projects/eayYrG">Philip Klevestav：Dorado</a>。制作人员的一手区域工作说明；查看第 1 张庭院图，属于展示视角。</li>
+<li><a href="https://darkrusader.artstation.com/projects/oALwqJ">Travis Castillo：Midtown Preview</a>。制作人员的一手分工说明；查看街角第 2 张图片，属于早期预览，非本轮客户端实测。</li>
+<li><a href="https://helderp.artstation.com/projects/GXn51B">Helder Pinto：Dorado</a>。依据：同图的区域主题和布景职责。</li>
+<li><a href="https://www.gdcvault.com/play/1024268/The-Art-of-Overwatch-Evolving">GDC：The Art of Overwatch — Evolving a Legacy</a>。只读摘要，支持明快、多样性等方向；不据此声称某个几何或色彩比例是官方规范。</li>
+<li><a href="https://docs.godotengine.org/en/4.7/tutorials/rendering/renderers.html">Godot 4.7：渲染器能力表</a>。依据：当前渲染路径的可用功能及限制。</li>
+</ul>
+<p>外部作品仅以原作者页面及外部图片链接引用，没有下载进游戏资源或作为可复用素材。交互图册中的本项目原图可离线查看，外部参考图片需要联网。</p></article></section></main><footer>本轮没有修改地图或发布游戏。研究基线 79b1a3c · <a href="evidence.json">采集版本与文件校验</a> · <a href="capture.log">相机记录</a></footer>
+<script>
+const maps=[{"id": "score_attack", "name": "堆货场", "issue": "叉车已更完整，货柜边框与波纹仍较均质，空地缺少材料层级", "action": "统一货柜主／次部件明暗；弱化远处波纹；做清楚漆面、混凝土、裸金属；在既有装卸区组织轮迹与托盘用途", "boundary": "不再全图降光；托盘不得新增掩体或阻塞道路", "secondary": false, "annotations": [[76, 25, "前景货柜应区分角件、框架与凹板，远排波纹降低对比。"], [27, 49, "涂鸦、叉车与红色箱体都很醒目；明确装卸区的主景。"], [31, 76, "混凝土靠材料与有限轮迹形成尺度，不再整体提亮。"]]}, {"id": "sandgate", "name": "沙门", "issue": "厚窗与棚布有改善，长墙大面仍平；重复装饰接近同权重", "action": "用既有门楼作为重点，强化凹窗与檐底；墙面大尺度暖灰过渡；把摊位组织成一个生活场景", "boundary": "保留沙色与蓝百叶，压顶不要处处崩缺；新门洞属于 B", "secondary": true, "annotations": [[26, 40, "厚窗与棚布已有改善；围绕这一组深化结构，不铺满新细缝。"], [78, 40, "长墙应有檐底与墙脚的宽缓变化，保留沙色。"], [55, 37, "门楼作为视觉重点，周围次要边框降低竞争。"]]}, {"id": "bb_office", "name": "办公室", "issue": "天花与工位重复线条多；前后排区别小", "action": "合并视觉上无意义的管线节奏；前区工位清晰、后区适度简化；明确过道与工作区照明；保留紫墙海报", "boundary": "不删掉全部细节，不统一把紫墙压灰；屏风高度影响掩体属 B", "secondary": true, "annotations": [[56, 25, "天花重复管线抢眼，合并非必要线条，保留主要系统走向。"], [20, 51, "前后排屏风不必同样清楚，保留近景工位的形体。"], [53, 46, "交战背景保留较完整色块；紫墙与海报继续保留。"]]}, {"id": "amusement_park", "name": "游乐园", "issue": "木马棚有轮廓，但所有栏杆、灯柱、轨道同时争抢", "action": "木马／售票亭做主景，后方轨道和次要护栏降低对比；棚底保留深色，亮色集中在棚边与主体", "boundary": "不加一圈圈真实灯，不靠全局加饱和恢复鲜艳", "secondary": false, "annotations": []}, {"id": "last_ferry", "name": "渡轮", "issue": "甲板与蓝色坡道很清楚，但船舱、岸景仍偏积木化", "action": "舱壁收分、嵌入舷窗和带内腔灯罩；甲板干燥区与边缘潮湿区分开；远岸建筑合并成低对比群", "boundary": "保留坡道净空；不增加第二个实时反射视口", "secondary": false, "annotations": []}, {"id": "night_studio", "name": "摄影棚", "issue": "舞台有主光，幕布、机械和观众席仍有均匀细节竞争", "action": "用背景翼板与幕布形成完整舞台框；摄影机做镜筒／机身／支架层次；让后台设备退后、过道可读", "boundary": "不再把每个区域照得同亮，也不把人物身后的幕布压成纯黑", "secondary": false, "annotations": []}, {"id": "hogwarts", "name": "城堡", "issue": "城堡远景丰富，前景球场与重复木看台相对简单", "action": "加强已有近场门楼／看台入口的深度；看台横板分主次；远塔简化，近处木石材料区分", "boundary": "把主要交战移进城堡属于 B；不以增加远景砖块补近景体验", "secondary": false, "annotations": []}, {"id": "rain_market", "name": "香港雨市", "issue": "湿地与冷暖成立，棚架和反光碎片密度高", "action": "灯下形成较完整反光区；棚下加入可解释的干区；优先鱼池内胆、摊台退脚和棚架连接", "boundary": "保留现有湿地特色；不把每个灯都改成带阴影灯", "secondary": true, "annotations": [[48, 25, "棚架已有明确结构，减少与主灯竞争的次要接缝。"], [34, 75, "碎反光偏密；组织灯下湿区与棚下干区。"], [20, 53, "鱼池内胆、台面翻边与退脚优先于再加杂物。"]]}, {"id": "baggage_below", "name": "行李层", "issue": "入口大柱挡住部分画面，重复设备像同一组盒体", "action": "给安检机入口、滚筒和支撑真实层次；用机器组和灯排区分分拣／维护区域；橡胶与金属分开", "boundary": "移柱或改变传送带关系属于 B，不能只为截图好看直接移动", "secondary": false, "annotations": []}, {"id": "snowline", "name": "雪线天文台", "issue": "门框厚重且辨识强，外墙与内壁同色接近；雪的折面明显", "action": "圆顶转动基座、开口覆边和门框区分；室内外形成冷暖明暗层次；近处积雪改为有悬挑的团块", "boundary": "不全图加雪粒；门洞与机关净空不变", "secondary": false, "annotations": []}, {"id": "palm_house", "name": "棕榈屋", "issue": "白骨架鲜明，但层层细杆交错，叶片三角剪影很突出", "action": "建立主拱肋／次肋粗细层级；成组曲面叶片留下空隙；连接节点真实套接，入口背景更安静", "boundary": "保留白骨架；植物不能遮挡新增射线，玻璃不能靠加雾显厚", "secondary": true, "annotations": [[52, 25, "主拱肋与次肋分级，保持白色但避免所有细杆同等突出。"], [35, 38, "叶片用弯曲成组形体，留出空隙与角色识别背景。"], [80, 69, "支柱与地面接触需稳定，新增结构服从原通行边界。"]]}, {"id": "ginza_station", "name": "银座站", "issue": "信息牌过于抢眼，闸机／扶梯／顶灯重复，纵深层次偏弱", "action": "保留导向与车次信息，降低无关装饰亮度；区分闸机、扶梯入口、站台光区；重点重做近景闸机壳体", "boundary": "不随意缩小可读文字；扶梯坡度、列车关系改变属于 B", "secondary": false, "annotations": []}];const $=id=>document.getElementById(id);let secondary=false;
+function draw(){const m=maps.find(m=>m.id===$('map').value);if(!m.secondary)secondary=false;const path='current/'+m.id+(secondary?'-view':'-play')+'.png';$('shot').src=path;$('shot').alt=m.name+'当前版本'+(secondary?'补充':'战斗')+'视角';$('original').href=path;$('view').disabled=!m.secondary;$('view').setAttribute('aria-pressed',String(secondary));for(const k of ['name','issue','action','boundary'])$(k).textContent=m[k];$('marks').replaceChildren();$('notes').replaceChildren();if(!secondary)m.annotations.forEach(([x,y,n],i)=>{const pin=document.createElement('span');pin.className='pin';pin.style.left=x+'%';pin.style.top=y+'%';pin.textContent=i+1;pin.title=n;$('marks').append(pin);const li=document.createElement('li');li.textContent=n;$('notes').append(li)});}
+$('map').addEventListener('change',()=>{secondary=false;draw()});$('view').addEventListener('click',()=>{secondary=!secondary;draw()});for(const id of ['gray','blur'])$(id).addEventListener('click',()=>{const on=$('frame').classList.toggle(id);$(id).setAttribute('aria-pressed',String(on))});$('pins').addEventListener('click',()=>{const off=$('frame').classList.toggle('annotations-off');$('pins').setAttribute('aria-pressed',String(!off))});draw();
+</script></html>
