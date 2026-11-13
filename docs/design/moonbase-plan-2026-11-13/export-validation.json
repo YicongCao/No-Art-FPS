@@ -1,0 +1,9 @@
+{
+  "date": "2026-11-13",
+  "method": "Isolated Node VM with DOM stubs; not a real browser download",
+  "filename": "moonbase-requirements-v1.json",
+  "requirements": 36,
+  "source_data_equal": true,
+  "status": "proposal",
+  "reviewed": 0
+}

@@ -1,0 +1,37 @@
+{
+  "sections": 23,
+  "requirements": 36,
+  "fonts": [
+    {
+      "family": "Oxanium",
+      "source_sha256": "2ce01d946e1e1ffc8d7eecfffbda8623bedd63eaf811a20488c4b69af45babb0",
+      "glyphs": 107,
+      "woff2_bytes": 5200
+    },
+    {
+      "family": "NotoPlan",
+      "source_sha256": "ca094f6b0001fb048ca39ddd797a0cdb0179e1e55c6561e111c49c3e6a61d7b7",
+      "glyphs": 1185,
+      "woff2_bytes": 357804
+    }
+  ],
+  "images": [
+    {
+      "name": "01-gameplay.png",
+      "sha256": "e8c289b9df347382bf2a689c6bc3fdd81323cb0d7c48d7aecb2a25ec53426f3f",
+      "bytes": 2739550
+    },
+    {
+      "name": "02-map-overview.png",
+      "sha256": "eee45068c6f4635ebc92266fa5ee522ac12b8dc529bbd172ffde8e5ed90be897",
+      "bytes": 3298901
+    },
+    {
+      "name": "03-mechs-and-weapons.png",
+      "sha256": "e1e8202caa524dccda20486a12feacde299e3ebee4e5bd2f6f2248b8c1f2797e",
+      "bytes": 2127008
+    }
+  ],
+  "html_bytes": 15145854,
+  "self_contained": true
+}

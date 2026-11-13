@@ -1,0 +1,28 @@
+{
+  "date": "2026-11-13",
+  "sections": 23,
+  "requirements": 36,
+  "priority_counts": {
+    "P0": 34,
+    "P1": 2
+  },
+  "unique_ids": 77,
+  "broken_internal_links": 0,
+  "external_runtime_resources": 0,
+  "han_glyphs_missing": 0,
+  "dependency_cycle": false,
+  "oxanium_digit_advances": [
+    578,
+    578,
+    578,
+    578,
+    578,
+    578,
+    578,
+    578,
+    578,
+    578
+  ],
+  "html_sha256": "dbf888d65e3ef6685a230ee1b97e5a9ab4c7dcbe44b195a293e616b261021c96",
+  "html_bytes": 15145854
+}
