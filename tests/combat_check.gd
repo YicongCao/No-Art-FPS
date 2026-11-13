@@ -132,6 +132,27 @@ func _ready() -> void:
 	await get_tree().create_timer(.75).timeout
 	assert(game.health==game.MAX_HEALTH)
 	print("COMBAT_KNIFE_INTERRUPT_PASS")
+	game.clear_round()
+	for fast_flag in [false, true]:
+		var target_foe = game.spawn_enemy(Vector3(18,0,3.2),fast_flag)
+		target_foe.set_physics_process(false)
+		await get_tree().physics_frame
+		aim(target_foe.global_position+Vector3(0,1.15,0))
+		game.fire_time = 0
+		game.shoot()
+		assert(not target_foe.dead and target_foe.health==1 and target_foe.wounded)
+		assert(target_foe.armor_hit!=null and target_foe.armor_hit.get_shader_parameter("flash")>0)
+		assert(target_foe.armor_hit.get_shader_parameter("damage_level")==2)
+		var scarred = target_foe.visual.find_child("Torso" if fast_flag else "BrokenVest",true,false) as MeshInstance3D
+		assert(scarred!=null and scarred.visible and scarred.material_overlay==target_foe.armor_hit)
+		var blown = target_foe.visual.find_child("ChestPlate" if fast_flag else "LeftPad",true,false) as Node3D
+		assert(blown!=null and not blown.visible)
+		assert(game.effects.get_node_or_null("EnemyArmorChips")!=null)
+		target_foe.update_body_hit(target_foe.BODY_HIT_DURATION)
+		assert(is_zero_approx(target_foe.armor_hit.get_shader_parameter("flash")) and is_zero_approx(target_foe.visual.rotation.x))
+		target_foe.queue_free()
+		await get_tree().physics_frame
+	print("COMBAT_BODY_DAMAGE_PASS: rifleman and rusher flash, eject armor chips, scar front/torso plates and enter wounded state")
 	if DisplayServer.get_name()!="headless":await showcase()
 	game.state = "RESULTS"
 	game.clear_round()

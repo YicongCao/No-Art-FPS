@@ -31,18 +31,18 @@ PAINT = {
     'toy_glove': ('2C3542', .58, 0, 0),
     'toy_sleeve': ('4C8C78', .82, 0, 0),
     'toy_cuff': ('ECE6D6', .5, 0, 0),
-    'toy_body': ('2B3447', .40, 0, 0),
-    'toy_body_dark': ('1D2431', .50, 0, 0),
-    'toy_vest': ('4D5B72', .44, 0, 0),
-    'toy_team': ('E0513F', .34, 0, 0),
-    'toy_visor': ('FF5A3C', .25, 0, 1.1),
-    'toy_gun': ('5B6476', .40, 0, 0),
-    'toy_gun_light': ('7C8496', .42, 0, 0),
-    'toy_rush': ('E9631D', .36, 0, 0),
-    'toy_cream': ('EFE6D2', .40, 0, 0),
-    'toy_joint': ('3A3F4A', .50, 0, 0),
-    'toy_thrust': ('FFB347', .30, 0, 2.2),
-    'toy_blade': ('5FE3F2', .22, 0, .6),
+    'toy_body': ('222A3A', .38, .08, 0),
+    'toy_body_dark': ('151A24', .52, .12, 0),
+    'toy_vest': ('4E5D75', .40, .10, 0),
+    'toy_team': ('DF3F35', .32, 0, 0),
+    'toy_visor': ('FF4D30', .22, 0, 1.8),
+    'toy_gun': ('4E5769', .38, .15, 0),
+    'toy_gun_light': ('788296', .40, .10, 0),
+    'toy_rush': ('EE641C', .34, 0, 0),
+    'toy_cream': ('F0E7D4', .38, 0, 0),
+    'toy_joint': ('29303C', .50, .12, 0),
+    'toy_thrust': ('FFA834', .26, 0, 2.5),
+    'toy_blade': ('4CE8F8', .20, 0, 1.45),
     'toy_water': ('3583CF', .34, 0, 0),
     'toy_tank': ('FFC83D', .30, 0, 0),
     'toy_nozzle': ('F2672E', .34, 0, 0),
@@ -91,14 +91,14 @@ def begin(name):
     bpy.context.collection.objects.link(current)
     roots.append(current)
 
-def soften(obj, width, segments=3):
+def soften(obj, width, segments=3, angle_deg=40):
     bpy.context.view_layer.objects.active = obj
     if width > 0:
         bevel = obj.modifiers.new('Toy bevel', 'BEVEL')
         bevel.width = width
         bevel.segments = segments
         bevel.limit_method = 'ANGLE'
-        bevel.angle_limit = math.radians(40)
+        bevel.angle_limit = math.radians(angle_deg)
         bevel.harden_normals = True
         bevel.use_clamp_overlap = True
         bpy.ops.object.modifier_apply(modifier=bevel.name)
@@ -108,33 +108,33 @@ def soften(obj, width, segments=3):
     weighted.weight = 100
     bpy.ops.object.modifier_apply(modifier=weighted.name)
 
-def finish(obj, name, material, width, rotation=None):
+def finish(obj, name, material, width, rotation=None, segments=3, angle_deg=40):
     obj.name = name
     if rotation:
         obj.rotation_euler = (rotation[0], -rotation[2], rotation[1])
         bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
-    soften(obj, width)
+    soften(obj, width, segments=segments, angle_deg=angle_deg)
     obj.data.materials.append(paint(material))
     obj.parent = current
     return obj
 
-def box(name, p, size, material, width=.012, rotation=None):
+def box(name, p, size, material, width=.012, rotation=None, segments=2):
     bpy.ops.mesh.primitive_cube_add(size=1, location=xyz(p))
     obj = bpy.context.object
     obj.dimensions = (size[0], size[2], size[1])
     bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
-    return finish(obj, name, material, width, rotation)
+    return finish(obj, name, material, width, rotation, segments=segments)
 
 def attach(child, parent):
     child.parent = parent
     child.matrix_parent_inverse = parent.matrix_world.inverted()
     return child
 
-def cyl(name, p, r, depth, material, axis='y', vertices=16, width=.008):
+def cyl(name, p, r, depth, material, axis='y', vertices=16, width=.008, segments=2):
     bpy.ops.mesh.primitive_cylinder_add(vertices=vertices, radius=r, depth=depth, location=xyz(p))
     obj = bpy.context.object
     rotation = {'x': (0, 0, math.pi / 2), 'z': (math.pi / 2, 0, 0)}.get(axis)
-    return finish(obj, name, material, width, rotation)
+    return finish(obj, name, material, width, rotation, segments=segments)
 
 def export(name, merge=True, keep=()):
     if merge:
@@ -206,4 +206,147 @@ def merge_rigid(main, keep=()):
         bpy.context.view_layer.objects.active = target
         bpy.ops.object.join()
     return main
+
+
+def wedge(name, p, bottom_size, top_size, height, material, width=.015, top_shift=(0.0, 0.0), rotation=None):
+    """Tapered 8-vertex mecha armor block with origin at `p` and crisp beveled facets."""
+    import bmesh
+    bw, bd = bottom_size
+    tw, td = top_size
+    sx, sz = top_shift
+    hy = height * 0.5
+    local_pts = [
+        (-bw * .5, -hy, -bd * .5), (bw * .5, -hy, -bd * .5),
+        (bw * .5, -hy, bd * .5), (-bw * .5, -hy, bd * .5),
+        (-tw * .5 + sx, hy, -td * .5 + sz), (tw * .5 + sx, hy, -td * .5 + sz),
+        (tw * .5 + sx, hy, td * .5 + sz), (-tw * .5 + sx, hy, td * .5 + sz),
+    ]
+    faces = [(3, 2, 1, 0), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)]
+    mesh = bpy.data.meshes.new(name)
+    mesh.from_pydata([xyz(v) for v in local_pts], [], faces)
+    bm = bmesh.new()
+    bm.from_mesh(mesh)
+    bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
+    bm.to_mesh(mesh)
+    bm.free()
+    obj = bpy.data.objects.new(name, mesh)
+    obj.location = xyz(p)
+    bpy.context.collection.objects.link(obj)
+    bpy.ops.object.select_all(action='DESELECT')
+    obj.select_set(True)
+    return finish(obj, name, material, width, rotation=rotation, segments=2, angle_deg=26)
+
+
+def plate_profile(name, p, points_2d, thickness, material, width=.010, plane='xy', rotation=None):
+    """Extruded 2D polygon centered at `p` along `plane` ('xy' front, 'zy' side, 'xz' top)."""
+    import bmesh
+    half = thickness * 0.5
+    verts = []
+    for layer in (-half, half):
+        for u, v in points_2d:
+            if plane == 'xy':
+                pt = (u, v, layer)
+            elif plane == 'zy':
+                pt = (layer, v, u)
+            else:
+                pt = (u, layer, v)
+            verts.append(xyz(pt))
+    n = len(points_2d)
+    faces = [tuple(reversed(range(n))), tuple(range(n, 2 * n))]
+    faces += [(i, (i + 1) % n, (i + 1) % n + n, i + n) for i in range(n)]
+    mesh = bpy.data.meshes.new(name)
+    mesh.from_pydata(verts, [], faces)
+    bm = bmesh.new()
+    bm.from_mesh(mesh)
+    bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
+    bm.to_mesh(mesh)
+    bm.free()
+    obj = bpy.data.objects.new(name, mesh)
+    obj.location = xyz(p)
+    bpy.context.collection.objects.link(obj)
+    bpy.ops.object.select_all(action='DESELECT')
+    obj.select_set(True)
+    return finish(obj, name, material, width, rotation=rotation, segments=2, angle_deg=28)
+
+
+def taper_limb(name, a, b, sec_a, sec_b, material, width=.020):
+    """Tapered rectangular mecha limb segment from Godot point `a` to `b`."""
+    import bmesh
+    va, vb = Vector(xyz(a)), Vector(xyz(b))
+    mid = (va + vb) * 0.5
+    length = (vb - va).length
+    hl = length * 0.5
+    wa, da = sec_a[0] * 0.5, sec_a[1] * 0.5
+    wb, db = sec_b[0] * 0.5, sec_b[1] * 0.5
+    verts = [
+        (-wa, -da, -hl), (wa, -da, -hl), (wa, da, -hl), (-wa, da, -hl),
+        (-wb, -db, hl), (wb, -db, hl), (wb, db, hl), (-wb, db, hl),
+    ]
+    faces = [(3, 2, 1, 0), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)]
+    mesh = bpy.data.meshes.new(name)
+    mesh.from_pydata(verts, [], faces)
+    bm = bmesh.new()
+    bm.from_mesh(mesh)
+    bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
+    bm.to_mesh(mesh)
+    bm.free()
+    obj = bpy.data.objects.new(name, mesh)
+    obj.location = mid
+    bpy.context.collection.objects.link(obj)
+    bpy.ops.object.select_all(action='DESELECT')
+    obj.select_set(True)
+    bpy.context.view_layer.objects.active = obj
+    obj.rotation_mode = 'QUATERNION'
+    obj.rotation_quaternion = Vector((0, 0, 1)).rotation_difference((vb - va).normalized())
+    bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
+    obj.rotation_mode = 'XYZ'
+    return finish(obj, name, material, width, segments=2, angle_deg=26)
+
+
+def joint_drum(name, p, r, length, parent, drum_mat='toy_body_dark', cap_mat='toy_cream', axis='x'):
+    """Exposed action-figure mechanical hinge drum with contrasting circular snap-fit end caps."""
+    drum = cyl(name, p, r, length, drum_mat, axis=axis, vertices=16, width=.008)
+    attach(drum, parent)
+    if cap_mat:
+        cap = cyl(name + 'Disc', p, r * 0.62, length + 0.018, cap_mat, axis=axis, vertices=14, width=.005)
+        attach(cap, parent)
+    return drum
+
+
+def sculpt_loft(name, p, sections, material, axis='y', exponent=.68, sides=16, rotation=None):
+    """Curved superellipse armor shell lofted through local `(pos, shift_x, shift_z, w, d)` sections,
+    with object origin strictly at `p` so shaders and pivots stay centred."""
+    import bmesh
+    verts = []
+    for pos, sx, sz, w, d in sections:
+        for i in range(sides):
+            ang = math.tau * i / sides
+            ca, sa = math.cos(ang), math.sin(ang)
+            u = math.copysign(abs(ca) ** exponent, ca) * (w * 0.5) + sx
+            v = math.copysign(abs(sa) ** exponent, sa) * (d * 0.5) + sz
+            pt = (u, pos, v) if axis == 'y' else (u, v, pos)
+            verts.append(xyz(pt))
+    faces = [tuple(reversed(range(sides)))]
+    for j in range(len(sections) - 1):
+        base = j * sides
+        for i in range(sides):
+            nxt = (i + 1) % sides
+            faces.append((base + i, base + nxt, base + sides + nxt, base + sides + i))
+    top_base = (len(sections) - 1) * sides
+    faces.append(tuple(range(top_base, top_base + sides)))
+    mesh = bpy.data.meshes.new(name)
+    mesh.from_pydata(verts, [], faces)
+    bm = bmesh.new()
+    bm.from_mesh(mesh)
+    bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
+    bm.to_mesh(mesh)
+    bm.free()
+    obj = bpy.data.objects.new(name, mesh)
+    obj.location = xyz(p)
+    bpy.context.collection.objects.link(obj)
+    bpy.ops.object.select_all(action='DESELECT')
+    obj.select_set(True)
+    return finish(obj, name, material, .008, rotation=rotation, segments=1, angle_deg=42)
+
+
 

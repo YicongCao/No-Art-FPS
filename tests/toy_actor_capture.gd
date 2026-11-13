@@ -55,12 +55,34 @@ func check() -> void:
 	player.gun.show()
 	for foe in [rifleman,rusher]:foe.position.z += 16.0
 	for i in range(rifleman.limbs.size()):
-		if rifleman.limbs[i].name!="RightArm":rifleman.limbs[i].rotation.x = .5*(1 if i%2==0 else -1)
-	rifleman.rotation.y += 1.1
-	rusher.knife_arm.rotation.x = -2.35
+		var limb_name: String = rifleman.limbs[i].name
+		if "Leg" in limb_name:
+			rifleman.limbs[i].rotation.x = .5*(1 if i%2==0 else -1)
+		else:
+			rifleman.limbs[i].rotation.x = .06
+	if rifleman.enemy_gun:rifleman.enemy_gun.rotation.x = .06
+	rifleman.rotation.y += .75
+	rusher.knife_arm.rotation.x = -2.15
 	await capture("walk-pose")
 	rusher.knife_arm.rotation.x = 0
-	rifleman.rotation.y -= 1.1
+	for i in range(rifleman.limbs.size()):rifleman.limbs[i].rotation.x = 0
+	if rifleman.enemy_gun:rifleman.enemy_gun.rotation.x = 0
+	rifleman.rotation.y -= .75
+	# Single non-headshot body hit: capture impact flash + flying chips, then persistent 1-HP battle scars.
+	for foe in [rifleman,rusher]:
+		foe.take_hit(false,false)
+		assert(foe.wounded and foe.health==1 and foe.armor_hit!=null)
+	for chip_fx in game.effects.get_children():
+		if chip_fx.has_method("_physics_process"):chip_fx._physics_process(.06)
+	await capture("body-hit-flash")
+	for foe in [rifleman,rusher]:
+		foe.update_body_hit(foe.BODY_HIT_DURATION)
+		foe.rotate_y(.32 if foe==rifleman else -.25)
+	for chip_fx in game.effects.get_children():chip_fx.queue_free()
+	game.spark(rifleman.global_position+Vector3(-.18,1.38,-.22),Color("ff8a38"),.075,.14)
+	game.spark(rusher.global_position+Vector3(.04,1.35,-.20),Color("4ce8f8"),.075,.14)
+	await process_frame
+	await capture("body-damage")
 	look(player,Vector3(15,3.2,6))
 	await capture("rifle-hip")
 	player.enabled = true

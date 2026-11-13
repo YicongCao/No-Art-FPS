@@ -1,9 +1,11 @@
 extends CharacterBody3D
 
 const ShotLine = preload("res://scripts/shot_line.gd")
+const CombatFX = preload("res://scripts/combat_fx.gd")
 const ComedyFX = preload("res://scripts/comedy_fx.gd")
 const TOY_MODEL = "res://assets/models/toy/enemy.glb"
 const RUSHER_MODEL = "res://assets/models/toy/rusher.glb"
+const RUSHER_ORANGE = Color("ee641c")
 static var rim_pass: ShaderMaterial
 
 var game: Node
@@ -54,6 +56,9 @@ var walk_phase = 0.0
 var hurt = 0.0
 var body_hit_time = 0.0
 var armor_hit: ShaderMaterial
+var wounded := false
+var wounded_spark_time := 0.0
+var enemy_gun: Node3D
 var limbs: Array[Node3D] = []
 var limb_origins: Array[Vector3] = []
 var head_area: Area3D
@@ -87,8 +92,8 @@ func _ready() -> void:
 	add_toy_rim(visual)
 	if fast:
 		orange = StandardMaterial3D.new()
-		orange.albedo_color = Color("e9631d")
-		orange.roughness = .36
+		orange.albedo_color = RUSHER_ORANGE
+		orange.roughness = .34
 		orange.next_pass = toy_rim()
 		for part in ["Torso","Vest","Helmet","LeftArm","RightArm","LeftLeg","RightLeg"]:
 			var mesh = visual.find_child(part,true,false)
@@ -102,6 +107,11 @@ func _ready() -> void:
 		knife_arm.add_child(knife)
 		knife.position = Vector3(0,-.46,-.18)
 		knife.rotation.x = PI
+		knife_arm.rotation = Vector3(-.36,0,-.16)
+	else:
+		enemy_gun = visual.find_child("EnemyGun",true,false)
+		var broken_vest = visual.find_child("BrokenVest",true,false) as Node3D
+		if broken_vest:broken_vest.hide()
 	if game.state in ["RUNNING","LOADING"]:set_comedy_head(game.comedy_mode)
 	for part in ["LeftLeg","RightLeg","LeftArm","RightArm"]:
 		var limb = visual.find_child(part,true,false)
@@ -160,6 +170,12 @@ func _physics_process(delta: float) -> void:
 		if death_time > 1.4:queue_free()
 		return
 	if game.state != "RUNNING":return
+	if wounded:
+		wounded_spark_time -= delta
+		if wounded_spark_time<=0:
+			wounded_spark_time = randf_range(.36,.58)
+			if not game.reduced_motion:
+				game.spark(global_position+Vector3(0,1.33,0)-global_basis.z*.21,Color("ff7b38"),.062,.09)
 	if patrol_brain!=null:
 		patrol_brain.advance(delta)
 		return
@@ -228,9 +244,14 @@ func _physics_process(delta: float) -> void:
 	agent.velocity = steer_around_neighbors(Vector3(velocity.x,0,velocity.z))
 	var movement = Vector2(get_real_velocity().x,get_real_velocity().z).length()
 	walk_phase += delta*movement*3
+	var stride := minf(movement/speed,1.0)
 	for i in range(limbs.size()):
-		limbs[i].rotation.x = sin(walk_phase+float(i%2)*PI)*.42*minf(movement/speed,1)
+		if i<2:
+			limbs[i].rotation.x = sin(walk_phase+float(i%2)*PI)*.44*stride
+		else:
+			limbs[i].rotation.x = sin(walk_phase)*.06*stride
 		limbs[i].position = limb_origins[i]
+	if enemy_gun:enemy_gun.rotation.x = sin(walk_phase)*.06*stride
 	visual.position.y = absf(sin(walk_phase))*.035
 	visual.rotation.z = sin(age*40)*hurt*.25
 	if global_position.y < -5:queue_free()
@@ -358,24 +379,82 @@ func can_see_player() -> bool:
 	return get_world_3d().direct_space_state.intersect_ray(query).is_empty()
 
 func take_hit(is_head: bool, body_one_shot: bool = false) -> void:
-	var previous_health = health
 	take_damage(MAX_HEALTH if is_head or body_one_shot else BODY_SHOT_DAMAGE,is_head)
-	if not dead and not is_head and health<previous_health:
-		if armor_hit==null:
-			armor_hit = ShaderMaterial.new()
-			armor_hit.shader = preload("res://assets/shaders/armor_hit.gdshader")
-			for part in ["Torso","Vest"]:
-				var panel = visual.find_child(part,true,false) as MeshInstance3D
-				if panel:panel.material_overlay = armor_hit
-		armor_hit.set_shader_parameter("damage_level",mini(MAX_HEALTH-health,2))
-		body_hit_time = BODY_HIT_DURATION
-		update_body_hit(0)
+
+func apply_nonlethal_hit() -> void:
+	if armor_hit==null:
+		armor_hit = ShaderMaterial.new()
+		armor_hit.shader = preload("res://assets/shaders/armor_hit.gdshader")
+		var targets := ["Torso","BackPlate","LeftArm"] if fast else ["Torso","Vest","BrokenVest","RightPad"]
+		for part in targets:
+			var panel = visual.find_child(part,true,false) as MeshInstance3D
+			if panel:panel.material_overlay = armor_hit
+	var level := mini(MAX_HEALTH-health,2)
+	armor_hit.set_shader_parameter("damage_level",level)
+	body_hit_time = BODY_HIT_DURATION
+	update_body_hit(0)
+	spawn_armor_chips()
+	if not wounded and level>=2:
+		wounded = true
+		wounded_spark_time = .18
+		# Swap/snap off 3D outer toy armor to expose shattered ribs, conduits & inner frame!
+		if fast:
+			for piece in ["ChestPlate","LeftFin","LeftHorn"]:
+				var part_node = visual.find_child(piece,true,false) as Node3D
+				if part_node:part_node.hide()
+		else:
+			for piece in ["LeftPad","LeftPadTrim","Vest"]:
+				var pad_node = visual.find_child(piece,true,false) as Node3D
+				if pad_node:pad_node.hide()
+			var right_pad = visual.find_child("RightPad",true,false) as Node3D
+			if right_pad:right_pad.rotation += Vector3(.18,0,-.26)
+			var broken_vest = visual.find_child("BrokenVest",true,false) as Node3D
+			if broken_vest:broken_vest.show()
+		# Visibly stagger torso & knock helmet askew (head hitbox on root stays untouched).
+		var torso_node = visual.find_child("Torso",true,false) as Node3D
+		if torso_node:torso_node.rotation = Vector3(.09,0,.08 if fast else -.08)
+		var helmet = visual.find_child("Helmet",true,false) as Node3D
+		if helmet:helmet.rotation = Vector3(-.07,-.10 if fast else .09,.19)
+		# Add an exposed hot overload spark node on the breached armor socket.
+		var ember := MeshInstance3D.new()
+		ember.name = "WoundedSpark"
+		var spark_mesh := BoxMesh.new()
+		spark_mesh.size = Vector3(.085,.085,.045)
+		var spark_mat := StandardMaterial3D.new()
+		spark_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		spark_mat.albedo_color = Color("ff9d3b")
+		spark_mesh.material = spark_mat
+		ember.mesh = spark_mesh
+		ember.position = Vector3(0,1.34,-.17) if fast else Vector3(-.39,1.45,-.06)
+		ember.rotation = Vector3(.4,.5,.6)
+		visual.add_child(ember)
+
+func spawn_armor_chips() -> void:
+	if game==null or not is_instance_valid(game.effects):return
+	var fx := CombatFX.new()
+	fx.name = "EnemyArmorChips"
+	fx.game = game
+	fx.duration = .65
+	game.effects.add_child(fx)
+	var center := global_position+Vector3(0 if fast else -.22,1.36,0)-global_basis.z*.18
+	var forward := -global_basis.z
+	var side := global_basis.x
+	var palette: Array = [Color("f0e7d4"),Color("ee641c"),Color("4ce8f8")] if fast else [Color("df3f35"),Color("f0e7d4"),Color("4e5d75")]
+	var count := 5 if game.reduced_motion else 9
+	for i in range(count):
+		var spread := (float(i)/maxf(count-1,1)-.5)*2.0
+		var vel := forward*fx.rng.randf_range(1.6,3.2)+side*(spread*2.6)+Vector3.UP*fx.rng.randf_range(1.8,3.4)
+		var sz := Vector3(fx.rng.randf_range(.075,.135),fx.rng.randf_range(.065,.115),fx.rng.randf_range(.028,.048))
+		fx.chunk(center+side*(spread*.14),sz,palette[i%palette.size()],vel,global_position.y+.04)
+	for i in range(2 if game.reduced_motion else 4):
+		fx.bloom(center+side*float(i-1.5)*.08,fx.rng.randf_range(.065,.105),Color("ffb347"))
+	fx.show_pieces(true)
 
 func update_body_hit(delta: float) -> void:
 	body_hit_time = maxf(0,body_hit_time-delta)
 	var strength = body_hit_time/BODY_HIT_DURATION
 	armor_hit.set_shader_parameter("flash",strength*strength)
-	visual.rotation.x = .23*strength*strength
+	visual.rotation.x = .26*strength*strength
 
 func ignite() -> void:
 	if dead:return
@@ -413,6 +492,7 @@ func evade_shot(origin: Vector3) -> void:
 
 func take_damage(amount: int, is_head: bool = false, from_finale: bool = false) -> void:
 	if dead or not (game.rules.active or from_finale):return
+	var previous_health = health
 	health -= amount
 	hurt = .2
 	if health <= 0:
@@ -423,6 +503,8 @@ func take_damage(amount: int, is_head: bool = false, from_finale: bool = false) 
 		collision_mask = 0
 		head_area.collision_layer = 0
 		if not from_finale:game.on_kill(self,is_head)
+	elif health < previous_health and not from_finale:
+		apply_nonlethal_hit()
 
 func start_slash() -> void:
 	rush_state = "WINDUP"
@@ -439,7 +521,7 @@ func recover_charge() -> void:
 	rush_time = .65
 	velocity.x = 0
 	velocity.z = 0
-	orange.albedo_color = Color("e9631d")
+	orange.albedo_color = RUSHER_ORANGE
 
 func process_rusher(delta: float) -> void:
 	var to_player = game.player.global_position-global_position
@@ -474,13 +556,13 @@ func process_rusher(delta: float) -> void:
 				speed = 0
 		"WINDUP":
 			rush_time -= delta
-			orange.albedo_color = Color("fff1b7") if int(rush_time*12)%2==0 else Color("e9631d")
+			orange.albedo_color = Color("fff1b7") if int(rush_time*12)%2==0 else RUSHER_ORANGE
 			knife_arm.rotation.x = lerpf(0,-2.35,clampf(1-rush_time/.4,0,1))
 			if rush_time<=0:
 				if in_front:
 					rush_state = "SLASH"
 					rush_time = .24
-					orange.albedo_color = Color("e9631d")
+					orange.albedo_color = RUSHER_ORANGE
 				else:
 					recover_charge()
 		"SLASH":
@@ -508,7 +590,11 @@ func process_rusher(delta: float) -> void:
 	walk_phase += delta*movement*3
 	for i in range(limbs.size()):
 		if limbs[i].name!="RightArm":limbs[i].rotation.x = sin(walk_phase+float(i%2)*PI)*.55*minf(movement/5.8,1)
-	if rush_state=="CHASE":knife_arm.rotation.x = -.25+sin(walk_phase)*.18
+	if rush_state=="CHASE":
+		knife_arm.rotation.x = -.36+sin(walk_phase)*.18
+		knife_arm.rotation.z = -.16
+	else:
+		knife_arm.rotation.z = 0.0
 	visual.position.y = -.12 if rush_state=="WINDUP" else absf(sin(walk_phase))*.035
 	if rush_state!="DODGE":visual.rotation.z = sin(age*40)*hurt*.25
 	if global_position.y < -5:queue_free()
