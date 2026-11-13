@@ -1,0 +1,132 @@
+{
+  "oriented_size_blender_xyz": [
+    0.9252930283546448,
+    0.9995117783546448,
+    0.64013671875
+  ],
+  "front_alignment_blender_z_degrees": 90,
+  "normalized_width_m": 12,
+  "normalized_size_blender_xyz": [
+    12.0,
+    12.962532919526812,
+    8.30184643091874
+  ],
+  "scale": 12.968864599940183,
+  "meshes": [
+    {
+      "name": "tripo_node_eabae4f1-cbde-4f78-a2a0-97c4d1e19427",
+      "vertices": 23573,
+      "triangles": 16209,
+      "materials": 1,
+      "uv_layers": 1,
+      "connected_components": 4053,
+      "component_vertex_sizes": [
+        77,
+        65,
+        63,
+        62,
+        59,
+        57,
+        57,
+        55,
+        53,
+        53,
+        49,
+        48,
+        47,
+        46,
+        46,
+        46,
+        44,
+        44,
+        41,
+        40
+      ],
+      "boundary_edges": 23079,
+      "nonmanifold_edges": 23095
+    }
+  ],
+  "materials": [
+    {
+      "name": "tripo_material_eabae4f1-cbde-4f78-a2a0-97c4d1e19427",
+      "nodes": [
+        "BSDF_PRINCIPLED",
+        "OUTPUT_MATERIAL",
+        "TEX_IMAGE",
+        "SEPARATE_COLOR",
+        "TEX_IMAGE",
+        "NORMAL_MAP",
+        "TEX_IMAGE"
+      ],
+      "images": [
+        "Color_eabae4f1-cbde-4f78-a2a0-97c4d1e19427",
+        "ORM_eabae4f1-cbde-4f78-a2a0-97c4d1e19427",
+        "NormalGL_eabae4f1-cbde-4f78-a2a0-97c4d1e19427"
+      ]
+    }
+  ],
+  "images": [
+    {
+      "name": "Color_eabae4f1-cbde-4f78-a2a0-97c4d1e19427",
+      "size": [
+        2048,
+        2048
+      ],
+      "channels": 4
+    },
+    {
+      "name": "NormalGL_eabae4f1-cbde-4f78-a2a0-97c4d1e19427",
+      "size": [
+        2048,
+        2048
+      ],
+      "channels": 4
+    },
+    {
+      "name": "ORM_eabae4f1-cbde-4f78-a2a0-97c4d1e19427",
+      "size": [
+        2048,
+        2048
+      ],
+      "channels": 4
+    }
+  ],
+  "raw_bytes": 4491012,
+  "processing_seconds": 0.23098658304661512,
+  "notes": [
+    "Blender Z-up; glTF export converts to Godot Y-up.",
+    "Connectivity is geometric, not semantic editable modules.",
+    "Boundary count can include intentional seams; requires visual interpretation."
+  ],
+  "welded_diagnostic": {
+    "tolerance_m": 1e-05,
+    "vertices": 10080,
+    "faces": 16209,
+    "components": 237,
+    "largest_components_vertices": [
+      466,
+      461,
+      247,
+      229,
+      222,
+      219,
+      213,
+      194,
+      194,
+      179,
+      178,
+      149,
+      147,
+      145,
+      142,
+      130,
+      130,
+      126,
+      120,
+      117
+    ],
+    "boundary_edges": 3841,
+    "nonmanifold_edges": 3891,
+    "note": "Temporary copy only; UV seams split raw topology. Not a cleanup or a semantic decomposition."
+  }
+}

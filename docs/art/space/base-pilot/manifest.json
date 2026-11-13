@@ -1,0 +1,39 @@
+{
+  "task_id": "eabae4f1-cbde-4f78-a2a0-97c4d1e19427",
+  "type": "image_to_model",
+  "status": "success",
+  "created_at": "2026-11-13T23:50:22.012626Z",
+  "completed_at": "2026-11-13T23:51:34.322084Z",
+  "credits_consumed": 110,
+  "model": "P2-20260801",
+  "parameters": {
+    "face_limit": 20000,
+    "texture": true,
+    "pbr": true,
+    "model_seed": 14011
+  },
+  "cloud_seconds": 72.309458,
+  "tools": {
+    "tripo-cli": "0.11.2",
+    "Blender": "5.2.2 LTS",
+    "Godot": "4.7.2 Compatibility"
+  },
+  "files": {
+    "docs/art/space/base-pilot/input.png": {
+      "bytes": 2040105,
+      "sha256": "1d5c498f23118a38073f8951659975438e555e357b65d59ac39f2383713a10ba"
+    },
+    "docs/art/space/base-pilot/lab/model.glb": {
+      "bytes": 4491988,
+      "sha256": "873ea9dfad35ddf15b7e670f2f0dc2c37ba25e19646da9bb3a4ba3310f27e54f"
+    },
+    "art_source/space/base-pilot/base-pilot.blend": {
+      "bytes": 4544038,
+      "sha256": "d339d3c3f3a45a26dcf6e08fd602624ae905856d420884fd258181e0e7a2bcf7"
+    },
+    "artifacts/local/space-base-pilot/raw/model.glb": {
+      "bytes": 4491012,
+      "sha256": "bde02a38d4c97c6ff1a1eb1f098f16129e2304b8068bf26e2cbb929dbe850f9a"
+    }
+  }
+}
