@@ -1,0 +1,29 @@
+{
+  "commit": "9bd62ff",
+  "run": 43388065086,
+  "verified_files": [
+    "DUST-LICENSE.txt",
+    "FONT-LICENSE.txt",
+    "GODOT-COPYRIGHT.txt",
+    "GODOT-LICENSE.txt",
+    "GlowSans-LICENSE.txt",
+    "GlowSansSC-UI.woff2",
+    "Rajdhani-Bold.woff2",
+    "comedy.svg",
+    "frag-grenade.svg",
+    "gyro-setup.js",
+    "gyro.js",
+    "icon.svg",
+    "index.audio.position.worklet.js",
+    "index.audio.worklet.js",
+    "index.html",
+    "index.js",
+    "index.pck",
+    "index.wasm",
+    "locale.js",
+    "roach-bomb.svg",
+    "roach.svg",
+    "stink-bomb.svg",
+    "title-background.webp"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "date": "2026-11-13",
+  "mode": "Desktop Chrome touch=1; not physical mobile testing",
+  "checks": [
+    "nine cards",
+    "Sandgate selected",
+    "FIRE starts round",
+    "timer advances",
+    "fire input exercised"
+  ],
+  "errors": {
+    "pages": [],
+    "custom": []
+  }
+}
