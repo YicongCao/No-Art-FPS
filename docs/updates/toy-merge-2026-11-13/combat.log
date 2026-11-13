@@ -1,0 +1,12 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 4.1 Metal - 91.7 - Compatibility - Using Device: Apple - Apple M5
+
+COMBAT_BARREL_PASS: bullet, warning, pause, chain, cover, range, player damage, score
+COMBAT_BARREL_RESET_PASS
+COMBAT_KNIFE_APPROACH_DODGE_PAUSE_PASS
+COMBAT_KNIFE_HIT_PASS
+COMBAT_KNIFE_FRONT_ONLY_PASS
+COMBAT_KNIFE_COVER_PASS
+COMBAT_KNIFE_INTERRUPT_PASS
+COMBAT_BODY_DAMAGE_PASS: rifleman and rusher flash, eject armor chips, scar front/torso plates and enter wounded state
+COMBAT_CHECK_PASS

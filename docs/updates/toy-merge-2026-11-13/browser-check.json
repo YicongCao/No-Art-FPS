@@ -1,0 +1,17 @@
+{
+  "pages": {
+    "url": "https://yicongcao.github.io/No-Art-FPS/?touch=1",
+    "map": "amusement_park",
+    "running": true,
+    "firing": true,
+    "errors": []
+  },
+  "custom": {
+    "url": "https://fps.yicong.me/?touch=1",
+    "map": "yard",
+    "running": true,
+    "firing": true,
+    "errors": []
+  },
+  "limitation": "Touch mode browser smoke; desktop pointer lock and physical mobile devices not fully validated."
+}
