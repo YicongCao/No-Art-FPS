@@ -148,3 +148,7 @@ godot --headless --path . --script tools/maps/apply_toy_kit.gd
 ## 方案 A 反派玩具机甲与非爆头战损
 
 按方案 A（「黑曜重装卫兵」与「狂飙剃刀猎犬」）补齐曲面装甲内的机械关节、怒眉裂隙眼、胸口反应炉、左腕能量圆盾与宽刃电浆刀，并修复及强化单发非爆头命中的 3D 崩甲与电弧裂痕战损。详见 [设定稿与实机战损对比](actors-mecha/README.md)。
+
+## 十二张地图风格化微缩沙盘做旧
+
+统一升级 `toy_paint`、`map_surface`、`wall_paint` 与 `market_surface` 四个着色器及 `toy_palette.gd` 风化色板，加入近中景 3D 倒角干扫掉漆、墙根飞溅积尘、立面水渍流挂、地面踩踏磨损与粗糙度破光。详见 [做旧机制与 12 图前后对比](../toy-weathering/README.md)。
