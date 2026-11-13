@@ -2,6 +2,7 @@ extends Node3D
 ## Map-owned materials and fixture receivers. Gameplay geometry remains untouched.
 const SURFACE = preload("res://assets/shaders/map_surface.gdshader")
 const PAINT = preload("res://assets/shaders/toy_paint.gdshader")
+const WALL_PAINT = preload("res://assets/shaders/wall_paint.gdshader")
 const SPILL = preload("res://assets/shaders/fixture_spill.gdshader")
 const DETAIL = preload("res://assets/textures/rain_market/surface_noise.png")
 const Palette = preload("res://scripts/maps/toy_palette.gd")
@@ -100,12 +101,33 @@ func classify(label: String) -> int:
  if label=="lake":return 8
  return 0
 
+func apply_weathering(mat: ShaderMaterial) -> void:
+ var w: Array = Palette.weathering(arena.map_id)
+ mat.set_shader_parameter("detail_noise",DETAIL)
+ mat.set_shader_parameter("wear_amount",w[0])
+ mat.set_shader_parameter("grime_tint",w[1])
+ mat.set_shader_parameter("edge_tint",w[2])
+ mat.set_shader_parameter("streak_amount",w[3])
+
 func configure_materials() -> void:
+ if arena.get("materials") is Dictionary:
+  for mural_mat in arena.materials.values():
+   if mural_mat is ShaderMaterial and mural_mat.shader==WALL_PAINT:
+    apply_weathering(mural_mat)
  for mesh: MeshInstance3D in arena.find_children("*","MeshInstance3D",true,false):
-  if not mesh.mesh or mesh.material_override is ShaderMaterial:continue
+  if not mesh.mesh:continue
+  if mesh.material_override is ShaderMaterial:
+   if (mesh.material_override as ShaderMaterial).shader==WALL_PAINT:
+    apply_weathering(mesh.material_override as ShaderMaterial)
+   continue
   var surfaces: Array = [-1] if mesh.material_override else range(mesh.mesh.get_surface_count())
   for index in surfaces:
-   var original = (mesh.material_override if index==-1 else mesh.get_active_material(index)) as StandardMaterial3D
+   var active_mat = mesh.material_override if index==-1 else mesh.get_active_material(index)
+   if active_mat is ShaderMaterial:
+    if (active_mat as ShaderMaterial).shader==WALL_PAINT:
+     apply_weathering(active_mat as ShaderMaterial)
+    continue
+   var original = active_mat as StandardMaterial3D
    if not original or original.transparency!=BaseMaterial3D.TRANSPARENCY_DISABLED or original.shading_mode==BaseMaterial3D.SHADING_MODE_UNSHADED:continue
    var context := str(mesh.get_path()).to_lower()
    # Static kits from tools/maps/bake_vertex_light.py carry sky occlusion in their vertex colours.
@@ -135,6 +157,7 @@ func configure_materials() -> void:
      coat.set_shader_parameter("metallic_value",original.metallic)
      coat.set_shader_parameter("specular_value",original.metallic_specular)
      coat.set_shader_parameter("floor_height",arena.global_position.y)
+     apply_weathering(coat)
      cache[key] = coat
     else:
      var material := ShaderMaterial.new()
@@ -155,12 +178,12 @@ func configure_materials() -> void:
      if original.resource_name=="soil":roughness = .58
      material.set_shader_parameter("base_color",original.albedo_color)
      material.set_shader_parameter("use_vertex_color",tinted)
-     material.set_shader_parameter("detail_noise",DETAIL)
      material.set_shader_parameter("kind",kind)
      material.set_shader_parameter("roughness_value",roughness)
      material.set_shader_parameter("metallic_value",metallic)
      material.set_shader_parameter("roof_pattern",arena.map_id=="palm_house" and original.resource_name in ["paving","paving_dark","stone","gravel"])
      material.set_shader_parameter("floor_height",arena.global_position.y)
+     apply_weathering(material)
      cache[key] = material
    if index==-1:mesh.material_override=cache[key]
    else:mesh.set_surface_override_material(index,cache[key])
@@ -168,7 +191,12 @@ func configure_materials() -> void:
   if not multi.has_meta("palette") or not multi.multimesh or not multi.multimesh.mesh or multi.material_override is ShaderMaterial:continue
   var palette_key := str(multi.get_meta("palette"))
   if palette_key in ["net","light"]:continue
-  var original := multi.multimesh.mesh.surface_get_material(0) as StandardMaterial3D
+  var m_surface_mat := multi.multimesh.mesh.surface_get_material(0)
+  if m_surface_mat is ShaderMaterial:
+   if (m_surface_mat as ShaderMaterial).shader==WALL_PAINT:
+    apply_weathering(m_surface_mat as ShaderMaterial)
+   continue
+  var original := m_surface_mat as StandardMaterial3D
   if not original or original.transparency!=BaseMaterial3D.TRANSPARENCY_DISABLED:continue
   var key := "mm:"+palette_key+":"+str(original.get_instance_id())
   if not cache.has(key):
@@ -182,6 +210,7 @@ func configure_materials() -> void:
     coat.set_shader_parameter("metallic_value",0.0)
     coat.set_shader_parameter("specular_value",.5)
     coat.set_shader_parameter("floor_height",arena.global_position.y)
+    apply_weathering(coat)
     cache[key] = coat
    else:
     var material := ShaderMaterial.new()
@@ -189,12 +218,12 @@ func configure_materials() -> void:
     var roughness := .68 if kind==2 else .58
     material.set_shader_parameter("base_color",original.albedo_color)
     material.set_shader_parameter("use_vertex_color",false)
-    material.set_shader_parameter("detail_noise",DETAIL)
     material.set_shader_parameter("kind",kind)
     material.set_shader_parameter("roughness_value",roughness)
     material.set_shader_parameter("metallic_value",0.0)
     material.set_shader_parameter("roof_pattern",false)
     material.set_shader_parameter("floor_height",arena.global_position.y)
+    apply_weathering(material)
     cache[key] = material
   multi.material_override = cache[key]
 
