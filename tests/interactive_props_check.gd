@@ -124,6 +124,12 @@ func check() -> void:
 		game.begin_running()
 		game.set_physics_process(false)
 		for prop in manager.props:assert(prop.broken_count==0)
+		game.rules.elapsed = game.rules.duration
+		game.rules.active = false
+		game.start_finale()
+		assert(manager.props.all(func(p):return not p.visible))
+		manager.restore()
+		assert(manager.props.all(func(p):return p.visible and p.broken_count==0))
 		evidence.append(report)
 		game.pause_run()
 		game.menu_action("menu")
@@ -131,7 +137,7 @@ func check() -> void:
 		game.player.gun.show()
 		game.player.camera.make_current()
 		print("INTERACTIVE_MAP_PASS ",JSON.stringify(report))
-	var f = FileAccess.open(OUT+"checks.json",FileAccess.WRITE)
+	var f = FileAccess.open(OUT+("checks-headless.json" if DisplayServer.get_name()=="headless" else "checks.json"),FileAccess.WRITE)
 	f.store_string(JSON.stringify(evidence,"\t")+"\n")
 	print("INTERACTIVE_PROPS_PASS: 9 maps, normal/frenzy rays, grenade LOS, reset and unchanged navigation")
 	game.music.stop()

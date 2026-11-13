@@ -17,7 +17,17 @@ func setup(map: Node3D) -> void:
 		props.append(prop)
 
 func restore() -> void:
-	for prop in props:prop.restore()
+	for prop in props:
+		prop.show()
+		prop.restore()
 
 func blast(center: Vector3, radius: float) -> void:
 	for prop in props:prop.blast(center,radius)
+
+func finale() -> void:
+	for prop in props:
+		prop.hide()
+		prop.pending.clear()
+		prop.set_process(false)
+		for target in prop.targets:target.body.collision_layer = 0
+		prop.game.finale_explosion(prop.global_position+Vector3.UP*.5,.6,Color("d8b98a"))

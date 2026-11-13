@@ -241,6 +241,7 @@ func _process(_delta: float) -> void:
 			lamp.material_override = material
 
 func explode_finale_decor() -> void:
+	if interactive_props:interactive_props.finale()
 	var centers: Dictionary = {}
 	for prop in structures:
 		if not prop.scenery or prop.collapsed:continue
