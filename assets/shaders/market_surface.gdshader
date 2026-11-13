@@ -31,27 +31,22 @@ void fragment() {
 	float relief = grain*0.65+fine*0.35;
 	vec3 paint = base_color.rgb;
 	if(use_vertex_color) paint *= COLOR.rgb;
-	float contrast = surface_kind==2 ? 0.16 : 0.17;
-	paint *= 1.0+(macro-.5)*contrast+(grain-.5)*0.16;
-	float roughness = clamp(base_roughness+(macro-.5)*.22,0.14,1.0);
+	float contrast = surface_kind==2 ? 0.07 : 0.08;
+	paint *= 1.0+(macro-.5)*contrast+(grain-.5)*0.06;
+	float roughness = clamp(base_roughness+(macro-.5)*.14,0.14,1.0);
 	float ground_y = clamp((18.0-world_position.z)*3.7/36.0,0.0,3.7);
 	float height = max(0.0,world_position.y-ground_y);
 	float dist = length(world_position - CAMERA_POSITION_WORLD);
-	float near_mask = 1.0 - smoothstep(14.0, 36.0, dist);
-	float wall_mask = 1.0 - abs(world_normal.y);
-	// Rain streaks & humid seafront moss/rust stains down market facades and stall sides
-	float drip = texture(detail_noise, vec2(world_position.x + world_position.z, world_position.y * 0.14) * 0.42).r;
-	float streaks = wall_mask * smoothstep(0.42, 0.76, drip) * 0.34;
-	paint = mix(paint, paint * vec3(0.46, 0.50, 0.44), streaks);
+	float near_mask = 1.0 - smoothstep(12.0, 32.0, dist);
 	if(surface_kind==0 || surface_kind==1) {
-		float wear = (1.0-smoothstep(.04,.38+macro*.28,height))*smoothstep(.36,.68,grain)*.42;
-		paint = mix(paint,vec3(.36,.32,.23),wear);
-		roughness = clamp(roughness + wear * .20, 0.14, 1.0);
+		float wear = (1.0-smoothstep(.02,.20,height))*smoothstep(.42,.72,grain)*.18;
+		paint = mix(paint,mix(paint*.88,vec3(.52,.48,.40),.35),wear);
+		roughness = clamp(roughness + wear * .10, 0.14, 1.0);
 		float curv = length(fwidth(world_normal)) / max(length(fwidth(world_position)) * 18.0, 0.035);
-		float chip = smoothstep(0.20, 0.72, curv) * smoothstep(0.32, 0.68, grain) * near_mask;
-		vec3 edge_col = surface_kind==1 ? vec3(0.84, 0.88, 0.92) : mix(vec3(0.94, 0.89, 0.78), paint * 1.35, 0.45);
-		paint = mix(paint, edge_col, clamp(chip * 0.54, 0.0, 0.50));
-		roughness = clamp(roughness - chip * 0.14, 0.14, 1.0);
+		float chip = smoothstep(0.24, 0.72, curv) * smoothstep(0.36, 0.68, grain) * near_mask;
+		vec3 edge_col = surface_kind==1 ? vec3(0.86, 0.90, 0.94) : mix(vec3(0.95, 0.90, 0.80), paint * 1.28, 0.45);
+		paint = mix(paint, edge_col, clamp(chip * 0.34, 0.0, 0.30));
+		roughness = clamp(roughness - chip * 0.10, 0.14, 1.0);
 	}
 	if(surface_kind==2 && world_normal.y>.7) {
 		float damp = smoothstep(.38,.65,macro);

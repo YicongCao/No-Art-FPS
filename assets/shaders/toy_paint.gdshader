@@ -12,10 +12,10 @@ uniform float metallic_value = 0.0;
 uniform float specular_value = 0.5;
 uniform float floor_height = 0.0;
 uniform float wall_gradient = 0.14;
-uniform float wear_amount = 0.72;
-uniform vec3 grime_tint : source_color = vec3(0.42, 0.36, 0.30);
-uniform vec3 edge_tint : source_color = vec3(0.97, 0.94, 0.86);
-uniform float streak_amount = 0.36;
+uniform float wear_amount = 0.34;
+uniform vec3 grime_tint : source_color = vec3(0.72, 0.66, 0.58);
+uniform vec3 edge_tint : source_color = vec3(0.97, 0.94, 0.88);
+uniform float streak_amount = 0.04;
 
 varying vec3 world;
 varying vec3 world_normal;
@@ -50,60 +50,48 @@ void fragment() {
 	}
 
 	float dist = length(world - CAMERA_POSITION_WORLD);
-	float near_mask = 1.0 - smoothstep(14.0, 42.0, dist);
-	float mid_mask = 1.0 - smoothstep(28.0, 72.0, dist);
+	float near_mask = 1.0 - smoothstep(12.0, 34.0, dist);
+	float mid_mask = 1.0 - smoothstep(22.0, 56.0, dist);
 
-	// 1. Painterly pigment mottling + sun-chalking on upward faces
-	float blotch = (macro - 0.5) * 0.24 + (brush - 0.5) * 0.16;
+	// 1. Keep broad toy colour reads clean: only whisper-soft tonal warmth, no muddy noise
+	float blotch = (macro - 0.5) * 0.055 + (brush - 0.5) * 0.035;
 	color *= 1.0 + blotch * wear_amount * mid_mask;
-	float sun_fade = smoothstep(0.55, 0.95, world_normal.y) * smoothstep(0.42, 0.72, macro) * 0.18 * wear_amount;
-	color = mix(color, mix(color, edge_tint, 0.65), sun_fade * mid_mask);
+	float sun_fade = smoothstep(0.65, 0.96, world_normal.y) * smoothstep(0.48, 0.78, macro) * 0.07 * wear_amount;
+	color = mix(color, mix(color, edge_tint, 0.45), sun_fade * mid_mask);
 
-	// 2. Upward floor / deck traffic scuff marks & dust patches
-	float floor_face = smoothstep(0.68, 0.95, world_normal.y);
-	float traffic_patch = floor_face * smoothstep(0.46, 0.74, macro * 0.65 + brush * 0.35) * wear_amount * mid_mask;
-	color = mix(color, grime_tint * (0.55 + 0.55 * base_color.rgb), traffic_patch * 0.42);
-
-	// 3. Vertical rain / rust / soot streaks down walls & containers
+	// 2. Crisp grounding dust only right at the floor seam (no dark streaks or muddy patches)
 	float wall = 1.0 - abs(world_normal.y);
-	float drip_uv = texture(detail_noise, vec2(world.x + world.z, world.y * 0.14) * 0.46).r;
-	float streaks = wall * smoothstep(0.44, 0.74, drip_uv) * streak_amount * wear_amount * mid_mask;
-	color = mix(color, grime_tint * (0.48 + 0.52 * base_color.rgb), streaks * 0.58);
-
-	// 4. Grounding base splash / kick-scuffs + baked crevice dirt accumulation
 	float h = max(0.0, world.y - floor_height);
-	float splash_h = 0.58 + macro * 0.52;
-	float base_scuff = wall * (1.0 - smoothstep(0.03, splash_h, h)) * smoothstep(0.28, 0.64, brush);
-	float ao_dirt = (1.0 - smoothstep(0.64, 0.94, v_luma)) * smoothstep(0.30, 0.66, macro) * 0.85;
-	float dirt = clamp((base_scuff * 0.68 + ao_dirt * 0.50) * wear_amount, 0.0, 0.68);
-	color = mix(color, grime_tint * (0.52 + 0.48 * base_color.rgb), dirt);
+	float dust_h = 0.16 + macro * 0.14;
+	float base_dust = wall * (1.0 - smoothstep(0.01, dust_h, h)) * smoothstep(0.38, 0.72, brush);
+	vec3 clean_dust = mix(color * 0.90, grime_tint, 0.35);
+	color = mix(color, clean_dust, clamp(base_dust * 0.22 * wear_amount, 0.0, 0.18));
 
-	// 5. Dry-brushed bevel paint chipping (catches 3D rounded edges & ribs)
+	// 3. Clean dry-brushed highlight on 3D bevels, chipped corners & architectural seams
 	float curv = length(fwidth(world_normal)) / max(length(fwidth(world)) * 15.0, 0.028);
-	float edge_chip = smoothstep(0.14, 0.58, curv) * smoothstep(0.30, 0.62, brush * 0.7 + fine * 0.3) * near_mask * wear_amount;
-	vec3 primer = mix(edge_tint, color * 1.48 + vec3(0.12), 0.38);
-	color = mix(color, primer, clamp(edge_chip * 0.76, 0.0, 0.68));
+	float edge_chip = smoothstep(0.24, 0.70, curv) * smoothstep(0.36, 0.68, brush * 0.7 + fine * 0.3) * near_mask * wear_amount;
+	vec3 primer = mix(edge_tint, color * 1.32 + vec3(0.08), 0.42);
+	color = mix(color, primer, clamp(edge_chip * 0.52, 0.0, 0.34));
 
-	// Subtle cotangent relief so painted plastic/metal catches broken specular highlights
+	// Subtle cotangent micro-relief breaks mirror-plastic flatness via specular only
 	float relief = brush * 0.65 + fine * 0.35;
 	vec3 dpdx = dFdx(VERTEX), dpdy = dFdy(VERTEX);
 	vec3 r1 = cross(dpdy, NORMAL), r2 = cross(NORMAL, dpdx);
 	float det = dot(dpdx, r1);
 	vec3 grad = (dFdx(relief) * r1 + dFdy(relief) * r2) / max(abs(det), 0.00001) * sign(det);
-	NORMAL = normalize(NORMAL - grad * (0.0014 * wear_amount * near_mask));
+	NORMAL = normalize(NORMAL - grad * (0.00075 * wear_amount * near_mask));
 
 	// Sky-lit wall gradient and cool undersides
 	float rise = smoothstep(0.0, 3.2, h);
 	color *= mix(1.0 - wall_gradient * wall, 1.0, rise);
 	color *= mix(vec3(1.0), vec3(0.90, 0.94, 1.02), smoothstep(0.3, 0.9, -world_normal.y));
 
-	// 6. Tactile roughness contrast: scuffed patches go matte, rubbed bevels polish
+	// 4. Specular roughness variation carries surface tactility while albedo stays bright & clean
 	float rough = roughness_value
-	            + (macro - 0.5) * 0.24 * wear_amount
-	            + (brush - 0.5) * 0.14 * wear_amount
-	            + dirt * 0.26
-	            - traffic_patch * 0.14
-	            - edge_chip * 0.20;
+	            + (macro - 0.5) * 0.12 * wear_amount
+	            + (brush - 0.5) * 0.08 * wear_amount
+	            + base_dust * 0.08
+	            - edge_chip * 0.12;
 
 	ALBEDO = color;
 	ROUGHNESS = clamp(rough, 0.14, 0.98);

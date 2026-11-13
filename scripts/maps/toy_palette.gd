@@ -20,7 +20,7 @@ const PALETTES = {
 		"glow": [.42,1.05],
 		"emission": 1.8,
 		"rim": [Color("9fe4ff"),.62],
-		"weather": [.82,Color("3c4932"),Color("f5e2c4"),.48],
+		"weather": [.38,Color("a89882"),Color("f7e8ce"),.12],
 	},
 	"yard": {
 		# Late-morning container yard: clean warm key, periwinkle shade, light blue distance.
@@ -28,7 +28,7 @@ const PALETTES = {
 		"ambient": [Color("adbaf2"),.55],
 		"fog": [Color("cfe0fa"),.0016],
 		"rim": [Color("9fe4ff"),.6],
-		"weather": [.82,Color("543f30"),Color("faf1dc"),.44],
+		"weather": [.36,Color("c8b69a"),Color("faf2df"),.06],
 	},
 	"sandgate": {
 		# Desert afternoon: hot amber key, lilac shade, dusty ochre haze down the long lanes.
@@ -37,7 +37,7 @@ const PALETTES = {
 		"fog": [Color("ecd6b2"),.0018],
 		"glow": [.3,1.1],
 		"rim": [Color("8fe0ff"),.62],
-		"weather": [.84,Color("7e5e3d"),Color("fff5df"),.32],
+		"weather": [.40,Color("ddb884"),Color("fff6e3"),.04],
 	},
 	"snowline": {
 		# Clear alpine morning: neutral-warm key, saturated blue shade on snow, cold haze.
@@ -46,7 +46,7 @@ const PALETTES = {
 		"fog": [Color("cddcff"),.0042],
 		"glow": [.32,1.05],
 		"rim": [Color("ffb27a"),.58],
-		"weather": [.76,Color("4e5f78"),Color("f2f7ff"),.38],
+		"weather": [.32,Color("b7c6de"),Color("f4f8ff"),.06],
 	},
 	"amusement_park": {
 		# Golden hour on the boardwalk: orange key, violet shade, peach haze, lit bulbs.
@@ -57,7 +57,7 @@ const PALETTES = {
 		"emission": 1.6,
 		"practicals": [6,.8,5.0],
 		"rim": [Color("9fe4ff"),.62],
-		"weather": [.76,Color("64493b"),Color("fff2da"),.36],
+		"weather": [.32,Color("d4b698"),Color("fff4df"),.04],
 	},
 	"palm_house": {
 		# Bright greenhouse noon: creamy key, teal shade under the leaves, faint green-white haze.
@@ -66,7 +66,7 @@ const PALETTES = {
 		"fog": [Color("dcefe4"),.0016],
 		"glow": [.3,1.1],
 		"rim": [Color("ffc0e0"),.55],
-		"weather": [.78,Color("35503b"),Color("f6f5e8"),.48],
+		"weather": [.34,Color("b7bfa8"),Color("f8f7ec"),.08],
 	},
 	"last_ferry": {
 		# Harbour at night: sodium-warm key on the planks, deep indigo shade, lamps that light the deck.
@@ -77,7 +77,7 @@ const PALETTES = {
 		"emission": 2.0,
 		"practicals": [8,2.8,9.0],
 		"rim": [Color("ffd08f"),.62],
-		"weather": [.88,Color("323f50"),Color("ebf0f6"),.56],
+		"weather": [.38,Color("8d9cb0"),Color("eef2f8"),.12],
 	},
 	"night_studio": {
 		# Studio between takes: dim violet house light, warm stage practicals, strong glow on bulbs.
@@ -85,12 +85,12 @@ const PALETTES = {
 		"glow": [.5,.95],
 		"emission": 1.6,
 		"rim": [Color("7ff0ff"),.62],
-		"weather": [.70,Color("2e3145"),Color("ece9f8"),.28],
+		"weather": [.26,Color("7a7d96"),Color("f0edf8"),0.0],
 	},
 	"rain_market": {
 		# Wet night market: the market keeps its own lamps and reflections; warm rim against blue.
 		"rim": [Color("ffcf8a"),.62],
-		"weather": [.84,Color("364238"),Color("f5ebd8"),.52],
+		"weather": [.36,Color("8f9a94"),Color("f6eedc"),.14],
 	},
 	"bb_office": {
 		# Office afternoon: warm window key through the glazing, lavender-blue shade under desks.
@@ -99,7 +99,7 @@ const PALETTES = {
 		"glow": [.3,1.05],
 		"emission": 1.3,
 		"rim": [Color("ffb36b"),.58],
-		"weather": [.68,Color("43455c"),Color("f7f3ea"),.26],
+		"weather": [.25,Color("aba7ba"),Color("f9f5ee"),0.0],
 	},
 	"baggage_below": {
 		# Airport hall in daylight: pale warm key through the glazing, sky-blue shade.
@@ -108,7 +108,7 @@ const PALETTES = {
 		"glow": [.3,1.05],
 		"emission": 1.3,
 		"rim": [Color("ffb36b"),.58],
-		"weather": [.80,Color("3b4250"),Color("f0f3f8"),.38],
+		"weather": [.30,Color("a5aebc"),Color("f2f5fa"),0.0],
 	},
 	"ginza_station": {
 		# Underground platform: crisp daylight-warm key down the stairs, cool ceramic shade, glow on tubes.
@@ -117,7 +117,7 @@ const PALETTES = {
 		"glow": [.36,1.0],
 		"emission": 1.4,
 		"rim": [Color("ffb36b"),.6],
-		"weather": [.74,Color("404654"),Color("f4f1e8"),.34],
+		"weather": [.26,Color("b8bcc6"),Color("f7f4ec"),0.0],
 	},
 }
 
@@ -133,7 +133,7 @@ static func practicals(map_id: String) -> Array:
 
 ## Stylized diorama weathering: [wear_amount, grime_tint, edge_tint, streak_amount].
 static func weathering(map_id: String) -> Array:
-	return PALETTES.get(map_id,{}).get("weather",[.55,Color("4f443a"),Color("f5efe2"),.25])
+	return PALETTES.get(map_id,{}).get("weather",[.32,Color("b8a894"),Color("f7f1e4"),.04])
 
 static func apply(map_id: String, env: Environment, sun: DirectionalLight3D, frenzy: bool) -> void:
 	var rim: ShaderMaterial = load("res://scripts/enemy.gd").toy_rim()

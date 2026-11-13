@@ -13,10 +13,10 @@ uniform vec3 paint_normal_1 = vec3(0.0, 0.0, 1.0);
 uniform vec2 paint_size_0 = vec2(1.0);
 uniform vec2 paint_size_1 = vec2(1.0);
 uniform float wall_gradient = 0.14;
-uniform float wear_amount = 0.74;
-uniform vec3 grime_tint : source_color = vec3(0.42, 0.34, 0.26);
-uniform vec3 edge_tint : source_color = vec3(0.97, 0.93, 0.84);
-uniform float streak_amount = 0.36;
+uniform float wear_amount = 0.34;
+uniform vec3 grime_tint : source_color = vec3(0.74, 0.68, 0.58);
+uniform vec3 edge_tint : source_color = vec3(0.97, 0.94, 0.88);
+uniform float streak_amount = 0.04;
 
 varying vec3 world_position;
 varying vec3 world_normal;
@@ -35,7 +35,7 @@ vec3 apply_paint(vec3 wall, sampler2D artwork, vec3 center, vec3 normal, vec2 si
 		return wall;
 	}
 	vec4 paint = texture(artwork, paint_uv);
-	float weathered_alpha = paint.a * mix(1.0, 0.72 + 0.28 * peel, 0.65 * wear_amount);
+	float weathered_alpha = paint.a * mix(1.0, 0.88 + 0.12 * peel, 0.35 * wear_amount);
 	return mix(wall, paint.rgb, weathered_alpha);
 }
 
@@ -50,11 +50,11 @@ void fragment() {
 	            + texture(detail_noise, world_position.xy * 0.34).r * weights.z;
 
 	float dist = length(world_position - CAMERA_POSITION_WORLD);
-	float near_mask = 1.0 - smoothstep(14.0, 42.0, dist);
-	float mid_mask = 1.0 - smoothstep(28.0, 72.0, dist);
+	float near_mask = 1.0 - smoothstep(12.0, 34.0, dist);
+	float mid_mask = 1.0 - smoothstep(22.0, 56.0, dist);
 
 	vec3 color = base_color.rgb;
-	color *= 1.0 + ((macro - 0.5) * 0.22 + (brush - 0.5) * 0.15) * wear_amount * mid_mask;
+	color *= 1.0 + ((macro - 0.5) * 0.055 + (brush - 0.5) * 0.035) * wear_amount * mid_mask;
 
 	if (paint_count > 0) {
 		color = apply_paint(color, artwork_0, paint_center_0, paint_normal_0, paint_size_0, brush);
@@ -65,20 +65,16 @@ void fragment() {
 
 	float wall = 1.0 - abs(world_normal.y);
 	float h = max(0.0, world_position.y);
-	float drip = texture(detail_noise, vec2(world_position.x + world_position.z, world_position.y * 0.14) * 0.46).r;
-	float streaks = wall * smoothstep(0.44, 0.74, drip) * streak_amount * wear_amount * mid_mask;
-	color = mix(color, grime_tint * (0.46 + 0.52 * base_color.rgb), streaks * 0.58);
-
-	float base_scuff = wall * (1.0 - smoothstep(0.03, 0.58 + macro * 0.45, h)) * smoothstep(0.28, 0.64, brush);
-	color = mix(color, grime_tint * (0.52 + 0.48 * base_color.rgb), clamp(base_scuff * 0.65 * wear_amount, 0.0, 0.65));
+	float base_dust = wall * (1.0 - smoothstep(0.01, 0.18 + macro * 0.12, h)) * smoothstep(0.38, 0.72, brush);
+	color = mix(color, mix(color * 0.90, grime_tint, 0.35), clamp(base_dust * 0.22 * wear_amount, 0.0, 0.18));
 
 	float curv = length(fwidth(world_normal)) / max(length(fwidth(world_position)) * 15.0, 0.028);
-	float edge_chip = smoothstep(0.14, 0.58, curv) * smoothstep(0.28, 0.62, brush) * near_mask * wear_amount;
-	color = mix(color, mix(edge_tint, color * 1.45 + vec3(0.10), 0.38), clamp(edge_chip * 0.74, 0.0, 0.66));
+	float edge_chip = smoothstep(0.24, 0.70, curv) * smoothstep(0.36, 0.68, brush) * near_mask * wear_amount;
+	color = mix(color, mix(edge_tint, color * 1.32 + vec3(0.08), 0.42), clamp(edge_chip * 0.52, 0.0, 0.34));
 
 	color *= mix(1.0 - wall_gradient * wall, 1.0, smoothstep(0.0, 3.2, h));
 	color *= mix(vec3(1.0), vec3(0.90, 0.94, 1.02), smoothstep(0.3, 0.9, -world_normal.y));
 	ALBEDO = color;
-	ROUGHNESS = clamp(0.54 + (macro - 0.5) * 0.22 * wear_amount + base_scuff * 0.22 - edge_chip * 0.18, 0.16, 0.98);
+	ROUGHNESS = clamp(0.54 + (macro - 0.5) * 0.12 * wear_amount + base_dust * 0.08 - edge_chip * 0.12, 0.16, 0.98);
 	SPECULAR = 0.5;
 }
