@@ -1,0 +1,8 @@
+{
+  "date": "2026-11-13",
+  "method": "Isolated Node VM with minimal DOM stubs; not actual browser download persistence",
+  "source_equal": true,
+  "parts": 43,
+  "assemblies": 12,
+  "filename": "moonbase-construction-kit-v1.1.json"
+}

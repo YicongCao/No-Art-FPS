@@ -1,0 +1,11 @@
+{
+  "sections": 14,
+  "parts": 43,
+  "orthographic_views": 215,
+  "assembly_recipes": 12,
+  "html_bytes": 12055866,
+  "html_sha256": "19fab789a461977231122d0718828b2bdcfcbc2734842f9da49937d516bbb84b",
+  "status": "planning",
+  "font_source_sha256": "ca094f6b0001fb048ca39ddd797a0cdb0179e1e55c6561e111c49c3e6a61d7b7",
+  "embedded_svg": 56
+}

@@ -45,3 +45,7 @@ ca094f6b0001fb048ca39ddd797a0cdb0179e1e55c6561e111c49c3e6a61d7b7
 上游地址可能随版本更新；若哈希变化，应重新检查度量与许可再重建。子集工具版本和字体时间戳可能改变输出字节，不承诺逐字节复现。
 
 Oxanium：Copyright 2019 The Oxanium Project Authors。Noto Sans CJK SC Medium 的内嵌版权字段：© 2014–2021 Adobe。Rajdhani：Copyright 2014 Indian Type Foundry。许可证全文已随字体保存并内嵌于 HTML。原始字体版权字段在子集中保留。
+
+## 地编与建模细化附册 v1.1
+
+新增 [地编与程序化构件手册](construction/index.html)：43 类构件的 215 个正投影视图、12 组总装、地编总平面、生成器合同和十类技术的项目取舍。主案首页、建模、地编章节均已加入入口。基础构件与接口的新增细节以附册为准，基地只做室外。

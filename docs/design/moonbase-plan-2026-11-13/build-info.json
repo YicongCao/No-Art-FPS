@@ -6,13 +6,13 @@
       "family": "Oxanium",
       "source_sha256": "2ce01d946e1e1ffc8d7eecfffbda8623bedd63eaf811a20488c4b69af45babb0",
       "glyphs": 107,
-      "woff2_bytes": 5200
+      "woff2_bytes": 5216
     },
     {
       "family": "NotoPlan",
       "source_sha256": "ca094f6b0001fb048ca39ddd797a0cdb0179e1e55c6561e111c49c3e6a61d7b7",
-      "glyphs": 1185,
-      "woff2_bytes": 357804
+      "glyphs": 1187,
+      "woff2_bytes": 358948
     }
   ],
   "images": [
@@ -32,6 +32,6 @@
       "bytes": 2127008
     }
   ],
-  "html_bytes": 15145854,
+  "html_bytes": 15148108,
   "self_contained": true
 }

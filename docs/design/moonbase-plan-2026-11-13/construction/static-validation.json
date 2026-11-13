@@ -1,0 +1,15 @@
+{
+  "date": "2026-11-13",
+  "parts": 43,
+  "orthographic_views": 215,
+  "assembly_drawings": 12,
+  "site_plans": 1,
+  "svg_files_parsed": 56,
+  "internal_links_broken": 0,
+  "external_runtime_resources": 0,
+  "visible_html_han_missing": 0,
+  "route_half_width_clearance_to_selected_proxies_m": 1.75,
+  "route_validation": "2D rectangular proposal only; not navigation, exact art envelopes or jump validation",
+  "html_sha256": "19fab789a461977231122d0718828b2bdcfcbc2734842f9da49937d516bbb84b",
+  "html_bytes": 12055866
+}

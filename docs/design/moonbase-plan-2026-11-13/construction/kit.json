@@ -1,0 +1,3643 @@
+{
+  "version": "1.1",
+  "status": "design_proxies_only",
+  "axes": {
+    "front": "-Z",
+    "up": "+Y",
+    "units": "m"
+  },
+  "view_count": 5,
+  "parts": [
+    {
+      "id": "S01",
+      "name": "楔形机身芯",
+      "group": "飞船",
+      "family": "profile_loft",
+      "nominal_size": [
+        3.1,
+        1.38,
+        10.5
+      ],
+      "bounds_size": [
+        3.1,
+        1.38,
+        10.5
+      ],
+      "params": {
+        "length_m": [
+          9,
+          12
+        ],
+        "front_width_ratio": [
+          0.12,
+          0.35
+        ],
+        "sections": [
+          3,
+          6
+        ]
+      },
+      "ports": "前后截面中心；翼根 ±X；腹部落架座",
+      "detail": "轮廓与装甲退台为几何；浅缝烘焙",
+      "collision": "3 个凸包；腹部不可穿行",
+      "variants": "长度／鼻端截面／装甲分区；不随机改变接地高度",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "S02",
+      "name": "翼面与翼根",
+      "group": "飞船",
+      "family": "tapered_extrude",
+      "nominal_size": [
+        4.8,
+        0.25,
+        3.5
+      ],
+      "bounds_size": [
+        4.8,
+        0.276,
+        3.5
+      ],
+      "params": {
+        "span_m": [
+          3,
+          5
+        ],
+        "thickness_m": [
+          0.18,
+          0.45
+        ],
+        "sweep_deg": [
+          15,
+          35
+        ]
+      },
+      "ports": "内端翼根面；挂载座位于局部坐标",
+      "detail": "翼前缘与厚度为几何；铆钉为法线",
+      "collision": "静态翼碰撞并入机身；不可站上",
+      "variants": "左右手版本重新检查绕序，不能只保留负缩放",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "S03",
+      "name": "斜切尾翼",
+      "group": "飞船",
+      "family": "tapered_extrude",
+      "nominal_size": [
+        0.2,
+        3.2,
+        1.6
+      ],
+      "bounds_size": [
+        0.205,
+        3.2,
+        1.6
+      ],
+      "params": {
+        "height_m": [
+          2.5,
+          3.4
+        ],
+        "cant_deg": [
+          10,
+          22
+        ],
+        "edge_m": [
+          0.025,
+          0.06
+        ]
+      },
+      "ports": "底部插接舌与机身座",
+      "detail": "翼缘真实厚度；色带烘进图集",
+      "collision": "并入飞船静态凸包",
+      "variants": "倾角与左右版本；色带不改变厚度",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "S04",
+      "name": "座舱罩与舱框",
+      "group": "飞船",
+      "family": "profile_loft",
+      "nominal_size": [
+        1.5,
+        0.5,
+        2
+      ],
+      "bounds_size": [
+        1.5,
+        0.5,
+        2.0
+      ],
+      "params": {
+        "width_m": [
+          1.2,
+          1.7
+        ],
+        "slope_deg": [
+          15,
+          30
+        ]
+      },
+      "ports": "机背凹槽面",
+      "detail": "玻璃先用不透明暗面；不建座舱内部",
+      "collision": "不独立碰撞",
+      "variants": "长度／色带／seed",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "S05",
+      "name": "发动机筒与喷口",
+      "group": "飞船",
+      "family": "lathe",
+      "nominal_size": [
+        1.34,
+        1.34,
+        2.1
+      ],
+      "bounds_size": [
+        1.34,
+        1.34,
+        2.1
+      ],
+      "params": {
+        "diameter_m": [
+          0.9,
+          1.4
+        ],
+        "length_m": [
+          1.8,
+          2.8
+        ],
+        "radial_segments": [
+          12,
+          24
+        ]
+      },
+      "ports": "轴向前后中心；固定法兰",
+      "detail": "喷口有凹深和环形壁厚；内部叶片烘焙",
+      "collision": "并入主机身",
+      "variants": "口径／环数；青环为实体和状态材质",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "S06",
+      "name": "落架减震腿",
+      "group": "飞船",
+      "family": "strut",
+      "nominal_size": [
+        0.65,
+        1.72,
+        0.5
+      ],
+      "bounds_size": [
+        0.7013,
+        1.7665,
+        0.5
+      ],
+      "params": {
+        "length_m": [
+          1.4,
+          2
+        ],
+        "tilt_deg": [
+          10,
+          25
+        ],
+        "piston_ratio": [
+          0.3,
+          0.55
+        ]
+      },
+      "ports": "上下铰点，位置由接地解算锁定",
+      "detail": "轴、套筒、销孔为几何；小刻线为法线",
+      "collision": "静态简化胶囊，堵住不可通行腹部",
+      "variants": "长度随落地约束；不随机seed摆歪",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "S07",
+      "name": "落架脚掌与座",
+      "group": "飞船",
+      "family": "bevel_box",
+      "nominal_size": [
+        0.9,
+        0.26,
+        1.3
+      ],
+      "bounds_size": [
+        0.9,
+        0.58,
+        1.3375
+      ],
+      "params": {
+        "footprint_m": [
+          0.8,
+          1.3
+        ],
+        "pad_h_m": [
+          0.18,
+          0.28
+        ]
+      },
+      "ports": "底面接地；上部销座",
+      "detail": "脚缘真实厚度，尘积集中在接触处",
+      "collision": "单凸包",
+      "variants": "长度／色带／seed",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "S08",
+      "name": "飞船挂载导轨",
+      "group": "飞船",
+      "family": "rail_array",
+      "nominal_size": [
+        0.6,
+        0.45,
+        2.4
+      ],
+      "bounds_size": [
+        0.6,
+        0.67,
+        3.2
+      ],
+      "params": {
+        "length_m": [
+          1.8,
+          2.6
+        ],
+        "mount_spacing_m": [
+          0.4,
+          0.8
+        ]
+      },
+      "ports": "上部双连接座，附着 S02",
+      "detail": "先做导轨与炮管大形；小挂钩为法线",
+      "collision": "不可发射、不独立交互",
+      "variants": "长度／色带／seed",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "B01",
+      "name": "外墙实心板",
+      "group": "基地",
+      "family": "wall_panel",
+      "nominal_size": [
+        4,
+        3,
+        0.3
+      ],
+      "bounds_size": [
+        4.0,
+        3,
+        0.3375
+      ],
+      "params": {
+        "width_m": [
+          2,
+          4
+        ],
+        "height_m": [
+          3,
+          3
+        ],
+        "rib_count": [
+          0,
+          3
+        ]
+      },
+      "ports": "左右端 X=±W/2；下边 Y=0",
+      "detail": "大面与角切为几何；浅缝和螺钉入 trim",
+      "collision": "单盒；背面闭合",
+      "variants": "长度／色带／seed",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "B02",
+      "name": "观察窗墙与暗箱",
+      "group": "基地",
+      "family": "wall_panel",
+      "nominal_size": [
+        4,
+        3,
+        0.45
+      ],
+      "bounds_size": [
+        4.0,
+        3.0,
+        0.45
+      ],
+      "params": {
+        "width_m": [
+          4,
+          4
+        ],
+        "recess_m": [
+          0.15,
+          0.35
+        ],
+        "mullions": [
+          1,
+          3
+        ]
+      },
+      "ports": "与 B01 同端口；窗玻璃为封闭背板",
+      "detail": "三层窗框和压暗背板；不制作内部桌椅",
+      "collision": "整墙盒；窗不可通行",
+      "variants": "窗分格／深度／标号",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "B03",
+      "name": "建筑外转角",
+      "group": "基地",
+      "family": "corner",
+      "nominal_size": [
+        0.8,
+        3,
+        0.8
+      ],
+      "bounds_size": [
+        0.8,
+        3,
+        0.8
+      ],
+      "params": {
+        "turn_deg": [
+          90,
+          90
+        ],
+        "leg_m": [
+          0.8,
+          0.8
+        ]
+      },
+      "ports": "两条正交墙接口；转角共享内外面",
+      "detail": "内侧封闭，避免拼缝透天",
+      "collision": "L 形两盒",
+      "variants": "长度／色带／seed",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "B04",
+      "name": "八角气闸框",
+      "group": "基地",
+      "family": "ring_extrude",
+      "nominal_size": [
+        4.2,
+        4.4,
+        0.8
+      ],
+      "bounds_size": [
+        4.2,
+        4.4,
+        0.99
+      ],
+      "params": {
+        "width_m": [
+          4,
+          4.5
+        ],
+        "height_m": [
+          4.2,
+          4.6
+        ],
+        "frame_m": [
+          0.25,
+          0.4
+        ]
+      },
+      "ports": "底座中心；内侧门扇平面 Z=+.18",
+      "detail": "外壳、密封框、门扇三层；必须真洞口",
+      "collision": "静态框分盒；首版门扇不可穿行",
+      "variants": "标号／框条；轮廓不随机",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "B05",
+      "name": "封闭气闸门扇",
+      "group": "基地",
+      "family": "door_panel",
+      "nominal_size": [
+        3.1,
+        3.5,
+        0.18
+      ],
+      "bounds_size": [
+        3.1,
+        3.5,
+        0.215
+      ],
+      "params": {
+        "split": [
+          2,
+          2
+        ],
+        "recess_m": [
+          0.3,
+          0.6
+        ]
+      },
+      "ports": "门框局部中心；闭合锁定",
+      "detail": "中缝、密封圈、把手有层次；不预留室内",
+      "collision": "单盒；关闭门不加入导航",
+      "variants": "长度／色带／seed",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "B06",
+      "name": "屋顶压顶与斜边",
+      "group": "基地",
+      "family": "trim_profile",
+      "nominal_size": [
+        4,
+        0.45,
+        0.8
+      ],
+      "bounds_size": [
+        4,
+        0.45,
+        0.8
+      ],
+      "params": {
+        "length_m": [
+          2,
+          4
+        ],
+        "slope_deg": [
+          15,
+          30
+        ]
+      },
+      "ports": "墙顶 Y=3；端头盖板",
+      "detail": "边缘折板为几何；细槽用 trim",
+      "collision": "并入楼体",
+      "variants": "长度／色带／seed",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "B07",
+      "name": "平台承载板",
+      "group": "基地",
+      "family": "deck",
+      "nominal_size": [
+        4,
+        0.25,
+        3
+      ],
+      "bounds_size": [
+        4.0,
+        0.31,
+        3.0
+      ],
+      "params": {
+        "width_m": [
+          2,
+          4
+        ],
+        "depth_m": [
+          2,
+          3
+        ],
+        "thickness_m": [
+          0.2,
+          0.3
+        ]
+      },
+      "ports": "顶面为通行高程；板底与 B08/B09 相连",
+      "detail": "防滑纹用法线；边缘和板厚真实",
+      "collision": "单盒；平台下首版封闭",
+      "variants": "长度／色带／seed",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "B08",
+      "name": "立柱与柱脚",
+      "group": "基地",
+      "family": "column",
+      "nominal_size": [
+        0.65,
+        2.4,
+        0.65
+      ],
+      "bounds_size": [
+        0.65,
+        2.4,
+        0.65
+      ],
+      "params": {
+        "height_m": [
+          2.4,
+          3
+        ],
+        "section_m": [
+          0.25,
+          0.4
+        ],
+        "base_m": [
+          0.6,
+          0.8
+        ]
+      },
+      "ports": "脚底 Y=0；柱头顶面接梁底",
+      "detail": "柱脚与锚栓关系清楚；不能悬空",
+      "collision": "单盒；脚不侵占路径",
+      "variants": "长度／色带／seed",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "B09",
+      "name": "承重横梁",
+      "group": "基地",
+      "family": "beam",
+      "nominal_size": [
+        4,
+        0.4,
+        0.3
+      ],
+      "bounds_size": [
+        4.0,
+        0.4,
+        0.4
+      ],
+      "params": {
+        "span_m": [
+          2,
+          4
+        ],
+        "beam_h_m": [
+          0.3,
+          0.5
+        ]
+      },
+      "ports": "两端中心；上翼板接平台板底",
+      "detail": "工字截面可读；远景减为单梁",
+      "collision": "单盒",
+      "variants": "长度／色带／seed",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "B10",
+      "name": "坡道段与侧裙",
+      "group": "基地",
+      "family": "ramp",
+      "nominal_size": [
+        3,
+        2.62,
+        8
+      ],
+      "bounds_size": [
+        3.0,
+        2.62,
+        8.0
+      ],
+      "params": {
+        "rise_m": [
+          2.4,
+          2.4
+        ],
+        "run_m": [
+          8,
+          8
+        ],
+        "clear_width_m": [
+          3,
+          3.5
+        ]
+      },
+      "ports": "坡底与坡顶通行表面；终点高差 2.4 m",
+      "detail": "纵坡 16.7°；踏纹为法线，连续碰撞",
+      "collision": "单斜面凸体；正式模型需补侧裙与支撑",
+      "variants": "净宽／踏纹；不随机坡度",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "B11",
+      "name": "栏杆标准段",
+      "group": "基地",
+      "family": "rail_array",
+      "nominal_size": [
+        3,
+        1.1,
+        0.08
+      ],
+      "bounds_size": [
+        3.07,
+        1.135,
+        0.0666
+      ],
+      "params": {
+        "span_m": [
+          1,
+          3
+        ],
+        "height_m": [
+          1.1,
+          1.1
+        ],
+        "post_pitch_m": [
+          1,
+          1.5
+        ]
+      },
+      "ports": "底部柱脚；两端扶手连续",
+      "detail": "管径真几何；细焊缝入法线",
+      "collision": "粗代理条；不让细杆卡玩家",
+      "variants": "平段／坡段按端点生成；不拉伸圆管",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "I01",
+      "name": "压力容器直筒",
+      "group": "工业",
+      "family": "lathe",
+      "nominal_size": [
+        2,
+        4,
+        2
+      ],
+      "bounds_size": [
+        2.0,
+        4,
+        2.0
+      ],
+      "params": {
+        "diameter_m": [
+          1.2,
+          2.4
+        ],
+        "barrel_length_m": [
+          2,
+          4
+        ],
+        "radial_segments": [
+          12,
+          24
+        ]
+      },
+      "ports": "轴向两端圆口；径向法兰按端口生成",
+      "detail": "纵向大色块；薄焊缝用法线",
+      "collision": "单圆柱代理，静态",
+      "variants": "横竖安装同一局部轴，不改变圆截面",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "I02",
+      "name": "压力容器封头",
+      "group": "工业",
+      "family": "lathe",
+      "nominal_size": [
+        2,
+        0.45,
+        2
+      ],
+      "bounds_size": [
+        2.0,
+        0.45,
+        2.0
+      ],
+      "params": {
+        "diameter_m": [
+          1.2,
+          2.4
+        ],
+        "cap_ratio": [
+          0.18,
+          0.25
+        ]
+      },
+      "ports": "端面与 I01 口径相同；中心出气端口",
+      "detail": "弧顶分段靠轮廓决定；小焊道为法线",
+      "collision": "并入罐体",
+      "variants": "拱高／端口；保持密封壁厚",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "I03",
+      "name": "束环与发光状态环",
+      "group": "工业",
+      "family": "ring",
+      "nominal_size": [
+        2.16,
+        0.18,
+        2.16
+      ],
+      "bounds_size": [
+        2.17,
+        0.18,
+        2.17
+      ],
+      "params": {
+        "diameter_m": [
+          1.2,
+          2.4
+        ],
+        "band_h_m": [
+          0.12,
+          0.25
+        ],
+        "emission_state": [
+          0,
+          1
+        ]
+      },
+      "ports": "匹配罐体外径；轴向环位",
+      "detail": "实体箍环承载状态光；不靠 bloom 代替几何",
+      "collision": "并入静态罐；非交互",
+      "variants": "普通／过载只变 uniform",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "I04",
+      "name": "横罐鞍座",
+      "group": "工业",
+      "family": "support",
+      "nominal_size": [
+        1.9,
+        1,
+        1.2
+      ],
+      "bounds_size": [
+        1.9,
+        1.0,
+        1.2
+      ],
+      "params": {
+        "tank_diameter_m": [
+          1.2,
+          2
+        ],
+        "foot_width_m": [
+          1.5,
+          2.2
+        ]
+      },
+      "ports": "底面接地；上部承托罐底切面",
+      "detail": "正式版接触弧跟随罐径；不允许罐穿座",
+      "collision": "单盒代理",
+      "variants": "鞍弧随罐半径生成",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "I05",
+      "name": "刚性直气管",
+      "group": "工业",
+      "family": "tube",
+      "nominal_size": [
+        0.3,
+        2,
+        0.3
+      ],
+      "bounds_size": [
+        0.3,
+        2,
+        0.3
+      ],
+      "params": {
+        "outer_diameter_m": [
+          0.22,
+          0.45
+        ],
+        "length_m": [
+          0.5,
+          4
+        ],
+        "wall_m": [
+          0.015,
+          0.035
+        ]
+      },
+      "ports": "P0=(0,0,0) 法线 −Y；P1=(0,L,0) +Y；口径相同",
+      "detail": "远景实心封口可用；近端需环状壁厚",
+      "collision": "静态管路分段代理，不单杆卡路",
+      "variants": "D0.22 / D0.45 两套视觉口径；单位米",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "I06",
+      "name": "九十度气管弯头",
+      "group": "工业",
+      "family": "curve_tube",
+      "nominal_size": [
+        0.9,
+        0.9,
+        0.3
+      ],
+      "bounds_size": [
+        0.764,
+        0.764,
+        0.3
+      ],
+      "params": {
+        "outer_diameter_m": [
+          0.22,
+          0.45
+        ],
+        "bend_radius_m": [
+          0.45,
+          0.9
+        ],
+        "path_segments": [
+          6,
+          10
+        ]
+      },
+      "ports": "两端切线互相垂直；与 I05 法线对向",
+      "detail": "连续弧形放样，不能由多段裸接缝拼成",
+      "collision": "静态合并；弯外净空要测",
+      "variants": "45° / 90°；弯曲半径至少外径 1.5 倍",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "I07",
+      "name": "法兰与连接盘",
+      "group": "工业",
+      "family": "ring_array",
+      "nominal_size": [
+        0.5,
+        0.135,
+        0.5
+      ],
+      "bounds_size": [
+        0.5,
+        0.135,
+        0.5
+      ],
+      "params": {
+        "pipe_diameter_m": [
+          0.22,
+          0.45
+        ],
+        "bolt_count": [
+          4,
+          8
+        ],
+        "flange_h_m": [
+          0.08,
+          0.14
+        ]
+      },
+      "ports": "中心轴与气管同轴，孔径匹配",
+      "detail": "近端六角螺栓可几何；远端烘焙或删掉",
+      "collision": "并入管组，非独立碰撞",
+      "variants": "口径匹配表决定螺栓圈；不随机孔位",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "I08",
+      "name": "阀体与手轮",
+      "group": "工业",
+      "family": "valve",
+      "nominal_size": [
+        0.7,
+        0.7,
+        0.65
+      ],
+      "bounds_size": [
+        0.7,
+        0.7,
+        0.45
+      ],
+      "params": {
+        "pipe_diameter_m": [
+          0.22,
+          0.45
+        ],
+        "wheel_d_m": [
+          0.45,
+          0.7
+        ],
+        "wheel_state_deg": [
+          0,
+          90
+        ]
+      },
+      "ports": "进出管口与手轮轴；状态仅装饰",
+      "detail": "轮辐近景真实；不暗示新增可操作功能",
+      "collision": "合并代理，手轮不独立碰撞",
+      "variants": "手轮方位沿检修侧路，不能朝墙",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "I09",
+      "name": "维修设备柜",
+      "group": "工业",
+      "family": "cabinet",
+      "nominal_size": [
+        1.6,
+        2.2,
+        0.94
+      ],
+      "bounds_size": [
+        1.6,
+        2.2,
+        0.9275
+      ],
+      "params": {
+        "width_m": [
+          0.8,
+          1.8
+        ],
+        "height_m": [
+          1.2,
+          2.2
+        ],
+        "vent_count": [
+          3,
+          9
+        ]
+      },
+      "ports": "底面；背面管线端口；前方检修净空",
+      "detail": "柜壳、门盖与内框分层；通风浅槽烘焙",
+      "collision": "单盒；活动盖单独命中挂点",
+      "variants": "面板类型／标号／seed；结构不随污渍变形",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "I10",
+      "name": "散热器鳍片组",
+      "group": "工业",
+      "family": "fin_array",
+      "nominal_size": [
+        1.8,
+        1.8,
+        0.6
+      ],
+      "bounds_size": [
+        1.8,
+        1.8,
+        0.525
+      ],
+      "params": {
+        "width_m": [
+          1.2,
+          2.2
+        ],
+        "fin_count": [
+          6,
+          16
+        ],
+        "fin_depth_m": [
+          0.2,
+          0.5
+        ]
+      },
+      "ports": "机架背面四固定点；侧面管口",
+      "detail": "近景少量真实鳍片；远景替换法线面板",
+      "collision": "单盒",
+      "variants": "鳍片间距有下限；不按纹理分辨率加片",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "I11",
+      "name": "氧气发生器机架",
+      "group": "工业",
+      "family": "machine_chassis",
+      "nominal_size": [
+        3,
+        1.5,
+        2
+      ],
+      "bounds_size": [
+        3.0,
+        1.5,
+        2.08
+      ],
+      "params": {
+        "width_m": [
+          2.4,
+          3.2
+        ],
+        "shell_open_ratio": [
+          0.3,
+          0.55
+        ],
+        "roller_count": [
+          1,
+          2
+        ]
+      },
+      "ports": "底座；前检修面；侧面氧气与供电口",
+      "detail": "机壳包芯，开口露出圆筒；不全身黑缝",
+      "collision": "主机盒；维护盖可独立碎件",
+      "variants": "壳色／滚筒／检修盖版本",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "I12",
+      "name": "软管卷盘",
+      "group": "工业",
+      "family": "lathe_array",
+      "nominal_size": [
+        1.32,
+        1.4,
+        1.3
+      ],
+      "bounds_size": [
+        1.3,
+        1.25,
+        1.3
+      ],
+      "params": {
+        "width_m": [
+          0.8,
+          1.3
+        ],
+        "outer_d_m": [
+          1,
+          1.4
+        ],
+        "hose_d_m": [
+          0.05,
+          0.09
+        ]
+      },
+      "ports": "卷盘轴；出管口指向维修侧",
+      "detail": "只做外层 3–5 道软管或法线；不建整盘实管",
+      "collision": "单盒；软管无小段碰撞",
+      "variants": "收卷／放出短尾两种；不跨交战路",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "P01",
+      "name": "储物箱箱体",
+      "group": "道具",
+      "family": "crate",
+      "nominal_size": [
+        1.4,
+        1.22,
+        1.18
+      ],
+      "bounds_size": [
+        1.4,
+        1.22,
+        1.2175
+      ],
+      "params": {
+        "width_m": [
+          0.8,
+          1.8
+        ],
+        "height_m": [
+          0.6,
+          1.2
+        ],
+        "depth_m": [
+          0.6,
+          1.2
+        ],
+        "rib_count": [
+          0,
+          6
+        ],
+        "wear": [
+          0,
+          0.12
+        ]
+      },
+      "ports": "地面 pivot；盖板铰点；堆叠角座",
+      "detail": "框架真几何；小锁扣与浅划痕图集；月球默认无锈",
+      "collision": "单盒；完整壳与残架分离",
+      "variants": "S/M/L 三档、色带、编号、seed；非均匀缩放禁用",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "P02",
+      "name": "检修盖与内框",
+      "group": "道具",
+      "family": "service_panel",
+      "nominal_size": [
+        0.8,
+        0.8,
+        0.1
+      ],
+      "bounds_size": [
+        0.8,
+        0.8,
+        0.16
+      ],
+      "params": {
+        "width_m": [
+          0.5,
+          1.2
+        ],
+        "height_m": [
+          0.5,
+          1.2
+        ],
+        "hinge_side": [
+          0,
+          1
+        ],
+        "wear": [
+          0,
+          0.12
+        ]
+      },
+      "ports": "铰点在侧边；残架边缘不得变",
+      "detail": "盖、卡扣与内框；拆下后露芯不变整柜消失",
+      "collision": "可破坏挂点；小碎片无持久阻挡",
+      "variants": "左铰／右铰／整块卸下；与母体 ID 绑定",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "P03",
+      "name": "低掩体标准段",
+      "group": "边界",
+      "family": "barrier",
+      "nominal_size": [
+        3,
+        1.1,
+        0.8
+      ],
+      "bounds_size": [
+        3.0,
+        1.1,
+        0.835
+      ],
+      "params": {
+        "length_m": [
+          2,
+          3
+        ],
+        "height_m": [
+          0.9,
+          1.2
+        ],
+        "depth_m": [
+          0.65,
+          0.9
+        ]
+      },
+      "ports": "左右端端盖；底面完整接地",
+      "detail": "顶部斜切真实；铭牌用图集",
+      "collision": "单凸包；保持掩体高度不随seed变",
+      "variants": "直段／短段／端盖；不随破坏减少主遮挡",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "P04",
+      "name": "外围矮墙与端柱",
+      "group": "边界",
+      "family": "perimeter",
+      "nominal_size": [
+        4,
+        1.1,
+        0.5
+      ],
+      "bounds_size": [
+        4.0,
+        1.1,
+        0.5
+      ],
+      "params": {
+        "length_m": [
+          2,
+          4
+        ],
+        "height_m": [
+          1,
+          1.2
+        ],
+        "corner_deg": [
+          45,
+          90
+        ]
+      },
+      "ports": "端柱中心连接；地面高差用基脚补",
+      "detail": "短墙不等于地图硬边界；后接岩崖实体封闭",
+      "collision": "墙盒 + 外圈地形不可通行",
+      "variants": "直／45°角／90°角；斜条控制频率",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "P05",
+      "name": "道路灯柱",
+      "group": "设施",
+      "family": "light",
+      "nominal_size": [
+        0.35,
+        1.3,
+        0.35
+      ],
+      "bounds_size": [
+        0.35,
+        1.31,
+        0.35
+      ],
+      "params": {
+        "height_m": [
+          0.6,
+          1.4
+        ],
+        "lamp_type": [
+          0,
+          1
+        ],
+        "emission": [
+          0,
+          1
+        ]
+      },
+      "ports": "柱脚；灯朝路侧，不给每盏建 PointLight",
+      "detail": "灯罩实体+自发光；少数关键灯带实际落光",
+      "collision": "并入路缘；低碰撞避免卡路",
+      "variants": "暖白／青；光源另由总装预算管理",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "P06",
+      "name": "天线分节桅杆",
+      "group": "设施",
+      "family": "mast",
+      "nominal_size": [
+        0.7,
+        4,
+        0.7
+      ],
+      "bounds_size": [
+        0.7,
+        4.0,
+        0.7
+      ],
+      "params": {
+        "height_m": [
+          3,
+          6
+        ],
+        "sections": [
+          2,
+          4
+        ],
+        "rod_d_m": [
+          0.05,
+          0.09
+        ]
+      },
+      "ports": "基座中心；侧接控制盒；顶端信标",
+      "detail": "粗细递减，不能靠发光点撑轮廓",
+      "collision": "基座代理；屋顶版并入楼体",
+      "variants": "屋顶／地面台；不制作常态摆动",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "P07",
+      "name": "通信碟与馈源",
+      "group": "设施",
+      "family": "lathe_dish",
+      "nominal_size": [
+        2.06,
+        1,
+        2.06
+      ],
+      "bounds_size": [
+        2.1,
+        1.045,
+        2.1
+      ],
+      "params": {
+        "diameter_m": [
+          1.6,
+          2.8
+        ],
+        "depth_ratio": [
+          0.18,
+          0.25
+        ],
+        "tilt_deg": [
+          25,
+          55
+        ]
+      },
+      "ports": "背部支臂轴；馈源沿碟轴",
+      "detail": "浅碟外表与厚边；背筋可简化；设计代理不作电磁复现",
+      "collision": "并入天线台",
+      "variants": "安装倾角／外径；锁定朝向防遮挡",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "P08",
+      "name": "太阳能板单元",
+      "group": "设施",
+      "family": "panel_array",
+      "nominal_size": [
+        3,
+        0.125,
+        1.8
+      ],
+      "bounds_size": [
+        3.0,
+        0.125,
+        1.8
+      ],
+      "params": {
+        "cols": [
+          2,
+          4
+        ],
+        "rows": [
+          2,
+          3
+        ],
+        "panel_pitch_m": [
+          0.8,
+          1
+        ],
+        "tilt_deg": [
+          25,
+          40
+        ]
+      },
+      "ports": "背部双安装轨；支架接地",
+      "detail": "格分烘焙为主；外框和板厚几何；低闪烁反射",
+      "collision": "侧景单代理",
+      "variants": "2×3 / 2×4；调整数量而非拉伸板片",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "P09",
+      "name": "工业台架斜撑",
+      "group": "设施",
+      "family": "brace",
+      "nominal_size": [
+        1.8,
+        1.95,
+        0.2
+      ],
+      "bounds_size": [
+        1.76,
+        1.8864,
+        0.1522
+      ],
+      "params": {
+        "bay_m": [
+          1.5,
+          3
+        ],
+        "height_m": [
+          1.5,
+          3
+        ],
+        "tube_d_m": [
+          0.1,
+          0.18
+        ]
+      },
+      "ports": "四角节点与平台梁同轴",
+      "detail": "三角支撑真实；螺栓不每根独立节点",
+      "collision": "分盒；设备底部封闭",
+      "variants": "X撑／单斜撑；不得横穿走廊",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "P10",
+      "name": "停机坪边板",
+      "group": "设施",
+      "family": "deck",
+      "nominal_size": [
+        4,
+        0.18,
+        4
+      ],
+      "bounds_size": [
+        4.0,
+        0.18,
+        4.0
+      ],
+      "params": {
+        "module_m": [
+          2,
+          4
+        ],
+        "edge_band_m": [
+          0.1,
+          0.2
+        ]
+      },
+      "ports": "水平顶面；角块按局部轮廓生成",
+      "detail": "接缝真实但浅；H标与橙环烘焙或共面贴片",
+      "collision": "单盒；细缝不做碰撞",
+      "variants": "直边／角块／地标面；不加全地面镜像反射",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "P11",
+      "name": "月岩与边缘石群",
+      "group": "地形",
+      "family": "rock_profile",
+      "nominal_size": [
+        2,
+        1.1,
+        2
+      ],
+      "bounds_size": [
+        2.1128,
+        1.1,
+        1.8891
+      ],
+      "params": {
+        "radius_m": [
+          0.4,
+          2.5
+        ],
+        "height_ratio": [
+          0.4,
+          1.2
+        ],
+        "seed": [
+          0,
+          9999
+        ]
+      },
+      "ports": "底面嵌地 0.05–0.15 m；不悬浮",
+      "detail": "轮廓起伏几何；颗粒与色斑烘焙/低成本贴图",
+      "collision": "外圈简凸包，路内小石无碰撞",
+      "variants": "固定 seed 石型 4–6 个；不随机堵出生点",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    },
+    {
+      "id": "P12",
+      "name": "便携补给罐",
+      "group": "道具",
+      "family": "lathe",
+      "nominal_size": [
+        0.62,
+        1.21,
+        0.62
+      ],
+      "bounds_size": [
+        0.62,
+        1.21,
+        0.62
+      ],
+      "params": {
+        "diameter_m": [
+          0.35,
+          0.6
+        ],
+        "height_m": [
+          0.6,
+          1.2
+        ],
+        "cap_type": [
+          0,
+          1
+        ]
+      },
+      "ports": "地面；阀帽；搬运夹具接口",
+      "detail": "壳、底环、盖清楚；默认非爆炸氧气罐",
+      "collision": "单胶囊；普通可拆壳，不赋范围伤害",
+      "variants": "短／长罐、色环、seed",
+      "lod": "保留外轮廓；减小圆周段数与附件"
+    }
+  ],
+  "assemblies": [
+    {
+      "id": "A01",
+      "name": "飞船总装",
+      "description": "机身 → 翼根 → 双翼 → 尾翼 → 发动机 → 三点落架 → 挂载。外观代理需按 11×14 m 目标占地在灰盒定稿，不能反向拉伸完成品。",
+      "placement": [
+        -12.5,
+        0,
+        -1
+      ],
+      "collision": "飞船主壳与落架合并代理；腹部不通行，周边路宽 ≥3.5 m。",
+      "bom": [
+        {
+          "part": "S01",
+          "position": [
+            0,
+            1.8,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "S04",
+          "position": [
+            0,
+            2.95,
+            -2.2
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "S02",
+          "position": [
+            -3.6,
+            2,
+            0.7
+          ],
+          "rotation": null,
+          "design_scale": [
+            -1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "S02",
+          "position": [
+            3.6,
+            2,
+            0.7
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "S03",
+          "position": [
+            -2,
+            2.4,
+            2
+          ],
+          "rotation": [
+            [
+              "z",
+              -0.2
+            ]
+          ],
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "S03",
+          "position": [
+            2,
+            2.4,
+            2
+          ],
+          "rotation": [
+            [
+              "z",
+              0.2
+            ]
+          ],
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "S05",
+          "position": [
+            -1.2,
+            2,
+            2.2
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "S05",
+          "position": [
+            1.2,
+            2,
+            2.2
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "S07",
+          "position": [
+            -2.6,
+            0,
+            1.8
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "S06",
+          "position": [
+            -2.6,
+            0.58,
+            1.8
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "S07",
+          "position": [
+            2.6,
+            0,
+            1.8
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "S06",
+          "position": [
+            2.6,
+            0.58,
+            1.8
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "S07",
+          "position": [
+            0,
+            0,
+            -2.2
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "S06",
+          "position": [
+            0,
+            0.58,
+            -2.2
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "S08",
+          "position": [
+            -4,
+            2.2,
+            0.6
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "S08",
+          "position": [
+            4,
+            2.2,
+            0.6
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A02",
+      "name": "基地外立面与平台",
+      "description": "只做外墙、封闭门扇、窗后暗箱、屋顶设备与室外平台；窗后不铺室内、不放室内灯家具。前墙朝世界 +Z；背墙与转角示意闭合方向，正式顶面和侧向封闭体须在样板补齐。",
+      "placement": [
+        0,
+        0,
+        -18
+      ],
+      "collision": "整栋为封闭实体；平台 Y=2.4，板底 Y=2.15、梁底/柱顶 Y=1.75；双坡从 Z=-15 到 -7，平台下不开放。",
+      "bom": [
+        {
+          "part": "B04",
+          "position": [
+            0,
+            2.4,
+            0
+          ],
+          "rotation": [
+            [
+              "y",
+              3.141592653589793
+            ]
+          ],
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B05",
+          "position": [
+            0,
+            2.8,
+            -0.3
+          ],
+          "rotation": [
+            [
+              "y",
+              3.141592653589793
+            ]
+          ],
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B02",
+          "position": [
+            0,
+            6.8,
+            -1
+          ],
+          "rotation": [
+            [
+              "y",
+              3.141592653589793
+            ]
+          ],
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B07",
+          "position": [
+            0,
+            6.55,
+            -1.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B06",
+          "position": [
+            0,
+            9.8,
+            -1
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "P07",
+          "position": [
+            0,
+            10.25,
+            -1
+          ],
+          "rotation": [
+            [
+              "x",
+              -0.5
+            ]
+          ],
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "P06",
+          "position": [
+            -6,
+            5.85,
+            -3
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B01",
+          "position": [
+            -10,
+            2.4,
+            -0.2
+          ],
+          "rotation": [
+            [
+              "y",
+              3.141592653589793
+            ]
+          ],
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B06",
+          "position": [
+            -10,
+            5.4,
+            -0.7
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B07",
+          "position": [
+            -10,
+            2.15,
+            1.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B08",
+          "position": [
+            -10,
+            0,
+            1.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            0.7291666666666667,
+            1
+          ]
+        },
+        {
+          "part": "B09",
+          "position": [
+            -10,
+            1.75,
+            1.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B01",
+          "position": [
+            -6,
+            2.4,
+            -0.2
+          ],
+          "rotation": [
+            [
+              "y",
+              3.141592653589793
+            ]
+          ],
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B06",
+          "position": [
+            -6,
+            5.4,
+            -0.7
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B07",
+          "position": [
+            -6,
+            2.15,
+            1.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B08",
+          "position": [
+            -6,
+            0,
+            1.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            0.7291666666666667,
+            1
+          ]
+        },
+        {
+          "part": "B09",
+          "position": [
+            -6,
+            1.75,
+            1.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B01",
+          "position": [
+            6,
+            2.4,
+            -0.2
+          ],
+          "rotation": [
+            [
+              "y",
+              3.141592653589793
+            ]
+          ],
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B06",
+          "position": [
+            6,
+            5.4,
+            -0.7
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B07",
+          "position": [
+            6,
+            2.15,
+            1.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B08",
+          "position": [
+            6,
+            0,
+            1.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            0.7291666666666667,
+            1
+          ]
+        },
+        {
+          "part": "B09",
+          "position": [
+            6,
+            1.75,
+            1.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B01",
+          "position": [
+            10,
+            2.4,
+            -0.2
+          ],
+          "rotation": [
+            [
+              "y",
+              3.141592653589793
+            ]
+          ],
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B06",
+          "position": [
+            10,
+            5.4,
+            -0.7
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B07",
+          "position": [
+            10,
+            2.15,
+            1.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B08",
+          "position": [
+            10,
+            0,
+            1.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            0.7291666666666667,
+            1
+          ]
+        },
+        {
+          "part": "B09",
+          "position": [
+            10,
+            1.75,
+            1.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B07",
+          "position": [
+            -2,
+            2.15,
+            1.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B08",
+          "position": [
+            -2,
+            0,
+            1.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            0.7291666666666667,
+            1
+          ]
+        },
+        {
+          "part": "B09",
+          "position": [
+            -2,
+            1.75,
+            1.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B07",
+          "position": [
+            2,
+            2.15,
+            1.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B08",
+          "position": [
+            2,
+            0,
+            1.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            0.7291666666666667,
+            1
+          ]
+        },
+        {
+          "part": "B09",
+          "position": [
+            2,
+            1.75,
+            1.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B01",
+          "position": [
+            -3,
+            2.4,
+            -0.2
+          ],
+          "rotation": [
+            [
+              "y",
+              3.141592653589793
+            ]
+          ],
+          "design_scale": [
+            0.5,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B01",
+          "position": [
+            3,
+            2.4,
+            -0.2
+          ],
+          "rotation": [
+            [
+              "y",
+              3.141592653589793
+            ]
+          ],
+          "design_scale": [
+            0.5,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B01",
+          "position": [
+            -10,
+            2.4,
+            -5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B06",
+          "position": [
+            -10,
+            5.4,
+            -4.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B01",
+          "position": [
+            -6,
+            2.4,
+            -5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B06",
+          "position": [
+            -6,
+            5.4,
+            -4.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B01",
+          "position": [
+            -2,
+            2.4,
+            -5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B06",
+          "position": [
+            -2,
+            5.4,
+            -4.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B01",
+          "position": [
+            2,
+            2.4,
+            -5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B06",
+          "position": [
+            2,
+            5.4,
+            -4.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B01",
+          "position": [
+            6,
+            2.4,
+            -5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B06",
+          "position": [
+            6,
+            5.4,
+            -4.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B01",
+          "position": [
+            10,
+            2.4,
+            -5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B06",
+          "position": [
+            10,
+            5.4,
+            -4.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B10",
+          "position": [
+            -1.5,
+            0,
+            7
+          ],
+          "rotation": [
+            [
+              "y",
+              3.141592653589793
+            ]
+          ],
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B10",
+          "position": [
+            5,
+            0,
+            7
+          ],
+          "rotation": [
+            [
+              "y",
+              3.141592653589793
+            ]
+          ],
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B11",
+          "position": [
+            -9,
+            2.4,
+            3
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B11",
+          "position": [
+            9,
+            2.4,
+            3
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B03",
+          "position": [
+            -12,
+            2.4,
+            -4.8
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B03",
+          "position": [
+            12,
+            2.4,
+            -4.8
+          ],
+          "rotation": [
+            [
+              "y",
+              3.141592653589793
+            ]
+          ],
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A03",
+      "name": "双塔氧气分离组",
+      "description": "两塔共用直筒、封头、束环；管线端口驱动连接；塔架跟随罐脚而非自由撒摆。装配图为构图代理，正式管口需按端口系统求解。",
+      "placement": [
+        16,
+        0,
+        -10
+      ],
+      "collision": "9×20 m 工业带北段；检修面朝西，塔架下封闭不让玩家钻入。",
+      "bom": [
+        {
+          "part": "I01",
+          "position": [
+            -1.8,
+            2,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "I02",
+          "position": [
+            -1.8,
+            6,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "I03",
+          "position": [
+            -1.8,
+            2.5,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "I03",
+          "position": [
+            -1.8,
+            5.5,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "P09",
+          "position": [
+            -1.8,
+            0,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "I01",
+          "position": [
+            1.8,
+            2,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "I02",
+          "position": [
+            1.8,
+            6,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "I03",
+          "position": [
+            1.8,
+            2.5,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "I03",
+          "position": [
+            1.8,
+            5.5,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "P09",
+          "position": [
+            1.8,
+            0,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "I09",
+          "position": [
+            0,
+            0,
+            1.8
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "I05",
+          "position": [
+            -1.8,
+            6.3,
+            0
+          ],
+          "rotation": [
+            [
+              "z",
+              -1.5707963267948966
+            ]
+          ],
+          "design_scale": [
+            1,
+            1.8,
+            1
+          ]
+        },
+        {
+          "part": "I06",
+          "position": [
+            1.8,
+            6.3,
+            0
+          ],
+          "rotation": [
+            [
+              "z",
+              3.141592653589793
+            ]
+          ],
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "B11",
+          "position": [
+            0,
+            2,
+            -1.4
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A04",
+      "name": "横罐储气组",
+      "description": "与竖塔共享旋转体内核，改变轴向、筒长、鞍座与法兰预设；不是拉长竖塔整组。",
+      "placement": [
+        16,
+        0,
+        2
+      ],
+      "collision": "工业带中段；罐前侧净宽 ≥3 m，阀轮朝维修面，不做默认爆炸桶。",
+      "bom": [
+        {
+          "part": "I01",
+          "position": [
+            -2,
+            1.9,
+            0
+          ],
+          "rotation": [
+            [
+              "z",
+              -1.5707963267948966
+            ]
+          ],
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "I02",
+          "position": [
+            2,
+            1.9,
+            0
+          ],
+          "rotation": [
+            [
+              "z",
+              -1.5707963267948966
+            ]
+          ],
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "I02",
+          "position": [
+            -2,
+            1.9,
+            0
+          ],
+          "rotation": [
+            [
+              "z",
+              1.5707963267948966
+            ]
+          ],
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "I04",
+          "position": [
+            -1.3,
+            0,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "I04",
+          "position": [
+            1.3,
+            0,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "I07",
+          "position": [
+            2.4,
+            1.9,
+            0
+          ],
+          "rotation": [
+            [
+              "z",
+              -1.5707963267948966
+            ]
+          ],
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "I08",
+          "position": [
+            2.7,
+            1.6,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A05",
+      "name": "氧气发生器与卷管站",
+      "description": "主机壳包滚筒，两罐与卷盘组成一个用途组；维护盖有完整/残架/碎片三态。",
+      "placement": [
+        10,
+        0,
+        15
+      ],
+      "collision": "南侧景观岛，避开玩家起点视线；软管只在岛内，不跨路。",
+      "bom": [
+        {
+          "part": "I11",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "I12",
+          "position": [
+            2.2,
+            0.65,
+            -0.2
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "P12",
+          "position": [
+            -2,
+            0,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "P12",
+          "position": [
+            -2.8,
+            0,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "P02",
+          "position": [
+            0.5,
+            0.55,
+            -0.7
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "P03",
+          "position": [
+            -2.4,
+            0,
+            -0.8
+          ],
+          "rotation": null,
+          "design_scale": [
+            0.6,
+            0.5,
+            0.6
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A06",
+      "name": "天线通信台",
+      "description": "平台、立柱、碟面、馈源、桅杆和控制盒组成。背侧走线用细软管，不开独立导航层。",
+      "placement": [
+        -10,
+        0,
+        -20
+      ],
+      "collision": "屋顶装在承重梁上；地面版靠外圈，不放中央交战线。",
+      "bom": [
+        {
+          "part": "B07",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            0.6,
+            1,
+            0.7
+          ]
+        },
+        {
+          "part": "B08",
+          "position": [
+            0,
+            0.25,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "P07",
+          "position": [
+            0,
+            2.65,
+            0
+          ],
+          "rotation": [
+            [
+              "x",
+              -0.55
+            ]
+          ],
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "P06",
+          "position": [
+            1.2,
+            0.25,
+            0.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            0.8,
+            1,
+            0.8
+          ]
+        },
+        {
+          "part": "I09",
+          "position": [
+            -1.1,
+            0.25,
+            0.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            0.5,
+            0.6,
+            0.7
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A07",
+      "name": "太阳能支架组",
+      "description": "面板单元按列复制，支腿角度适配倾角；先确认面板朝向不产生战区闪点。",
+      "placement": [
+        19,
+        0,
+        -16
+      ],
+      "collision": "工业区外缘低对比侧景，不提供发电操作；面板不得成为可攀跳捷径。",
+      "bom": [
+        {
+          "part": "P09",
+          "position": [
+            -0.9,
+            0,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "P09",
+          "position": [
+            0.9,
+            0,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "P08",
+          "position": [
+            0,
+            1.8,
+            0
+          ],
+          "rotation": [
+            [
+              "x",
+              -0.5
+            ]
+          ],
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "I09",
+          "position": [
+            1.8,
+            0,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            0.5,
+            0.5,
+            0.6
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A08",
+      "name": "储物箱与补给组",
+      "description": "箱体通过预设尺寸重建而非正式模型非均匀缩放。图中缩比只表达摆放意图；盖板对接母体、重开恢复。",
+      "placement": [
+        -9,
+        0,
+        15
+      ],
+      "collision": "最多三处小组；堆叠总高 ≤1.8 m，避免把两组拼成全高连续墙。",
+      "bom": [
+        {
+          "part": "P01",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "P01",
+          "position": [
+            -1.8,
+            0,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            0.75,
+            0.75,
+            0.75
+          ]
+        },
+        {
+          "part": "P01",
+          "position": [
+            0.2,
+            1.22,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            0.65,
+            0.65,
+            0.65
+          ]
+        },
+        {
+          "part": "P12",
+          "position": [
+            1.3,
+            0,
+            0.4
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "P12",
+          "position": [
+            2,
+            0,
+            0.4
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "P02",
+          "position": [
+            -1.8,
+            0.2,
+            -0.47
+          ],
+          "rotation": null,
+          "design_scale": [
+            0.6,
+            0.6,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A09",
+      "name": "中央错位掩体岛",
+      "description": "长短错位留两条出口，物体朝向解释站位；同一掩体不同时布满色条、铭牌和高光。",
+      "placement": [
+        0,
+        0,
+        4
+      ],
+      "collision": "0.9–1.2 m 掩体，中央主路 ≥3.5 m；不因破坏主壳改变掩体高度。",
+      "bom": [
+        {
+          "part": "P03",
+          "position": [
+            -2,
+            0,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "P03",
+          "position": [
+            2,
+            0,
+            2
+          ],
+          "rotation": [
+            [
+              "y",
+              1.5707963267948966
+            ]
+          ],
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "P05",
+          "position": [
+            -3.5,
+            0,
+            0.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "P01",
+          "position": [
+            0.5,
+            0,
+            -1.8
+          ],
+          "rotation": null,
+          "design_scale": [
+            0.7,
+            0.7,
+            0.7
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A10",
+      "name": "外围矮墙与崖边",
+      "description": "直墙、端柱与斜角段连成边界；墙后用崖体/岩壁堵出界。矮墙本身不能假装玩家跳不过。",
+      "placement": [
+        0,
+        0,
+        22
+      ],
+      "collision": "场地外圈；连续高度或形体阻挡与视觉边界一致，不靠看不见的空气墙。",
+      "bom": [
+        {
+          "part": "P04",
+          "position": [
+            -4,
+            0,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "P04",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "P04",
+          "position": [
+            4,
+            0,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "P05",
+          "position": [
+            -2,
+            1.1,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            0.65,
+            0.5,
+            0.65
+          ]
+        },
+        {
+          "part": "P11",
+          "position": [
+            5,
+            0,
+            1.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1.4,
+            1.5,
+            1.4
+          ]
+        },
+        {
+          "part": "P11",
+          "position": [
+            -5,
+            0,
+            1.5
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A11",
+      "name": "停机坪与灯带",
+      "description": "模块化板面、角块、灯柱和共面地标构成；轮廓按停机坪边界扩展，图为 8×8 m 片段而非最终全坪。",
+      "placement": [
+        -12.5,
+        0,
+        -1
+      ],
+      "collision": "按船脚位置校准停机坪高程；边缘允许走，不让细电缆阻挡胶囊。",
+      "bom": [
+        {
+          "part": "P10",
+          "position": [
+            -2,
+            0,
+            -2
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "P10",
+          "position": [
+            2,
+            0,
+            -2
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "P10",
+          "position": [
+            -2,
+            0,
+            2
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "P10",
+          "position": [
+            2,
+            0,
+            2
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "P05",
+          "position": [
+            -4,
+            0,
+            -4
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "P05",
+          "position": [
+            4,
+            0,
+            4
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "A12",
+      "name": "工业维修管桥",
+      "description": "梁、柱与气管分工：梁承重，管夹固定；正式图用支架端口补齐管夹。通行处优先从高处或侧墙绕接。",
+      "placement": [
+        16,
+        0,
+        -3
+      ],
+      "collision": "跨通行路径时净空目标 ≥3.8 m，并按跳跃最高点实测；不能仅以视高 1.65 m 判安全。",
+      "bom": [
+        {
+          "part": "B08",
+          "position": [
+            -2,
+            0,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1.75,
+            1
+          ]
+        },
+        {
+          "part": "B08",
+          "position": [
+            2,
+            0,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1.75,
+            1
+          ]
+        },
+        {
+          "part": "B09",
+          "position": [
+            0,
+            3.8,
+            0
+          ],
+          "rotation": null,
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "I05",
+          "position": [
+            -2,
+            4.35,
+            0
+          ],
+          "rotation": [
+            [
+              "z",
+              -1.5707963267948966
+            ]
+          ],
+          "design_scale": [
+            1,
+            2,
+            1
+          ]
+        },
+        {
+          "part": "I06",
+          "position": [
+            2,
+            4.35,
+            0
+          ],
+          "rotation": [
+            [
+              "z",
+              3.141592653589793
+            ]
+          ],
+          "design_scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "part": "I09",
+          "position": [
+            2,
+            0,
+            0.8
+          ],
+          "rotation": null,
+          "design_scale": [
+            0.65,
+            0.7,
+            0.8
+          ]
+        }
+      ]
+    }
+  ]
+}
