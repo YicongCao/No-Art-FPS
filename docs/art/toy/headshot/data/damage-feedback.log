@@ -1,0 +1,8 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 4.1 Metal - 91.7 - Compatibility - Using Device: Apple - Apple M5
+
+DAMAGE_RING_PASS: per-attacker arcs, turn tracking, on-screen marks, explosion style, limit and expiry
+DAMAGE_AUDIO_PASS: positioned impact and near-miss whiz
+ENEMY_TELL_PASS: muzzle glint, warming aim line and two side warnings
+DEATH_VIEW_PASS: turns to killer, gold highlight, blast focus, reduced motion and cleanup
+

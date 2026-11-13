@@ -91,14 +91,26 @@ def glazing(theta,s0,s1,y0,y1):
         face_box(theta,s0,s1,y-.045,y+.045,"frame",depth=.14,physical=False,label="White glazing transom")
 
 def wall_section(theta,s0,s1,y0=0.0):
+    angle=math.pi/2-theta
+    span=s1-s0
+    cx,cz=along(theta,(s0+s1)/2)
     if y0==0:
-        face_box(theta,s0,s1,0,1.0,"brick",depth=.40,physical=False,label="Brick dado wall")
-        face_box(theta,s0,s1,.98,1.08,"stone",depth=.46,physical=False,label="Stone sill")
+        frame.plinth("Dado stone plinth",(cx,.12,cz),span,.24,.46,"stone_dark",angle=angle,flare=.04)
+        face_box(theta,s0,s1,.22,.96,"brick",depth=.40,physical=False,label="Brick dado wall")
+        bays=max(1,round(span/1.8))
+        for b_i in range(bays):
+            bs0=s0+span*b_i/bays+.10
+            bs1=s0+span*(b_i+1)/bays-.10
+            if bs1-bs0>.22:
+                face_box(theta,bs0,bs1,.32,.86,"brick_dark",depth=.43,physical=False,label="Brick dado inset")
+        frame.coping("Stone sill",(cx,1.02,cz),span+.06,.14,.50,"stone",angle=angle,seg_len=1.55,slant=.22,wear=.76)
+        if span >= 2.2:
+            ox, oz = along(theta, (s0+s1)/2, A+.20)
+            frame.seam((ox,.58,oz),min(1.25,span*.46),.54,math.pi/2-theta,"brick_dark","stone")
         glazing(theta,s0,s1,1.08,EAVE)
     else:
         glazing(theta,s0,s1,y0,EAVE)
-    x,z=along(theta,(s0+s1)/2)
-    a.layout["boxes"].append([(x,(y0+EAVE)/2,z),(s1-s0,EAVE-y0,.32),math.pi/2-theta])
+    a.layout["boxes"].append([(cx,(y0+EAVE)/2,cz),(span,EAVE-y0,.32),angle])
 
 DOOR=1.55
 BREACH=1.62
@@ -108,36 +120,40 @@ for k in range(8):
         wall_section(theta,-HALF,-DOOR)
         wall_section(theta,DOOR,HALF)
         x,z=along(theta,0)
-        a.layout["boxes"].append([(x,(3.25+EAVE)/2,z),(DOOR*2,EAVE-3.25,.32),math.pi/2-theta])
-        face_box(theta,-DOOR,DOOR,3.25,3.4,"frame",depth=.36,physical=False,label="Door head")
-        glazing(theta,-DOOR,DOOR,3.4,EAVE)
+        angle=math.pi/2-theta
+        a.layout["boxes"].append([(x,(3.25+EAVE)/2,z),(DOOR*2,EAVE-3.25,.32),angle])
+        frame.coping("Door head",(x,3.34,z),DOOR*2+.42,.20,.50,"frame",angle=angle,seg_len=1.7)
+        glazing(theta,-DOOR,DOOR,3.42,EAVE)
         for s in (-DOOR,DOOR):
-            x,z=along(theta,s,A+.05)
-            frame.box("Door jamb",(x,1.62,z),(.22,3.25,.44),"frame",math.pi/2-theta)
+            jx,jz=along(theta,s,A+.05)
+            frame.plinth("Door jamb plinth",(jx,.16,jz),.30,.32,.52,"stone",angle=angle,flare=.035)
+            frame.box("Door jamb",(jx,1.66,jz),(.25,3.22,.46),"frame",angle,taper=(.04,.04))
         for side in (-1,1):
             x,z=along(theta,side*(DOOR+.55),A+.75)
             leaf_angle=math.pi/2-theta+side*1.1
-            frame.box("Open glazed door leaf",(x,1.5,z),(1.25,2.9,.08),"frame",leaf_angle)
-            frame.box("Door leaf pane",(x,1.65,z),(1.0,2.2,.1),"mint",leaf_angle)
+            frame.box("Open glazed door leaf",(x,1.5,z),(1.25,2.9,.095),"frame",leaf_angle)
+            frame.box("Door leaf pane",(x,1.65,z),(1.0,2.2,.115),"mint",leaf_angle)
     elif k==3:
         wall_section(theta,-HALF,-BREACH)
         wall_section(theta,BREACH,HALF)
         x,z=along(theta,0)
         a.layout["boxes"].append([(x,(3.0+EAVE)/2,z),(BREACH*2,EAVE-3.0,.32),math.pi/2-theta])
-        face_box(theta,-BREACH,BREACH,3.0,3.1,"frame",depth=.36,physical=False,label="Breach head")
-        glazing(theta,-BREACH,BREACH,3.1,EAVE)
+        face_box(theta,-BREACH,BREACH,3.0,3.12,"frame",depth=.42,physical=False,label="Breach head")
+        glazing(theta,-BREACH,BREACH,3.12,EAVE)
     else:
         wall_section(theta,-HALF,HALF)
 for i in range(8):
     phi=math.pi/8+i*math.pi/4
     x,z=CORNER*math.cos(phi),CORNER*math.sin(phi)
-    frame.rod("Cast iron corner column",(x,0,z),(x,EAVE+.15,z),.2,"frame",8)
-    frame.rod("Column plinth",(x,0,z),(x,.55,z),.3,"stone",8)
+    frame.rod("Column plinth foot",(x,0,z),(x,.22,z),.38,"stone_dark",8,.33)
+    frame.rod("Column plinth",(x,.20,z),(x,.60,z),.32,"stone",8,.26)
+    frame.rod("Cast iron corner column",(x,.55,z),(x,EAVE+.15,z),.22,"frame",8,.185)
+    frame.rod("Column capital",(x,EAVE-.12,z),(x,EAVE+.08,z),.27,"frame",8,.31)
 for i in range(8):
     phi0,phi1=math.pi/8+i*math.pi/4,math.pi/8+(i+1)*math.pi/4
-    p0=(CORNER*math.cos(phi0),EAVE+.1,CORNER*math.sin(phi0))
-    p1=(CORNER*math.cos(phi1),EAVE+.1,CORNER*math.sin(phi1))
-    frame.beam("Eave gutter",p0,p1,.38,.26,"frame")
+    p0=(CORNER*math.cos(phi0),EAVE+.12,CORNER*math.sin(phi0))
+    p1=(CORNER*math.cos(phi1),EAVE+.12,CORNER*math.sin(phi1))
+    frame.beam("Eave gutter",p0,p1,.44,.30,"frame")
 
 breach=a.kit("glass_breach")
 breach.box("Breach brick dado",(0,.5,0),(BREACH*2,1.0,.38),"brick")
@@ -238,11 +254,13 @@ for z in (-DW,DW):
     rail((-FLAT,DECK_Y,z),(-RAMP_FOOT+2.2,DECK_Y*2.2/(RAMP_FOOT-FLAT),z))
 for x in (-FLAT+.2,FLAT-.2,-1.4,1.4):
     for z in (-DW+.15,DW-.15):
-        deck.rod("White deck column",(x,0,z),(x,DECK_Y-.24,z),.11,"white",8)
+        deck.plinth("Deck column plinth",(x,.12,z),.32,.24,.32,"stone",flare=.03)
+        deck.rod("White deck column",(x,.22,z),(x,DECK_Y-.24,z),.125,"white",8,.105)
+        deck.rod("Deck column capital",(x,DECK_Y-.36,z),(x,DECK_Y-.22,z),.14,"mint",8,.19)
 a.layout["boxes"].extend([[(x,(DECK_Y-.24)/2,z),(.24,DECK_Y-.24,.24),0] for x in (-FLAT+.2,FLAT-.2) for z in (-DW+.15,DW-.15)])
-deck.box("Humidity gauge post plate",(-FLAT+.2,DECK_Y+1.45,-DW-.05),(.36,.5,.06),"white")
-deck.rod("Humidity gauge dial",(-FLAT+.2,DECK_Y+1.48,-DW-.08),(-FLAT+.2,DECK_Y+1.48,-DW-.14),.2,"green",14)
-deck.rod("Humidity gauge face",(-FLAT+.2,DECK_Y+1.48,-DW-.14),(-FLAT+.2,DECK_Y+1.48,-DW-.16),.16,"cream",14)
+deck.box("Humidity gauge post plate",(-FLAT+.2,DECK_Y+1.45,-DW-.05),(.38,.52,.075),"white")
+deck.rod("Humidity gauge dial",(-FLAT+.2,DECK_Y+1.48,-DW-.08),(-FLAT+.2,DECK_Y+1.48,-DW-.15),.21,"green",14)
+deck.rod("Humidity gauge face",(-FLAT+.2,DECK_Y+1.48,-DW-.15),(-FLAT+.2,DECK_Y+1.48,-DW-.17),.165,"cream",14)
 
 # Lily channel under the deck. Low stone curbs split the floor; two footbridges cross it.
 CH=1.1
@@ -252,13 +270,18 @@ flat(interior,"Channel deep stripe",[(-.45,Z0),(.45,Z0),(.45,Z1),(-.45,Z1)],"wat
 BRIDGES=(4.0,-4.8)
 def curb(x,z0,z1):
     if z1-z0>.05:
-        a.solid(interior,"Lily channel stone curb",(x,.31,(z0+z1)/2),(.36,.62,z1-z0),"stone")
+        a.layout["boxes"].append([(x,.31,(z0+z1)/2),(.36,.62,z1-z0),0])
+        interior.plinth("Channel curb foot",(x,.08,(z0+z1)/2),.40,.16,z1-z0,"stone_dark",flare=.025)
+        interior.box("Lily channel stone curb",(x,.30,(z0+z1)/2),(.34,.44,z1-z0-.02),"stone",taper=(.05,.01))
+        interior.coping("Channel curb cap",(x,.56,(z0+z1)/2),.42,.12,z1-z0,"stone_dark",seg_len=1.5)
 for x in (-CH-.18,CH+.18):
     edges=[Z0]+[v for b in sorted(BRIDGES) for v in (b-1.0,b+1.0)]+[Z1]
     for j in range(0,len(edges),2):
         curb(x,edges[j],edges[j+1])
 for z in (Z0-.18,Z1+.18):
-    a.solid(interior,"Channel end curb",(0,.31,z),(CH*2+.72,.62,.36),"stone")
+    a.layout["boxes"].append([(0,.31,z),(CH*2+.72,.62,.36),0])
+    interior.box("Channel end curb",(0,.28,z),(CH*2+.70,.48,.34),"stone",taper=(.01,.05))
+    interior.coping("Channel end cap",(0,.56,z),CH*2+.78,.12,.42,"stone_dark",seg_len=1.45)
 for zb in BRIDGES:
     a.slab(interior,"Stone footbridge",[(-CH-.4,.42,zb+1),(CH+.4,.42,zb+1),(CH+.4,.42,zb-1),(-CH-.4,.42,zb-1)],.42,"stone")
     for side in (-1,1):
@@ -310,8 +333,14 @@ def flowers(kit,x,y,z,count=5,spread=.6):
                 (x+math.cos(phi)*r,y+.14,z+math.sin(phi)*r),.14,"coral" if i%3 else "sun",5,.06)
 
 def planter(x,z,w,d,h=.9,color="stone"):
-    a.solid(interior,"Stone palm planter",(x,h/2,z),(w,h,d),color)
-    interior.box("Planter cap",(x,h+.04,z),(w+.12,.1,d+.12),"stone_dark" if color=="stone" else "brick_dark")
+    a.layout["boxes"].append([(x,h/2,z),(w,h,d),0])
+    interior.plinth("Planter foot",(x,.10,z),w+.08,.20,d+.08,"stone_dark" if color=="stone" else "brick_dark",flare=.035)
+    interior.chipped("Stone palm planter",(x,h*.52,z),(w-.04,h-.16,d-.04),color,taper=(.04,.04),
+                     chips=[((1.0,1.0,1.0),.12)],core_color="stone_dark" if color=="stone" else "brick_dark")
+    interior.coping("Planter cap",(x,h+.04,z),w+.16,.13,d+.16,"stone_dark" if color=="stone" else "brick_dark",
+                    seg_len=1.25,slant=.22,wear=.78)
+    if w >= 2.0:
+        interior.seam((x,h*.48,z+d*.48),min(1.15,w*.48),h*.56,0.0,"stone_dark","stone")
     interior.box("Planter soil",(x,h+.06,z),(w-.3,.06,d-.3),"soil")
 
 for x,z,palm_h,size in [(-4.2,6.8,5.0,1.5),(5.6,5.6,5.2,2.6),(-5.6,-5.4,5.1,2.6),(5.6,-5.4,4.9,2.6)]:
@@ -346,27 +375,35 @@ for i in range(3):
     annex.box("Rake head",(-20.25,.25,4.2+i*.42),(.08,.12,.34),"navy")
 
 # North: brick boiler house with chimney, potting shed with a glass lean-to.
-a.solid(annex,"Brick boiler house",(9.5,2.2,-18.5),(8.0,4.4,5.4),"brick")
-annex.beam("Boiler house roof ridge",(5.4,6.0,-18.5),(13.6,6.0,-18.5),.3,.2,"slate_dark")
+a.layout["boxes"].append([(9.5,2.2,-18.5),(8.0,4.4,5.4),0])
+annex.plinth("Boiler house plinth",(9.5,.18,-18.5),8.16,.36,5.56,"stone_dark",flare=.05)
+annex.box("Brick boiler house",(9.5,2.24,-18.5),(7.96,4.28,5.36),"brick",taper=(.02,.03))
+for sx in (-1, 1):
+    for sz in (-1, 1):
+        annex.box("Boiler corner pilaster",(9.5+sx*3.88,2.24,-18.5+sz*2.58),(.32,4.30,.32),"brick_dark",taper=(.04,.04))
+annex.beam("Boiler house roof ridge",(5.4,6.04,-18.5),(13.6,6.04,-18.5),.32,.22,"slate_dark")
 for side in (-1,1):
     p=[(5.3,4.4,-18.5+side*2.95),(13.7,4.4,-18.5+side*2.95),(13.7,6.0,-18.5),(5.3,6.0,-18.5)]
-    annex.facet("Boiler house slate roof",p,"slate")
-    annex.facet("Boiler house slate roof",p[::-1],"slate_dark")
+    annex.slab("Boiler house slate roof",p if side>0 else p[::-1],.16,"slate")
 for x in (5.5,13.5):
     annex.facet("Brick gable",[(x,4.4,-21.2),(x,4.4,-15.8),(x,6.0,-18.5)],"brick_dark")
     annex.facet("Brick gable",[(x,6.0,-18.5),(x,4.4,-15.8),(x,4.4,-21.2)],"brick_dark")
 for x in (7.2,11.8):
-    annex.box("Arched boiler window",(x,2.4,-15.77),(1.3,1.8,.08),"slate_dark")
-    annex.box("Window frame",(x,2.4,-15.74),(1.46,.1,.06),"white")
-    annex.box("Window frame",(x,1.5,-15.74),(1.5,.14,.12),"stone")
-annex.box("Boiler house door",(9.5,1.2,-15.76),(1.4,2.4,.08),"green")
-annex.rod("Brick chimney",(12.3,4.0,-20.2),(12.3,11.5,-20.2),.75,"brick",4)
-annex.rod("Chimney cap",(12.3,11.5,-20.2),(12.3,11.9,-20.2),.9,"stone_dark",4)
+    annex.box("Boiler window frame",(x,2.4,-15.75),(1.50,1.96,.16),"white")
+    annex.box("Arched boiler window",(x,2.4,-15.72),(1.28,1.74,.08),"slate_dark")
+    annex.box("Window frame",(x,2.4,-15.68),(1.34,.09,.08),"white")
+    annex.box("Window sill",(x,1.46,-15.69),(1.62,.16,.24),"stone")
+annex.box("Boiler door casing",(9.5,1.26,-15.76),(1.62,2.54,.16),"stone")
+annex.box("Boiler house door",(9.5,1.2,-15.72),(1.38,2.38,.09),"green")
+annex.rod("Brick chimney",(12.3,4.0,-20.2),(12.3,11.5,-20.2),.78,"brick",8,.64)
+annex.rod("Chimney cap",(12.3,11.45,-20.2),(12.3,11.95,-20.2),.94,"stone_dark",8,.82)
 for i in range(3):
-    annex.rod("Steam pipe",(6.0+i*.35,.1,-15.6),(6.0+i*.35,3.6,-15.6),.09,"navy",6)
-annex.rod("Coal bunker",(14.6,0,-16.6),(14.6,1.2,-16.6),.6,"slate_dark",6)
-a.solid(annex,"Potting shed",(-9.5,1.45,-19.3),(7.2,2.9,3.8),"cream")
-annex.box("Potting shed roof",(-9.5,3.0,-19.3),(7.6,.18,4.2),"slate")
+    annex.rod("Steam pipe",(6.0+i*.35,.1,-15.6),(6.0+i*.35,3.6,-15.6),.095,"navy",8)
+annex.rod("Coal bunker",(14.6,0,-16.6),(14.6,1.2,-16.6),.62,"slate_dark",8)
+a.layout["boxes"].append([(-9.5,1.45,-19.3),(7.2,2.9,3.8),0])
+annex.plinth("Potting shed plinth",(-9.5,.15,-19.3),7.34,.30,3.94,"stone",flare=.04)
+annex.box("Potting shed",(-9.5,1.50,-19.3),(7.16,2.78,3.76),"cream",taper=(.03,.03))
+annex.coping("Potting shed roof",(-9.5,3.02,-19.3),7.68,.22,4.28,"slate",seg_len=1.9)
 for x in (-11.5,-7.5):
     annex.box("Shed door",(x,1.1,-17.37),(1.1,2.2,.06),"green")
 for i in range(6):
@@ -424,21 +461,34 @@ for i,(x,y,z) in enumerate([(BX-.5,2.1,-1.0),(BX+.4,1.7,.6),(BX+.9,2.4,-.4),(BX-
         annex.facet("Paper butterfly wing",[(x,y,z),(x+side*.22,y+.12,z-.08),(x+side*.18,y-.1,z+.1)],"sun" if i%2 else "coral")
 
 # South forecourt: ticket kiosk, gate pillars, low iron fences.
-a.solid(annex,"Ticket kiosk",(-8.2,1.25,17.4),(2.6,2.5,2.6),"cream")
-annex.box("Kiosk window",(-8.2,1.45,16.08),(1.6,.8,.06),"glass")
-annex.box("Kiosk counter",(-8.2,1.0,15.95),(1.9,.08,.3),"wood")
+a.layout["boxes"].append([(-8.2,1.25,17.4),(2.6,2.5,2.6),0])
+annex.plinth("Ticket kiosk plinth",(-8.2,.15,17.4),2.72,.30,2.72,"brick",flare=.045)
+annex.box("Ticket kiosk",(-8.2,1.32,17.4),(2.56,2.34,2.56),"cream",taper=(.04,.04))
+for sx in (-1, 1):
+    for sz in (-1, 1):
+        annex.box("Kiosk corner post",(-8.2+sx*1.22,1.32,17.4+sz*1.22),(.18,2.32,.18),"white",taper=(.05,.05))
+annex.box("Kiosk window frame",(-8.2,1.45,16.08),(1.76,.94,.14),"green")
+annex.box("Kiosk window",(-8.2,1.45,16.02),(1.56,.76,.06),"glass")
+annex.box("Kiosk counter",(-8.2,1.0,15.92),(2.02,.14,.38),"wood",taper=(.02,.04))
 for i in range(4):
     phi=math.pi/4+i*math.pi/2
-    annex.facet("Kiosk green roof",[(-8.2+1.95*math.cos(phi),2.5,17.4+1.95*math.sin(phi)),
-                                     (-8.2+1.95*math.cos(phi+math.pi/2),2.5,17.4+1.95*math.sin(phi+math.pi/2)),
-                                     (-8.2,3.5,17.4)],"green")
+    t_tri=[(-8.2+2.0*math.cos(phi),2.52,17.4+2.0*math.sin(phi)),
+           (-8.2+2.0*math.cos(phi+math.pi/2),2.52,17.4+2.0*math.sin(phi+math.pi/2)),
+           (-8.2,3.58,17.4)]
+    b_tri=[(px,py-.12,pz) for px,py,pz in t_tri]
+    annex.mesh("Kiosk green roof",t_tri+b_tri,[(2,1,0),(3,4,5),(0,1,4,3),(1,2,5,4),(2,0,3,5)],"green")
 for i in range(10):
-    phi=math.pi/4+i*math.pi/2.5
-    annex.box("Scalloped kiosk valance",(-8.2+1.35*math.cos(i*math.tau/10),2.38,17.4+1.35*math.sin(i*math.tau/10)),(.5,.18,.06),"white",-i*math.tau/10+math.pi/2)
+    annex.box("Scalloped kiosk valance",(-8.2+1.38*math.cos(i*math.tau/10),2.38,17.4+1.38*math.sin(i*math.tau/10)),(.52,.20,.08),"white",-i*math.tau/10+math.pi/2)
 for x in (-2.6,2.6):
-    a.solid(annex,"Gate pillar",(x,1.15,16.4),(.8,2.3,.8),"stone")
-    annex.box("Pillar cap",(x,2.4,16.4),(1.0,.2,1.0),"stone_dark")
-    annex.rod("Pillar lamp",(x,2.5,16.4),(x,2.95,16.4),.18,"lamp",6)
+    a.layout["boxes"].append([(x,1.15,16.4),(.8,2.3,.8),0])
+    annex.plinth("Gate pillar plinth",(x,.16,16.4),.96,.32,.96,"stone_dark",flare=.05)
+    annex.chipped("Gate pillar",(x,1.22,16.4),(.80,2.14,.80),"stone",taper=(.08,.08),
+                  chips=[((-math.copysign(1,x),1.0,1.0),.18)],core_color="stone_dark")
+    annex.coping("Pillar cap",(x,2.40,16.4),1.06,.22,1.06,"stone_dark",seg_len=1.1,wear=.75)
+    annex.rod("Pillar lamp",(x,2.52,16.4),(x,2.98,16.4),.20,"lamp",8)
+annex.rubble((-2.05,0,16.95),.34,0.5,("stone","stone_dark","brick"),count=3)
+annex.seam((9.5,2.2,-15.80),1.65,1.40,0.0,"brick_dark","stone",tie_color="navy")
+annex.masonry_patch((-9.5,1.35,-17.40),1.05,.62,0.0,"stone_dark","brick",alt_color="terracotta",lip_color="cream")
 for side in (-1,1):
     x0,x1=side*3.0,side*8.4
     for j in range(16):
@@ -587,9 +637,11 @@ PLINTH=.62
 BONE=1.65
 def bone_rod(label,p,q,r,color,sides=6,r2=None):
     fossil.rod(label,p,q,r*BONE,color,sides,(r2 or r)*BONE)
-a.solid(fossil,"Fossil plinth",(0,PLINTH/2,(PZ0+PZ1)/2),(1.8,PLINTH,PZ1-PZ0),"stone_dark")
-fossil.box("Plinth cap",(0,PLINTH+.04,(PZ0+PZ1)/2),(1.92,.08,PZ1-PZ0+.12),"stone")
-fossil.box("Brass plinth plaque",(0,.34,PZ1+.005),(.7,.26,.03),"brass")
+a.layout["boxes"].append([(0,PLINTH/2,(PZ0+PZ1)/2),(1.8,PLINTH,PZ1-PZ0),0])
+fossil.plinth("Fossil base foot",(0,.09,(PZ0+PZ1)/2),1.92,.18,PZ1-PZ0+.12,"stone_dark",flare=.045)
+fossil.box("Fossil plinth",(0,PLINTH*.54,(PZ0+PZ1)/2),(1.78,PLINTH-.16,PZ1-PZ0-.02),"stone_dark",taper=(.05,.05))
+fossil.coping("Plinth cap",(0,PLINTH+.04,(PZ0+PZ1)/2),1.96,.12,PZ1-PZ0+.16,"stone",seg_len=1.0)
+fossil.box("Brass plinth plaque",(0,.35,PZ1+.015),(.74,.28,.055),"brass")
 a.layout["boxes"].append([(0,PLINTH+1.7,-2.55),(.62,3.4,.5),0])
 
 def spine(points,radius,color="bone",sides=6,taper=1.0):

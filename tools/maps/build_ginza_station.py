@@ -42,18 +42,28 @@ a.solid(ground,"Track bed base",(0,TRACK-.4,0),(2*H+1,.8,2*H+1),"ballast")
 a.solid(platform,"Island platform",(0,(TRACK)/2,0),(2*PW,-TRACK,2*H),"terrazzo")
 for side in (-1,1):
     a.solid(passages,"Passage floor",(side*(10+H)/2,TRACK/2,0),(H-10,-TRACK,2*H),"terrazzo")
-    a.solid(ground,"Track partition wall",(side*(TX+.2),(TRACK+3.2)/2,0),(.4,3.2-TRACK,2*H),"tile")
-    ground.box("Partition orange band",(side*(TX+.2),2.35,0),(.44,.32,2*H),"orange" if side>0 else "red")
-    ground.box("Partition skirting",(side*(TX+.2),.12,0),(.44,.24,2*H),"grey_dark")
+    a.layout["boxes"].append([(side*(TX+.2),(TRACK+3.2)/2,0),(.4,3.2-TRACK,2*H),0])
+    ground.box("Partition spine",(side*(TX+.2),(TRACK+3.2)/2,0),(.34,3.16-TRACK,2*H-.04),"tile_dark")
+    for p_i in range(20):
+        pz = -H + (p_i + .5) * (2*H / 20)
+        ground.box("Track partition wall",(side*(TX+.2),(TRACK+3.12)/2,pz),(.40,2.92-TRACK,2*H/20-.03),"tile")
+    ground.box("Partition orange band",(side*(TX+.2),2.35,0),(.415,.34,2*H),"orange" if side>0 else "red")
+    ground.plinth("Partition skirting",(side*(TX+.2),.14,0),.46,.28,2*H,"grey_dark",flare=.025)
+    ground.coping("Partition top cap",(side*(TX+.2),3.22,0),.48,.16,2*H,"grey",seg_len=2.2,slant=.16,wear=.64)
+    p_ang = -math.pi/2 if side > 0 else math.pi/2
+    for sz_seam in (-10.5, 6.2):
+        ground.seam((side*TX,1.25,sz_seam),1.35,1.15,p_ang,"tile_dark","white")
+    ground.masonry_patch((side*TX,1.12,-2.2),.96,.58,p_ang,"tile_dark","white",alt_color="tile",lip_color="tile_dark")
     a.solid(ground,"Outer wall",(side*(H+.3),CEIL/2,0),(.6,CEIL+2.2,2*H+1.2),"tile")
-    ground.box("Outer wall line band",(side*(H-.02),2.35,0),(.06,.32,2*H),"orange" if side>0 else "red")
-    ground.box("Outer wall skirting",(side*(H-.02),.12,0),(.06,.24,2*H),"grey_dark")
+    ground.box("Outer wall line band",(side*(H-.02),2.35,0),(.08,.34,2*H),"orange" if side>0 else "red")
+    ground.box("Outer wall skirting",(side*(H-.02),.14,0),(.10,.28,2*H),"grey_dark")
     a.solid(ground,"End wall",(0,CEIL/2,side*(H+.3)),(2*H+1.2,CEIL+2.2,.6),"tile")
     for x in (-7.3,7.3):
         ground.box("Tunnel mouth",(x,1.0,side*(H-.04)),(4.2,4.2,.08),"tunnel")
-        ground.box("Tunnel lintel",(x,3.2,side*(H-.08)),(4.6,.3,.12),"concrete")
+        ground.coping("Tunnel lintel",(x,3.24,side*(H-.10)),4.76,.34,.22,"concrete",seg_len=1.55,slant=.20,wear=.78)
         for dx in (-2.2,2.2):
-            ground.box("Tunnel jamb",(x+dx,1.0,side*(H-.08)),(.3,4.2,.12),"concrete")
+            ground.chipped("Tunnel jamb",(x+dx,1.0,side*(H-.10)),(.34,4.2,.20),"concrete",taper=(.04,.04),
+                           chips=[((-math.copysign(1,dx),1.0,-side),.14)],core_color="grey_dark")
         ground.box("Signal mast",(x+1.6,1.4,side*(H-.6)),(.12,1.8,.12),"grey_dark")
         ground.box("Signal head",(x+1.6,2.5,side*(H-.6)),(.36,.8,.24),"black")
         ground.rod("Signal red lens",(x+1.6,2.7,side*(H-.6)),(x+1.6,2.7,side*(H-.74)),.11,"red_lamp",10)
@@ -77,21 +87,26 @@ for side in (-1,1):
         z0=-18+car*6.6
         for d in (0,1,2):
             z=z0+d*2.2
-            platform.box("Screen door casing",(side*(PW-.2),.66,z-.85),(.24,1.32,.5),"door")
-            platform.box("Screen door leaf",(side*(PW-.21),.62,z),(.12,1.2,1.2),"white")
-            platform.box("Screen door window",(side*(PW-.28),.82,z),(.04,.5,.8),"glass")
-            platform.box("Door lamp",(side*(PW-.33),1.36,z-.85),(.06,.08,.2),"green_lamp")
-            alarms.box("Door lamp alarm",(side*(PW-.34),1.36,z-.85),(.07,.1,.24),"red_lamp")
-        platform.box("Car position plate",(side*(PW-.34),1.05,z0-.85),(.04,.36,.3),"navy")
-    platform.box("Screen door top rail",(side*(PW-.2),1.34,0),(.28,.06,2*H),"grey")
+            platform.plinth("Screen door shoe",(side*(PW-.2),.06,z-.85),.28,.12,.56,"grey_dark",flare=.02)
+            platform.box("Screen door casing",(side*(PW-.2),.68,z-.85),(.25,1.26,.52),"door",taper=(.02,.02))
+            platform.box("Screen door leaf",(side*(PW-.21),.62,z),(.13,1.2,1.2),"white")
+            platform.box("Screen door window",(side*(PW-.28),.82,z),(.05,.5,.8),"glass")
+            platform.box("Door lamp",(side*(PW-.33),1.36,z-.85),(.07,.09,.22),"green_lamp")
+            alarms.box("Door lamp alarm",(side*(PW-.34),1.36,z-.85),(.08,.11,.24),"red_lamp")
+        platform.box("Car position plate",(side*(PW-.34),1.05,z0-.85),(.05,.36,.32),"navy")
+    platform.coping("Screen door top rail",(side*(PW-.2),1.35,0),.32,.09,2*H,"grey",seg_len=2.2)
 
 # Columns: a centre row on the platform and one row per side passage.
 def column(kit,x,z,band="orange"):
     under=any(z0-.5<z<z1+.5 for z0,z1 in (NB,MB))
     height=BY-.36 if under else CEIL
-    a.solid(kit,"Tiled column",(x,height/2,z),(.8,height,.8),"tile")
-    kit.box("Column line band",(x,2.35,z),(.84,.38,.84),band)
-    kit.box("Column skirting",(x,.15,z),(.84,.3,.84),"grey_dark")
+    a.layout["boxes"].append([(x,height/2,z),(.8,height,.8),0])
+    kit.plinth("Column skirting",(x,.16,z),.88,.32,.88,"grey_dark",flare=.035)
+    kit.chipped("Tiled column",(x,height/2+.04,z),(.79,height-.24,.79),"tile",taper=(.02,.02),
+                chips=[((1.0,1.0,1.0),.085)],core_color="tile_dark")
+    kit.seam((x,1.18,z+.40),.56,.68,0.0,"tile_dark","white")
+    kit.box("Column capital",(x,height-.12,z),(.90,.24,.90),"grey",taper=(-.05,-.05))
+    kit.box("Column line band",(x,2.35,z),(.83,.40,.83),band)
     for k,(dx,dz,ang) in enumerate(((0,.43,0),(0,-.43,math.pi),(.43,0,math.pi/2),(-.43,0,-math.pi/2))):
         a.sign(f"Roundel{len(a.layout['signs'])}","ginza-roundel" if band=="orange" else "ginza-roundel-m",
                (x+dx,2.35,z+dz),(.32,.32),ang)
@@ -105,18 +120,19 @@ for side in (-1,1):
 def bridge(z0,z1,label):
     zc=(z0+z1)/2
     a.solid(bridges,label,(0,BY-.18,zc),(2*H,.36,z1-z0),"terrazzo")
-    bridges.box("Bridge fascia",(0,BY-.3,z0),(2*H,.6,.06),"grey")
-    bridges.box("Bridge fascia",(0,BY-.3,z1),(2*H,.6,.06),"grey")
-    bridges.box("Bridge underside",(0,BY-.37,zc),(2*H,.02,z1-z0),"grey_dark")
+    for z_f in (z0, z1):
+        bridges.box("Bridge fascia",(0,BY-.28,z_f),(2*H,.56,.12),"grey")
+        bridges.coping("Bridge fascia lip",(0,BY-.56,z_f),2*H,.10,.18,"beam",seg_len=2.2)
+    bridges.box("Bridge underside",(0,BY-.37,zc),(2*H,.04,z1-z0),"grey_dark")
     for x in (-H+1,-PW-2.3,PW+2.3,H-1):
         bridges.box("Bridge tactile guide",(x,BY+.012,zc),(.3,.024,z1-z0-.4),"tactile")
     bridges.box("Bridge tactile guide",(0,BY+.012,zc),(2*H-1,.024,.3),"tactile")
 def balustrade(x0,x1,z,y=BY):
     if x1-x0<.2:
         return
-    bridges.box("Glass balustrade",((x0+x1)/2,y+.55,z),(x1-x0,.9,.05),"glass")
-    bridges.box("Balustrade handrail",((x0+x1)/2,y+1.06,z),(x1-x0,.08,.12),"grey_dark")
-    bridges.box("Balustrade shoe",((x0+x1)/2,y+.06,z),(x1-x0,.12,.14),"grey")
+    bridges.box("Glass balustrade",((x0+x1)/2,y+.55,z),(x1-x0,.9,.055),"glass")
+    bridges.box("Balustrade handrail",((x0+x1)/2,y+1.06,z),(x1-x0,.10,.15),"grey_dark")
+    bridges.box("Balustrade shoe",((x0+x1)/2,y+.07,z),(x1-x0,.14,.18),"grey")
     a.layout["boxes"].append([((x0+x1)/2,y+.55,z),(x1-x0,1.1,.14),0])
 STAIRS={"platform_n":(-1.7,1.7,NB[1],-4.4),"platform_m":(-2.2,2.2,MB[1],12.6)}
 for side,name in ((-1,"west"),(1,"east")):
@@ -133,8 +149,11 @@ for (z0,z1),label in ((NB,"North bridge"),(MB,"Middle bridge")):
         edge=g1
     balustrade(edge,H,z1)
     for x in (-11.8,11.8):
-        bridges.box("Bridge support pier",(x,(BY-.36)/2,(z0+z1)/2),(.5,BY-.36,.5),"grey")
-        a.layout["boxes"].append([(x,(BY-.36)/2,(z0+z1)/2),(.5,BY-.36,.5),0])
+        zc=(z0+z1)/2
+        bridges.plinth("Bridge pier foot",(x,.15,zc),.64,.30,.64,"grey_dark",flare=.04)
+        bridges.box("Bridge support pier",(x,(BY-.36)/2,zc),(.52,BY-.52,.52),"grey",taper=(.05,.05))
+        bridges.box("Bridge pier capital",(x,BY-.48,zc),(.66,.22,.66),"beam",taper=(-.06,-.06))
+        a.layout["boxes"].append([(x,(BY-.36)/2,zc),(.5,BY-.36,.5),0])
 
 def stair(x0,x1,z_top,z_foot,escalators=0):
     """Solid stair: treads drawn as stacked boxes, collision as one sloped prism."""
@@ -147,17 +166,19 @@ def stair(x0,x1,z_top,z_foot,escalators=0):
         zb=z_foot+(z_top-z_foot)*(i+1)/n
         y=BY*(i+1)/n
         bridges.box("Stair tread",((x0+stair_x1)/2,y/2,(za+zb)/2),(stair_x1-x0,y,abs(zb-za)+.01),"terrazzo" if i%2 else "terrazzo_dark")
-        bridges.box("Yellow stair nosing",((x0+stair_x1)/2,y+.005,za+(zb-za)*.85),(stair_x1-x0,.02,.08),"tactile")
+        bridges.box("Yellow stair nosing",((x0+stair_x1)/2,y+.008,za+(zb-za)*.85),(stair_x1-x0,.028,.09),"tactile")
         for e in range(escalators):
             ex=stair_x1+.15+e*1.15+.45
             bridges.box("Escalator truss",(ex,y/2,(za+zb)/2),(.9,y,abs(zb-za)+.01),"grey")
-            bridges.box("Escalator tread",(ex,y+.004,(za+zb)/2),(.86,.02,abs(zb-za)*.8),"rail")
-            bridges.box("Escalator step edge",(ex,y+.005,za+(zb-za)*.85),(.9,.02,.05),"tactile")
+            bridges.box("Escalator tread",(ex,y+.004,(za+zb)/2),(.86,.024,abs(zb-za)*.8),"rail")
+            bridges.box("Escalator step edge",(ex,y+.008,za+(zb-za)*.85),(.9,.025,.055),"tactile")
     length=math.hypot(z_top-z_foot,BY)
     for x in [x0,x1]+[stair_x1+.075+e*1.15 for e in range(escalators)]:
-        bridges.beam("Stair balustrade glass",(x,.55,z_foot),(x,BY+.55,z_top),.05,.9,"glass")
-        bridges.beam("Stair handrail",(x,1.06,z_foot),(x,BY+1.06,z_top),.1,.08,"black" if escalators else "grey_dark")
-        bridges.beam("Stair stringer",(x,.0,z_foot),(x,BY-.1,z_top),.14,.18,"grey")
+        bridges.plinth("Stair newel foot",(x,.14,z_foot),.26,.28,.34,"grey_dark",flare=.03)
+        bridges.box("Stair newel post",(x,.58,z_foot),(.18,1.12,.22),"orange" if x in (x0,x1) else "grey",taper=(.05,.05))
+        bridges.beam("Stair balustrade glass",(x,.55,z_foot),(x,BY+.55,z_top),.06,.9,"glass")
+        bridges.beam("Stair handrail",(x,1.08,z_foot),(x,BY+1.08,z_top),.14,.10,"orange" if escalators and x!=x0 else "grey_dark")
+        bridges.beam("Stair stringer",(x,.02,z_foot),(x,BY-.08,z_top),.18,.24,"grey")
     for x in (x0,x1):
         dx=.05
         a.layout["slabs"].append([[(x-dx,1.1,z_foot),(x+dx,1.1,z_foot),(x+dx,BY+1.1,z_top),(x-dx,BY+1.1,z_top)],1.14])
@@ -179,16 +200,18 @@ a.moving("fluorescent_tubes",(0,0,0))
 TZ=(-18.6,18.6)
 def car(kit,x,z0,z1,y0,body,stripe,window,lit=False):
     zc=(z0+z1)/2
-    kit.box("Car body",(x,y0+1.6,zc),(2.6,2.9,z1-z0-.3),body)
-    kit.box("Car roof",(x,y0+3.12,zc),(2.4,.16,z1-z0-.4),"grey")
-    kit.box("Car stripe",(x,y0+1.0,zc),(2.64,.22,z1-z0-.3),stripe)
-    kit.box("Car underframe",(x,y0+.1,zc),(2.2,.3,z1-z0-.5),"black")
+    kit.box("Car body",(x,y0+1.6,zc),(2.62,2.9,z1-z0-.28),body,taper=(.04,0.0))
+    kit.box("Car roof",(x,y0+3.12,zc),(2.42,.18,z1-z0-.38),"grey",taper=(.06,0.0))
+    for ac_z in (zc-2.8, zc+2.8):
+        kit.box("Car AC pod",(x,y0+3.28,ac_z),(1.55,.20,2.10),"silver",taper=(.08,.06))
+    kit.box("Car stripe",(x,y0+1.0,zc),(2.65,.24,z1-z0-.28),stripe)
+    kit.box("Car underframe",(x,y0+.1,zc),(2.24,.32,z1-z0-.48),"black")
     for side in (-1,1):
-        kit.box("Window band",(x+side*1.31,y0+2.0,zc),(.04,.8,z1-z0-1.0),window)
+        kit.box("Window band",(x+side*1.31,y0+2.0,zc),(.06,.82,z1-z0-1.0),window)
         for d in range(3):
             dz=z0+1.4+d*(z1-z0-2.8)/2
-            kit.box("Car door",(x+side*1.32,y0+1.5,dz),(.04,2.2,1.3),"grey" if not lit else body)
-            kit.box("Door window",(x+side*1.34,y0+1.95,dz),(.03,.8,1.0),window)
+            kit.box("Car door",(x+side*1.32,y0+1.5,dz),(.06,2.22,1.32),"grey" if not lit else body)
+            kit.box("Door window",(x+side*1.35,y0+1.95,dz),(.04,.8,1.0),window)
 for c in range(3):
     z0=TZ[0]+c*(TZ[1]-TZ[0])/3
     car(train,-7.3,z0,z0+(TZ[1]-TZ[0])/3,TRACK+.3,"lemon","train_orange","window")
@@ -215,17 +238,20 @@ a.moving("alarm_lamps",(0,0,0))
 # East passage: automatic ticket gates, ticket machines, station office, exit A2.
 for i in range(4):
     x=10.2+i*1.9
-    a.solid(passages,"Automatic ticket gate",(x,.52,-8),(.32,1.04,1.7),"grey")
-    passages.box("Gate top",(x,1.06,-8),(.36,.06,1.74),"white")
+    a.layout["boxes"].append([(x,.52,-8),(.32,1.04,1.7),0])
+    passages.plinth("Gate foot",(x,.06,-8),.36,.12,1.74,"grey_dark",flare=.02)
+    passages.box("Automatic ticket gate",(x,.54,-8),(.32,.96,1.68),"grey",taper=(.04,.02))
+    passages.box("Gate top",(x,1.06,-8),(.36,.08,1.74),"white")
     for dz in (-.86,.86):
-        passages.box("IC card reader",(x,1.1,-8+dz*.8),(.3,.04,.3),"gate_blue")
-        passages.box("Gate arrow lamp",(x,.8,-8+dz),(.2,.2,.03),"green_lamp" if dz<0 else "red_lamp")
-    passages.box("Open gate flap",(x+.24,.85,-8),(.16,.3,.06),"orange")
+        passages.box("IC card reader",(x,1.1,-8+dz*.8),(.3,.05,.3),"gate_blue")
+        passages.box("Gate arrow lamp",(x,.8,-8+dz),(.2,.2,.04),"green_lamp" if dz<0 else "red_lamp")
+    passages.box("Open gate flap",(x+.24,.85,-8),(.16,.3,.07),"orange")
 a.solid(passages,"Gate end cabinet",(17.3,.52,-8),(.6,1.04,1.7),"grey")
 a.solid(passages,"Station office",(19.8,1.6,-19.8),(4.4,3.2,4.4),"tile")
-passages.box("Office window",(17.58,1.5,-19.6),(.06,1.1,2.6),"glass")
-passages.box("Office counter",(17.4,1.0,-19.6),(.4,.08,2.6),"grey")
-passages.box("Office orange fascia",(17.56,2.9,-19.8),(.08,.4,4.4),"orange")
+passages.plinth("Office plinth",(17.64,.14,-19.8),.20,.28,4.46,"grey_dark",flare=.025)
+passages.box("Office window",(17.58,1.5,-19.6),(.08,1.1,2.6),"glass")
+passages.box("Office counter",(17.38,1.0,-19.6),(.46,.12,2.72),"grey")
+passages.coping("Office orange fascia",(17.54,2.9,-19.8),.14,.42,4.46,"orange",seg_len=1.5)
 a.sign("OfficeSign","ginza-office",(17.5,2.42,-19.8),(2.0,.5),-math.pi/2)
 for i in range(4):
     z=-20.8+i*1.1
@@ -288,33 +314,40 @@ for side in (-1,1):
 
 # Destructible station furniture.
 vend=a.kit("vending_machine")
-vend.box("Vending cabinet",(0,.95,0),(1.0,1.9,.75),"vend_red")
-vend.box("Drink display",(0,1.32,.38),(.86,.9,.02),"white")
+vend.plinth("Vending plinth",(0,.07,0),1.04,.14,.78,"grey_dark",flare=.02)
+vend.box("Vending cabinet",(0,.98,0),(1.0,1.78,.74),"vend_red",taper=(.02,.02))
+vend.coping("Vending cap",(0,1.90,0),1.06,.10,.80,"vend_red",seg_len=1.06)
+vend.box("Drink display",(0,1.32,.36),(.86,.92,.06),"white")
 for r in range(3):
     for c in range(6):
-        vend.box("Drink can",(-.36+c*.144,1.0+r*.3,.4),(.09,.2,.02),("red","gate_blue","bin_green","orange")[(r+c)%4])
-vend.box("Coin panel",(.3,.62,.39),(.2,.3,.02),"grey_dark")
-vend.box("Drink tray",(-.1,.25,.39),(.6,.18,.03),"black")
+        vend.box("Drink can",(-.36+c*.144,1.0+r*.3,.40),(.09,.2,.04),("red","gate_blue","bin_green","orange")[(r+c)%4])
+vend.box("Coin panel",(.3,.62,.39),(.2,.3,.04),"grey_dark")
+vend.box("Drink tray",(-.1,.25,.39),(.6,.18,.05),"black")
 vend_w=a.kit("vending_machine_white")
-vend_w.box("Vending cabinet",(0,.95,0),(1.0,1.9,.75),"vend_white")
-vend_w.box("Drink display",(0,1.32,.38),(.86,.9,.02),"glass")
+vend_w.plinth("Vending plinth",(0,.07,0),1.04,.14,.78,"grey_dark",flare=.02)
+vend_w.box("Vending cabinet",(0,.98,0),(1.0,1.78,.74),"vend_white",taper=(.02,.02))
+vend_w.coping("Vending cap",(0,1.90,0),1.06,.10,.80,"vend_white",seg_len=1.06)
+vend_w.box("Drink display",(0,1.32,.36),(.86,.92,.06),"glass")
 for r in range(3):
     for c in range(6):
-        vend_w.box("Bottle",(-.36+c*.144,1.0+r*.3,.4),(.09,.22,.02),("bin_green","white","orange","gate_blue")[(r+c)%4])
-vend_w.box("Drink tray",(-.1,.25,.39),(.6,.18,.03),"black")
+        vend_w.box("Bottle",(-.36+c*.144,1.0+r*.3,.40),(.09,.22,.04),("bin_green","white","orange","gate_blue")[(r+c)%4])
+vend_w.box("Drink tray",(-.1,.25,.39),(.6,.18,.05),"black")
 bench=a.kit("bench")
 for i in range(4):
-    bench.box("Orange bucket seat",(-.84+i*.56,.45,0),(.5,.08,.46),"seat")
-    bench.box("Seat back",(-.84+i*.56,.72,-.22),(.5,.5,.06),"seat")
-bench.box("Bench beam",(0,.36,0),(2.3,.08,.12),"grey_dark")
+    bench.box("Orange bucket seat",(-.84+i*.56,.45,0),(.50,.11,.48),"seat",taper=(.04,.04))
+    bench.box("Seat back",(-.84+i*.56,.73,-.22),(.50,.50,.09),"seat",taper=(.04,.08))
+bench.box("Bench beam",(0,.36,0),(2.32,.10,.14),"grey_dark")
 for x in (-.9,.9):
-    bench.box("Bench leg",(x,.18,0),(.1,.36,.4),"grey_dark")
+    bench.plinth("Bench leg foot",(x,.05,0),.16,.10,.46,"black",flare=.02)
+    bench.box("Bench leg",(x,.20,0),(.12,.32,.40),"grey_dark",taper=(.06,.04))
 kiosk=a.kit("kiosk")
-kiosk.box("Kiosk counter",(0,.55,0),(2.2,1.1,1.2),"tile")
-kiosk.box("Kiosk orange fascia",(0,2.3,0),(2.4,.36,1.4),"orange")
-kiosk.box("Kiosk roof",(0,2.52,0),(2.5,.1,1.5),"grey")
-for x in (-1.1,1.1):
-    kiosk.box("Kiosk post",(x,1.7,.6),(.08,1.2,.08),"grey")
+kiosk.plinth("Kiosk plinth",(0,.09,0),2.26,.18,1.26,"grey_dark",flare=.03)
+kiosk.box("Kiosk counter",(0,.58,0),(2.18,.96,1.18),"tile",taper=(.02,.02))
+kiosk.coping("Kiosk counter top",(0,1.10,0),2.30,.10,1.30,"wood",seg_len=1.15)
+kiosk.box("Kiosk orange fascia",(0,2.3,0),(2.42,.38,1.42),"orange",taper=(.02,.02))
+kiosk.coping("Kiosk roof",(0,2.54,0),2.56,.14,1.56,"grey",seg_len=1.28)
+for x in (-1.08,1.08):
+    kiosk.box("Kiosk post",(x,1.7,.56),(.11,1.2,.11),"grey")
 for r in range(3):
     for c in range(5):
         kiosk.box("Magazine",(-.85+c*.42,1.25+r*.3,.62),(.34,.26,.03),("red","gate_blue","tactile","bin_green","white")[(r+c)%5])

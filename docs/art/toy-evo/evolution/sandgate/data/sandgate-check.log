@@ -1,0 +1,7 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 4.1 Metal - 91.7 - Compatibility - Using Device: Apple - Apple M5
+
+SANDGATE_OPENING_PASS: direct first headshot in 0.55 seconds after moving through Long Doors
+SANDGATE_RAILS_PASS: upper edges and lookout stop walking input, A Short stays connected
+SANDGATE_WALK_PASS: A Long, pit, A ramp, Short, Mid Doors, B exit, B Window and both tunnel ends
+SANDGATE_ROUND_PASS: 60 seconds, replenishment, respawn, grenades, 15-second frenzy, shortcut, finale, record isolation and reset

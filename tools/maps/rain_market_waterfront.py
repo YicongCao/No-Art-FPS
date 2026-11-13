@@ -93,13 +93,16 @@ def build_restaurant_row(arena):
 def build_harbour(arena):
     quay = arena.kit("harbour_quay", True)
     quay.box("Stone quay wall", (0,-.72,24.97), (46,1.36,.45), "steel")
-    quay.box("Stone coping", (0,.075,24.89), (46,.16,.38), "concrete")
+    quay.coping("Stone coping", (0,.085,24.89), 46.2, .19, .46, "concrete", seg_len=2.3)
     for y in (.42,1.04):
-        quay.box("Harbour railing runner", (0,y,24.85), (46,.075,.082), "metal")
+        quay.box("Harbour railing runner", (0,y,24.85), (46,.085,.092), "metal")
     for x in range(-22,23,2):
-        quay.box("Harbour railing upright", (x,.58,24.85), (.10,1.14,.10), "steel")
+        quay.plinth("Railing base shoe", (x,.21,24.85), .18, .09, .18, "navy", flare=.02)
+        quay.box("Harbour railing upright", (x,.59,24.85), (.115,1.12,.115), "steel", taper=(.05,.05))
     for x in (-18,-9,9,18):
-        quay.rod("Stone bollard", (x,.14,24.52), (x,.40,24.52), .17, "navy", 8)
+        quay.plinth("Bollard plinth", (x,.18,24.52), .44, .09, .44, "concrete", flare=.03)
+        quay.rod("Stone bollard", (x,.20,24.52), (x,.46,24.52), .18, "navy", 10, .15)
+        quay.rod("Bollard cap", (x,.45,24.52), (x,.52,24.52), .21, "gold", 10, .17)
     water = arena.kit("harbour_water", True)
     water.facet("Night water surface", [(-115,-.86,25),(115,-.86,25),(115,-.86,190),(-115,-.86,190)], "sea")
     arena.layout["harbour_ferries"] = []

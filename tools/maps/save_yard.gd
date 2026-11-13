@@ -35,7 +35,10 @@ func generate() -> void:
 		building.position = building.bounds.position
 		building.bounds.position = Vector3.ZERO
 		building.local_bounds = true
-		for part in building.parts:part.reparent(building,true)
+		for part in building.parts:
+			var world_xform: Transform3D = part.global_transform
+			part.reparent(building,false)
+			part.global_transform = world_xform
 		building.saved_parts = paths(building,building.parts)
 		building.supported_paths = paths(building,map.supported_scenery.get(building,[]))
 		var batch_parts: Dictionary = map.scenery_batches.get(building,{})

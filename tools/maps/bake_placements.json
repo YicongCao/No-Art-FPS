@@ -1,0 +1,9695 @@
+{
+	"amusement_park": [
+		{
+			"kit": "assets/models/park/grounds.glb",
+			"node": "Grounds",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/park/entry.glb",
+			"node": "Entry/Entrance",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				24.0
+			]
+		},
+		{
+			"kit": "assets/models/park/skate.glb",
+			"node": "SkateApron",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-19.0,
+				0.0,
+				1.0
+			]
+		},
+		{
+			"kit": "assets/models/park/quarter_pipe.glb",
+			"node": "Quarter-25/Quarter-25",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-25.0,
+				0.0,
+				-4.5
+			]
+		},
+		{
+			"kit": "assets/models/park/quarter_pipe.glb",
+			"node": "Quarter-13/Quarter-13",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-13.0,
+				0.0,
+				-4.5
+			]
+		},
+		{
+			"kit": "assets/models/park/skate_bank.glb",
+			"node": "SkateBank/SkateBank",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-13.0,
+				0.0,
+				7.0
+			]
+		},
+		{
+			"kit": "assets/models/park/grind_rail.glb",
+			"node": "GrindRail/GrindRail",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-22.0,
+				0.430000007152557,
+				7.0
+			]
+		},
+		{
+			"kit": "assets/models/park/carousel_roof.glb",
+			"node": "Carousel/CarouselCanopy",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				1.0
+			]
+		},
+		{
+			"kit": "assets/models/park/carousel_deck.glb",
+			"node": "Carousel/Turntable/Deck",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				1.0
+			]
+		},
+		{
+			"kit": "assets/models/park/horse_blue.glb",
+			"node": "Carousel/Turntable/Horse0",
+			"static": false,
+			"transform": [
+				-1.0,
+				0.0,
+				0.0000000874227765734759,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000874227765734759,
+				0.0,
+				-1.0,
+				3.0,
+				0.0,
+				1.0
+			]
+		},
+		{
+			"kit": "assets/models/park/horse_brick.glb",
+			"node": "Carousel/Turntable/Horse1",
+			"static": false,
+			"transform": [
+				-0.70710676908493,
+				0.0,
+				-0.70710676908493,
+				0.0,
+				1.0,
+				0.0,
+				0.70710676908493,
+				0.0,
+				-0.70710676908493,
+				2.12132024765015,
+				0.120208151638508,
+				3.12132024765015
+			]
+		},
+		{
+			"kit": "assets/models/park/horse_blue.glb",
+			"node": "Carousel/Turntable/Horse2",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				0.000000000000000183697014652885,
+				0.170000001788139,
+				4.0
+			]
+		},
+		{
+			"kit": "assets/models/park/horse_brick.glb",
+			"node": "Carousel/Turntable/Horse3",
+			"static": false,
+			"transform": [
+				0.70710676908493,
+				0.0,
+				-0.70710676908493,
+				0.0,
+				1.0,
+				0.0,
+				0.70710676908493,
+				0.0,
+				0.70710676908493,
+				-2.12132024765015,
+				0.120208151638508,
+				3.12132024765015
+			]
+		},
+		{
+			"kit": "assets/models/park/horse_blue.glb",
+			"node": "Carousel/Turntable/Horse4",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-3.0,
+				0.0000000000000000208189961630756,
+				1.0
+			]
+		},
+		{
+			"kit": "assets/models/park/horse_brick.glb",
+			"node": "Carousel/Turntable/Horse5",
+			"static": false,
+			"transform": [
+				0.70710676908493,
+				0.0,
+				0.70710676908493,
+				0.0,
+				1.0,
+				0.0,
+				-0.70710676908493,
+				0.0,
+				0.70710676908493,
+				-2.12132024765015,
+				-0.120208151638508,
+				-1.12132024765015
+			]
+		},
+		{
+			"kit": "assets/models/park/horse_blue.glb",
+			"node": "Carousel/Turntable/Horse6",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-1.0,
+				0.0,
+				-0.0000000437113882867379,
+				-0.000000000000000551091070428436,
+				-0.170000001788139,
+				-2.0
+			]
+		},
+		{
+			"kit": "assets/models/park/horse_brick.glb",
+			"node": "Carousel/Turntable/Horse7",
+			"static": false,
+			"transform": [
+				-0.70710676908493,
+				0.0,
+				0.70710676908493,
+				0.0,
+				1.0,
+				0.0,
+				-0.70710676908493,
+				0.0,
+				-0.70710676908493,
+				2.12132024765015,
+				-0.120208151638508,
+				-1.12132024765015
+			]
+		},
+		{
+			"kit": "assets/models/park/coaster_track.glb",
+			"node": "Coaster/CoasterTrack",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/park/coaster_car.glb",
+			"node": "Coaster/RailPath/Car0/Wagon",
+			"static": false,
+			"transform": [
+				0.997793197631836,
+				0.0,
+				-0.0663988441228867,
+				0.0,
+				1.00000011920929,
+				0.0,
+				0.0663988441228867,
+				0.0,
+				0.997793197631836,
+				22.0395317077637,
+				2.20000004768372,
+				2.02206993103027
+			]
+		},
+		{
+			"kit": "assets/models/park/coaster_car.glb",
+			"node": "Coaster/RailPath/Car1/Wagon",
+			"static": false,
+			"transform": [
+				0.99885106086731,
+				0.0,
+				-0.0479227118194103,
+				0.0,
+				1.0,
+				0.0,
+				0.0479227118194103,
+				0.0,
+				0.99885106086731,
+				22.1629905700684,
+				2.20000004768372,
+				3.79773116111755
+			]
+		},
+		{
+			"kit": "assets/models/park/coaster_car.glb",
+			"node": "Coaster/RailPath/Car2/Wagon",
+			"static": false,
+			"transform": [
+				0.979249715805054,
+				0.0,
+				0.202657520771027,
+				0.0,
+				1.00000011920929,
+				0.0,
+				-0.202657520771027,
+				0.0,
+				0.979249715805054,
+				22.1031246185303,
+				2.20000004768372,
+				5.57266807556152
+			]
+		},
+		{
+			"kit": "assets/models/park/station_foundation.glb",
+			"node": "StationFoundation",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/park/station_stairs_south.glb",
+			"node": "SouthStationStairs/SouthStationStairs",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/park/station_stairs_north.glb",
+			"node": "NorthStationStairs/NorthStationStairs",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/park/station_roof.glb",
+			"node": "Station/StationCanopy",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/park/kiosk.glb",
+			"node": "Kiosk0/Kiosk0",
+			"static": false,
+			"transform": [
+				0.995004177093506,
+				0.0,
+				-0.0998334214091301,
+				0.0,
+				1.0,
+				0.0,
+				0.0998334214091301,
+				0.0,
+				0.995004177093506,
+				-15.0,
+				0.0,
+				15.0
+			]
+		},
+		{
+			"kit": "assets/models/park/kiosk.glb",
+			"node": "Kiosk1/Kiosk1",
+			"static": false,
+			"transform": [
+				0.995004177093506,
+				0.0,
+				0.0998334214091301,
+				0.0,
+				1.0,
+				0.0,
+				-0.0998334214091301,
+				0.0,
+				0.995004177093506,
+				14.0,
+				0.0,
+				15.0
+			]
+		},
+		{
+			"kit": "assets/models/park/kiosk.glb",
+			"node": "Kiosk2/Kiosk2",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-13.0,
+				0.0,
+				-13.0
+			]
+		},
+		{
+			"kit": "assets/models/park/kiosk.glb",
+			"node": "Kiosk3/Kiosk3",
+			"static": false,
+			"transform": [
+				0.955336511135101,
+				0.0,
+				-0.295520216226578,
+				0.0,
+				1.0,
+				0.0,
+				0.295520216226578,
+				0.0,
+				0.955336511135101,
+				15.0,
+				0.0,
+				-12.0
+			]
+		},
+		{
+			"kit": "assets/models/park/kiosk.glb",
+			"node": "Kiosk4/Kiosk4",
+			"static": false,
+			"transform": [
+				0.453596085309982,
+				0.0,
+				-0.8912073969841,
+				0.0,
+				1.0,
+				0.0,
+				0.8912073969841,
+				0.0,
+				0.453596085309982,
+				-28.0,
+				0.0,
+				12.0
+			]
+		},
+		{
+			"kit": "assets/models/park/kiosk.glb",
+			"node": "Kiosk5/Kiosk5",
+			"static": false,
+			"transform": [
+				0.696706712245941,
+				0.0,
+				0.717356085777283,
+				0.0,
+				1.0,
+				0.0,
+				-0.717356085777283,
+				0.0,
+				0.696706712245941,
+				30.0,
+				0.0,
+				13.0
+			]
+		},
+		{
+			"kit": "assets/models/park/bench.glb",
+			"node": "Bench0/Bench0",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-10.0,
+				0.0,
+				13.0
+			]
+		},
+		{
+			"kit": "assets/models/park/planter.glb",
+			"node": "Planter0/Planter0",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-8.35000038146973,
+				0.0,
+				13.4700002670288
+			]
+		},
+		{
+			"kit": "assets/models/park/lamp.glb",
+			"node": "Lamp0/Lamp0",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-11.6499996185303,
+				0.0,
+				13.5799999237061
+			]
+		},
+		{
+			"kit": "assets/models/park/bench.glb",
+			"node": "Bench1/Bench1",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-6.0,
+				0.0,
+				10.0
+			]
+		},
+		{
+			"kit": "assets/models/park/planter.glb",
+			"node": "Planter1/Planter1",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-4.34999990463257,
+				0.0,
+				10.4700002670288
+			]
+		},
+		{
+			"kit": "assets/models/park/lamp.glb",
+			"node": "Lamp1/Lamp1",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-7.65000009536743,
+				0.0,
+				10.5799999237061
+			]
+		},
+		{
+			"kit": "assets/models/park/bench.glb",
+			"node": "Bench2/Bench2",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				6.0,
+				0.0,
+				10.0
+			]
+		},
+		{
+			"kit": "assets/models/park/planter.glb",
+			"node": "Planter2/Planter2",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				7.65000009536743,
+				0.0,
+				10.4700002670288
+			]
+		},
+		{
+			"kit": "assets/models/park/lamp.glb",
+			"node": "Lamp2/Lamp2",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				4.34999990463257,
+				0.0,
+				10.5799999237061
+			]
+		},
+		{
+			"kit": "assets/models/park/bench.glb",
+			"node": "Bench3/Bench3",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				10.0,
+				0.0,
+				13.0
+			]
+		},
+		{
+			"kit": "assets/models/park/planter.glb",
+			"node": "Planter3/Planter3",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				11.6499996185303,
+				0.0,
+				13.4700002670288
+			]
+		},
+		{
+			"kit": "assets/models/park/lamp.glb",
+			"node": "Lamp3/Lamp3",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				8.35000038146973,
+				0.0,
+				13.5799999237061
+			]
+		},
+		{
+			"kit": "assets/models/park/bench.glb",
+			"node": "Bench4/Bench4",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-10.0,
+				0.0,
+				-4.0
+			]
+		},
+		{
+			"kit": "assets/models/park/planter.glb",
+			"node": "Planter4/Planter4",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-8.35000038146973,
+				0.0,
+				-3.52999997138977
+			]
+		},
+		{
+			"kit": "assets/models/park/lamp.glb",
+			"node": "Lamp4/Lamp4",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-11.6499996185303,
+				0.0,
+				-3.42000007629395
+			]
+		},
+		{
+			"kit": "assets/models/park/bench.glb",
+			"node": "Bench5/Bench5",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-6.0,
+				0.0,
+				-8.0
+			]
+		},
+		{
+			"kit": "assets/models/park/planter.glb",
+			"node": "Planter5/Planter5",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-4.34999990463257,
+				0.0,
+				-7.53000020980835
+			]
+		},
+		{
+			"kit": "assets/models/park/lamp.glb",
+			"node": "Lamp5/Lamp5",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-7.65000009536743,
+				0.0,
+				-7.42000007629395
+			]
+		},
+		{
+			"kit": "assets/models/park/bench.glb",
+			"node": "Bench6/Bench6",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				6.0,
+				0.0,
+				-8.0
+			]
+		},
+		{
+			"kit": "assets/models/park/planter.glb",
+			"node": "Planter6/Planter6",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				7.65000009536743,
+				0.0,
+				-7.53000020980835
+			]
+		},
+		{
+			"kit": "assets/models/park/lamp.glb",
+			"node": "Lamp6/Lamp6",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				4.34999990463257,
+				0.0,
+				-7.42000007629395
+			]
+		},
+		{
+			"kit": "assets/models/park/bench.glb",
+			"node": "Bench7/Bench7",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				10.0,
+				0.0,
+				-4.0
+			]
+		},
+		{
+			"kit": "assets/models/park/planter.glb",
+			"node": "Planter7/Planter7",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				11.6499996185303,
+				0.0,
+				-3.52999997138977
+			]
+		},
+		{
+			"kit": "assets/models/park/lamp.glb",
+			"node": "Lamp7/Lamp7",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				8.35000038146973,
+				0.0,
+				-3.42000007629395
+			]
+		},
+		{
+			"kit": "assets/models/park/bench.glb",
+			"node": "Bench8/Bench8",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-28.0,
+				0.0,
+				12.0
+			]
+		},
+		{
+			"kit": "assets/models/park/planter.glb",
+			"node": "Planter8/Planter8",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-26.3500003814697,
+				0.0,
+				12.4700002670288
+			]
+		},
+		{
+			"kit": "assets/models/park/lamp.glb",
+			"node": "Lamp8/Lamp8",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-29.6499996185303,
+				0.0,
+				12.5799999237061
+			]
+		},
+		{
+			"kit": "assets/models/park/bench.glb",
+			"node": "Bench9/Bench9",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				29.0,
+				0.0,
+				15.0
+			]
+		},
+		{
+			"kit": "assets/models/park/planter.glb",
+			"node": "Planter9/Planter9",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				30.6499996185303,
+				0.0,
+				15.4700002670288
+			]
+		},
+		{
+			"kit": "assets/models/park/lamp.glb",
+			"node": "Lamp9/Lamp9",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				27.3500003814697,
+				0.0,
+				15.5799999237061
+			]
+		},
+		{
+			"kit": "assets/models/park/bench.glb",
+			"node": "Bench10/Bench10",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-25.0,
+				0.0,
+				-13.0
+			]
+		},
+		{
+			"kit": "assets/models/park/planter.glb",
+			"node": "Planter10/Planter10",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-23.3500003814697,
+				0.0,
+				-12.5299997329712
+			]
+		},
+		{
+			"kit": "assets/models/park/lamp.glb",
+			"node": "Lamp10/Lamp10",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-26.6499996185303,
+				0.0,
+				-12.4200000762939
+			]
+		},
+		{
+			"kit": "assets/models/park/bench.glb",
+			"node": "Bench11/Bench11",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				26.0,
+				0.0,
+				-13.0
+			]
+		},
+		{
+			"kit": "assets/models/park/planter.glb",
+			"node": "Planter11/Planter11",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				27.6499996185303,
+				0.0,
+				-12.5299997329712
+			]
+		},
+		{
+			"kit": "assets/models/park/lamp.glb",
+			"node": "Lamp11/Lamp11",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				24.3500003814697,
+				0.0,
+				-12.4200000762939
+			]
+		},
+		{
+			"kit": "assets/models/palm.glb",
+			"node": "Palm0/Palm0",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-29.0,
+				0.0,
+				18.0
+			]
+		},
+		{
+			"kit": "assets/models/palm.glb",
+			"node": "Palm1/Palm1",
+			"static": false,
+			"transform": [
+				0.783821642398834,
+				0.0,
+				-0.620985984802246,
+				0.0,
+				1.0,
+				0.0,
+				0.620985984802246,
+				0.0,
+				0.783821642398834,
+				-20.0,
+				0.0,
+				19.0
+			]
+		},
+		{
+			"kit": "assets/models/palm.glb",
+			"node": "Palm2/Palm2",
+			"static": false,
+			"transform": [
+				0.2287527769804,
+				0.0,
+				-0.973484575748444,
+				0.0,
+				1.0,
+				0.0,
+				0.973484575748444,
+				0.0,
+				0.2287527769804,
+				19.0,
+				0.0,
+				19.0
+			]
+		},
+		{
+			"kit": "assets/models/palm.glb",
+			"node": "Palm3/Palm3",
+			"static": false,
+			"transform": [
+				-0.425218850374222,
+				0.0,
+				-0.905090570449829,
+				0.0,
+				1.0,
+				0.0,
+				0.905090570449829,
+				0.0,
+				-0.425218850374222,
+				31.0,
+				0.0,
+				19.0
+			]
+		},
+		{
+			"kit": "assets/models/palm.glb",
+			"node": "Palm4/Palm4",
+			"static": false,
+			"transform": [
+				-0.895344316959381,
+				0.0,
+				-0.445374578237534,
+				0.0,
+				1.0,
+				0.0,
+				0.445374578237534,
+				0.0,
+				-0.895344316959381,
+				-32.0,
+				0.0,
+				-11.0
+			]
+		},
+		{
+			"kit": "assets/models/palm.glb",
+			"node": "Palm5/Palm5",
+			"static": false,
+			"transform": [
+				-0.97836172580719,
+				0.0,
+				0.206901878118515,
+				0.0,
+				1.0,
+				0.0,
+				-0.206901878118515,
+				0.0,
+				-0.97836172580719,
+				-22.0,
+				0.0,
+				-22.0
+			]
+		},
+		{
+			"kit": "assets/models/palm.glb",
+			"node": "Palm6/Palm6",
+			"static": false,
+			"transform": [
+				-0.638377845287323,
+				0.0,
+				0.769723117351532,
+				0.0,
+				1.0,
+				0.0,
+				-0.769723117351532,
+				0.0,
+				-0.638377845287323,
+				0.0,
+				0.0,
+				-24.0
+			]
+		},
+		{
+			"kit": "assets/models/palm.glb",
+			"node": "Palm7/Palm7",
+			"static": false,
+			"transform": [
+				-0.0223870519548655,
+				0.0,
+				0.999749362468719,
+				0.0,
+				1.0,
+				0.0,
+				-0.999749362468719,
+				0.0,
+				-0.0223870519548655,
+				15.0,
+				0.0,
+				-24.0
+			]
+		},
+		{
+			"kit": "assets/models/palm.glb",
+			"node": "Palm8/Palm8",
+			"static": false,
+			"transform": [
+				0.603282988071442,
+				0.0,
+				0.797527194023132,
+				0.0,
+				1.0,
+				0.0,
+				-0.797527194023132,
+				0.0,
+				0.603282988071442,
+				30.0,
+				0.0,
+				-20.0
+			]
+		},
+		{
+			"kit": "assets/models/palm.glb",
+			"node": "Palm9/Palm9",
+			"static": false,
+			"transform": [
+				0.968119502067566,
+				0.0,
+				0.250488787889481,
+				0.0,
+				1.0,
+				0.0,
+				-0.250488787889481,
+				0.0,
+				0.968119502067566,
+				-9.0,
+				0.0,
+				-13.0
+			]
+		},
+		{
+			"kit": "assets/models/palm.glb",
+			"node": "Palm10/Palm10",
+			"static": false,
+			"transform": [
+				0.914383232593536,
+				0.0,
+				-0.404849737882614,
+				0.0,
+				1.0,
+				0.0,
+				0.404849737882614,
+				0.0,
+				0.914383232593536,
+				10.0,
+				0.0,
+				-12.0
+			]
+		},
+		{
+			"kit": "assets/models/park/fence_0.glb",
+			"node": "fence_0/fence_0",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/park/fence_1.glb",
+			"node": "fence_1/fence_1",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/park/fence_2.glb",
+			"node": "fence_2/fence_2",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/park/fence_3.glb",
+			"node": "fence_3/fence_3",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/park/fence_4.glb",
+			"node": "fence_4/fence_4",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/park/fence_5.glb",
+			"node": "fence_5/fence_5",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/park/fence_6.glb",
+			"node": "fence_6/fence_6",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/park/fence_7.glb",
+			"node": "fence_7/fence_7",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/park/fence_8.glb",
+			"node": "fence_8/fence_8",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		}
+	],
+	"baggage_below": [
+		{
+			"kit": "assets/models/baggage_below/terminal_floors.glb",
+			"node": "Architecture/terminal_floors",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/baggage_below/terminal_shell.glb",
+			"node": "Architecture/terminal_shell",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/baggage_below/sorter.glb",
+			"node": "Architecture/sorter",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/baggage_below/apron.glb",
+			"node": "Architecture/apron",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/baggage_below/ceiling_and_beams.glb",
+			"node": "Architecture/ceiling_and_beams",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/baggage_below/gate_terminal.glb",
+			"node": "Architecture/gate_terminal",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/baggage_below/scanner.glb",
+			"node": "Props/scanner_00/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				10.6000003814697,
+				0.0,
+				3.40000009536743
+			]
+		},
+		{
+			"kit": "assets/models/baggage_below/suitcase.glb",
+			"node": "Props/BurstCase/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-3.95000004768372,
+				0.819999992847443,
+				5.44999980926514
+			]
+		},
+		{
+			"kit": "assets/models/baggage_below/suitcase.glb",
+			"node": "Props/suitcase_02/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				4.59999990463257,
+				0.819999992847443,
+				-4.30000019073486
+			]
+		},
+		{
+			"kit": "assets/models/baggage_below/suitcase.glb",
+			"node": "Props/suitcase_03/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				12.6999998092651,
+				0.0,
+				6.09999990463257
+			]
+		},
+		{
+			"kit": "assets/models/baggage_below/suitcase.glb",
+			"node": "Props/suitcase_04/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-12.3000001907349,
+				0.0,
+				2.0
+			]
+		},
+		{
+			"kit": "assets/models/baggage_below/suitcase.glb",
+			"node": "Props/suitcase_05/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-8.30000019073486,
+				0.0,
+				16.0
+			]
+		},
+		{
+			"kit": "assets/models/baggage_below/suitcase.glb",
+			"node": "Props/suitcase_06/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				6.90000009536743,
+				0.0,
+				18.5
+			]
+		},
+		{
+			"kit": "assets/models/baggage_below/tractor.glb",
+			"node": "Props/tractor_07/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-17.7999992370605,
+				0.0,
+				4.30000019073486
+			]
+		},
+		{
+			"kit": "assets/models/baggage_below/baggage_cart.glb",
+			"node": "Props/baggage_cart_08/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-18.0,
+				0.0,
+				-0.200000002980232
+			]
+		},
+		{
+			"kit": "assets/models/baggage_below/baggage_cart.glb",
+			"node": "Props/baggage_cart_09/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-18.0,
+				0.0,
+				-4.0
+			]
+		},
+		{
+			"kit": "assets/models/baggage_below/baggage_cart.glb",
+			"node": "Props/baggage_cart_10/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-18.0,
+				0.0,
+				-7.69999980926514
+			]
+		},
+		{
+			"kit": "assets/models/baggage_below/baggage_cart.glb",
+			"node": "Props/baggage_cart_11/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				18.0,
+				0.0,
+				6.19999980926514
+			]
+		},
+		{
+			"kit": "assets/models/baggage_below/baggage_cart.glb",
+			"node": "Props/baggage_cart_12/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				18.0,
+				0.0,
+				-9.5
+			]
+		},
+		{
+			"kit": "assets/models/baggage_below/baggage_cart.glb",
+			"node": "Props/baggage_cart_13/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				11.0,
+				0.0,
+				-16.5
+			]
+		},
+		{
+			"kit": "assets/models/baggage_below/cargo_scale.glb",
+			"node": "Props/cargo_scale_14/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-19.6000003814697,
+				0.0,
+				8.69999980926514
+			]
+		}
+	],
+	"bb_office": [
+		{
+			"kit": "assets/models/bb_office/architecture.glb",
+			"node": "Architecture/Architecture",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/building_services.glb",
+			"node": "Architecture/Building Services",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/city.glb",
+			"node": "Architecture/City",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/reception.glb",
+			"node": "Architecture/Reception",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/rooms.glb",
+			"node": "Architecture/Rooms",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/manager_door.glb",
+			"node": "Props/ManagerDoor0/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-17.0,
+				0.0,
+				-12.1000003814697
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/manager_door.glb",
+			"node": "Props/ManagerDoor1/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				17.0,
+				0.0,
+				-12.1000003814697
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/phone_booth.glb",
+			"node": "Props/PhoneBooth0/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-9.0,
+				0.0,
+				-14.1400003433228
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/phone_booth.glb",
+			"node": "Props/PhoneBooth1/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				9.0,
+				0.0,
+				-14.1400003433228
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/meeting_table.glb",
+			"node": "Props/ConferenceTable/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				-16.7999992370605
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/partition.glb",
+			"node": "Props/Partition00/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-14.0,
+				0.0,
+				-8.0
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/Programmer00L/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-15.25,
+				0.0,
+				-7.36999988555908
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/project_manager.glb",
+			"node": "Props/BackDesk00L/Model",
+			"static": false,
+			"transform": [
+				-1.0,
+				0.0,
+				0.0000000874227765734759,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000874227765734759,
+				0.0,
+				-1.0,
+				-15.25,
+				0.0,
+				-8.63000011444092
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/Programmer00R/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-12.75,
+				0.0,
+				-7.36999988555908
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/BackDesk00R/Model",
+			"static": false,
+			"transform": [
+				-1.0,
+				0.0,
+				0.0000000874227765734759,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000874227765734759,
+				0.0,
+				-1.0,
+				-12.75,
+				0.0,
+				-8.63000011444092
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/shade_leaf.glb",
+			"node": "Props/Shade00/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-15.1700000762939,
+				0.740000009536743,
+				-7.69999980926514
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/camp_cot.glb",
+			"node": "Props/CampCot00/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-10.6300001144409,
+				0.0,
+				-7.48999977111816
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/partition_low.glb",
+			"node": "Props/Partition01/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				-8.0
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/project_manager.glb",
+			"node": "Props/PM01L/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-1.25,
+				0.0,
+				-7.36999988555908
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/BackDesk01L/Model",
+			"static": false,
+			"transform": [
+				-1.0,
+				0.0,
+				0.0000000874227765734759,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000874227765734759,
+				0.0,
+				-1.0,
+				-1.25,
+				0.0,
+				-8.63000011444092
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/Programmer01R/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				1.25,
+				0.0,
+				-7.36999988555908
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/project_manager.glb",
+			"node": "Props/BackDesk01R/Model",
+			"static": false,
+			"transform": [
+				-1.0,
+				0.0,
+				0.0000000874227765734759,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000874227765734759,
+				0.0,
+				-1.0,
+				1.25,
+				0.0,
+				-8.63000011444092
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/partition_storage.glb",
+			"node": "Props/Partition02/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				14.0,
+				0.0,
+				-8.0
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer_lunch.glb",
+			"node": "Props/Programmer02L/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				12.75,
+				0.0,
+				-7.36999988555908
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/BackDesk02L/Model",
+			"static": false,
+			"transform": [
+				-1.0,
+				0.0,
+				0.0000000874227765734759,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000874227765734759,
+				0.0,
+				-1.0,
+				12.75,
+				0.0,
+				-8.63000011444092
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/project_manager.glb",
+			"node": "Props/PM02R/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				15.25,
+				0.0,
+				-7.36999988555908
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/BackDesk02R/Model",
+			"static": false,
+			"transform": [
+				-1.0,
+				0.0,
+				0.0000000874227765734759,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000874227765734759,
+				0.0,
+				-1.0,
+				15.25,
+				0.0,
+				-8.63000011444092
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/shade_leaf.glb",
+			"node": "Props/Shade02/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				12.8299999237061,
+				0.740000009536743,
+				-7.69999980926514
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/partition_low.glb",
+			"node": "Props/Partition10/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-14.0,
+				0.0,
+				-2.0
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/project_manager_lunch.glb",
+			"node": "Props/PM10L/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-15.25,
+				0.0,
+				-1.37000000476837
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/BackDesk10L/Model",
+			"static": false,
+			"transform": [
+				-1.0,
+				0.0,
+				0.0000000874227765734759,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000874227765734759,
+				0.0,
+				-1.0,
+				-15.25,
+				0.0,
+				-2.63000011444092
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/Programmer10R/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-12.75,
+				0.0,
+				-1.37000000476837
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/project_manager.glb",
+			"node": "Props/BackDesk10R/Model",
+			"static": false,
+			"transform": [
+				-1.0,
+				0.0,
+				0.0000000874227765734759,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000874227765734759,
+				0.0,
+				-1.0,
+				-12.75,
+				0.0,
+				-2.63000011444092
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/partition_storage.glb",
+			"node": "Props/Partition11/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				-2.0
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/Programmer11L/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-1.25,
+				0.0,
+				-1.37000000476837
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/BackDesk11L/Model",
+			"static": false,
+			"transform": [
+				-1.0,
+				0.0,
+				0.0000000874227765734759,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000874227765734759,
+				0.0,
+				-1.0,
+				-1.25,
+				0.0,
+				-2.63000011444092
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/project_manager.glb",
+			"node": "Props/PM11R/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				1.25,
+				0.0,
+				-1.37000000476837
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/BackDesk11R/Model",
+			"static": false,
+			"transform": [
+				-1.0,
+				0.0,
+				0.0000000874227765734759,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000874227765734759,
+				0.0,
+				-1.0,
+				1.25,
+				0.0,
+				-2.63000011444092
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/shade_leaf.glb",
+			"node": "Props/Shade11/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-1.16999995708466,
+				0.740000009536743,
+				-1.70000004768372
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/partition.glb",
+			"node": "Props/Partition12/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				14.0,
+				0.0,
+				-2.0
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/Programmer12L/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				12.75,
+				0.0,
+				-1.37000000476837
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/project_manager.glb",
+			"node": "Props/BackDesk12L/Model",
+			"static": false,
+			"transform": [
+				-1.0,
+				0.0,
+				0.0000000874227765734759,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000874227765734759,
+				0.0,
+				-1.0,
+				12.75,
+				0.0,
+				-2.63000011444092
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/Programmer12R/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				15.25,
+				0.0,
+				-1.37000000476837
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/BackDesk12R/Model",
+			"static": false,
+			"transform": [
+				-1.0,
+				0.0,
+				0.0000000874227765734759,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000874227765734759,
+				0.0,
+				-1.0,
+				15.25,
+				0.0,
+				-2.63000011444092
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/camp_cot.glb",
+			"node": "Props/CampCot12/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				17.3700008392334,
+				0.0,
+				-1.49000000953674
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/partition_storage.glb",
+			"node": "Props/Partition20/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-14.0,
+				0.0,
+				4.0
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/Programmer20L/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-15.25,
+				0.0,
+				4.63000011444092
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/BackDesk20L/Model",
+			"static": false,
+			"transform": [
+				-1.0,
+				0.0,
+				0.0000000874227765734759,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000874227765734759,
+				0.0,
+				-1.0,
+				-15.25,
+				0.0,
+				3.36999988555908
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/project_manager.glb",
+			"node": "Props/PM20R/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-12.75,
+				0.0,
+				4.63000011444092
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/BackDesk20R/Model",
+			"static": false,
+			"transform": [
+				-1.0,
+				0.0,
+				0.0000000874227765734759,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000874227765734759,
+				0.0,
+				-1.0,
+				-12.75,
+				0.0,
+				3.36999988555908
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/shade_leaf.glb",
+			"node": "Props/Shade20/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-15.1700000762939,
+				0.740000009536743,
+				4.30000019073486
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/partition.glb",
+			"node": "Props/Partition21/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				4.0
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/Programmer21L/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-1.25,
+				0.0,
+				4.63000011444092
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/project_manager.glb",
+			"node": "Props/BackDesk21L/Model",
+			"static": false,
+			"transform": [
+				-1.0,
+				0.0,
+				0.0000000874227765734759,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000874227765734759,
+				0.0,
+				-1.0,
+				-1.25,
+				0.0,
+				3.36999988555908
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer_lunch.glb",
+			"node": "Props/Programmer21R/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				1.25,
+				0.0,
+				4.63000011444092
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/BackDesk21R/Model",
+			"static": false,
+			"transform": [
+				-1.0,
+				0.0,
+				0.0000000874227765734759,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000874227765734759,
+				0.0,
+				-1.0,
+				1.25,
+				0.0,
+				3.36999988555908
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/camp_cot.glb",
+			"node": "Props/CampCot21/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				3.36999988555908,
+				0.0,
+				4.51000022888184
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/partition_low.glb",
+			"node": "Props/Partition22/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				14.0,
+				0.0,
+				4.0
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/project_manager.glb",
+			"node": "Props/PM22L/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				12.75,
+				0.0,
+				4.63000011444092
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/BackDesk22L/Model",
+			"static": false,
+			"transform": [
+				-1.0,
+				0.0,
+				0.0000000874227765734759,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000874227765734759,
+				0.0,
+				-1.0,
+				12.75,
+				0.0,
+				3.36999988555908
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/Programmer22R/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				15.25,
+				0.0,
+				4.63000011444092
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/project_manager.glb",
+			"node": "Props/BackDesk22R/Model",
+			"static": false,
+			"transform": [
+				-1.0,
+				0.0,
+				0.0000000874227765734759,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000874227765734759,
+				0.0,
+				-1.0,
+				15.25,
+				0.0,
+				3.36999988555908
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/shade_leaf.glb",
+			"node": "Props/Shade22/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				12.8299999237061,
+				0.740000009536743,
+				4.30000019073486
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/partition.glb",
+			"node": "Props/Partition30/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-14.0,
+				0.0,
+				10.0
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/Programmer30L/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-15.25,
+				0.0,
+				10.6300001144409
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/project_manager.glb",
+			"node": "Props/BackDesk30L/Model",
+			"static": false,
+			"transform": [
+				-1.0,
+				0.0,
+				0.0000000874227765734759,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000874227765734759,
+				0.0,
+				-1.0,
+				-15.25,
+				0.0,
+				9.36999988555908
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/Programmer30R/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-12.75,
+				0.0,
+				10.6300001144409
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/BackDesk30R/Model",
+			"static": false,
+			"transform": [
+				-1.0,
+				0.0,
+				0.0000000874227765734759,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000874227765734759,
+				0.0,
+				-1.0,
+				-12.75,
+				0.0,
+				9.36999988555908
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/camp_cot.glb",
+			"node": "Props/CampCot30/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-10.6300001144409,
+				0.0,
+				10.5100002288818
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/partition_low.glb",
+			"node": "Props/Partition31/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				10.0
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/project_manager.glb",
+			"node": "Props/PM31L/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-1.25,
+				0.0,
+				10.6300001144409
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/BackDesk31L/Model",
+			"static": false,
+			"transform": [
+				-1.0,
+				0.0,
+				0.0000000874227765734759,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000874227765734759,
+				0.0,
+				-1.0,
+				-1.25,
+				0.0,
+				9.36999988555908
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/Programmer31R/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				1.25,
+				0.0,
+				10.6300001144409
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/project_manager.glb",
+			"node": "Props/BackDesk31R/Model",
+			"static": false,
+			"transform": [
+				-1.0,
+				0.0,
+				0.0000000874227765734759,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000874227765734759,
+				0.0,
+				-1.0,
+				1.25,
+				0.0,
+				9.36999988555908
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/shade_leaf.glb",
+			"node": "Props/Shade31/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-1.16999995708466,
+				0.740000009536743,
+				10.3000001907349
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/partition_storage.glb",
+			"node": "Props/Partition32/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				14.0,
+				0.0,
+				10.0
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/Programmer32L/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				12.75,
+				0.0,
+				10.6300001144409
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/BackDesk32L/Model",
+			"static": false,
+			"transform": [
+				-1.0,
+				0.0,
+				0.0000000874227765734759,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000874227765734759,
+				0.0,
+				-1.0,
+				12.75,
+				0.0,
+				9.36999988555908
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/project_manager_lunch.glb",
+			"node": "Props/PM32R/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				15.25,
+				0.0,
+				10.6300001144409
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/programmer.glb",
+			"node": "Props/BackDesk32R/Model",
+			"static": false,
+			"transform": [
+				-1.0,
+				0.0,
+				0.0000000874227765734759,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000874227765734759,
+				0.0,
+				-1.0,
+				15.25,
+				0.0,
+				9.36999988555908
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/executive.glb",
+			"node": "Props/Executive0/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-17.0,
+				0.0,
+				-17.8999996185303
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/chair.glb",
+			"node": "Props/VisitorChair0/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-16.3199996948242,
+				0.0,
+				-15.6999998092651
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/executive.glb",
+			"node": "Props/Executive1/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				17.0,
+				0.0,
+				-17.8999996185303
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/chair.glb",
+			"node": "Props/VisitorChair1/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				17.6800003051758,
+				0.0,
+				-15.6999998092651
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/pantry_counter.glb",
+			"node": "Props/CoffeeAndSink/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-20.5,
+				0.0,
+				13.8999996185303
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/snack_rack.glb",
+			"node": "Props/ChipRack/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				-24.25,
+				0.0,
+				13.3999996185303
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/meeting_table.glb",
+			"node": "Props/SnackTable/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				-21.6000003814697,
+				0.0,
+				18.2999992370605
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/planter.glb",
+			"node": "Props/Planter0/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-24.5,
+				0.0,
+				-12.3000001907349
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/planter.glb",
+			"node": "Props/Planter1/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				24.5,
+				0.0,
+				-12.3000001907349
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/planter.glb",
+			"node": "Props/Planter2/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-25.0,
+				0.0,
+				7.0
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/planter.glb",
+			"node": "Props/Planter3/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				25.0,
+				0.0,
+				7.0
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/planter.glb",
+			"node": "Props/Planter4/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-6.80000019073486,
+				0.0,
+				19.5
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/planter.glb",
+			"node": "Props/Planter5/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				6.80000019073486,
+				0.0,
+				19.5
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/planter.glb",
+			"node": "Props/Planter6/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-11.0,
+				0.0,
+				-7.69999980926514
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/planter.glb",
+			"node": "Props/Planter7/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				3.0,
+				0.0,
+				4.09999990463257
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/planter.glb",
+			"node": "Props/Planter8/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				11.1999998092651,
+				0.0,
+				10.3999996185303
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/water_cooler.glb",
+			"node": "Props/WaterCooler0/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				-24.1000003814697,
+				0.0,
+				10.8000001907349
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/water_cooler.glb",
+			"node": "Props/WaterCooler1/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-1.0,
+				0.0,
+				-0.0000000437113882867379,
+				24.1000003814697,
+				0.0,
+				-4.30000019073486
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/water_cooler.glb",
+			"node": "Props/WaterCooler2/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				9.35000038146973,
+				0.0,
+				13.8999996185303
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/copy_station.glb",
+			"node": "Props/CopyStation0/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-7.44999980926514,
+				0.0,
+				6.15000009536743
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/copy_station.glb",
+			"node": "Props/CopyStation1/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				7.65000009536743,
+				0.0,
+				-5.94999980926514
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/huddle_table.glb",
+			"node": "Props/HuddleTable0/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-7.09999990463257,
+				0.0,
+				11.3999996185303
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/huddle_table.glb",
+			"node": "Props/HuddleTable1/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				7.34999990463257,
+				0.0,
+				-2.95000004768372
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/locker.glb",
+			"node": "Props/LockerBank0/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				-19.5,
+				0.0,
+				-8.39999961853027
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/locker.glb",
+			"node": "Props/LockerBank1/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-1.0,
+				0.0,
+				-0.0000000437113882867379,
+				19.4500007629395,
+				0.0,
+				-2.90000009536743
+			]
+		},
+		{
+			"kit": "assets/models/bb_office/locker.glb",
+			"node": "Props/LockerBank2/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-1.0,
+				0.0,
+				-0.0000000437113882867379,
+				19.4500007629395,
+				0.0,
+				7.34999990463257
+			]
+		}
+	],
+	"ginza_station": [
+		{
+			"kit": "assets/models/ginza_station/station_shell.glb",
+			"node": "Architecture/station_shell",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/ginza_station/island_platform.glb",
+			"node": "Architecture/island_platform",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/ginza_station/bridges.glb",
+			"node": "Architecture/bridges",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/ginza_station/side_passages.glb",
+			"node": "Architecture/side_passages",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/ginza_station/ceiling.glb",
+			"node": "Architecture/ceiling",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/ginza_station/ginza_train.glb",
+			"node": "Architecture/ginza_train",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/ginza_station/hoarding.glb",
+			"node": "Props/Hoarding/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				3.5,
+				0.0,
+				8.0
+			]
+		},
+		{
+			"kit": "assets/models/ginza_station/vending_machine.glb",
+			"node": "Props/vending_machine_01/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				-3.90000009536743,
+				0.0,
+				-1.39999997615814
+			]
+		},
+		{
+			"kit": "assets/models/ginza_station/vending_machine_white.glb",
+			"node": "Props/vending_machine_white_02/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				-3.90000009536743,
+				0.0,
+				-0.300000011920929
+			]
+		},
+		{
+			"kit": "assets/models/ginza_station/bench.glb",
+			"node": "Props/bench_03/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-1.0,
+				0.0,
+				-0.0000000437113882867379,
+				3.70000004768372,
+				0.0,
+				-9.5
+			]
+		},
+		{
+			"kit": "assets/models/ginza_station/bench.glb",
+			"node": "Props/bench_04/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				-3.70000004768372,
+				0.0,
+				17.6000003814697
+			]
+		},
+		{
+			"kit": "assets/models/ginza_station/bench.glb",
+			"node": "Props/bench_05/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-1.0,
+				0.0,
+				-0.0000000437113882867379,
+				3.70000004768372,
+				0.0,
+				17.6000003814697
+			]
+		},
+		{
+			"kit": "assets/models/ginza_station/kiosk.glb",
+			"node": "Props/kiosk_06/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				-3.59999990463257,
+				0.0,
+				-17.6000003814697
+			]
+		},
+		{
+			"kit": "assets/models/ginza_station/recycle_bins.glb",
+			"node": "Props/recycle_bins_07/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-1.0,
+				0.0,
+				-0.0000000437113882867379,
+				3.79999995231628,
+				0.0,
+				-0.600000023841858
+			]
+		},
+		{
+			"kit": "assets/models/ginza_station/coin_lockers.glb",
+			"node": "Props/coin_lockers_08/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				-21.3999996185303,
+				0.0,
+				17.0
+			]
+		},
+		{
+			"kit": "assets/models/ginza_station/coin_lockers.glb",
+			"node": "Props/coin_lockers_09/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				-21.3999996185303,
+				0.0,
+				19.6000003814697
+			]
+		},
+		{
+			"kit": "assets/models/ginza_station/vending_machine.glb",
+			"node": "Props/vending_machine_10/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				-10.5,
+				0.0,
+				-14.0
+			]
+		},
+		{
+			"kit": "assets/models/ginza_station/vending_machine_white.glb",
+			"node": "Props/vending_machine_white_11/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				-10.5,
+				0.0,
+				-12.8999996185303
+			]
+		},
+		{
+			"kit": "assets/models/ginza_station/bench.glb",
+			"node": "Props/bench_12/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				-10.3999996185303,
+				0.0,
+				15.0
+			]
+		},
+		{
+			"kit": "assets/models/ginza_station/recycle_bins.glb",
+			"node": "Props/recycle_bins_13/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-1.0,
+				0.0,
+				-0.0000000437113882867379,
+				10.3999996185303,
+				0.0,
+				4.59999990463257
+			]
+		},
+		{
+			"kit": "assets/models/ginza_station/vending_machine.glb",
+			"node": "Props/vending_machine_14/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-1.0,
+				0.0,
+				-0.0000000437113882867379,
+				21.5,
+				0.0,
+				15.5
+			]
+		},
+		{
+			"kit": "assets/models/ginza_station/bench.glb",
+			"node": "Props/bench_15/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-1.0,
+				0.0,
+				-0.0000000437113882867379,
+				21.3999996185303,
+				0.0,
+				19.0
+			]
+		},
+		{
+			"kit": "assets/models/ginza_station/fluorescent_tubes.glb",
+			"node": "Moving/fluorescent_tubes",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/ginza_station/express_train.glb",
+			"node": "Moving/express_train",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				-80.0
+			]
+		},
+		{
+			"kit": "assets/models/ginza_station/alarm_lamps.glb",
+			"node": "Moving/alarm_lamps",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		}
+	],
+	"hogwarts": [
+		{
+			"kit": "assets/models/hogwarts/terrain.glb",
+			"node": "Architecture/terrain",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/pitch.glb",
+			"node": "Architecture/pitch",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/pavilion.glb",
+			"node": "Architecture/pavilion",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/castle.glb",
+			"node": "Architecture/castle",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/village.glb",
+			"node": "Architecture/village",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/hut.glb",
+			"node": "Architecture/hut",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/landscape.glb",
+			"node": "Architecture/landscape",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/lake.glb",
+			"node": "Architecture/lake",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/paving.glb",
+			"node": "Architecture/paving",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/festival_crate.glb",
+			"node": "Props/festival_crate_00/Model",
+			"static": false,
+			"transform": [
+				0.980034291744232,
+				0.0,
+				0.198828682303429,
+				0.0,
+				1.0,
+				0.0,
+				-0.198828682303429,
+				0.0,
+				0.980034291744232,
+				-15.0,
+				0.0,
+				12.0
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/festival_crate.glb",
+			"node": "Props/festival_crate_01/Model",
+			"static": false,
+			"transform": [
+				0.946676433086395,
+				0.0,
+				0.322185903787613,
+				0.0,
+				1.0,
+				0.0,
+				-0.322185903787613,
+				0.0,
+				0.946676433086395,
+				-31.0,
+				0.0,
+				23.0
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/festival_crate.glb",
+			"node": "Props/festival_crate_02/Model",
+			"static": false,
+			"transform": [
+				0.969693541526794,
+				0.0,
+				0.244324445724487,
+				0.0,
+				1.0,
+				0.0,
+				-0.244324445724487,
+				0.0,
+				0.969693541526794,
+				-32.0,
+				0.0,
+				8.0
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/festival_crate.glb",
+			"node": "Props/festival_crate_03/Model",
+			"static": false,
+			"transform": [
+				0.999402523040771,
+				0.0,
+				0.0345623008906841,
+				0.0,
+				1.0,
+				0.0,
+				-0.0345623008906841,
+				0.0,
+				0.999402523040771,
+				-19.0,
+				0.0,
+				26.0
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/festival_crate.glb",
+			"node": "Props/festival_crate_04/Model",
+			"static": false,
+			"transform": [
+				0.983341455459595,
+				0.0,
+				0.181767806410789,
+				0.0,
+				1.0,
+				0.0,
+				-0.181767806410789,
+				0.0,
+				0.983341455459595,
+				-4.0,
+				0.0,
+				26.0
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/festival_crate.glb",
+			"node": "Props/festival_crate_05/Model",
+			"static": false,
+			"transform": [
+				0.999996483325958,
+				0.0,
+				-0.00264545739628375,
+				0.0,
+				1.0,
+				0.0,
+				0.00264545739628375,
+				0.0,
+				0.999996483325958,
+				9.0,
+				0.0,
+				14.0
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/festival_crate.glb",
+			"node": "Props/festival_crate_06/Model",
+			"static": false,
+			"transform": [
+				0.953739821910858,
+				0.0,
+				0.300633281469345,
+				0.0,
+				1.0,
+				0.0,
+				-0.300633281469345,
+				0.0,
+				0.953739821910858,
+				12.0,
+				3.72000002861023,
+				-18.0
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/festival_crate.glb",
+			"node": "Props/festival_crate_07/Model",
+			"static": false,
+			"transform": [
+				0.959781169891357,
+				0.0,
+				-0.28074911236763,
+				0.0,
+				1.0,
+				0.0,
+				0.28074911236763,
+				0.0,
+				0.959781169891357,
+				-10.0,
+				3.72000002861023,
+				-19.0
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/festival_crate.glb",
+			"node": "Props/festival_crate_08/Model",
+			"static": false,
+			"transform": [
+				0.978636085987091,
+				0.0,
+				-0.205599993467331,
+				0.0,
+				1.0,
+				0.0,
+				0.205599993467331,
+				0.0,
+				0.978636085987091,
+				17.0,
+				3.72000002861023,
+				-23.0
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/festival_crate.glb",
+			"node": "Props/festival_crate_09/Model",
+			"static": false,
+			"transform": [
+				0.9952033162117,
+				0.0,
+				0.097828097641468,
+				0.0,
+				1.0,
+				0.0,
+				-0.097828097641468,
+				0.0,
+				0.9952033162117,
+				25.0,
+				1.14999997615814,
+				1.70000004768372
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/festival_crate.glb",
+			"node": "Props/festival_crate_10/Model",
+			"static": false,
+			"transform": [
+				0.939993441104889,
+				0.0,
+				-0.341192454099655,
+				0.0,
+				1.0,
+				0.0,
+				0.341192454099655,
+				0.0,
+				0.939993441104889,
+				26.3999996185303,
+				0.0,
+				24.6000003814697
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/festival_crate.glb",
+			"node": "Props/festival_crate_11/Model",
+			"static": false,
+			"transform": [
+				0.97913670539856,
+				0.0,
+				0.20320251584053,
+				0.0,
+				1.0,
+				0.0,
+				-0.20320251584053,
+				0.0,
+				0.97913670539856,
+				32.7000007629395,
+				0.0,
+				32.0
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/festival_crate.glb",
+			"node": "Props/festival_crate_12/Model",
+			"static": false,
+			"transform": [
+				0.974798262119293,
+				0.0,
+				-0.223088279366493,
+				0.0,
+				1.0,
+				0.0,
+				0.223088279366493,
+				0.0,
+				0.974798262119293,
+				17.7000007629395,
+				0.0,
+				34.0
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/festival_crate.glb",
+			"node": "Props/festival_crate_13/Model",
+			"static": false,
+			"transform": [
+				0.999343633651733,
+				0.0,
+				0.0362256579101086,
+				0.0,
+				1.0,
+				0.0,
+				-0.0362256579101086,
+				0.0,
+				0.999343633651733,
+				35.5,
+				0.0,
+				14.6000003814697
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/village_stall.glb",
+			"node": "Props/village_stall_14/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				24.7999992370605,
+				0.0,
+				29.2000007629395
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/village_stall.glb",
+			"node": "Props/village_stall_15/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				33.9000015258789,
+				0.0,
+				19.2000007629395
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/village_stall.glb",
+			"node": "Props/village_stall_16/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				-3.70000004768372,
+				0.0,
+				11.0
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/village_stall.glb",
+			"node": "Props/village_stall_17/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				23.3999996185303,
+				0.0,
+				9.10000038146973
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/flag_gryffindor.glb",
+			"node": "Moving/flag_gryffindor",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				-11.1199998855591,
+				7.8899998664856,
+				8.5
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/flag_hufflepuff.glb",
+			"node": "Moving/flag_hufflepuff",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				-11.1199998855591,
+				7.8899998664856,
+				11.9499998092651
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/flag_ravenclaw.glb",
+			"node": "Moving/flag_ravenclaw",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				-11.1199998855591,
+				7.8899998664856,
+				15.3999996185303
+			]
+		},
+		{
+			"kit": "assets/models/hogwarts/flag_slytherin.glb",
+			"node": "Moving/flag_slytherin",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				-11.1199998855591,
+				7.8899998664856,
+				18.8500003814697
+			]
+		}
+	],
+	"last_ferry": [
+		{
+			"kit": "assets/models/ferry/lighthouse.glb",
+			"node": "Lighthouse",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				61.0,
+				-3.70000004768372,
+				-58.0
+			]
+		},
+		{
+			"kit": "assets/models/ferry/pier.glb",
+			"node": "FarPier",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-48.0,
+				-3.5,
+				-61.0
+			]
+		},
+		{
+			"kit": "assets/models/ferry/deck.glb",
+			"node": "Hull",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/ferry/bridge.glb",
+			"node": "Catwalk",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/ferry/bridge_ramp_fore.glb",
+			"node": "ForeRamp/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/ferry/bridge_ramp_aft.glb",
+			"node": "AftRamp/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/ferry/deckhouse.glb",
+			"node": "Wheelhouse/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				1.0,
+				0.0,
+				-21.0
+			]
+		},
+		{
+			"kit": "assets/models/ferry/mast.glb",
+			"node": "MainMast",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-0.550000011920929,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/ferry/crates_teal.glb",
+			"node": "PortCrates/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-9.80000019073486,
+				0.0,
+				8.0
+			]
+		},
+		{
+			"kit": "assets/models/ferry/crates_purple.glb",
+			"node": "StarboardCrates/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				8.5,
+				0.0,
+				-7.0
+			]
+		},
+		{
+			"kit": "assets/models/ferry/crates_teal.glb",
+			"node": "ForeCrates/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-4.0,
+				0.0,
+				-18.0
+			]
+		},
+		{
+			"kit": "assets/models/ferry/crates_purple.glb",
+			"node": "AftCrates/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				8.0,
+				0.0,
+				21.0
+			]
+		},
+		{
+			"kit": "assets/models/ferry/locker.glb",
+			"node": "PortLocker/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-8.0,
+				0.0,
+				-6.0
+			]
+		},
+		{
+			"kit": "assets/models/ferry/locker.glb",
+			"node": "StarboardLocker/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				9.0,
+				0.0,
+				9.0
+			]
+		},
+		{
+			"kit": "assets/models/ferry/locker.glb",
+			"node": "BowLocker/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				3.70000004768372,
+				0.0,
+				-22.5
+			]
+		},
+		{
+			"kit": "assets/models/ferry/lifeboat.glb",
+			"node": "PortLifeboat/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-11.1000003814697,
+				0.0,
+				-13.1999998092651
+			]
+		},
+		{
+			"kit": "assets/models/ferry/lifeboat.glb",
+			"node": "StarboardLifeboat/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				11.0,
+				0.0,
+				15.0
+			]
+		}
+	],
+	"night_studio": [
+		{
+			"kit": "assets/models/studio/shell.glb",
+			"node": "Architecture/Shell",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/studio/ceiling.glb",
+			"node": "Architecture/Ceiling",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/studio/stage.glb",
+			"node": "Architecture/Stage",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/studio/lighting.glb",
+			"node": "Architecture/Lighting",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/studio/news.glb",
+			"node": "Architecture/News",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/studio/newsroom.glb",
+			"node": "Architecture/Newsroom",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/studio/backstage.glb",
+			"node": "Architecture/Backstage",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/studio/wall_navy_1100_840_38.glb",
+			"node": "Props/NorthWall0/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-16.5,
+				0.0,
+				-17.0
+			]
+		},
+		{
+			"kit": "assets/models/studio/wall_navy_38_840_850.glb",
+			"node": "Props/WestWall0/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-22.0,
+				0.0,
+				-12.75
+			]
+		},
+		{
+			"kit": "assets/models/studio/wall_navy_1100_840_38.glb",
+			"node": "Props/NorthWall1/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-5.5,
+				0.0,
+				-17.0
+			]
+		},
+		{
+			"kit": "assets/models/studio/wall_navy_38_840_850.glb",
+			"node": "Props/WestWall1/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-22.0,
+				0.0,
+				-4.25
+			]
+		},
+		{
+			"kit": "assets/models/studio/wall_navy_1100_840_38.glb",
+			"node": "Props/NorthWall2/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				5.5,
+				0.0,
+				-17.0
+			]
+		},
+		{
+			"kit": "assets/models/studio/wall_navy_38_840_850.glb",
+			"node": "Props/WestWall2/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-22.0,
+				0.0,
+				4.25
+			]
+		},
+		{
+			"kit": "assets/models/studio/wall_navy_1100_840_38.glb",
+			"node": "Props/NorthWall3/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				16.5,
+				0.0,
+				-17.0
+			]
+		},
+		{
+			"kit": "assets/models/studio/wall_navy_38_840_850.glb",
+			"node": "Props/WestWall3/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-22.0,
+				0.0,
+				12.75
+			]
+		},
+		{
+			"kit": "assets/models/studio/wall_navy_1100_840_38.glb",
+			"node": "Props/SouthWall0/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-16.5,
+				0.0,
+				17.0
+			]
+		},
+		{
+			"kit": "assets/models/studio/wall_navy_38_840_850.glb",
+			"node": "Props/EastWall0/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				22.0,
+				0.0,
+				-12.75
+			]
+		},
+		{
+			"kit": "assets/models/studio/wall_southwall1.glb",
+			"node": "Props/SouthWall1/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-5.5,
+				0.0,
+				17.0
+			]
+		},
+		{
+			"kit": "assets/models/studio/wall_navy_38_840_850.glb",
+			"node": "Props/EastWall1/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				22.0,
+				0.0,
+				-4.25
+			]
+		},
+		{
+			"kit": "assets/models/studio/wall_southwall2.glb",
+			"node": "Props/SouthWall2/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				5.5,
+				0.0,
+				17.0
+			]
+		},
+		{
+			"kit": "assets/models/studio/wall_navy_38_840_850.glb",
+			"node": "Props/EastWall2/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				22.0,
+				0.0,
+				4.25
+			]
+		},
+		{
+			"kit": "assets/models/studio/wall_navy_1100_840_38.glb",
+			"node": "Props/SouthWall3/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				16.5,
+				0.0,
+				17.0
+			]
+		},
+		{
+			"kit": "assets/models/studio/wall_navy_38_840_850.glb",
+			"node": "Props/EastWall3/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				22.0,
+				0.0,
+				12.75
+			]
+		},
+		{
+			"kit": "assets/models/studio/wall_violet_34_420_440.glb",
+			"node": "Props/Acoustic0_5/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-11.0,
+				0.0,
+				-10.3999996185303
+			]
+		},
+		{
+			"kit": "assets/models/studio/wall_violet_34_420_220.glb",
+			"node": "Props/Acoustic0_77/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-11.0,
+				0.0,
+				-3.29999995231628
+			]
+		},
+		{
+			"kit": "assets/models/studio/wall_violet_34_420_260.glb",
+			"node": "Props/Acoustic0_130/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-11.0,
+				0.0,
+				2.0
+			]
+		},
+		{
+			"kit": "assets/models/studio/wall_violet_34_420_520.glb",
+			"node": "Props/Acoustic0_225/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-11.0,
+				0.0,
+				11.5
+			]
+		},
+		{
+			"kit": "assets/models/studio/wall_slate_34_420_440.glb",
+			"node": "Props/Acoustic22_5/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				11.0,
+				0.0,
+				-10.3999996185303
+			]
+		},
+		{
+			"kit": "assets/models/studio/wall_slate_34_420_220.glb",
+			"node": "Props/Acoustic22_77/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				11.0,
+				0.0,
+				-3.29999995231628
+			]
+		},
+		{
+			"kit": "assets/models/studio/wall_slate_34_420_260.glb",
+			"node": "Props/Acoustic22_130/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				11.0,
+				0.0,
+				2.0
+			]
+		},
+		{
+			"kit": "assets/models/studio/wall_slate_34_420_520.glb",
+			"node": "Props/Acoustic22_225/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				11.0,
+				0.0,
+				11.5
+			]
+		},
+		{
+			"kit": "assets/models/studio/wall_green_815_400_33.glb",
+			"node": "Props/NewsroomWall/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-17.7999992370605,
+				0.0,
+				1.0
+			]
+		},
+		{
+			"kit": "assets/models/studio/wall_dark_teal_815_400_33.glb",
+			"node": "Props/ArchiveWall/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				17.7999992370605,
+				0.0,
+				1.0
+			]
+		},
+		{
+			"kit": "assets/models/studio/stage_planter.glb",
+			"node": "Props/StagePlanterLeft/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-5.55000019073486,
+				0.28999999165535,
+				-5.78000020980835
+			]
+		},
+		{
+			"kit": "assets/models/studio/stage_planter.glb",
+			"node": "Props/StagePlanterRight/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				5.75,
+				0.28999999165535,
+				-5.78000020980835
+			]
+		},
+		{
+			"kit": "assets/models/studio/technical_access.glb",
+			"node": "Props/WestAccessRamp/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-8.75,
+				0.0,
+				-6.55000019073486
+			]
+		},
+		{
+			"kit": "assets/models/studio/technical_access.glb",
+			"node": "Props/EastAccessRamp/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				8.75,
+				0.0,
+				-6.55000019073486
+			]
+		},
+		{
+			"kit": "assets/models/studio/seat_row.glb",
+			"node": "Props/Seats0/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				2.45000004768372,
+				0.140000000596046,
+				4.5
+			]
+		},
+		{
+			"kit": "assets/models/studio/seat_row.glb",
+			"node": "Props/Seats1/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				2.45000004768372,
+				0.310000002384186,
+				6.01999998092651
+			]
+		},
+		{
+			"kit": "assets/models/studio/seat_row.glb",
+			"node": "Props/Seats2/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				2.45000004768372,
+				0.479999989271164,
+				7.53999996185303
+			]
+		},
+		{
+			"kit": "assets/models/studio/stage_flat.glb",
+			"node": "Props/VarietyFlat0/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-4.59999990463257,
+				0.28999999165535,
+				-8.1899995803833
+			]
+		},
+		{
+			"kit": "assets/models/studio/stage_flat.glb",
+			"node": "Props/VarietyFlat5/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.28999999165535,
+				-8.1899995803833
+			]
+		},
+		{
+			"kit": "assets/models/studio/stage_flat.glb",
+			"node": "Props/VarietyFlat9/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				4.59999990463257,
+				0.28999999165535,
+				-8.1899995803833
+			]
+		},
+		{
+			"kit": "assets/models/studio/sofa.glb",
+			"node": "Props/GuestSofa/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-3.5,
+				0.28999999165535,
+				-5.69999980926514
+			]
+		},
+		{
+			"kit": "assets/models/studio/sofa.glb",
+			"node": "Props/GuestLoveseat/Model",
+			"static": false,
+			"transform": [
+				0.985584795475006,
+				0.0,
+				0.169182345271111,
+				0.0,
+				1.0,
+				0.0,
+				-0.169182345271111,
+				0.0,
+				0.985584795475006,
+				-1.39999997615814,
+				0.28999999165535,
+				-5.40000009536743
+			]
+		},
+		{
+			"kit": "assets/models/studio/floor_monitor.glb",
+			"node": "Props/StageMonitorLeft/Model",
+			"static": false,
+			"transform": [
+				0.977717101573944,
+				0.0,
+				0.209926709532738,
+				0.0,
+				1.0,
+				0.0,
+				-0.209926709532738,
+				0.0,
+				0.977717101573944,
+				-4.69999980926514,
+				0.28999999165535,
+				-3.52999997138977
+			]
+		},
+		{
+			"kit": "assets/models/studio/floor_monitor.glb",
+			"node": "Props/StageMonitorRight/Model",
+			"static": false,
+			"transform": [
+				0.964961409568787,
+				0.0,
+				-0.262391775846481,
+				0.0,
+				1.0,
+				0.0,
+				0.262391775846481,
+				0.0,
+				0.964961409568787,
+				5.90000009536743,
+				0.28999999165535,
+				-3.52999997138977
+			]
+		},
+		{
+			"kit": "assets/models/studio/news_backdrop.glb",
+			"node": "Props/NewsBackdrop/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-16.0,
+				0.109999999403954,
+				-11.8500003814697
+			]
+		},
+		{
+			"kit": "assets/models/studio/control_monitor.glb",
+			"node": "Props/ControlMonitor0/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-20.0,
+				1.375,
+				-15.9399995803833
+			]
+		},
+		{
+			"kit": "assets/models/studio/control_switcher.glb",
+			"node": "Props/ControlSwitcher0/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-20.0,
+				0.819999992847443,
+				-15.3500003814697
+			]
+		},
+		{
+			"kit": "assets/models/studio/control_monitor.glb",
+			"node": "Props/ControlMonitor1/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-18.1000003814697,
+				1.375,
+				-15.9399995803833
+			]
+		},
+		{
+			"kit": "assets/models/studio/control_switcher.glb",
+			"node": "Props/ControlSwitcher1/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-18.1000003814697,
+				0.819999992847443,
+				-15.3500003814697
+			]
+		},
+		{
+			"kit": "assets/models/studio/control_monitor.glb",
+			"node": "Props/ControlMonitor2/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-16.2000007629395,
+				1.375,
+				-15.9399995803833
+			]
+		},
+		{
+			"kit": "assets/models/studio/control_switcher.glb",
+			"node": "Props/ControlSwitcher2/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-16.2000007629395,
+				0.819999992847443,
+				-15.3500003814697
+			]
+		},
+		{
+			"kit": "assets/models/studio/control_monitor.glb",
+			"node": "Props/ControlMonitor3/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-14.3000001907349,
+				1.375,
+				-15.9399995803833
+			]
+		},
+		{
+			"kit": "assets/models/studio/control_switcher.glb",
+			"node": "Props/ControlSwitcher3/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-14.3000001907349,
+				0.819999992847443,
+				-15.3500003814697
+			]
+		},
+		{
+			"kit": "assets/models/studio/control_partition.glb",
+			"node": "Props/ControlPartition/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-17.7999992370605,
+				0.0,
+				-14.2399997711182
+			]
+		},
+		{
+			"kit": "assets/models/studio/broadcast_desk.glb",
+			"node": "Props/NewsDesk/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-16.0,
+				0.109999999403954,
+				-8.39999961853027
+			]
+		},
+		{
+			"kit": "assets/models/studio/broadcast_desk.glb",
+			"node": "Props/HostDesk/Model",
+			"static": false,
+			"transform": [
+				0.991561889648438,
+				0.0,
+				0.129634141921997,
+				0.0,
+				1.0,
+				0.0,
+				-0.129634141921997,
+				0.0,
+				0.991561889648438,
+				3.84999990463257,
+				0.28999999165535,
+				-5.59999990463257
+			]
+		},
+		{
+			"kit": "assets/models/studio/camera.glb",
+			"node": "Props/Camera0/Model",
+			"static": false,
+			"transform": [
+				0.958243906497955,
+				0.0,
+				-0.285952210426331,
+				0.0,
+				1.0,
+				0.0,
+				0.285952210426331,
+				0.0,
+				0.958243906497955,
+				-5.30000019073486,
+				0.0,
+				1.60000002384186
+			]
+		},
+		{
+			"kit": "assets/models/studio/camera.glb",
+			"node": "Props/Camera1/Model",
+			"static": false,
+			"transform": [
+				0.92866462469101,
+				0.0,
+				0.370920479297638,
+				0.0,
+				1.0,
+				0.0,
+				-0.370920479297638,
+				0.0,
+				0.92866462469101,
+				5.69999980926514,
+				0.0,
+				1.29999995231628
+			]
+		},
+		{
+			"kit": "assets/models/studio/camera.glb",
+			"node": "Props/Camera2/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-16.0,
+				0.0,
+				-4.19999980926514
+			]
+		},
+		{
+			"kit": "assets/models/studio/camera.glb",
+			"node": "Props/Camera3/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.600000023841858,
+				0.0,
+				8.60000038146973
+			]
+		},
+		{
+			"kit": "assets/models/studio/office_island.glb",
+			"node": "Props/NewsroomIsland0/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-17.7000007629395,
+				0.0,
+				4.90000009536743
+			]
+		},
+		{
+			"kit": "assets/models/studio/chair.glb",
+			"node": "Props/NewsroomChair0_0/Model",
+			"static": false,
+			"transform": [
+				0.993956089019775,
+				0.0,
+				-0.109778299927711,
+				0.0,
+				1.0,
+				0.0,
+				0.109778299927711,
+				0.0,
+				0.993956089019775,
+				-18.2999992370605,
+				0.0,
+				5.94000005722046
+			]
+		},
+		{
+			"kit": "assets/models/studio/chair.glb",
+			"node": "Props/NewsroomChair0_1/Model",
+			"static": false,
+			"transform": [
+				-0.988771080970764,
+				0.0,
+				-0.149438142776489,
+				0.0,
+				1.0,
+				0.0,
+				0.149438142776489,
+				0.0,
+				-0.988771080970764,
+				-17.0100002288818,
+				0.0,
+				3.88000011444092
+			]
+		},
+		{
+			"kit": "assets/models/studio/office_island.glb",
+			"node": "Props/NewsroomIsland1/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-15.3000001907349,
+				0.0,
+				9.10000038146973
+			]
+		},
+		{
+			"kit": "assets/models/studio/chair.glb",
+			"node": "Props/NewsroomChair1_0/Model",
+			"static": false,
+			"transform": [
+				0.993956089019775,
+				0.0,
+				-0.109778299927711,
+				0.0,
+				1.0,
+				0.0,
+				0.109778299927711,
+				0.0,
+				0.993956089019775,
+				-15.8999996185303,
+				0.0,
+				10.1400003433228
+			]
+		},
+		{
+			"kit": "assets/models/studio/chair.glb",
+			"node": "Props/NewsroomChair1_1/Model",
+			"static": false,
+			"transform": [
+				-0.988771080970764,
+				0.0,
+				-0.149438142776489,
+				0.0,
+				1.0,
+				0.0,
+				0.149438142776489,
+				0.0,
+				-0.988771080970764,
+				-14.6099996566772,
+				0.0,
+				8.07999992370605
+			]
+		},
+		{
+			"kit": "assets/models/studio/office_island.glb",
+			"node": "Props/NewsroomIsland2/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-18.2000007629395,
+				0.0,
+				13.0
+			]
+		},
+		{
+			"kit": "assets/models/studio/chair.glb",
+			"node": "Props/NewsroomChair2_0/Model",
+			"static": false,
+			"transform": [
+				0.993956089019775,
+				0.0,
+				-0.109778299927711,
+				0.0,
+				1.0,
+				0.0,
+				0.109778299927711,
+				0.0,
+				0.993956089019775,
+				-18.7999992370605,
+				0.0,
+				14.039999961853
+			]
+		},
+		{
+			"kit": "assets/models/studio/chair.glb",
+			"node": "Props/NewsroomChair2_1/Model",
+			"static": false,
+			"transform": [
+				-0.988771080970764,
+				0.0,
+				-0.149438142776489,
+				0.0,
+				1.0,
+				0.0,
+				0.149438142776489,
+				0.0,
+				-0.988771080970764,
+				-17.5100002288818,
+				0.0,
+				11.9799995422363
+			]
+		},
+		{
+			"kit": "assets/models/studio/newsroom.glb",
+			"node": "Props/NewsroomPartition/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-17.1499996185303,
+				0.0,
+				14.7799997329712
+			]
+		},
+		{
+			"kit": "assets/models/studio/bulletin_board.glb",
+			"node": "Props/AssignmentBoard/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-20.8999996185303,
+				1.125,
+				2.32999992370605
+			]
+		},
+		{
+			"kit": "assets/models/studio/patch_bay.glb",
+			"node": "Props/PatchBay/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-12.3000001907349,
+				0.0,
+				12.7700004577637
+			]
+		},
+		{
+			"kit": "assets/models/studio/archive_rack.glb",
+			"node": "Props/ArchiveRack0/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				14.0,
+				0.0,
+				-11.3999996185303
+			]
+		},
+		{
+			"kit": "assets/models/studio/archive_rack.glb",
+			"node": "Props/ArchiveRack1/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				18.2999992370605,
+				0.0,
+				-11.3999996185303
+			]
+		},
+		{
+			"kit": "assets/models/studio/archive_rack.glb",
+			"node": "Props/ArchiveRack2/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				14.0,
+				0.0,
+				-7.90000009536743
+			]
+		},
+		{
+			"kit": "assets/models/studio/archive_rack.glb",
+			"node": "Props/ArchiveRack3/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				18.2999992370605,
+				0.0,
+				-7.90000009536743
+			]
+		},
+		{
+			"kit": "assets/models/studio/archive_rack.glb",
+			"node": "Props/ArchiveRack4/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				14.0,
+				0.0,
+				-4.40000009536743
+			]
+		},
+		{
+			"kit": "assets/models/studio/archive_rack.glb",
+			"node": "Props/ArchiveRack5/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				18.2999992370605,
+				0.0,
+				-4.40000009536743
+			]
+		},
+		{
+			"kit": "assets/models/studio/archive_rack.glb",
+			"node": "Props/ArchiveRack6/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-1.0,
+				0.0,
+				-0.0000000437113882867379,
+				20.75,
+				0.0,
+				-6.09999990463257
+			]
+		},
+		{
+			"kit": "assets/models/studio/road_case.glb",
+			"node": "Props/RoadCase0/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				14.1000003814697,
+				0.0,
+				4.40000009536743
+			]
+		},
+		{
+			"kit": "assets/models/studio/road_case.glb",
+			"node": "Props/RoadCase1/Model",
+			"static": false,
+			"transform": [
+				0.975897431373596,
+				0.0,
+				-0.218229621648788,
+				0.0,
+				1.0,
+				0.0,
+				0.218229621648788,
+				0.0,
+				0.975897431373596,
+				20.5,
+				0.0,
+				10.8000001907349
+			]
+		},
+		{
+			"kit": "assets/models/studio/road_case.glb",
+			"node": "Props/RoadCase2/Model",
+			"static": false,
+			"transform": [
+				0.904751658439636,
+				0.0,
+				-0.425939470529556,
+				0.0,
+				1.0,
+				0.0,
+				0.425939470529556,
+				0.0,
+				0.904751658439636,
+				11.8999996185303,
+				0.0,
+				13.3000001907349
+			]
+		},
+		{
+			"kit": "assets/models/studio/road_case.glb",
+			"node": "Props/RoadCase3/Model",
+			"static": false,
+			"transform": [
+				0.789992213249207,
+				0.0,
+				-0.613116860389709,
+				0.0,
+				1.0,
+				0.0,
+				0.613116860389709,
+				0.0,
+				0.789992213249207,
+				-6.40000009536743,
+				0.0,
+				10.6999998092651
+			]
+		},
+		{
+			"kit": "assets/models/studio/road_case.glb",
+			"node": "Props/RoadCase4/Model",
+			"static": false,
+			"transform": [
+				0.637151122093201,
+				0.0,
+				-0.770738899707794,
+				0.0,
+				1.0,
+				0.0,
+				0.770738899707794,
+				0.0,
+				0.637151122093201,
+				-13.8999996185303,
+				0.0,
+				-13.1999998092651
+			]
+		},
+		{
+			"kit": "assets/models/studio/road_case.glb",
+			"node": "Props/RoadCase5/Model",
+			"static": false,
+			"transform": [
+				0.453596085309982,
+				0.0,
+				-0.8912073969841,
+				0.0,
+				1.0,
+				0.0,
+				0.8912073969841,
+				0.0,
+				0.453596085309982,
+				8.19999980926514,
+				0.0,
+				-15.0
+			]
+		},
+		{
+			"kit": "assets/models/studio/road_case.glb",
+			"node": "Props/RoadCase6/Model",
+			"static": false,
+			"transform": [
+				0.248175397515297,
+				0.0,
+				-0.968715131282806,
+				0.0,
+				1.0,
+				0.0,
+				0.968715131282806,
+				0.0,
+				0.248175397515297,
+				16.5,
+				0.0,
+				11.1999998092651
+			]
+		},
+		{
+			"kit": "assets/models/studio/green_cyc.glb",
+			"node": "Props/WeatherCyc/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				19.25,
+				0.0,
+				5.90000009536743
+			]
+		}
+	],
+	"palm_house": [
+		{
+			"kit": "assets/models/palm_house/garden_ground.glb",
+			"node": "Architecture/garden_ground",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/glasshouse_frame.glb",
+			"node": "Architecture/glasshouse_frame",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/glasshouse_glass.glb",
+			"node": "Architecture/glasshouse_glass",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/canopy_deck.glb",
+			"node": "Architecture/canopy_deck",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/interior_garden.glb",
+			"node": "Architecture/interior_garden",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/garden_annexes.glb",
+			"node": "Architecture/garden_annexes",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/garden_border.glb",
+			"node": "Architecture/garden_border",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/trex_fossil.glb",
+			"node": "Architecture/trex_fossil",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/glass_breach.glb",
+			"node": "Props/GlassBreach/Model",
+			"static": false,
+			"transform": [
+				0.70710676908493,
+				0.0,
+				0.70710676908493,
+				0.0,
+				1.0,
+				0.0,
+				-0.70710676908493,
+				0.0,
+				0.70710676908493,
+				-7.07106781005859,
+				0.0,
+				7.07106781005859
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/seedling_rack.glb",
+			"node": "Props/SeedlingRack/Model",
+			"static": false,
+			"transform": [
+				0.70710676908493,
+				0.0,
+				-0.70710676908493,
+				0.0,
+				1.0,
+				0.0,
+				0.70710676908493,
+				0.0,
+				0.70710676908493,
+				-9.89999961853027,
+				0.0,
+				6.0
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/pot_rack.glb",
+			"node": "Props/pot_rack_02/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				-18.6000003814697,
+				0.0,
+				-6.59999990463257
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/pot_rack.glb",
+			"node": "Props/pot_rack_03/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				-18.6000003814697,
+				0.0,
+				6.80000019073486
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/hose_reel.glb",
+			"node": "Props/hose_reel_04/Model",
+			"static": false,
+			"transform": [
+				0.9800665974617,
+				0.0,
+				-0.198669329285622,
+				0.0,
+				1.0,
+				0.0,
+				0.198669329285622,
+				0.0,
+				0.9800665974617,
+				-16.3999996185303,
+				0.0,
+				-3.59999990463257
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/hose_reel.glb",
+			"node": "Props/hose_reel_05/Model",
+			"static": false,
+			"transform": [
+				0.453596085309982,
+				0.0,
+				-0.8912073969841,
+				0.0,
+				1.0,
+				0.0,
+				0.8912073969841,
+				0.0,
+				0.453596085309982,
+				-12.8000001907349,
+				0.0,
+				-13.1999998092651
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/hose_reel.glb",
+			"node": "Props/hose_reel_06/Model",
+			"static": false,
+			"transform": [
+				0.921060979366302,
+				0.0,
+				0.389418333768845,
+				0.0,
+				1.0,
+				0.0,
+				-0.389418333768845,
+				0.0,
+				0.921060979366302,
+				13.0,
+				0.0,
+				-12.3999996185303
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/wheelbarrow.glb",
+			"node": "Props/wheelbarrow_07/Model",
+			"static": false,
+			"transform": [
+				-0.737393796443939,
+				0.0,
+				-0.675463140010834,
+				0.0,
+				1.0,
+				0.0,
+				0.675463140010834,
+				0.0,
+				-0.737393796443939,
+				-15.5,
+				0.0,
+				2.59999990463257
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/wheelbarrow.glb",
+			"node": "Props/wheelbarrow_08/Model",
+			"static": false,
+			"transform": [
+				0.764842212200165,
+				0.0,
+				0.644217669963837,
+				0.0,
+				1.0,
+				0.0,
+				-0.644217669963837,
+				0.0,
+				0.764842212200165,
+				3.59999990463257,
+				0.0,
+				13.1999998092651
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/seedling_table.glb",
+			"node": "Props/seedling_table_09/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				-15.8000001907349,
+				0.0,
+				-1.0
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/seedling_table.glb",
+			"node": "Props/seedling_table_10/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-2.40000009536743,
+				0.0,
+				-15.0
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/seedling_table.glb",
+			"node": "Props/seedling_table_11/Model",
+			"static": false,
+			"transform": [
+				0.825335621833801,
+				0.0,
+				-0.564642488956451,
+				0.0,
+				1.0,
+				0.0,
+				0.564642488956451,
+				0.0,
+				0.825335621833801,
+				-12.0,
+				0.0,
+				-8.60000038146973
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/label_board.glb",
+			"node": "Props/label_board_12/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-4.19999980926514,
+				0.0,
+				15.5
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/label_board.glb",
+			"node": "Props/label_board_13/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				4.19999980926514,
+				0.0,
+				15.5
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/label_board.glb",
+			"node": "Props/label_board_14/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-1.0,
+				0.0,
+				-0.0000000437113882867379,
+				13.6000003814697,
+				0.0,
+				4.40000009536743
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/pot_crate.glb",
+			"node": "Props/pot_crate_15/Model",
+			"static": false,
+			"transform": [
+				0.955336511135101,
+				0.0,
+				-0.295520216226578,
+				0.0,
+				1.0,
+				0.0,
+				0.295520216226578,
+				0.0,
+				0.955336511135101,
+				-2.70000004768372,
+				0.0,
+				-8.5
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/pot_crate.glb",
+			"node": "Props/pot_crate_16/Model",
+			"static": false,
+			"transform": [
+				0.9800665974617,
+				0.0,
+				0.198669329285622,
+				0.0,
+				1.0,
+				0.0,
+				-0.198669329285622,
+				0.0,
+				0.9800665974617,
+				2.79999995231628,
+				0.0,
+				8.5
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/pot_crate.glb",
+			"node": "Props/pot_crate_17/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				3.90000009536743,
+				0.0,
+				-2.70000004768372
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/pot_crate.glb",
+			"node": "Props/pot_crate_18/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-3.90000009536743,
+				0.0,
+				2.70000004768372
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/pot_crate.glb",
+			"node": "Props/pot_crate_19/Model",
+			"static": false,
+			"transform": [
+				0.877582550048828,
+				0.0,
+				-0.479425549507141,
+				0.0,
+				1.0,
+				0.0,
+				0.479425549507141,
+				0.0,
+				0.877582550048828,
+				19.3999996185303,
+				0.0,
+				-8.19999980926514
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/tool_cart.glb",
+			"node": "Props/tool_cart_20/Model",
+			"static": false,
+			"transform": [
+				0.955336511135101,
+				0.0,
+				-0.295520216226578,
+				0.0,
+				1.0,
+				0.0,
+				0.295520216226578,
+				0.0,
+				0.955336511135101,
+				-6.0,
+				0.0,
+				-13.3999996185303
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/tool_cart.glb",
+			"node": "Props/tool_cart_21/Model",
+			"static": false,
+			"transform": [
+				0.6216099858284,
+				0.0,
+				0.783326923847198,
+				0.0,
+				1.0,
+				0.0,
+				-0.783326923847198,
+				0.0,
+				0.6216099858284,
+				12.3999996185303,
+				0.0,
+				7.59999990463257
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/pot_crate.glb",
+			"node": "Props/pot_crate_22/Model",
+			"static": false,
+			"transform": [
+				0.696706712245941,
+				0.0,
+				-0.717356085777283,
+				0.0,
+				1.0,
+				0.0,
+				0.717356085777283,
+				0.0,
+				0.696706712245941,
+				-13.1999998092651,
+				0.0,
+				13.6000003814697
+			]
+		},
+		{
+			"kit": "assets/models/palm_house/grow_lights.glb",
+			"node": "Moving/grow_lights",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		}
+	],
+	"rain_market": [
+		{
+			"kit": "assets/models/rain_market/street.glb",
+			"node": "Architecture/street",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/district.glb",
+			"node": "Architecture/district",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/canopy.glb",
+			"node": "Architecture/canopy",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/street_detail.glb",
+			"node": "Architecture/street_detail",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/harbour_quay.glb",
+			"node": "Architecture/harbour_quay",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/harbour_water.glb",
+			"node": "Architecture/harbour_water",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/street_neon.glb",
+			"node": "Architecture/street_neon",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/minibus_storefront.glb",
+			"node": "Architecture/minibus_storefront",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/restaurant_row.glb",
+			"node": "Architecture/restaurant_row",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/small_props.glb",
+			"node": "Architecture/small_props",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/minibus.glb",
+			"node": "Architecture/minibus",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/fish_counter.glb",
+			"node": "Props/fish_counter_00/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-6.09999990463257,
+				0.411111116409302,
+				14.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/live_fish_tank.glb",
+			"node": "Props/live_fish_tank_01/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-6.09999990463257,
+				0.832499980926514,
+				9.89999961853027
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/fish_prep_station.glb",
+			"node": "Props/fish_prep_station_02/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-6.09999990463257,
+				1.64444446563721,
+				2.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/fish_prep_station.glb",
+			"node": "Props/fish_prep_station_03/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				6.09999990463257,
+				0.431666672229767,
+				13.8000001907349
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/live_fish_tank.glb",
+			"node": "Props/live_fish_tank_04/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				6.09999990463257,
+				0.853055536746979,
+				9.69999980926514
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/produce_counter.glb",
+			"node": "Props/produce_counter_05/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				6.09999990463257,
+				1.64444446563721,
+				2.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/produce_counter.glb",
+			"node": "Props/produce_counter_06/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-6.09999990463257,
+				2.20972228050232,
+				-3.5
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/produce_counter.glb",
+			"node": "Props/produce_counter_07/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				6.09999990463257,
+				2.20972228050232,
+				-3.5
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/produce_counter.glb",
+			"node": "Props/produce_counter_08/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-6.09999990463257,
+				3.08333325386047,
+				-12.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/produce_counter.glb",
+			"node": "Props/produce_counter_09/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				6.09999990463257,
+				3.08333325386047,
+				-12.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/produce_counter.glb",
+			"node": "Props/produce_counter_10/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-6.09999990463257,
+				3.49444437026978,
+				-16.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/stall_screen.glb",
+			"node": "Props/ServiceShortcut/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				10.1000003814697,
+				1.00722217559814,
+				8.19999980926514
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/crates.glb",
+			"node": "Props/crates_12/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-8.5,
+				0.206000000238419,
+				16.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/crates.glb",
+			"node": "Props/crates_13/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-8.5,
+				0.616999983787537,
+				12.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/crates.glb",
+			"node": "Props/crates_14/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-8.5,
+				2.46700000762939,
+				-6.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/crates.glb",
+			"node": "Props/crates_15/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				8.39999961853027,
+				0.30799999833107,
+				15.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/crates.glb",
+			"node": "Props/crates_16/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				8.5,
+				2.36400008201599,
+				-5.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/crates.glb",
+			"node": "Props/crates_17/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				14.0,
+				1.33599996566772,
+				5.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/crates.glb",
+			"node": "Props/crates_18/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-2.0,
+				3.59699988365173,
+				-17.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/crates.glb",
+			"node": "Props/crates_19/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				2.0,
+				1.02799999713898,
+				8.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/crates.glb",
+			"node": "Props/crates_20/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-19.1499996185303,
+				3.27300000190735,
+				6.09999990463257
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/crates.glb",
+			"node": "Props/crates_21/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-21.7999992370605,
+				4.43599987030029,
+				-10.8000001907349
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/crates.glb",
+			"node": "Props/crates_22/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				19.1000003814697,
+				3.99200010299683,
+				-0.899999976158142
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/crates.glb",
+			"node": "Props/crates_23/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				21.6000003814697,
+				2.01099991798401,
+				12.3999996185303
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/market_stool.glb",
+			"node": "Props/market_stool_24/Model",
+			"static": false,
+			"transform": [
+				0.982004225254059,
+				0.0,
+				-0.188858896493912,
+				0.0,
+				1.0,
+				0.0,
+				0.188858896493912,
+				0.0,
+				0.982004225254059,
+				7.88000011444092,
+				0.185000002384186,
+				16.2000007629395
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/market_stool.glb",
+			"node": "Props/market_stool_25/Model",
+			"static": false,
+			"transform": [
+				0.982004225254059,
+				0.0,
+				-0.188858896493912,
+				0.0,
+				1.0,
+				0.0,
+				0.188858896493912,
+				0.0,
+				0.982004225254059,
+				8.60999965667725,
+				0.206000000238419,
+				16.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/market_stool.glb",
+			"node": "Props/market_stool_26/Model",
+			"static": false,
+			"transform": [
+				0.982004225254059,
+				0.0,
+				-0.188858896493912,
+				0.0,
+				1.0,
+				0.0,
+				0.188858896493912,
+				0.0,
+				0.982004225254059,
+				7.90000009536743,
+				1.00699996948242,
+				8.19999980926514
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/market_stool.glb",
+			"node": "Props/market_stool_27/Model",
+			"static": false,
+			"transform": [
+				0.982004225254059,
+				0.0,
+				-0.188858896493912,
+				0.0,
+				1.0,
+				0.0,
+				0.188858896493912,
+				0.0,
+				0.982004225254059,
+				-8.25,
+				0.27700001001358,
+				15.3000001907349
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/market_stool.glb",
+			"node": "Props/market_stool_28/Model",
+			"static": false,
+			"transform": [
+				0.982004225254059,
+				0.0,
+				-0.188858896493912,
+				0.0,
+				1.0,
+				0.0,
+				0.188858896493912,
+				0.0,
+				0.982004225254059,
+				7.80000019073486,
+				3.62800002098083,
+				-17.2999992370605
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/market_stool.glb",
+			"node": "Props/market_stool_29/Model",
+			"static": false,
+			"transform": [
+				0.982004225254059,
+				0.0,
+				-0.188858896493912,
+				0.0,
+				1.0,
+				0.0,
+				0.188858896493912,
+				0.0,
+				0.982004225254059,
+				21.7199993133545,
+				4.08500003814697,
+				-1.79999995231628
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/shutter_trolley.glb",
+			"node": "Props/shutter_trolley_30/Model",
+			"static": false,
+			"transform": [
+				0.971337974071503,
+				0.0,
+				-0.237702623009682,
+				0.0,
+				1.0,
+				0.0,
+				0.237702623009682,
+				0.0,
+				0.971337974071503,
+				22.0,
+				2.93902778625488,
+				9.35000038146973
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/shutter_trolley.glb",
+			"node": "Props/shutter_trolley_31/Model",
+			"static": false,
+			"transform": [
+				0.971337974071503,
+				0.0,
+				-0.237702623009682,
+				0.0,
+				1.0,
+				0.0,
+				0.237702623009682,
+				0.0,
+				0.971337974071503,
+				21.8999996185303,
+				4.51049995422363,
+				-5.94000005722046
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/shutter_trolley.glb",
+			"node": "Props/shutter_trolley_32/Model",
+			"static": false,
+			"transform": [
+				0.971337974071503,
+				0.0,
+				-0.237702623009682,
+				0.0,
+				1.0,
+				0.0,
+				0.237702623009682,
+				0.0,
+				0.971337974071503,
+				-22.0,
+				3.63277769088745,
+				2.59999990463257
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/fish_wash.glb",
+			"node": "Props/fish_wash_33/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-9.75,
+				0.590972244739532,
+				12.25
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/tea_hatch.glb",
+			"node": "Props/tea_hatch_34/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				6.19999980926514,
+				3.57666659355164,
+				-16.7999992370605
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/harbour_ferry_1.glb",
+			"node": "Moving/harbour_ferry_1",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-16.0,
+				-0.829999983310699,
+				51.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/harbour_ferry_2.glb",
+			"node": "Moving/harbour_ferry_2",
+			"static": false,
+			"transform": [
+				-1.0,
+				0.0,
+				0.0000000874227765734759,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000874227765734759,
+				0.0,
+				-1.0,
+				28.0,
+				-0.829999983310699,
+				78.0
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/neon_fish.glb",
+			"node": "Moving/neon_fish",
+			"static": false,
+			"transform": [
+				0.581683099269867,
+				0.0,
+				0.81341552734375,
+				0.0,
+				1.0,
+				0.0,
+				-0.81341552734375,
+				0.0,
+				0.581683099269867,
+				21.8480319976807,
+				8.88777732849121,
+				9.99693489074707
+			]
+		},
+		{
+			"kit": "assets/models/rain_market/minibus_door.glb",
+			"node": "Moving/minibus_door",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				3.38000011444092,
+				4.98000001907349,
+				-25.9400005340576
+			]
+		}
+	],
+	"sandgate": [
+		{
+			"kit": "assets/models/sandgate/ground.glb",
+			"node": "Architecture/Ground",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/sandgate/a_long.glb",
+			"node": "Architecture/ALong",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/sandgate/mid.glb",
+			"node": "Architecture/Mid",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/sandgate/b_court.glb",
+			"node": "Architecture/BCourt",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/sandgate/b_tunnel.glb",
+			"node": "Architecture/BTunnel",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/sandgate/skyline.glb",
+			"node": "Architecture/Skyline",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/sandgate/a_stall_south.glb",
+			"node": "Props/a_stall_south/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				12.1700000762939,
+				0.0,
+				9.25
+			]
+		},
+		{
+			"kit": "assets/models/sandgate/a_stall_north.glb",
+			"node": "Props/a_stall_north/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				12.0299997329712,
+				0.0,
+				5.94999980926514
+			]
+		},
+		{
+			"kit": "assets/models/sandgate/a_cross_wall.glb",
+			"node": "Props/a_cross_wall/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				10.7399997711182,
+				0.0,
+				3.0
+			]
+		},
+		{
+			"kit": "assets/models/sandgate/a_platform_box.glb",
+			"node": "Props/a_platform_box/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				20.1000003814697,
+				2.40000009536743,
+				-13.2299995422363
+			]
+		},
+		{
+			"kit": "assets/models/sandgate/a_ramp_box.glb",
+			"node": "Props/a_ramp_box/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				14.1199998855591,
+				2.40000009536743,
+				-10.6199998855591
+			]
+		},
+		{
+			"kit": "assets/models/sandgate/pit_box.glb",
+			"node": "Props/pit_box/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				19.9400005340576,
+				-1.35000002384186,
+				10.3000001907349
+			]
+		},
+		{
+			"kit": "assets/models/sandgate/short_box.glb",
+			"node": "Props/short_box/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				8.59000015258789,
+				2.40000009536743,
+				-5.15000009536743
+			]
+		},
+		{
+			"kit": "assets/models/sandgate/mid_gate_box.glb",
+			"node": "Props/mid_gate_box/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				2.9300000667572,
+				0.0,
+				2.71000003814697
+			]
+		},
+		{
+			"kit": "assets/models/sandgate/mid_return_box.glb",
+			"node": "Props/mid_return_box/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-4.3899998664856,
+				0.0,
+				-3.57999992370605
+			]
+		},
+		{
+			"kit": "assets/models/sandgate/b_stall.glb",
+			"node": "Props/b_stall/Model",
+			"static": false,
+			"transform": [
+				-0.0000000437113882867379,
+				0.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0,
+				-0.0000000437113882867379,
+				-22.4599990844727,
+				0.0,
+				-4.03000020980835
+			]
+		},
+		{
+			"kit": "assets/models/sandgate/b_crate_wall.glb",
+			"node": "Props/b_crate_wall/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-13.3400001525879,
+				0.0,
+				-6.61999988555908
+			]
+		},
+		{
+			"kit": "assets/models/sandgate/b_crate_low.glb",
+			"node": "Props/b_crate_low/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-15.5799999237061,
+				0.0,
+				-6.65000009536743
+			]
+		},
+		{
+			"kit": "assets/models/sandgate/b_platform_box.glb",
+			"node": "Props/b_platform_box/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-17.9799995422363,
+				0.879999995231628,
+				-9.03999996185303
+			]
+		},
+		{
+			"kit": "assets/models/sandgate/b_window_box.glb",
+			"node": "Props/b_window_box/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-14.8999996185303,
+				0.0,
+				-9.64999961853027
+			]
+		},
+		{
+			"kit": "assets/models/sandgate/tunnel_box.glb",
+			"node": "Props/tunnel_box/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-19.0400009155273,
+				0.0,
+				6.53999996185303
+			]
+		},
+		{
+			"kit": "assets/models/cloud.glb",
+			"node": "Cloud0",
+			"static": true,
+			"transform": [
+				1.20000004768372,
+				0.0,
+				0.0,
+				0.0,
+				1.20000004768372,
+				0.0,
+				0.0,
+				0.0,
+				1.20000004768372,
+				-31.0,
+				10.0,
+				-31.0
+			]
+		},
+		{
+			"kit": "assets/models/cloud.glb",
+			"node": "Cloud1",
+			"static": true,
+			"transform": [
+				0.961455285549164,
+				0.0,
+				-0.989951372146606,
+				0.0,
+				1.37999999523163,
+				0.0,
+				0.989951372146606,
+				0.0,
+				0.961455285549164,
+				-7.0,
+				8.0,
+				-33.0
+			]
+		},
+		{
+			"kit": "assets/models/cloud.glb",
+			"node": "Cloud2",
+			"static": true,
+			"transform": [
+				-0.0455512888729572,
+				0.0,
+				-1.55933475494385,
+				0.0,
+				1.55999994277954,
+				0.0,
+				1.55933475494385,
+				0.0,
+				-0.0455512888729572,
+				14.0,
+				8.0,
+				-33.0
+			]
+		},
+		{
+			"kit": "assets/models/cloud.glb",
+			"node": "Cloud3",
+			"static": true,
+			"transform": [
+				-1.28306519985199,
+				0.0,
+				-1.17530584335327,
+				0.0,
+				1.74000000953674,
+				0.0,
+				1.17530584335327,
+				0.0,
+				-1.28306519985199,
+				32.0,
+				13.0,
+				-29.0
+			]
+		},
+		{
+			"kit": "assets/models/cloud.glb",
+			"node": "Cloud4",
+			"static": true,
+			"transform": [
+				-1.91672587394714,
+				0.0,
+				0.112078450620174,
+				0.0,
+				1.91999995708466,
+				0.0,
+				-0.112078450620174,
+				0.0,
+				-1.91672587394714,
+				39.0,
+				15.0,
+				28.0
+			]
+		}
+	],
+	"snowline": [
+		{
+			"kit": "assets/models/snowline/snow_terrain.glb",
+			"node": "Architecture/snow_terrain",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/snowline/observatory_drum.glb",
+			"node": "Architecture/observatory_drum",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/snowline/instrument_deck.glb",
+			"node": "Architecture/instrument_deck",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/snowline/snow_yard.glb",
+			"node": "Architecture/snow_yard",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/snowline/ridge.glb",
+			"node": "Architecture/ridge",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/snowline/telescope.glb",
+			"node": "Architecture/telescope",
+			"static": true,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"kit": "assets/models/snowline/storm_hatch.glb",
+			"node": "Props/StormHatch/Model",
+			"static": false,
+			"transform": [
+				-0.70710676908493,
+				0.0,
+				0.70710676908493,
+				0.0,
+				1.0,
+				0.0,
+				-0.70710676908493,
+				0.0,
+				-0.70710676908493,
+				-8.05394649505615,
+				0.0,
+				-10.7539463043213
+			]
+		},
+		{
+			"kit": "assets/models/snowline/snowcat.glb",
+			"node": "Props/snowcat_01/Model",
+			"static": false,
+			"transform": [
+				0.949235439300537,
+				0.0,
+				0.314566552639008,
+				0.0,
+				1.0,
+				0.0,
+				-0.314566552639008,
+				0.0,
+				0.949235439300537,
+				7.80000019073486,
+				0.0,
+				13.6999998092651
+			]
+		},
+		{
+			"kit": "assets/models/snowline/weather_screen.glb",
+			"node": "Props/WeatherScreen/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				18.7000007629395,
+				2.38000011444092,
+				-2.75
+			]
+		},
+		{
+			"kit": "assets/models/snowline/console.glb",
+			"node": "Props/console_03/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-4.05000019073486,
+				0.0,
+				0.100000001490116
+			]
+		},
+		{
+			"kit": "assets/models/snowline/star_table.glb",
+			"node": "Props/star_table_04/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				3.79999995231628,
+				0.0,
+				4.30000019073486
+			]
+		},
+		{
+			"kit": "assets/models/snowline/optical_rack.glb",
+			"node": "Props/optical_rack_05/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-7.59999990463257,
+				0.0,
+				-8.10000038146973
+			]
+		},
+		{
+			"kit": "assets/models/snowline/field_case.glb",
+			"node": "Props/field_case_06/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-14.0,
+				0.0,
+				12.0
+			]
+		},
+		{
+			"kit": "assets/models/snowline/field_case.glb",
+			"node": "Props/field_case_07/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-17.0,
+				0.0,
+				-3.0
+			]
+		},
+		{
+			"kit": "assets/models/snowline/field_case.glb",
+			"node": "Props/field_case_08/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				-7.40000009536743,
+				0.0,
+				5.80000019073486
+			]
+		},
+		{
+			"kit": "assets/models/snowline/field_case.glb",
+			"node": "Props/field_case_09/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				8.5,
+				0.0,
+				9.89999961853027
+			]
+		},
+		{
+			"kit": "assets/models/snowline/field_case.glb",
+			"node": "Props/field_case_10/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				8.89999961853027,
+				2.38000011444092,
+				-5.90000009536743
+			]
+		},
+		{
+			"kit": "assets/models/snowline/field_case.glb",
+			"node": "Props/field_case_11/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				17.5,
+				2.38000011444092,
+				-4.59999990463257
+			]
+		},
+		{
+			"kit": "assets/models/snowline/field_case.glb",
+			"node": "Props/field_case_12/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				15.1000003814697,
+				0.0,
+				-15.0
+			]
+		},
+		{
+			"kit": "assets/models/snowline/field_case.glb",
+			"node": "Props/field_case_13/Model",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				4.80000019073486,
+				0.0,
+				-8.0
+			]
+		},
+		{
+			"kit": "assets/models/snowline/dome.glb",
+			"node": "Moving/dome",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				-2.70000004768372
+			]
+		},
+		{
+			"kit": "assets/models/snowline/shutter_left.glb",
+			"node": "Moving/shutter_left",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				-2.70000004768372
+			]
+		},
+		{
+			"kit": "assets/models/snowline/shutter_right.glb",
+			"node": "Moving/shutter_right",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				-2.70000004768372
+			]
+		},
+		{
+			"kit": "assets/models/snowline/shutter_lights.glb",
+			"node": "Moving/shutter_lights",
+			"static": false,
+			"transform": [
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0,
+				0.0,
+				-2.70000004768372
+			]
+		}
+	]
+}

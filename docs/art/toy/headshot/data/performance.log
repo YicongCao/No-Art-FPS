@@ -1,0 +1,8 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 4.1 Metal - 91.7 - Compatibility - Using Device: Apple - Apple M5
+
+HEADSHOT_PERF {"bursts_per_second":0,"draw_calls_p50":1490.0,"draw_calls_p95":1490.0,"first_setup_cpu_ms":0.0,"frame_ms_max":23.83,"frame_ms_p50":10.04,"frame_ms_p95":15.84,"frame_ms_p99":22.025,"frames":754,"full_peak":0,"setup_cpu_ms_p95":0.0}
+HEADSHOT_PERF {"bursts_per_second":1,"draw_calls_p50":1491.0,"draw_calls_p95":1493.0,"first_setup_cpu_ms":0.15,"frame_ms_max":23.375,"frame_ms_p50":10.464,"frame_ms_p95":21.368,"frame_ms_p99":22.81,"frames":709,"full_peak":1,"setup_cpu_ms_p95":0.15}
+HEADSHOT_PERF {"bursts_per_second":10,"draw_calls_p50":1498.0,"draw_calls_p95":1500.0,"first_setup_cpu_ms":0.138,"frame_ms_max":23.585,"frame_ms_p50":10.603,"frame_ms_p95":21.548,"frame_ms_p99":22.262,"frames":702,"full_peak":6,"setup_cpu_ms_p95":0.159}
+HEADSHOT_PERF {"bursts_per_second":0,"draw_calls_p50":1490.0,"draw_calls_p95":1490.0,"first_setup_cpu_ms":0.0,"frame_ms_max":22.779,"frame_ms_p50":10.117,"frame_ms_p95":16.93,"frame_ms_p99":22.267,"frames":743,"full_peak":0,"setup_cpu_ms_p95":0.0}
+

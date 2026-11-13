@@ -35,6 +35,7 @@ const Enemy = preload("res://scripts/enemy.gd")
 const Hud = preload("res://scripts/hud.gd")
 const Rules = preload("res://scripts/run_rules.gd")
 const LoadingTransition = preload("res://scripts/loading_transition.gd")
+const HeadshotFX = preload("res://scripts/headshot_fx.gd")
 const CombatFX = preload("res://scripts/combat_fx.gd")
 const ComedyFX = preload("res://scripts/comedy_fx.gd")
 const ComedyToilet = preload("res://scripts/comedy_toilet.gd")
@@ -134,7 +135,9 @@ var loading = LoadingTransition.new()
 var load_ticket = 0
 var opening_prepared = false
 var destroy_effects_warmed = false
+var headshot_effects_warmed = false
 var enemy_model: PackedScene
+var rusher_model: PackedScene
 var title_frame_ready = false
 var title_session_id = DefaultSession.session_id
 var remember_title_selection = true
@@ -598,6 +601,7 @@ func reset_run_state() -> void:
 	prepare_comedy_toilet()
 	player.gun.show()
 	player.enabled = false
+	hud.headshot_confirm = 0
 	hud.hit = 0
 	hud.damage = 0
 	hud.damage_source = null
@@ -623,6 +627,7 @@ func request_run() -> void:
 	else:Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	hud.reset_magazine()
 	hud.health_shade = 0
+	hud.headshot_confirm = 0
 	hud.hit = 0
 	hud.damage = 0
 	hud.damage_source = null
@@ -675,7 +680,7 @@ func prepare_loaded_run(ticket: int) -> void:
 		push_error("Navigation unavailable; returned to title")
 		return
 	loading.report(.2)
-	var path = "res://assets/models/enemy.glb"
+	var path = "res://assets/models/toy/enemy.glb"
 	if OS.has_feature("web"):
 		# The opening frame already cached this scene. Single-thread Web builds
 		# must not depend on a worker thread to prepare it again.
@@ -705,6 +710,7 @@ func prepare_loaded_run(ticket: int) -> void:
 				return
 			await loading_frame()
 			if ticket!=load_ticket:return
+	if not rusher_model:rusher_model = load("res://assets/models/toy/rusher.glb")
 	# Instantiate and render one actor per frame before gameplay to warm
 	# imported meshes/materials without a single eight-enemy creation burst.
 	for i in range(opening.size()):
@@ -717,6 +723,8 @@ func prepare_loaded_run(ticket: int) -> void:
 	await loading_frame()
 	if ticket!=load_ticket:return
 	opening_prepared = true
+	await warm_headshot_effects(ticket)
+	if ticket!=load_ticket:return
 	# Warm the first shot's effect materials beneath the opaque loading cover.
 	var muzzle = player.weapon_muzzle()
 	spark(muzzle,Color("ffe19a"),.1,.035)
@@ -777,7 +785,19 @@ func warm_destroy_effects(ticket: int) -> void:
 		await loading_frame()
 		if ticket!=load_ticket:return
 		fx.queue_free()
+	await warm_headshot_effects(ticket)
+	if ticket!=load_ticket:return
 	destroy_effects_warmed = true
+
+func warm_headshot_effects(ticket: int) -> void:
+	if headshot_effects_warmed:return
+	var fx = HeadshotFX.new()
+	effects.add_child(fx)
+	fx.setup(self,player.camera.to_global(Vector3(0,0,-3)),-player.camera.global_basis.z,player.camera.global_basis.z,false)
+	fx.set_physics_process(false)
+	await loading_frame()
+	fx.queue_free()
+	if ticket==load_ticket:headshot_effects_warmed = true
 
 func apply_web_render_budget(samples: Array[float]) -> bool:
 	# Size render targets behind the loading cover. Changing scale or shadow
@@ -840,6 +860,7 @@ func _process(delta: float) -> void:
 			player.enabled = false
 
 func clear_round() -> void:
+	hud.headshot_confirm = 0
 	set_destroy_active(false)
 	clear_killer()
 	hud.damage_marks.clear()
@@ -1367,10 +1388,9 @@ func resolve_shot(result: Dictionary, origin: Vector3, target: Vector3, burning:
 				return
 			rules.hits += 1
 			hud.hit = .12
-			play_sound("hit",-14)
-			enemy.take_hit(is_head,burning or (touch_mode and touch_body_one_shot))
-			if is_head:spark(target,Color("f2d084"),.07,.12)
-			else:spark(target,Color("ed9957"),.12,.16)
+			if not is_head:play_sound("hit",-14)
+			enemy.take_hit(is_head,burning or (touch_mode and touch_body_one_shot),target,(target-origin).normalized(),result.normal)
+			if not is_head:spark(target,Color("ed9957"),.12,.16)
 		elif not burning or not building:spark(target,Color("e5e0d2"),.045,.1)
 
 func request_grenade() -> void:
@@ -1552,6 +1572,9 @@ func on_kill(enemy: Node3D, headshot: bool) -> void:
 			achievements.combat_kill(session.session_id,headshot,kill_group_count,destroy_active,player.global_position.y,comedy_mode)
 		hud.kill_group = kill_group_count
 		hud.kill_pop = .5
+		if headshot:
+			hud.headshot_confirm = .22
+			if not toilet_blast_active:enemy.play_headshot_kill()
 		hud.multi_time = .65 if kill_group_count>=2 else 0.0
 		if toilet_blast_active:return
 		var pitch = minf(1.25,1+(kill_group_count-1)*.08)

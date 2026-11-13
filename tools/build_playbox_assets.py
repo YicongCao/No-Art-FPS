@@ -1,10 +1,14 @@
 """Editable original interactive props. blender --background --python tools/build_playbox_assets.py"""
 import bpy
+import bmesh
 import math
+import sys
 from pathlib import Path
 from mathutils import Vector
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'tools'))
+from toy_bevel import toy_soften
 OUT = ROOT / 'assets/models'
 bpy.ops.object.select_all(action='SELECT')
 bpy.ops.object.delete(use_global=False)
@@ -20,7 +24,7 @@ for name, code in COLORS.items():
     m.use_nodes=True
     p=next(n for n in m.node_tree.nodes if n.type=='BSDF_PRINCIPLED')
     p.inputs['Base Color'].default_value=rgba
-    p.inputs['Roughness'].default_value=.85
+    p.inputs['Roughness'].default_value=.7
     MATS[name]=m
 roots=[]
 current=None
@@ -43,9 +47,7 @@ def box(name,p,size,color,bevel=0):
     o=bpy.context.object
     o.dimensions=(size[0],size[2],size[1])
     bpy.ops.object.transform_apply(location=False,rotation=False,scale=True)
-    if bevel:
-        mod=o.modifiers.new('Edge','BEVEL');mod.width=bevel;mod.segments=1
-        bpy.ops.object.modifier_apply(modifier=mod.name)
+    toy_soften(o,min(size),bevel)
     return finish(o,name,color)
 
 def mesh(name,vertices,faces,color):
@@ -75,7 +77,18 @@ def pivot(name,p,objects):
         child.matrix_world=matrix
     return o
 
-def export(name):
+def export(name,merge_by_pivot=False):
+    if merge_by_pivot:
+        # Preserve each moving door's pivot; batch only siblings of one material.
+        for parent in [current]+[o for o in current.children_recursive if o.type=='EMPTY']:
+            for color,material in MATS.items():
+                parts=[o for o in parent.children if o.type=='MESH' and o.data.materials[0]==material]
+                if len(parts)>1:
+                    bpy.ops.object.select_all(action='DESELECT')
+                    for o in parts:o.select_set(True)
+                    bpy.context.view_layer.objects.active=parts[0]
+                    bpy.ops.object.join()
+                    parts[0].name=parent.name+'_'+color
     bpy.ops.object.select_all(action='DESELECT')
     current.select_set(True)
     for o in current.children_recursive:o.select_set(True)
@@ -83,29 +96,66 @@ def export(name):
     bpy.ops.export_scene.gltf(filepath=str(OUT/(name+'.glb')),use_selection=True,export_format='GLB',export_yup=True)
     current.location=(len(roots)*9,0,0)
 
+def chipped_box(name,p,size,color,corner=(1,1,1),cut=.075,bevel=0):
+    bpy.ops.mesh.primitive_cube_add(size=1,location=xyz(p))
+    o=bpy.context.object
+    o.dimensions=(size[0],size[2],size[1])
+    bpy.ops.object.transform_apply(location=False,rotation=False,scale=True)
+    bm=bmesh.new();bm.from_mesh(o.data)
+    cx,cy,cz=corner[0],-corner[2],corner[1]
+    c_pt=Vector((cx*size[0]*.5,cy*size[2]*.5,cz*size[1]*.5))
+    n_vec=Vector((cx*.64,cy*.56,cz*.52)).normalized()
+    ret=bmesh.ops.bisect_plane(bm,geom=list(bm.verts)+list(bm.edges)+list(bm.faces),
+                               plane_co=c_pt-n_vec*cut,plane_no=n_vec,clear_outer=True)
+    edges=[g for g in ret['geom_cut'] if isinstance(g,bmesh.types.BMEdge) and g.is_valid]
+    if len(edges)>=3:bmesh.ops.contextual_create(bm,geom=edges)
+    bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces))
+    bm.to_mesh(o.data);bm.free()
+    toy_soften(o,min(size),bevel)
+    return finish(o,name,color)
+
 begin('container_openable')
 box('Floor',(0,-.035,0),(6,.07,2.8),'ink')
 box('Roof',(0,2.85,0),(6,.10,2.8),'paint')
 box('Back',(-2.95,1.4,0),(.10,2.8,2.8),'paint')
 for z in [-1.35,1.35]:
     box('Wall',(0,1.4,z),(6,2.8,.10),'paint')
-    for i in range(17):box('Rib',(-2.7+i*.3375,1.4,z+(.07 if z>0 else -.07)),(.045,2.55,.035),'paint')
+    for i in range(17):
+        rh = 2.26 if i in (4, 12) else 2.55
+        ry = 1.28 if i in (4, 12) else 1.4
+        box('Rib',(-2.7+i*.3375,ry,z+(.07 if z>0 else -.07)),(.045,rh,.035),'paint')
     for y in [.10,2.75]:box('Rail',(0,y,z),(6,.12,.15),'ink')
+    pz = z + (.092 if z > 0 else -.092)
+    chipped_box('RepairPatch',(-1.72,.70,pz),(.68,.46,.036),'cream',corner=(1,1,1 if z>0 else -1),cut=.09)
+    for rx in (-1.98,-1.46):
+        for ry_b in (.54,.86):
+            if rx > -1.6 and ry_b > .7:continue
+            box('PatchRivet',(rx,ry_b,pz+(.018 if z>0 else -.018)),(.045,.045,.024),'ink')
 for x in [-2.95,2.95]:
     for z in [-1.34,1.34]:
         box('Corner',(x,1.4,z),(.13,2.8,.13),'ink')
-        for y in [.10,2.78]:box('Casting',(x,y,z),(.22,.20,.20),'cream')
+        for y in [.10,2.78]:
+            if y > 2.0 and x * z < 0:
+                chipped_box('Casting',(x,y,z),(.22,.20,.20),'cream',
+                            corner=(1 if x>0 else -1,1,1 if z>0 else -1),cut=.07)
+            else:
+                box('Casting',(x,y,z),(.22,.20,.20),'cream')
 for sign,name in [(-1,'DoorLeft'),(1,'DoorRight')]:
     before=set(current.children)
     z=sign*.665
-    box('DoorPanel',(3,1.4,z),(.12,2.66,1.31),'paint')
-    for y in [.14,2.66]:box('DoorEdge',(3.08,y,z),(.05,.10,1.28),'ink')
+    # A folded perimeter surrounds a genuinely inset closed steel panel.
+    box('DoorPanel',(2.95,1.4,z),(.075,2.66,1.31),'paint',.025)
+    for y in [.17,2.63]:
+        box('DoorEdge',(3.045,y,z),(.15,.17,1.28),'paint',.025)
+        box('DoorGasket',(3.00,y,z),(.04,.22,1.29),'ink',.008)
+    for dz in [-.59,.59]:box('DoorFold',(3.045,1.4,z+dz),(.15,2.50,.12),'paint',.02)
+    for y in [.46,2.34]:box('PressedDoorPanel',(3.005,y,z),(.07,.27,.98),'paint',.025)
     for dz in [-.3,.3]:
         box('LockBar',(3.09,1.4,z+dz),(.065,2.45,.055),'cream')
         box('Handle',(3.15,1.3,z+dz),(.10,.10,.26),'ink')
     for y in [.5,2.25]:box('Hinge',(3.08,y,sign*1.31),(.18,.20,.16),'cream')
     pivot(name,(3,0,sign*1.34),[o for o in current.children if o not in before])
-export('container_openable')
+export('container_openable',merge_by_pivot=True)
 
 begin('knife')
 # Origin at the hand; blade points along local +Y for a readable raised chop.

@@ -2,11 +2,23 @@
 import json
 import math
 from pathlib import Path
+import sys
 
 import bpy
 from mathutils import Vector
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "tools/maps"))
+from toy_kit import (
+    chipped_box,
+    export_toy_parts,
+    repair_patch_plate,
+    segmented_coping,
+    slanted_wall_seam,
+    stepped_plinth,
+    tapered_box,
+)
+
 OUT = ROOT / "assets/models/studio"
 OUT.mkdir(parents=True, exist_ok=True)
 bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -29,7 +41,7 @@ for name, hex_color in COLORS.items():
     mat.use_nodes = True
     shader = mat.node_tree.nodes["Principled BSDF"]
     shader.inputs["Base Color"].default_value = color
-    shader.inputs["Roughness"].default_value = .87
+    shader.inputs["Roughness"].default_value = .48
     if name in ("lamp", "tally", "screen", "cyan"):
         shader.inputs["Emission Color"].default_value = color
         shader.inputs["Emission Strength"].default_value = .6
@@ -47,7 +59,7 @@ class Kit:
         self.collection = bpy.data.collections.new(name)
 
     def mesh(self, label, points, faces, color):
-        self.parts.append((points, faces, color))
+        self.parts.append((label, points, faces, color))
         origin = sum((Vector(v) for v in points), Vector()) / len(points)
         mesh = bpy.data.meshes.new(label)
         mesh.from_pydata([xyz(Vector(v) - origin) for v in points], [], faces)
@@ -56,7 +68,10 @@ class Kit:
         obj.location = xyz(origin)
         self.collection.objects.link(obj)
 
-    def box(self, label, center, size, color, angle=0):
+    def box(self, label, center, size, color, angle=0, taper=0.0):
+        if taper:
+            tapered_box(self.mesh, label, center, size, color, angle=angle, taper=taper)
+            return
         c, s = math.cos(angle), math.sin(angle)
         points = []
         for x, y, z in ((-1,-1,-1),(1,-1,-1),(1,1,-1),(-1,1,-1),
@@ -81,26 +96,19 @@ class Kit:
         self.mesh(label, points, faces, color)
 
     def export(self):
-        points, faces, colors = [], [], []
-        for verts, polys, color in self.parts:
-            faces.extend(tuple(len(points)+i for i in face) for face in polys)
-            points.extend(xyz(p) for p in verts)
-            colors.extend([color]*len(polys))
-        mesh = bpy.data.meshes.new(self.name)
-        mesh.from_pydata(points, [], faces)
-        keys = list(dict.fromkeys(colors))
-        for key in keys:
-            mesh.materials.append(materials[key])
-        for polygon, color in zip(mesh.polygons, colors):
-            polygon.material_index = keys.index(color)
-        obj = bpy.data.objects.new(self.name, mesh)
-        bpy.context.scene.collection.objects.link(obj)
-        bpy.ops.object.select_all(action="DESELECT")
-        obj.select_set(True)
-        bpy.context.view_layer.objects.active = obj
-        bpy.ops.export_scene.gltf(filepath=str(OUT/f"{self.name}.glb"),export_format="GLB",use_selection=True)
-        bpy.data.objects.remove(obj, do_unlink=True)
-        bpy.data.meshes.remove(mesh)
+        bl_parts = [(label, [xyz(p) for p in verts], polys, color)
+                    for label, verts, polys, color in self.parts]
+        export_toy_parts(
+            self.name,
+            bl_parts,
+            materials,
+            OUT / f"{self.name}.glb",
+            max_bevel=0.026,
+            skip_labels=(
+                "Zoned flooring", "Floor tape", "Pinned assignment",
+                "Spine label", "Backstage floor mark", "Green-screen floor",
+            ),
+        )
 
 
 layout = {"boxes": [], "ramps": [], "props": [], "spots": []}
@@ -127,22 +135,43 @@ def wall(label, center, size, color, baffles=()):
     asset = f"wall_{label.lower()}" if baffles else f"wall_{color}_{dimensions}"
     if asset not in kits:
         item = kit(asset)
-        item.box("Wall", (0,h/2,0), size, color)
-        # Extend the trim across the thickness, leaving adjacent panels flush.
-        trim_x,trim_z = (.045,0) if d>w else (0,.045)
-        item.box("Dark baseboard",(0,.11,0),(w+trim_x,.22,d+trim_z),"navy")
-        item.box("Header trim",(0,h-.12,0),(w+trim_x,.21,d+trim_z),"slate")
+        along_x = w >= d
+        span = w if along_x else d
+        # Recessed dark spine + modular molded acoustic wall panels with 2.8cm seams
+        item.box("Wall core", (0,h/2,0), (w-.04 if not along_x else w-.02, h-.04, d-.04 if along_x else d-.02), "ink")
+        count = max(1, round(span / 1.85))
+        step = span / count
+        for i in range(count):
+            pos = -span*0.5 + (i+0.5)*step
+            pw, pd = (max(.20, step-.028), d) if along_x else (w, max(.20, step-.028))
+            cx, cz = (pos, 0.0) if along_x else (0.0, pos)
+            p_col = "lilac" if (color == "violet" and count >= 3 and i == 1) else color
+            item.box("Wall", (cx, h/2, cz), (pw, h-.46, pd), p_col)
+        if span >= 3.8 and h <= 5.0:
+            s_ang = 0.0 if along_x else math.pi/2
+            s_org = (0.0, 1.25, d*.5) if along_x else (w*.5, 1.25, 0.0)
+            slanted_wall_seam(item.mesh, s_org, 1.15, .88, s_ang, "ink", "slate")
+            repair_patch_plate(item.mesh, (-s_org[0], .68, -s_org[2]), .76, .46, s_ang + math.pi, "gold", "ink")
+        # Extend grounding baseboard and segmented top header across the thickness
+        trim_x, trim_z = (.075, 0) if d > w else (0, .075)
+        stepped_plinth(item.mesh, "Dark baseboard", (0,.13,0), w+trim_x, .26, d+trim_z, "navy", flare=.024)
+        segmented_coping(item.mesh, "Header trim", (0,h-.12,0), w+trim_x, .24, d+trim_z, "slate", seg_len=1.85, gap=.026, slant=.15, wear=.54)
         for offset in baffles:
-            item.box("Acoustic sound baffle",(offset,3.67,-.26),(2.2,2.8,.14),"slate")
-            item.box("Baffle lower edge",(offset,2.33,-.37),(2.2,.09,.09),"violet")
+            item.box("Acoustic sound baffle",(offset,3.67,-.26),(2.2,2.8,.16),"slate",taper=(.02,.04))
+            for rib in (-.70, 0.0, .70):
+                item.box("Baffle acoustic rib",(offset+rib,3.67,-.35),(.16,2.56,.065),"navy")
+            item.box("Baffle lower edge",(offset,2.30,-.32),(2.26,.12,.14),"violet")
+            item.box("Baffle upper cap",(offset,5.04,-.32),(2.26,.12,.14),"gold")
     instance(asset,label,(x,y-h/2,z),size,structural=True,section=True)
 
 
 def door(item, x, z, span=3.3):
     for side in (-1,1):
-        item.box("Door jamb",(x+side*span/2,1.55,z),(.16,3.1,.43),"slate")
-    item.box("Portal header",(x,3.12,z),(span+.2,.23,.46),"navy")
-    item.box("Red studio light",(x,3.26,z+.25),(.48,.12,.065),"tally")
+        stepped_plinth(item.mesh, "Door jamb foot", (x+side*span/2,.13,z), .24, .26, .50, "navy", flare=.025)
+        item.box("Door jamb",(x+side*span/2,1.58,z),(.19,3.04,.46),"slate",taper=(.03,.03))
+    segmented_coping(item.mesh, "Portal header", (x,3.14,z), span+.28, .26, .52, "navy", seg_len=1.6, gap=.024)
+    item.box("Tally housing",(x,3.28,z+.24),(.58,.18,.12),"ink")
+    item.box("Red studio light",(x,3.28,z+.29),(.48,.12,.065),"tally")
 
 
 def rails(item, x1, x2, z, y=2.7):
@@ -218,7 +247,13 @@ stage = kit("stage", True)
 solid(stage,"Stage deck",(0,.14,-5.1),(14.4,.28,6.8),"gold")
 stage.box("Ivory stage top",(0,.285,-5.1),(14.25,.02,6.65),"ivory")
 stage.box("Lower fascia",(0,.09,-1.67),(14.4,.12,.10),"amber")
-stage.box("Gold apron",(0,.044,-1.55),(13.4,.085,.23),"gold")
+chipped_box(stage.mesh,"Gold apron",(0,.044,-1.55),(13.4,.085,.23),"gold",
+            chips=[((1.0,1.0,1.0),.12),((-1.0,1.0,1.0),.10)])
+# Diagonal floor cable-protector ramps & gaffer-taped seams across stage approach
+stage.box("Diagonal cable ramp",(-3.8,.018,1.85),(3.4,.032,.22),"ink",angle=.32,taper=(.18,.04))
+stage.box("Cable ramp hazard strip",(-3.8,.036,1.85),(3.32,.010,.075),"gold",angle=.32)
+stage.box("Diagonal cable ramp",(4.2,.018,2.45),(2.9,.032,.22),"ink",angle=-.28,taper=(.18,.04))
+stage.box("Cable ramp hazard strip",(4.2,.036,2.45),(2.82,.010,.075),"gold",angle=-.28)
 apron = [(-6.7,.28,-1.72),(6.7,.28,-1.72),(6.7,0,-.65),(-6.7,0,-.65)]
 stage.mesh("Sloped stage entrance",apron,[(3,2,1,0)],"gold")
 layout["ramps"].append(apron)
@@ -315,78 +350,92 @@ for i, (x,z) in enumerate(ring):
 
 # Television scenery and removable flats.
 flat = kit("stage_flat")
-flat.box("Backdrop panel",(0,2.18,0),(4.48,4.36,.42),"violet")
+stepped_plinth(flat.mesh,"Panel foot",(0,.14,0),4.62,.28,.58,"navy",flare=.035)
+flat.box("Backdrop panel",(0,2.18,0),(4.46,4.20,.40),"violet",taper=(.02,.02))
+for sx in (-1, 1):
+    flat.box("Flat outer stile",(sx*2.18,2.18,0),(.18,4.24,.46),"slate")
+    flat.rod("Flat rear brace",(sx*1.6,.22,-.22),(sx*1.6,1.85,-.08),.055,"navy",6)
+segmented_coping(flat.mesh,"Flat top crown",(0,4.34,0),4.66,.18,.52,"gold",seg_len=1.55,gap=.024)
 for i in range(5):
-    flat.box("Radiating inset",(-1.75+i*.875,2.25,.24),(.72,3.75,.08),
+    flat.box("Radiating inset",(-1.75+i*.875,2.24,.23),(.72,3.68,.095),
              "lilac" if i%2==0 else "ivory")
-flat.box("Panel foot",(0,.13,0),(4.57,.26,.52),"navy")
 for x in (-4.6,0,4.6):
     instance("stage_flat",f"VarietyFlat{int(x+5)}",(x,.29,-8.19),(4.45,4.45,.44),structural=True)
 
 couch = kit("sofa")
-couch.box("Upholstered base",(0,.28,0),(2.45,.47,1.03),"red")
-couch.box("Seat cushion",(0,.54,.10),(2.04,.18,.74),"pink")
-couch.box("Upholstered back",(0,.76,-.37),(2.36,.65,.25),"red")
+couch.box("Upholstered base",(0,.28,0),(2.46,.46,1.04),"red",taper=(-.03,-.03))
+for sc in (-.66, 0.0, .66):
+    couch.box("Seat cushion",(sc,.55,.10),(.65,.20,.76),"pink",taper=(.05,.05))
+couch.box("Upholstered back",(0,.78,-.37),(2.38,.66,.28),"red",taper=(.04,.08))
 for x in (-1.12,1.12):
-    couch.box("Armrest",(x,.61,.02),(.24,.33,.87),"red")
+    couch.box("Armrest",(x,.62,.02),(.27,.36,.90),"red",taper=(.06,.04))
     for z in (-.32,.38):
-        couch.box("Couch foot",(x,.08,z),(.13,.16,.14),"navy")
+        couch.box("Couch foot",(x,.08,z),(.15,.16,.16),"gold",taper=(-.12,-.12))
 instance("sofa","GuestSofa",(-3.5,.29,-5.7),(2.45,1.08,1.03))
 instance("sofa","GuestLoveseat",(-1.4,.29,-5.4),(2.45,1.08,1.03),-.17)
 
 floor_monitor = kit("floor_monitor")
-floor_monitor.box("Monitor speaker cabinet",(0,.23,0),(.85,.46,.58),"navy")
-floor_monitor.box("Speaker grille",(0,.36,-.08),(.74,.24,.45),"slate")
+floor_monitor.box("Monitor speaker cabinet",(0,.23,0),(.86,.46,.59),"navy",taper=(.08,.12))
+floor_monitor.box("Speaker grille",(0,.37,-.08),(.74,.25,.45),"slate")
+for sx in (-1, 1):
+    floor_monitor.box("Speaker bumper",(sx*.41,.23,0),(.08,.48,.61),"ink")
 for x in (-.22,0,.22):
-    floor_monitor.box("Grille vent",(x,.49,-.08),(.045,.024,.36),"ink")
-floor_monitor.box("Power LED",(.35,.22,.30),(.06,.08,.025),"tally")
+    floor_monitor.box("Grille vent",(x,.49,-.08),(.048,.028,.36),"ink")
+floor_monitor.box("Power LED",(.35,.22,.30),(.065,.085,.03),"tally")
 for label,x in (("Left",-4.7),("Right",5.9)):
     instance("floor_monitor",f"StageMonitor{label}",(x,.29,-3.53),(.85,.52,.64),x*.045,shoot_only=True)
 
 news = kit("news", True)
 solid(news,"News plinth",(-16,.055,-8.8),(9.6,.11,7.0),"ivory")
 backdrop = kit("news_backdrop")
-backdrop.box("Blue broadcast backdrop",(0,2.14,0),(8.25,4.27,.18),"cobalt")
-backdrop.box("News ribbon",(0,.56,.13),(8.1,.19,.08),"cyan")
+stepped_plinth(backdrop.mesh,"Backdrop plinth",(0,.12,0),8.36,.24,.32,"navy",flare=.03)
+backdrop.box("Blue broadcast backdrop",(0,2.14,0),(8.24,4.16,.18),"cobalt")
+segmented_coping(backdrop.mesh,"Backdrop crown",(0,4.28,0),8.42,.18,.30,"slate",seg_len=2.1,gap=.026)
+backdrop.box("News ribbon",(0,.56,.13),(8.1,.21,.10),"cyan")
 for x in (1.10,2.05,3.0):
-    backdrop.box("Blue screen slat",(x,2.42,.13),(.55,2.4,.06),"blue")
+    backdrop.box("Blue screen slat",(x,2.42,.13),(.56,2.4,.08),"blue")
 for radius,ratio in ((1.42,1),(1.42,.5)):
     points = [(-1.3+radius*ratio*math.cos(i*math.tau/24),2.35+radius*math.sin(i*math.tau/24),.15)
               for i in range(24)]
     for i, p in enumerate(points):
-        backdrop.rod("Globe grid",p,points[(i+1)%24],.025,"cyan",5)
+        backdrop.rod("Globe grid",p,points[(i+1)%24],.028,"cyan",6)
 for y in (1.7,2.35,3.0):
     half = math.sqrt(1.42**2-(y-2.35)**2)
-    backdrop.rod("Globe latitude",(-1.3-half,y,.15),(-1.3+half,y,.15),.026,"cyan",5)
+    backdrop.rod("Globe latitude",(-1.3-half,y,.15),(-1.3+half,y,.15),.028,"cyan",6)
 instance("news_backdrop","NewsBackdrop",(-16,.11,-11.85),(8.25,4.27,.24),structural=True)
 monitor = kit("control_monitor")
-monitor.box("Monitor casing",(0,.475,0),(1.66,.95,.22),"ink")
-monitor.box("Monitor glass",(0,.475,.14),(1.43,.73,.08),"screen")
+monitor.box("Monitor casing",(0,.475,-.02),(1.66,.95,.22),"slate",taper=(.04,.04))
+monitor.box("Monitor rear hood",(0,.475,-.16),(1.22,.68,.12),"navy",taper=(.14,.14))
+monitor.box("Monitor bezel",(0,.475,.10),(1.68,.97,.08),"ink")
+monitor.box("Monitor glass",(0,.475,.145),(1.42,.72,.04),"screen")
 switcher = kit("control_switcher")
-switcher.box("Switcher console",(0,.07,0),(1.78,.14,.65),"navy")
+switcher.box("Switcher console",(0,.075,0),(1.78,.15,.65),"navy",taper=(.04,.08))
 for i in range(5):
-    switcher.box("Switcher key",(-.58+i*.26,.16,.10),(.13,.06,.14),("cyan","tally","lamp")[i%3])
+    switcher.box("Switcher key",(-.58+i*.26,.165,.10),(.14,.065,.15),("cyan","tally","lamp")[i%3])
 for i,x in enumerate((-20,-18.1,-16.2,-14.3)):
     instance("control_monitor",f"ControlMonitor{i}",(x,1.375,-15.94),(1.66,.95,.29),shoot_only=True)
     instance("control_switcher",f"ControlSwitcher{i}",(x,.82,-15.35),(1.78,.20,.65),shoot_only=True)
 control_partition = kit("control_partition")
 for x in (-21.5,-19,-16.5,-14):
-    control_partition.box("Control room window upright",(x+17.8,1.83,0),(.09,2.11,.12),"slate")
-for y in (.81,2.87):
-    control_partition.box("Control room window frame",(.05,y,0),(7.6,.13,.13),"slate")
-control_partition.box("Control room sill",(0,.42,0),(7.7,.84,.20),"navy")
-control_partition.box("Control room fascia",(0,3.05,0),(7.7,.31,.21),"navy")
+    control_partition.box("Control room window upright",(x+17.8,1.83,0),(.12,2.11,.16),"slate")
+control_partition.box("Control room window sill",(.05,.82,0),(7.74,.13,.30),"ivory")
+control_partition.box("Control room window frame",(.05,2.87,0),(7.68,.14,.22),"slate")
+stepped_plinth(control_partition.mesh,"Control room plinth",(0,.11,0),7.76,.22,.28,"slate",flare=.025)
+control_partition.box("Control room sill",(0,.46,0),(7.7,.68,.20),"navy")
+segmented_coping(control_partition.mesh,"Control room fascia",(0,3.06,0),7.78,.30,.28,"navy",seg_len=1.94,gap=.024)
 instance("control_partition","ControlPartition",(-17.8,0,-14.24),(7.7,.84,.20),structural=True,section=True)
 layout["props"][-1]["window"] = [[.05,1.83,0],[7.53,1.96],3.21]
 
 desk = kit("broadcast_desk")
-desk.box("Curved console center",(0,.52,0),(3.4,.86,.82),"blue")
-desk.box("Worktop",(0,1,0),(3.65,.13,.93),"ivory")
+stepped_plinth(desk.mesh,"Desk plinth",(0,.09,0),3.46,.18,.86,"navy",flare=.03)
+desk.box("Curved console center",(0,.54,0),(3.38,.78,.80),"blue",taper=(.03,.03))
+desk.box("Console front lightband",(0,.54,.42),(2.96,.32,.06),"cyan")
+segmented_coping(desk.mesh,"Worktop",(0,1.00,0),3.70,.15,.98,"ivory",seg_len=1.85,gap=.022)
 for side in (-1,1):
-    desk.box("Faceted console wing",(side*1.84,.52,-.17),(.79,.86,.75),"cobalt",side*.38)
-    desk.box("Console wing top",(side*1.84,1,-.17),(.92,.13,.87),"ivory",side*.38)
-    desk.box("Mic base",(side*.69,1.09,.12),(.18,.06,.14),"ink")
-    desk.rod("Desk microphone",(side*.69,1.11,.13),(side*.69,1.31,-.02),.027,"ink",6)
+    desk.box("Faceted console wing",(side*1.84,.52,-.17),(.80,.84,.76),"cobalt",side*.38,taper=(.04,.04))
+    desk.box("Console wing top",(side*1.84,1.00,-.17),(.96,.15,.90),"ivory",side*.38)
+    desk.box("Mic base",(side*.69,1.09,.12),(.19,.07,.15),"ink")
+    desk.rod("Desk microphone",(side*.69,1.11,.13),(side*.69,1.31,-.02),.030,"ink",6)
 instance("broadcast_desk","NewsDesk",(-16,.11,-8.4),(4.45,1.05,.99))
 instance("broadcast_desk","HostDesk",(3.85,.29,-5.6),(4.45,1.05,.99),-.13)
 
@@ -418,20 +467,23 @@ for side in (-1,1):
     chair.box("Chair arm",(side*.29,.67,.01),(.07,.07,.35),"navy")
 
 office = kit("office_island")
-office.box("Work island top",(0,.84,0),(2.98,.14,1.43),"ivory")
+office.box("Work island top",(0,.845,0),(3.00,.15,1.45),"ivory",taper=(-.015,-.02))
 for x in (-1.25,1.25):
-    office.box("Desk plinth",(x,.39,0),(.45,.78,1.28),"green")
+    stepped_plinth(office.mesh,"Desk plinth foot",(x,.06,0),.50,.12,1.34,"navy",flare=.02)
+    office.box("Desk plinth",(x,.42,0),(.45,.72,1.28),"green",taper=(.03,.02))
     for y in (.23,.46,.69):
-        office.box("Drawer face",(x,y,.66),(.37,.18,.05),"mint")
-office.box("Acoustic screen",(0,1.05,0),(2.93,.38,.09),"mint")
+        office.box("Drawer face",(x,y,.66),(.38,.18,.06),"mint")
+office.box("Acoustic screen",(0,1.06,0),(2.93,.40,.11),"mint",taper=(.02,.04))
+office.box("Acoustic screen cap",(0,1.27,0),(2.96,.065,.13),"teal")
 for x,side in ((-.82,1),(.79,-1)):
-    office.box("Monitor stand",(x,.96,side*.25),(.32,.08,.28),"ink")
-    office.box("CRT monitor",(x,1.22,side*.26),(.62,.48,.46),"ivory")
-    office.box("CRT display",(x,1.23,side*.5),(.47,.34,.03),"screen")
-    office.box("Keyboard",(x,.937,side*.63),(.46,.044,.13),"navy")
+    office.box("Monitor stand",(x,.96,side*.25),(.34,.09,.30),"ink")
+    office.box("CRT monitor",(x,1.23,side*.28),(.64,.50,.32),"ivory",taper=(.04,.04))
+    office.box("CRT rear hood",(x,1.22,side*.08),(.48,.38,.18),"teal",taper=(.14,.14))
+    office.box("CRT display",(x,1.23,side*.45),(.48,.35,.04),"screen")
+    office.box("Keyboard",(x,.94,side*.63),(.46,.05,.14),"navy")
     office.box("Desk telephone",(x+.62,.98,side*.37),(.26,.12,.25),"navy")
-    office.box("News rundown",(x-.43,.929,side*.62),(.28,.026,.21),"paper",.21*side)
-    office.box("Folder stack",(x+.40,.952,side*.29),(.25,.070,.31),"card")
+    office.box("News rundown",(x-.43,.932,side*.62),(.28,.026,.21),"paper",.21*side)
+    office.box("Folder stack",(x+.40,.955,side*.29),(.25,.070,.31),"card")
 for i,(x,z) in enumerate([(-17.7,4.9),(-15.3,9.1),(-18.2,13.0)]):
     instance("office_island",f"NewsroomIsland{i}",(x,0,z),(3,1.02,1.45),paper=True)
     for j,(dx,dz,angle) in enumerate([(-.6,1.04,.11),(.69,-1.02,math.pi-.15)]):
@@ -439,10 +491,11 @@ for i,(x,z) in enumerate([(-17.7,4.9),(-15.3,9.1),(-18.2,13.0)]):
 
 details = kit("newsroom")
 for x in (-20.9,-18.4,-15.9,-13.4):
-    details.box("Glass divider frame",(x+17.15,1.52,0),(.09,2.65,.10),"green")
-for y in (.66,2.81):
-    details.box("Glass divider crossbar",(0,y,0),(7.6,.09,.10),"green")
-details.box("Divider knee wall",(0,.32,0),(7.6,.64,.16),"mint")
+    details.box("Glass divider frame",(x+17.15,1.52,0),(.12,2.65,.15),"green")
+details.box("Glass divider sill",(0,.67,0),(7.68,.12,.26),"ivory")
+segmented_coping(details.mesh,"Glass divider crossbar",(0,2.82,0),7.68,.14,.22,"green",seg_len=1.92,gap=.024)
+stepped_plinth(details.mesh,"Divider plinth",(0,.10,0),7.66,.20,.24,"dark_teal",flare=.025)
+details.box("Divider knee wall",(0,.38,0),(7.6,.52,.16),"mint")
 instance("newsroom","NewsroomPartition",(-17.15,0,14.78),(7.6,.64,.16),structural=True,section=True)
 layout["props"][-1]["window"] = [[0,1.73,0],[7.48,2.06],2.86]
 

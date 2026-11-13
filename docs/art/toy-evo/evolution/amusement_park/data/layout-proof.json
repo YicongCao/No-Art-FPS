@@ -1,0 +1,9 @@
+{
+  "byte_identical": true,
+  "layout_sha256": "81867aaf3dbe8c9ba6dd58cf634bb474febccba372b5f8c8f68eb2e903d3490e",
+  "changed_models": [
+    "carousel_roof",
+    "entry"
+  ],
+  "static_exports_restored": true
+}

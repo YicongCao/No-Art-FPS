@@ -87,9 +87,15 @@ for x,z in [(-21,7),(-21,13),(-21,-4),(-21,-13),(-14,-21),(-7,-21),(3,-21),
         terrain.rod("White snow gauge stripe",(x,y,z),(x,y+.18,z),.068,"white",8)
 for i in range(12):
     x=-18+i*3.25
-    terrain.box("Avalanche fence post",(x,.78,-22.5),(.18,1.56,.18),"wood")
+    if i in (3, 8):
+        terrain.chipped("Avalanche fence post",(x,.72,-22.5),(.18,1.44,.18),"wood",chips=[((1.0,1.0,1.0),.09)])
+    else:
+        terrain.box("Avalanche fence post",(x,.78,-22.5),(.18,1.56,.18),"wood")
     for y in (.38,.85,1.32):
-        terrain.box("Anti-drift timber snow fence",(x+1.6,y,-22.5),(3.28,.27,.15),"wood")
+        if i == 4 and y > 1.2:
+            terrain.chipped("Broken snow fence plank",(x+1.05,y-.03,-22.5),(2.10,.25,.15),"wood",angle=.06)
+        else:
+            terrain.box("Anti-drift timber snow fence",(x+1.6,y,-22.5),(3.28,.27,.15),"wood")
 
 # Faceted nearby rock masses and more distant layered mountain peaks.
 for i in range(31):
@@ -135,25 +141,41 @@ for i in range(n):
     angle=-th+math.pi/2
     gap=i in (0,39,9,10,19,20,24,25)
     if not gap:
-        a.solid(building,"Segmented drum wall",(x,y,z),(1.827,4.56,.29),"orange" if i%3 else "orange_light",angle)
-        building.box("Drum wall seam",(x,2.31,z),(1.79,.048,.38),"orange_dark",angle)
+        a.layout["boxes"].append([(x,y,z),(1.827,4.56,.29),angle])
+        px,_,pz=pos(th,11.46,0)
+        building.plinth("Drum base plinth",(px,.17,pz),1.85,.34,.42,"cobalt",angle=angle,flare=.035)
+        building.box("Segmented drum wall",(x,y+.12,z),(1.79,4.32,.29),"orange" if i%3 else "orange_light",angle,taper=(.01,.03))
+        building.box("Drum vertical rib",(pos(th-.5*math.tau/n,11.48,2.30)),(.09,4.28,.36),"navy",angle)
+        building.box("Drum wall seam",(x,2.31,z),(1.82,.065,.40),"orange_dark",angle)
+        xo_face,_,zo_face=pos(th,11.58,0)
+        if i in (3, 14, 28, 35):
+            building.seam((xo_face,1.42,zo_face),1.28,1.10,angle,"orange_dark","cream",tie_color="steel")
+        elif i in (6, 17, 31):
+            building.patch_plate((xo_face,1.36,zo_face),.96,.68,angle,"steel","navy")
         if i%2==0:
-            xo,_,zo=pos(th,11.60,0)
-            building.box("Dark ribbon window",(xo,3.27,zo),(1.58,.76,.096),"cobalt",angle)
-            building.box("Cool ribbon glazing",(xo,3.30,zo),(1.38,.60,.122),"glass",angle)
+            xo,_,zo=pos(th,11.61,0)
+            building.box("Dark ribbon window",(xo,3.27,zo),(1.62,.84,.16),"cobalt",angle)
+            building.box("Ribbon window sill",(xo,2.83,zo),(1.68,.11,.24),"steel",angle)
+            building.box("Cool ribbon glazing",(xo,3.30,zo),(1.38,.60,.19),"glass",angle)
     else:
         bottom=3.05 if i in (9,10,19,20,24,25) else 4.26
         a.solid(building,"Doorway head over route",(x,(bottom+4.56)/2,z),(1.84,4.56-bottom,.31),"orange",angle)
     t0,t1=i*math.tau/n,(i+1)*math.tau/n
-    circle_slab(building,"Drum trim ring",t0,t1,11.22,11.73,4.6,4.6,"blue",False,.22)
+    circle_slab(building,"Drum trim ring",t0,t1,11.18,11.84,4.64,4.64,"blue",False,.26)
     circle_slab(building,"Purple telescope floor",t0,t1,.10,11.54,.02,.02,"purple",False,.12)
 building.rod("Telescope floor center",(0,-.04,CZ),(0,.024,CZ),.41,"plum",12)
 a.solid(building,"Insulated door header",(0,3.45,9.08),(3.7,.55,1.02),"cobalt")
 for x in (-1.77,1.77):
-    a.solid(building,"Insulated south entry jamb",(x,1.46,9.18),(.29,2.93,1.06),"cobalt")
-    building.box("Storm door sidelight",(x,1.78,9.66),(.19,1.40,.15),"glass")
-building.box("Blue snow entry awning",(0,3.18,9.52),(4.0,.29,1.92),"blue")
-building.box("Snow on entry awning",(0,3.36,9.56),(3.91,.11,1.86),"snow")
+    a.layout["boxes"].append([(x,1.46,9.18),(.29,2.93,1.06),0])
+    building.plinth("Entry jamb plinth",(x,.14,9.18),.38,.28,1.14,"navy",flare=.035)
+    building.chipped("Insulated south entry jamb",(x,1.52,9.18),(.31,2.80,1.08),"cobalt",taper=(.05,.03),
+                     chips=[((-math.copysign(1,x),1.0,1.0),.12)],core_color="steel")
+    building.box("Storm door sidelight",(x,1.78,9.68),(.21,1.40,.17),"glass")
+building.coping("Blue snow entry awning",(0,3.18,9.56),4.16,.30,2.02,"blue",seg_len=1.38,slant=.18,wear=.72)
+terrain.rubble((13.45,0,.45),.38,0.4,("rock","light_rock","cream"),count=3)
+for sx in (-1.55, 1.55):
+    building.beam("Awning tie rod",(sx,3.88,9.05),(sx,3.26,10.35),.055,.055,"steel")
+building.box("Snow on entry awning",(0,3.38,9.58),(3.96,.15,1.88),"snow",taper=(.04,.06))
 building.box("Insulated airlock task light",(0,2.99,9.57),(1.35,.093,.16),"light")
 building.box("Entry boot grate",(0,.034,10.09),(2.63,.063,1.24),"ink")
 for i in range(11):
@@ -206,12 +228,13 @@ a.slope(catwalk,"Outside ramp to north snow road",17.32,21.02,-14.6,-6.70,0,2.38
 for x in (17.32,21.02):
     rail_line(catwalk,(x,0,-14.6),(x,2.38,-6.7))
 for x,z in [(13,-5.5),(19,-5.5),(13,.0),(19,.0)]:
-    catwalk.box("Weather deck steel leg",(x,1.13,z),(.24,2.27,.24),"cobalt")
-    catwalk.beam("Braced weather-deck leg",(x,.28,z),(x+1.3,2.16,z),.13,.12,"navy")
+    catwalk.plinth("Weather leg footing",(x,.14,z),.44,.28,.44,"cream",flare=.04)
+    catwalk.box("Weather deck steel leg",(x,1.18,z),(.27,2.16,.27),"cobalt",taper=(.06,.06))
+    catwalk.beam("Braced weather-deck leg",(x,.28,z),(x+1.3,2.16,z),.14,.13,"navy")
 for z in (-4.64,-.68):
-    catwalk.box("Blue east access jamb",(11.71,3.40,z),(.63,2.04,.17),"cobalt")
-catwalk.box("Weather deck entrance canopy",(12.75,4.54,-2.64),(3.0,.28,4.12),"blue")
-catwalk.box("Canopy snow",(12.76,4.72,-2.65),(2.88,.10,4.00),"snow")
+    catwalk.box("Blue east access jamb",(11.71,3.40,z),(.66,2.04,.21),"cobalt",taper=(.03,.04))
+catwalk.coping("Weather deck entrance canopy",(12.75,4.54,-2.64),3.08,.30,4.20,"blue",seg_len=1.4)
+catwalk.box("Canopy snow",(12.76,4.74,-2.65),(2.92,.14,4.04),"snow",taper=(.04,.04))
 catwalk.box("Weather door top light",(12.83,4.36,-2.62),(.17,.12,1.48),"light")
 
 # Fixed shell with a south-facing slot. Two curved leaves slide under it along
@@ -300,30 +323,38 @@ for i in range(28):
     telescope.rod("Circular cable conduit",pos(t0,2.28,.082),pos(t1,2.28,.082),.048,"yellow",7)
 
 snowcat=a.kit("snowcat")
-snowcat.box("Snowcat orange hull",(0,.81,0),(2.46,1.18,4.04),"orange")
-snowcat.box("Snowcat cabin",(0,1.74,.81),(2.33,1.30,2.15),"orange")
-snowcat.box("Snowcat broad windscreen",(0,1.98,1.91),(2.02,.74,.08),"glass")
-snowcat.box("Snowcat screen surround",(0,2.42,.83),(2.38,.12,2.17),"navy")
+snowcat.box("Snowcat orange hull",(0,.81,0),(2.48,1.18,4.06),"orange",taper=(.04,.03))
+snowcat.box("Snowcat cabin",(0,1.76,.81),(2.34,1.32,2.16),"orange",taper=(.08,.06))
+snowcat.box("Snowcat broad windscreen",(0,1.98,1.92),(2.02,.74,.09),"glass")
+snowcat.coping("Snowcat screen surround",(0,2.44,.83),2.44,.15,2.24,"navy",seg_len=1.2)
+for sx in (-1, 1):
+    snowcat.box("Engine side louver",(sx*1.25,.92,-.85),(.08,.48,1.42),"navy")
 for x in (-1.31,1.31):
-    snowcat.box("Tracked drive unit",(x,.36,0),(.56,.70,4.12),"ink")
+    snowcat.box("Tracked drive unit",(x,.36,0),(.58,.72,4.14),"ink",taper=(.04,.02))
     for i in range(6):
         z=-1.64+i*.64
-        snowcat.rod("Track road wheel",(x-.30,.38,z),(x+.30,.38,z),.273,"steel",10)
-        snowcat.rod("Hub face",(x,.38,z),(x+math.copysign(.325,x),.38,z),.14,"metal",8)
+        snowcat.rod("Track road wheel",(x-.30,.38,z),(x+.30,.38,z),.275,"steel",10)
+        snowcat.rod("Hub face",(x,.38,z),(x+math.copysign(.33,x),.38,z),.145,"metal",8)
     for i in range(18):
-        snowcat.box("Heavy track grouser",(x,.711,-1.92+i*.22),(.60,.038,.08),"metal")
-snowcat.box("Snow pusher blade",(0,.47,2.54),(3.52,.86,.28),"steel")
-snowcat.box("Snow blade wear strip",(0,.094,2.57),(3.54,.16,.32),"ink")
+        snowcat.box("Heavy track grouser",(x,.72,-1.92+i*.22),(.60,.042,.085),"metal")
+snowcat.box("Snow pusher blade",(0,.47,2.54),(3.54,.88,.30),"steel",taper=(.02,.08))
+snowcat.box("Snow blade wear strip",(0,.094,2.57),(3.56,.17,.34),"ink")
 for x in (-.81,.81):
-    snowcat.box("White snowcat headlamp",(x,1.05,1.99),(.43,.19,.09),"light")
-    snowcat.box("Roof floodlamp",(x,2.52,1.60),(.32,.13,.15),"light")
+    snowcat.box("White snowcat headlamp",(x,1.05,2.00),(.44,.20,.11),"light")
+    snowcat.box("Roof floodlamp",(x,2.54,1.60),(.34,.15,.17),"light")
 for x in (-.52,.52):
-    snowcat.box("Tie-down equipment case",(x,1.60,-1.25),(.78,.42,1.02),"yellow" if x<0 else "olive")
+    snowcat.box("Tie-down equipment case",(x,1.60,-1.25),(.80,.44,1.04),"yellow" if x<0 else "olive",taper=(.04,.04))
 a.prop("snowcat",(7.8,0,13.7),(3.53,2.53,5.53),-.32,effect="instrument")
 
-a.solid(yard,"Blue maintenance hut",(-13.55,1.27,15.1),(5.36,2.55,3.9),"blue")
-yard.box("Heavy snow blanket on hut",(-13.55,2.61,15.1),(5.55,.25,4.05),"snow")
-yard.box("Maintenance shed recess",(-13.55,1.38,17.09),(3.28,2.24,.10),"navy")
+a.layout["boxes"].append([(-13.55,1.27,15.1),(5.36,2.55,3.9),0])
+yard.plinth("Maintenance hut plinth",(-13.55,.15,15.1),5.52,.30,4.06,"cream",flare=.045)
+yard.box("Blue maintenance hut",(-13.55,1.34,15.1),(5.32,2.40,3.86),"blue",taper=(.03,.03))
+for sx in (-1, 1):
+    for sz in (-1, 1):
+        yard.box("Hut corner post",(-13.55+sx*2.58,1.34,15.1+sz*1.85),(.22,2.42,.22),"cobalt",taper=(.05,.05))
+yard.coping("Maintenance hut eave",(-13.55,2.54,15.1),5.62,.16,4.16,"navy",seg_len=1.4)
+yard.box("Heavy snow blanket on hut",(-13.55,2.70,15.1),(5.56,.26,4.08),"snow",taper=(.04,.04))
+yard.box("Maintenance shed recess",(-13.55,1.38,17.09),(3.34,2.24,.14),"navy")
 for y in (.48,1.10,1.81):
     yard.box("Open ski equipment rack",(-13.45,y,17.20),(2.88,.09,.23),"wood")
     for i in range(4):
@@ -377,13 +408,15 @@ for t in range(3):
 catwalk.box("Calibration head",(16.92,3.41,-2.08),(.29,.29,.23),"metal")
 
 console=a.kit("console")
-console.box("Telescope console base",(0,.46,0),(2.61,.92,.93),"navy")
-console.box("Instrument desk counter",(0,.93,.06),(2.76,.16,1.05),"cream")
+console.plinth("Console base foot",(0,.09,0),2.68,.18,.98,"cobalt",flare=.03)
+console.box("Telescope console base",(0,.48,0),(2.58,.78,.91),"navy",taper=(.03,.03))
+console.coping("Instrument desk counter",(0,.94,.06),2.80,.17,1.08,"cream",seg_len=1.4)
 for x in (-.61,.61):
-    console.box("Telemetry terminal",(x,1.34,-.22),(1.02,.61,.25),"blue")
-    console.box("Telemetry LCD",(x,1.37,-.085),(.85,.43,.033),"lcd")
+    console.box("Telemetry terminal",(x,1.35,-.22),(1.04,.63,.26),"blue",taper=(.04,.04))
+    console.box("Telemetry rear hood",(x,1.34,-.40),(.76,.46,.16),"cobalt",taper=(.14,.14))
+    console.box("Telemetry LCD",(x,1.37,-.08),(.85,.43,.04),"lcd")
     for j in range(5):
-        console.box("LCD signal plot",(x-.32+j*.16,1.30+j*.036,-.064),(.07,.026,.024),"cobalt")
+        console.box("LCD signal plot",(x-.32+j*.16,1.30+j*.036,-.055),(.07,.026,.024),"cobalt")
 for i in range(11):
     console.box("Console mechanical key",(-.59+i*.12,1.028,.30),(.089,.055,.12),"metal")
 console.rod("Yellow instrument stool",(0,.02,.89),(0,.48,.89),.074,"steel",8)

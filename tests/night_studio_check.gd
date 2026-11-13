@@ -17,6 +17,7 @@ func check() -> void:
 	assert(arena.validate_navigation())
 	assert(game.rules.duration==60 and game.score_record_key()=="score_night_studio_v1")
 	game.qa_mode = true
+	game.achievements.counts.clear()
 	game.start_run()
 	game.begin_running()
 	assert(game.live_enemies().size()==8)

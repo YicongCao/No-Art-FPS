@@ -1,0 +1,157 @@
+{
+  "models": [
+    {
+      "file": "a_cross_wall.glb",
+      "bytes": 40188,
+      "triangles": 1804,
+      "vertices": 984,
+      "surfaces": 7
+    },
+    {
+      "file": "a_long.glb",
+      "bytes": 565080,
+      "triangles": 28160,
+      "vertices": 15938,
+      "surfaces": 17
+    },
+    {
+      "file": "a_platform_box.glb",
+      "bytes": 25284,
+      "triangles": 1144,
+      "vertices": 624,
+      "surfaces": 4
+    },
+    {
+      "file": "a_ramp_box.glb",
+      "bytes": 14340,
+      "triangles": 572,
+      "vertices": 312,
+      "surfaces": 4
+    },
+    {
+      "file": "a_stall_north.glb",
+      "bytes": 74332,
+      "triangles": 3356,
+      "vertices": 1968,
+      "surfaces": 9
+    },
+    {
+      "file": "a_stall_south.glb",
+      "bytes": 75340,
+      "triangles": 3412,
+      "vertices": 1996,
+      "surfaces": 9
+    },
+    {
+      "file": "b_court.glb",
+      "bytes": 361092,
+      "triangles": 17874,
+      "vertices": 10043,
+      "surfaces": 16
+    },
+    {
+      "file": "b_crate_low.glb",
+      "bytes": 14344,
+      "triangles": 572,
+      "vertices": 312,
+      "surfaces": 4
+    },
+    {
+      "file": "b_crate_wall.glb",
+      "bytes": 25276,
+      "triangles": 1144,
+      "vertices": 624,
+      "surfaces": 4
+    },
+    {
+      "file": "b_platform_box.glb",
+      "bytes": 25284,
+      "triangles": 1144,
+      "vertices": 624,
+      "surfaces": 4
+    },
+    {
+      "file": "b_stall.glb",
+      "bytes": 69892,
+      "triangles": 3340,
+      "vertices": 1788,
+      "surfaces": 9
+    },
+    {
+      "file": "b_tunnel.glb",
+      "bytes": 149916,
+      "triangles": 7464,
+      "vertices": 4060,
+      "surfaces": 10
+    },
+    {
+      "file": "b_window_box.glb",
+      "bytes": 14344,
+      "triangles": 572,
+      "vertices": 312,
+      "surfaces": 4
+    },
+    {
+      "file": "ground.glb",
+      "bytes": 234176,
+      "triangles": 11888,
+      "vertices": 6486,
+      "surfaces": 9
+    },
+    {
+      "file": "mid.glb",
+      "bytes": 480160,
+      "triangles": 23772,
+      "vertices": 13594,
+      "surfaces": 14
+    },
+    {
+      "file": "mid_gate_box.glb",
+      "bytes": 25276,
+      "triangles": 1144,
+      "vertices": 624,
+      "surfaces": 4
+    },
+    {
+      "file": "mid_return_box.glb",
+      "bytes": 14348,
+      "triangles": 572,
+      "vertices": 312,
+      "surfaces": 4
+    },
+    {
+      "file": "pit_box.glb",
+      "bytes": 25268,
+      "triangles": 1144,
+      "vertices": 624,
+      "surfaces": 4
+    },
+    {
+      "file": "short_box.glb",
+      "bytes": 14336,
+      "triangles": 572,
+      "vertices": 312,
+      "surfaces": 4
+    },
+    {
+      "file": "skyline.glb",
+      "bytes": 171936,
+      "triangles": 3060,
+      "vertices": 6096,
+      "surfaces": 9
+    },
+    {
+      "file": "tunnel_box.glb",
+      "bytes": 14336,
+      "triangles": 572,
+      "vertices": 312,
+      "surfaces": 4
+    }
+  ],
+  "total": {
+    "bytes": 2434548,
+    "triangles": 113282,
+    "vertices": 67945,
+    "surfaces": 153
+  }
+}

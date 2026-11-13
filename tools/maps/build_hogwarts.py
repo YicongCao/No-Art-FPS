@@ -65,14 +65,15 @@ def road(points,width, color="flagstone", tiles=True):
 
 
 def lamp(kit,x,y,z,scale=1.0):
-    kit.box("Lantern stone base",(x,y+.18*scale,z),(.50*scale,.36*scale,.50*scale),"stone")
-    kit.rod("Lantern iron post",(x,y+.32*scale,z),(x,y+1.24*scale,z),.058*scale,"ink",6)
-    kit.box("Amber lantern glass",(x,y+1.35*scale,z),(.27*scale,.34*scale,.27*scale),"amber")
+    kit.plinth("Lantern stone plinth",(x,y+.08*scale,z),.56*scale,.16*scale,.56*scale,"trim",flare=.04*scale)
+    kit.box("Lantern stone base",(x,y+.24*scale,z),(.48*scale,.24*scale,.48*scale),"stone",taper=(.08,.08))
+    kit.rod("Lantern iron post",(x,y+.34*scale,z),(x,y+1.24*scale,z),.064*scale,"ink",8,.050*scale)
+    kit.box("Amber lantern glass",(x,y+1.35*scale,z),(.28*scale,.35*scale,.28*scale),"amber")
     for dx in (-.15,.15):
         for dz in (-.15,.15):
             kit.beam("Lantern cage",(x+dx*scale,y+1.16*scale,z+dz*scale),
-                     (x+dx*scale,y+1.53*scale,z+dz*scale),.035*scale,.035*scale,"ink")
-    cap(kit,"Lantern cap",x,z,y+1.52*scale,.235*scale,.025*scale,.18*scale,"ink",4)
+                     (x+dx*scale,y+1.53*scale,z+dz*scale),.038*scale,.038*scale,"ink")
+    cap(kit,"Lantern cap",x,z,y+1.52*scale,.25*scale,.03*scale,.20*scale,"ink",6)
 
 
 def rail(kit,p,q,color="stone",blocking=True,height=.88):
@@ -82,11 +83,18 @@ def rail(kit,p,q,color="stone",blocking=True,height=.88):
     yaw=math.atan2(X-x,Z-z)
     if blocking:
         a.layout["boxes"].append([[(x+X)/2,(y+Y)/2+height*.5,(z+Z)/2],[.36,height,length],yaw])
-    kit.beam("Parapet lower course",(x,y+.24,z),(X,Y+.24,Z),.39,.47,color)
-    kit.beam("Parapet cap",(x,y+.52,z),(X,Y+.52,Z),.47,.15,"trim" if color=="stone" else "wood_light")
+    kit.beam("Parapet lower course",(x,y+.24,z),(X,Y+.24,Z),.40,.47,color)
+    kit.beam("Parapet cap",(x,y+.53,z),(X,Y+.53,Z),.50,.16,"trim" if color=="stone" else "wood_light")
     for i in range(1,max(2,round(length/1.9))):
         t=i/max(2,round(length/1.9))
-        kit.box("Parapet pier",(x+(X-x)*t,y+(Y-y)*t+.45,z+(Z-z)*t),(.53,.90,.54),color)
+        px,py,pz = x+(X-x)*t, y+(Y-y)*t, z+(Z-z)*t
+        kit.plinth("Parapet pier foot",(px,py+.09,pz),.58,.18,.58,"trim" if color=="stone" else "oak",angle=yaw,flare=.035)
+        if color=="stone" and i%2==1:
+            kit.chipped("Parapet pier",(px,py+.46,pz),(.52,.78,.53),color,angle=yaw,taper=(.08,.08),core_color="trim")
+            kit.chipped("Parapet pier cap",(px,py+.88,pz),(.59,.13,.60),"trim",angle=yaw,taper=(.04,.04))
+        else:
+            kit.box("Parapet pier",(px,py+.46,pz),(.52,.78,.53),color,angle=yaw,taper=(.08,.08))
+            kit.box("Parapet pier cap",(px,py+.88,pz),(.59,.13,.60),"trim" if color=="stone" else "wood_light",angle=yaw)
 
 
 def slope_x(x0,x1,z0,z1,y0,y1, label):
@@ -107,17 +115,24 @@ def arch(kit,x,y,z,r,legs,depth,color="stone", collision=False):
     for side in (-1,1):
         at=(x+side*(r+.23),y+legs*.5,z)
         if collision:
-            a.solid(kit,"Stone arch jamb",at,(.46,legs,depth),color)
-        else:
-            kit.box("Stone arch jamb",at,(.46,legs,depth),color)
+            a.layout["boxes"].append([at,(.46,legs,depth),0])
+        kit.chipped("Stone arch jamb",at,(.48,legs,depth),color,taper=(.05,.04),
+                    chips=[((-side,1.0,1.0),.14)],core_color="trim")
+        kit.plinth("Stone arch foot",(x+side*(r+.23),y+.13,z),.56,.26,depth+.10,"trim",flare=.04)
+        kit.chipped("Arch impost",(x+side*(r+.22),y+legs-.08,z),(.56,.15,depth+.12),"trim",
+                    taper=(-.05,-.05),chips=[((-side,1.0,1.0),.06)])
     for i in range(11):
         t0,t1=math.pi*i/11,math.pi*(i+1)/11-.022
+        keystone = (i == 5)
+        jag = .05 if i in (2, 8) else (-.03 if i == 6 else 0.0)
+        d_ext = depth * ((1.24 if keystone else 1.0) + jag)
+        r_out = r + (.47 if keystone else (.41 if i in (2, 7) else .38))
         points=[(x+math.cos(t)*rr,y+legs+math.sin(t)*rr,z+d)
-                for d in (-depth/2,depth/2) for t,rr in
-                [(t0,r),(t1,r),(t1,r+.38),(t0,r+.38)]]
+                for d in (-d_ext/2,d_ext/2) for t,rr in
+                [(t0,r),(t1,r),(t1,r_out),(t0,r_out)]]
         kit.mesh("Cut-stone arch voussoir",points,
                  [(3,2,1,0),(4,5,6,7),(0,1,5,4),(1,2,6,5),(2,3,7,6),(3,0,4,7)],
-                 "trim" if i==5 else color)
+                 "trim" if keystone else color)
 
 
 def lancet(kit,x,y,z,w,h):
@@ -125,10 +140,15 @@ def lancet(kit,x,y,z,w,h):
         points=[(x+dx*w*scale,y+dy*h*scale,z+depth) for dx,dy in
                 [(-.5,0),(.5,0),(.5,.64),(0,1),(-.5,.64)]]
         kit.facet("Glazed pointed arch",points,tint)
-    kit.box("Lancet central mullion",(x,y+h*.46,z+.070),(.075,h*.91,.035),"oak")
-    kit.box("Lancet stone sill",(x,y-.10,z+.12),(w*1.25,.13,.32),"trim")
+    for side in (-1, 1):
+        kit.box("Lancet outer jamb",(x+side*w*.56,y+h*.32,z+.09),(.14,h*.66,.18),"trim",taper=(.04,.04))
+        kit.beam("Lancet hood arch",(x+side*w*.56,y+h*.64,z+.09),(x,y+h*1.05,z+.09),.14,.16,"trim")
+    kit.box("Lancet central mullion",(x,y+h*.46,z+.075),(.085,h*.91,.06),"oak")
+    kit.box("Lancet stone sill",(x,y-.10,z+.15),(w*1.32,.16,.38),"trim",taper=(.02,.04))
+    for side in (-1, 1):
+        kit.box("Lancet sill corbel",(x+side*w*.42,y-.21,z+.12),(.15,.14,.28),"stone")
     for offset in (.28,.54):
-        kit.box("Lancet transom",(x,y+h*offset,z+.067),(w,.068,.04),"oak")
+        kit.box("Lancet transom",(x,y+h*offset,z+.072),(w,.075,.055),"oak")
 
 
 def gable(kit,x,y,z,width,depth,rise,roof="slate"):
@@ -137,15 +157,16 @@ def gable(kit,x,y,z,width,depth,rise,roof="slate"):
     kit.facet("Front gable",[(x0,y,z1),(x1,y,z1),(x,y+rise,z1)],"plaster")
     kit.facet("Back gable",[(x1,y,z0),(x0,y,z0),(x,y+rise,z0)],"stone")
     for edge in (x0,x1):
-        kit.facet("Slate roof face",[(edge,y-.10,z0-.24),(x,y+rise,z0-.24),
-                                    (x,y+rise,z1+.24),(edge,y-.10,z1+.24)],roof)
-        kit.beam("Front bargeboard",(edge,y-.08,z1+.28),(x,y+rise+.03,z1+.28),.14,.14,"oak")
+        quad = [(edge,y-.10,z0-.26),(x,y+rise,z0-.26),(x,y+rise,z1+.26),(edge,y-.10,z1+.26)]
+        kit.slab("Slate roof face", quad if edge < x else quad[::-1], .14, roof)
+        kit.beam("Front bargeboard",(edge,y-.08,z1+.29),(x,y+rise+.04,z1+.29),.16,.16,"oak")
+        kit.beam("Back bargeboard",(edge,y-.08,z0-.29),(x,y+rise+.04,z0-.29),.16,.16,"oak")
         for i in range(1,5):
             t=i/5
             X=edge+(x-edge)*t
-            Y=y+rise*t+.024
-            kit.beam("Slate seam",(X,Y,z0-.22),(X,Y,z1+.22),.043,.032,"slate_dark")
-    kit.beam("Roof ridge",(x,y+rise+.035,z0-.26),(x,y+rise+.035,z1+.26),.13,.13,"slate_light")
+            Y=y+rise*t+.03
+            kit.beam("Slate seam",(X,Y,z0-.24),(X,Y,z1+.24),.05,.04,"slate_dark")
+    kit.beam("Roof ridge",(x,y+rise+.05,z0-.28),(x,y+rise+.05,z1+.28),.16,.16,"slate_light")
 
 
 # Lower land, raised courtyard and two separate links uphill.
@@ -248,11 +269,14 @@ for i in range(32):
 
 # Raised, playable ceremonial pavilion with a field-side view.
 slab(stand,"Pavilion podium",(-8.7,.82,14.5),(4.0,1.64,12.2),"stone")
+stand.plinth("Pavilion base plinth",(-8.7,.16,14.5),4.18,.32,12.38,"trim",flare=.05)
+stand.coping("Pavilion deck coping",(-8.7,1.62,14.5),4.24,.16,12.42,"trim",seg_len=1.8)
 steps(-8.7,20.6,25.1,3.0,1.64,0,"Pavilion steps")
 for z in (9.1,12.8,16.6,19.95):
     for x in (-10.48,-6.93):
-        stand.box("Pavilion oak pillar",(x,3.02,z),(.19,2.76,.20),"timber")
-    stand.beam("Pavilion roof tie",(-10.6,4.17,z),(-6.8,4.17,z),.16,.16,"oak")
+        stand.plinth("Pavilion pillar foot",(x,1.74,z),.30,.20,.30,"trim",flare=.025)
+        stand.box("Pavilion oak pillar",(x,3.02,z),(.22,2.72,.22),"timber",taper=(.08,.08))
+    stand.beam("Pavilion roof tie",(-10.6,4.17,z),(-6.8,4.17,z),.18,.18,"oak")
 gable(stand,-8.7,4.18,14.5,4.56,12.65,1.29)
 rail(stand,(-10.63,1.64,8.55),(-10.63,1.64,20.56),"oak")
 rail(stand,(-6.73,1.64,8.55),(-6.73,1.64,20.56),"oak")
@@ -310,18 +334,29 @@ for x,z,r,h,spire in [(-24,-31,1.65,8.4,3.45),(-21,-34,1.26,10.6,4.2),(-8,-34,1.
     tower(x,z,r,h,spire)
 hall_x,hall_z=12.0,-29.5
 slab(castle,"Great Hall masonry shell",(hall_x,7.73,hall_z),(17.8,8.02,8.9),"stone")
+castle.plinth("Great Hall stone plinth",(hall_x,3.92,hall_z),18.1,.42,9.2,"trim",flare=.06)
 for z in (hall_z-4.70,hall_z+4.70):
-    castle.facet("Long hall slate roof",[(2.80,11.72,z),(21.2,11.72,z),
-                 (21.2,15.82,hall_z),(2.80,15.82,hall_z)],"slate")
+    quad = [(2.80,11.72,z),(21.2,11.72,z),(21.2,15.82,hall_z),(2.80,15.82,hall_z)]
+    castle.slab("Long hall slate roof", quad if z > hall_z else quad[::-1], .18, "slate")
     for x in range(3,22):
-        castle.beam("Ribbed slate roof seam",(x,11.75,z),(x,15.86,hall_z),.055,.045,"slate_dark")
+        castle.beam("Ribbed slate roof seam",(x,11.77,z),(x,15.88,hall_z),.065,.055,"slate_dark")
 for x in (3.07,20.93):
     castle.facet("Great Hall end gable",[(x,11.7,-34.20),(x,15.82,hall_z),(x,11.7,-24.8)],"plaster")
-castle.beam("Great Hall roof crest",(2.8,15.84,hall_z),(21.2,15.84,hall_z),.24,.22,"slate_light")
-for x in (5.05,8.53,12.0,15.47,18.95):
+castle.beam("Great Hall roof crest",(2.8,15.86,hall_z),(21.2,15.86,hall_z),.26,.24,"slate_light")
+for i_b, x in enumerate((5.05,8.53,12.0,15.47,18.95)):
     lancet(castle,x,5.22,-25.007,2.12,5.86)
-    castle.box("Hall buttress",(x+1.58,6.64,-24.87),(.38,5.85,.72),"trim")
-    cap(castle,"Buttress pinnacle",x+1.58,-24.87,9.60,.38,.018,1.85,"slate_dark",4)
+    castle.plinth("Hall buttress foot",(x+1.58,3.95,-24.78),.56,.46,.92,"stone",flare=.05)
+    if i_b % 2 == 1:
+        castle.chipped("Hall buttress",(x+1.58,6.64,-24.85),(.44,5.85,.78),"trim",taper=(.10,.12),
+                       chips=[((1.0,1.0,1.0),.18)],core_color="stone")
+    else:
+        castle.box("Hall buttress",(x+1.58,6.64,-24.85),(.44,5.85,.78),"trim",taper=(.10,.12))
+    castle.box("Buttress set-off",(x+1.58,6.80,-24.76),(.50,.18,.88),"stone",taper=(.08,.12))
+    cap(castle,"Buttress pinnacle",x+1.58,-24.87,9.60,.40,.02,1.88,"slate_dark",4)
+castle.seam((6.8,5.6,-25.04),1.45,1.30,0.0,"grout","trim",tie_color="ink")
+castle.seam((17.2,5.8,-25.04),1.45,1.30,0.0,"grout","trim",flip=True)
+castle.rubble((4.85,3.72,-13.85),.44,0.4,("stone","trim","flagstone"),count=3)
+castle.rubble((-4.85,3.72,-13.85),.44,-0.6,("stone","trim"),count=3)
 for y in (4.08,4.74,10.92,11.43):
     castle.box("Continuous hall stone belt",(12,y,-24.93),(17.83,.13,.22),"trim" if y>10 else "grout")
 for x in (6.76,10.25,13.73,17.17):
@@ -330,7 +365,8 @@ for x in (6.76,10.25,13.73,17.17):
 for x in range(-22,29,2):
     if x>1 and x<22:continue
     castle.box("Castle curtain wall",(x,7.38,-35.1),(2.0,7.3,1.42),"stone")
-    castle.box("Castle wall crenel",(x,11.28,-35.1),(1.12,.76,1.48),"trim")
+    c_h = .58 if x % 6 == 0 else .76
+    castle.chipped("Castle wall crenel",(x,10.90+c_h*.5,-35.1),(1.12,c_h,1.48),"trim",seed=abs(x))
 for x in (-11.5,-8.0,-4.5):
     arch(castle,x,3.72,-29.25,1.20,2.12,.59)
     castle.box("Recessed cloister back",(x,6.1,-30.23),(3.30,4.74,.24),"shade")
@@ -376,34 +412,40 @@ for side in (-1,1):
 def shop(x,z,w,d,h,side,index):
     front=z+d*.5
     tint=("plaster","stone","flagstone")[index%3]
-    slab(village,"Timber and plaster shop",(x,h*.5,z),(w,h,d),tint)
+    a.layout["boxes"].append([(x,h*.5,z),[w,h,d],0])
+    village.plinth("Shop stone plinth",(x,.18,z),w+.12,.36,d+.12,"stone",flare=.05)
+    village.box("Timber and plaster shop",(x,h*.5+.06,z),(w,h-.12,d),tint,taper=(.03,.03))
     gable(village,x,h,z,w+.44,d+.40,2.0+index%3*.32,("slate","slate_dark","slate_light")[index%3])
-    village.box("Stone chimney",(x+w*.27,h+1.88,z-d*.18),(.68,2.88,.64),"stone")
-    village.box("Chimney coping",(x+w*.27,h+3.30,z-d*.18),(.82,.16,.79),"trim")
+    village.box("Stone chimney",(x+w*.27,h+1.88,z-d*.18),(.72,2.88,.68),"stone",taper=(.09,.09))
+    village.coping("Chimney coping",(x+w*.27,h+3.32,z-d*.18),.90,.18,.86,"trim",seg_len=.9,wear=.78)
+    village.seam((x+w*.24,1.52,front),min(1.1,w*.28),1.05,0.0,"grout","trim",tie_color="ink" if index%2==0 else None)
+    village.masonry_patch((x+side*w*.5,1.02,z),0.90,0.58,math.pi*.5*side,"grout","stone",alt_color="flagstone",lip_color="trim")
     for dx in (-w*.46,0,w*.46):
-        village.box("Exposed oak stud",(x+dx,h*.48,front+.06),(.14,h,.19),"oak")
-    for y in (.34,h*.55,h-.10):
-        village.box("Oak cross member",(x,y,front+.08),(w,.16,.19),"oak")
+        village.box("Exposed oak stud",(x+dx,h*.48,front+.06),(.16,h,.21),"oak")
+    for y in (.36,h*.55,h-.10):
+        village.box("Oak cross member",(x,y,front+.08),(w+.06,.18,.21),"oak")
     for dx in (-1,1):
         village.beam("Diagonal half timber brace",(x+dx*.13,h*.52,front+.17),
-                     (x+dx*w*.44,h-.14,front+.17),.12,.115,"oak")
+                     (x+dx*w*.44,h-.14,front+.17),.13,.125,"oak")
     for y in (1.12,h*.72):
-        village.box("Front bay amber window",(x-.82,y,front+.19),(1.30,.83,.14),"window")
+        village.box("Front bay window casing",(x-.82,y,front+.16),(1.44,.96,.18),"oak")
+        village.box("Front bay sill",(x-.82,y-.48,front+.22),(1.56,.13,.28),"trim")
+        village.box("Front bay amber window",(x-.82,y,front+.24),(1.26,.78,.08),"window")
         for dd in (-.52,0,.52):
-            village.box("Front window mullion",(x-.82+dd,y,front+.276),(.055,.80,.040),"oak")
+            village.box("Front window mullion",(x-.82+dd,y,front+.29),(.06,.80,.05),"oak")
     wall_x=x+side*(w*.5+.07)
     for zz in (z-d*.26,z+d*.23):
-        village.box("Lane-facing shop window recess",(wall_x,1.43,zz),(.23,1.88,1.45),"oak")
-        village.box("Lane-facing warm shop window",(wall_x+side*.123,1.47,zz),(.038,1.55,1.23),"window")
+        village.box("Lane-facing shop window recess",(wall_x,1.43,zz),(.26,1.92,1.50),"oak")
+        village.box("Lane-facing warm shop window",(wall_x+side*.135,1.47,zz),(.045,1.55,1.23),"window")
         for dz in (-.39,0,.39):
-            village.box("Bay window oak mullion",(wall_x+side*.151,1.47,zz+dz),(.067,1.52,.056),"oak")
-        village.box("Bay window transom",(wall_x+side*.151,1.44,zz),(.066,.062,1.26),"oak")
-        village.box("Lane sill",(wall_x+side*.17,.59,zz),(.40,.16,1.48),"wood_light")
-    village.box("Laneway half-timber crossbar",(wall_x,2.61,z),(.15,.19,d),"oak")
+            village.box("Bay window oak mullion",(wall_x+side*.165,1.47,zz+dz),(.072,1.52,.062),"oak")
+        village.box("Bay window transom",(wall_x+side*.165,1.44,zz),(.072,.068,1.26),"oak")
+        village.box("Lane sill",(wall_x+side*.19,.58,zz),(.46,.18,1.58),"wood_light")
+    village.box("Laneway half-timber crossbar",(wall_x,2.61,z),(.17,.20,d),"oak")
     if index%2==0:
-        village.box("Red shop awning",(wall_x+side*.40,2.77,z),(.89,.16,d*.86),"red")
-        village.box("Gold awning edge",(wall_x+side*.83,2.69,z),(.065,.16,d*.87),"gold")
-    village.box("Heavy timber front door",(x+.82,1.03,front+.12),(.78,2.01,.13),"oak")
+        village.canopy((wall_x+side*.02,2.92,z),d*.88,.92,.30,math.pi*.5*side,"red","trim","oak",posts=False)
+    village.box("Heavy timber front door",(x+.82,1.03,front+.12),(.82,2.02,.15),"oak")
+    village.box("Door arch lintel",(x+.82,2.08,front+.14),(.96,.16,.22),"trim")
     lamp(village,wall_x+side*.52,0,z-d*.42,.69)
 
 
@@ -504,18 +546,22 @@ lake.facet("Black Lake",( (-162,-3.34,-141),(91,-3.34,-141),(91,-3.34,117),(-162
 
 # Frenzy cover breaks apart, while the stairs, walls carrying platforms and walkable floor stay intact.
 crate=a.kit("festival_crate")
-crate.box("Wooden crate",(0,.59,0),(1.34,1.18,1.18),"timber")
-for x in (-.60,.60):
-    crate.box("Crate oak stud",(x,.61,.602),(.14,1.16,.09),"oak")
-for y in (.13,1.06):
-    crate.box("Crate reinforcing band",(0,y,.608),(1.37,.15,.088),"wood_light")
-crate.beam("Crate diagonal brace",(-.56,.14,.669),(.56,1.05,.669),.11,.10,"wood_light")
+crate.plinth("Crate skid",(0,.06,0),1.36,.12,1.20,"oak",flare=.02)
+crate.box("Wooden crate",(0,.60,0),(1.28,1.06,1.12),"timber",taper=(.02,.02))
+for sx in (-1, 1):
+    for sz in (-1, 1):
+        crate.box("Crate oak stud",(sx*.60,.60,sz*.52),(.15,1.14,.15),"oak",taper=(.03,.03))
+for y in (.15,1.08):
+    crate.box("Crate reinforcing band",(0,y,0),(1.38,.15,1.22),"wood_light")
+for sz in (-1, 1):
+    crate.beam("Crate diagonal brace",(-.54,.16,sz*.57),(.54,1.04,sz*.57),.11,.10,"wood_light")
 stall=a.kit("village_stall")
-stall.box("Festival counter",(0,.58,0),(2.25,1.16,1.05),"timber")
-for x in (-1.02,1.02):
-    stall.box("Awning frame",(x,1.40,0),(.13,2.80,.13),"oak")
-for i in range(9):
-    stall.box("Striped market awning",((i-4)*.28,2.45,.13),(.279,.096,1.58),"red" if i%2==0 else "trim")
+stall.plinth("Stall stone plinth",(0,.09,0),2.32,.18,1.12,"stone",flare=.035)
+stall.box("Festival counter",(0,.58,0),(2.20,.96,1.00),"timber",taper=(.03,.03))
+for sx in (-1, 1):
+    stall.box("Counter oak post",(sx*1.04,.58,0),(.16,.98,1.06),"oak",taper=(.04,.04))
+stall.coping("Festival counter top",(0,1.12,0),2.38,.14,1.18,"wood_light",seg_len=1.2)
+stall.canopy((0,2.68,-.56),2.42,1.42,.38,0.0,"red","trim","oak",post_h=2.32,posts=True)
 for x,y,z in [(-15,0,12),(-31,0,23),(-32,0,8),(-19,0,26),(-4,0,26),
               (9,0,14),(12,3.72,-18),(-10,3.72,-19),(17,3.72,-23),(25,1.15,1.7),
               (26.4,0,24.6),(32.7,0,32.0),(17.7,0,34.0),(35.5,0,14.6)]:

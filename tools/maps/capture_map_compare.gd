@@ -1,0 +1,107 @@
+extends SceneTree
+
+# Two fixed views per map for lighting before/after comparisons.
+# godot --path . --script tools/maps/capture_map_compare.gd -- <folder> <map_id>...
+# Writes docs/art/toy/maps/<folder>/<map_id>-{play,view}.png. "play" is the start view with
+# HUD, rifle and two enemies placed ahead; "view" is the map's first layout camera, or the
+# start view turned around when the map has no layout file.
+var game: Node3D
+
+func _initialize() -> void:
+	capture.call_deferred()
+
+func vec(values: Array) -> Vector3:
+	return Vector3(values[0],values[1],values[2])
+
+func capture() -> void:
+	assert(DisplayServer.get_name()!="headless")
+	var args := OS.get_cmdline_user_args()
+	var out := "res://docs/art/toy/maps/%s/"%args[0]
+	DirAccess.make_dir_recursive_absolute(out)
+	game = load("res://scenes/main.tscn").instantiate()
+	game.remember_title_selection = false
+	root.add_child(game)
+	root.size = Vector2i(1600,900)
+	for _frame in range(900):
+		if game.title_frame_ready:break
+		await process_frame
+	game.qa_mode = true
+	var camera := Camera3D.new()
+	camera.far = 265
+	game.add_child(camera)
+	for id in args.slice(1):
+		var path: String = game.TITLE_SESSIONS.get(id,game.CONCEPT_SESSIONS.get(id,""))
+		await game.select_session(load(path),id)
+		game.start_run()
+		game.begin_running()
+		game.set_physics_process(false)
+		game.invulnerable = 999
+		game.hud.go_time = 0
+		game.rules.elapsed = 2.0
+		game.clear_round()
+		var player = game.player
+		player.enabled = false
+		player.pitch = 0
+		player.camera.rotation.x = 0
+		var eye: Vector3 = player.camera.global_position
+		var ahead: Vector3 = -player.global_transform.basis.z
+		var space: PhysicsDirectSpaceState3D = player.get_world_3d().direct_space_state
+		var reach := 9.0
+		var hit: Dictionary = space.intersect_ray(PhysicsRayQueryParameters3D.create(eye,eye+ahead*reach,1))
+		if not hit.is_empty():reach = maxf(3.0,eye.distance_to(hit.position)-1.5)
+		var spot := eye+ahead*reach
+		var ground: Dictionary = space.intersect_ray(PhysicsRayQueryParameters3D.create(spot,spot+Vector3.DOWN*6,1))
+		if not ground.is_empty():spot = ground.position
+		var side := ahead.cross(Vector3.UP).normalized()
+		for i in range(2):
+			var foe = game.spawn_enemy(spot+side*(-.9 if i==0 else 1.1)+ahead*(.0 if i==0 else 1.4),i==1)
+			foe.set_physics_process(false)
+			foe.look_at(Vector3(eye.x,foe.global_position.y,eye.z),Vector3.UP)
+		var aim := eye.direction_to(spot+Vector3.UP*1.2)
+		player.pitch = asin(clampf(aim.y,-.3,.3))
+		player.camera.rotation.x = player.pitch
+		await shot(out+id+"-play.png")
+		var layout_path := "res://tools/maps/%s_layout.json"%id
+		var cameras: Dictionary = {}
+		if FileAccess.file_exists(layout_path):
+			var layout: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(layout_path))
+			if layout.get("cameras") is Dictionary:cameras = layout.cameras
+		if not cameras.is_empty():
+			var settings: Array = cameras.values()[0]
+			game.hud.hide()
+			player.gun.hide()
+			camera.make_current()
+			camera.global_position = vec(settings[0])
+			camera.look_at(vec(settings[1]))
+			camera.fov = settings[2]
+			await shot(out+id+"-view.png")
+			player.camera.make_current()
+			game.hud.show()
+			player.gun.show()
+		else:
+			# Turn toward the most open heading so the second view shows the map, not a wall.
+			var start_yaw: float = player.rotation.y
+			var best_yaw := start_yaw+PI
+			var best_open := -1.0
+			for step in range(1,8):
+				var yaw := start_yaw+step*PI/4
+				var open := 0.0
+				for spread in [-.25,0.0,.25]:
+					var dir := Vector3(-sin(yaw+spread),0,-cos(yaw+spread))
+					var probe: Dictionary = space.intersect_ray(PhysicsRayQueryParameters3D.create(eye,eye+dir*60,1))
+					open += 60.0 if probe.is_empty() else eye.distance_to(probe.position)
+				if open>best_open:
+					best_open = open
+					best_yaw = yaw
+			player.rotation.y = best_yaw
+			player.pitch = 0
+			player.camera.rotation.x = 0
+			await shot(out+id+"-view.png")
+		game.state = "RESULTS"
+		game.menu_action("menu")
+	quit()
+
+func shot(path: String) -> void:
+	for _frame in range(8):await process_frame
+	await RenderingServer.frame_post_draw
+	assert(root.get_texture().get_image().save_png(path)==OK)

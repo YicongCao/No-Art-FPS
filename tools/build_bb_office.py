@@ -2,11 +2,24 @@
 import json
 import math
 from pathlib import Path
+import sys
 
 import bpy
 from mathutils import Vector
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "tools/maps"))
+from toy_kit import (
+    chipped_box,
+    export_toy_parts,
+    repair_patch_plate,
+    segmented_coping,
+    slanted_wall_seam,
+    stepped_plinth,
+    tapered_box,
+)
+from hero_geometry import profile_shell, rounded_profile
+
 OUT = ROOT / "assets/models/bb_office"
 OUT.mkdir(parents=True, exist_ok=True)
 bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -35,7 +48,7 @@ for name, hex_color in COLORS.items():
     mat.use_nodes = True
     shader = mat.node_tree.nodes["Principled BSDF"]
     shader.inputs["Base Color"].default_value = color
-    shader.inputs["Roughness"].default_value = .87
+    shader.inputs["Roughness"].default_value = .94 if name.startswith("carpet") else .54
     if name in ("display_glass", "laptop_glass"):
         shader.inputs["Metallic"].default_value = .22
         shader.inputs["Roughness"].default_value = .24
@@ -61,7 +74,7 @@ class Kit:
         self.collection = bpy.data.collections.new(name)
 
     def mesh(self, label, points, faces, color):
-        self.parts.append((points, faces, color))
+        self.parts.append((label, points, faces, color))
         origin = sum((Vector(v) for v in points), Vector()) / len(points)
         mesh = bpy.data.meshes.new(label)
         mesh.from_pydata([xyz(Vector(v) - origin) for v in points], [], faces)
@@ -70,7 +83,10 @@ class Kit:
         obj.location = xyz(origin)
         self.collection.objects.link(obj)
 
-    def box(self, label, center, size, color, angle=0):
+    def box(self, label, center, size, color, angle=0, taper=0.0):
+        if taper:
+            tapered_box(self.mesh, label, center, size, color, angle=angle, taper=taper)
+            return
         c, s = math.cos(angle), math.sin(angle)
         points = []
         for x, y, z in ((-1,-1,-1),(1,-1,-1),(1,1,-1),(-1,1,-1),
@@ -94,27 +110,28 @@ class Kit:
         faces += [(i,(i+1)%sides,(i+1)%sides+sides,i+sides) for i in range(sides)]
         self.mesh(label, points, faces, color)
 
+    def molded(self, label, center, size, color, angle=0, radius=.09):
+        w,h,d = size
+        edge = min(.035, d*.22)
+        profile_shell(self.mesh, "Molded " + label, center, [
+            (-d/2, rounded_profile(w-.025,h-.025,radius)),
+            (-d/2+edge, rounded_profile(w,h,radius)),
+            (d/2-edge, rounded_profile(w,h,radius)),
+            (d/2, rounded_profile(w-.025,h-.025,radius)),
+        ], color, angle)
+
     def export(self):
-        points, faces, colors = [], [], []
-        for verts, polys, color in self.parts:
-            faces.extend(tuple(len(points)+i for i in face) for face in polys)
-            points.extend(xyz(p) for p in verts)
-            colors.extend([color]*len(polys))
-        mesh = bpy.data.meshes.new(self.name)
-        mesh.from_pydata(points, [], faces)
-        keys = list(dict.fromkeys(colors))
-        for key in keys:
-            mesh.materials.append(materials[key])
-        for polygon, color in zip(mesh.polygons, colors):
-            polygon.material_index = keys.index(color)
-        obj = bpy.data.objects.new(self.name, mesh)
-        bpy.context.scene.collection.objects.link(obj)
-        bpy.ops.object.select_all(action="DESELECT")
-        obj.select_set(True)
-        bpy.context.view_layer.objects.active = obj
-        bpy.ops.export_scene.gltf(filepath=str(OUT/f"{self.name}.glb"),export_format="GLB",use_selection=True)
-        bpy.data.objects.remove(obj, do_unlink=True)
-        bpy.data.meshes.remove(mesh)
+        bl_parts = [(label, [xyz(p) for p in verts], polys, color)
+                    for label, verts, polys, color in self.parts]
+        return export_toy_parts(
+            self.name,
+            bl_parts,
+            materials,
+            OUT / f"{self.name}.glb",
+            bevel=(self.name != "city"),
+            max_bevel=0.026,
+            skip_labels=("Molded ", "Sculpted ", "Carpet tile", "Syntax token", "Waterfall", "Revenue", "Keyboard key", "Sesame seed"),
+        )
 
 
 layout = {"boxes": [], "glass": [], "props": [], "spots": [], "faults": []}
@@ -138,8 +155,24 @@ def instance(asset, name, at, bounds, angle=0, impact="", sections=()):
 
 
 def wall_between(item, label, left, right, z, color):
-    solid(item, label, ((left+right)/2, 1.8, z), (right-left, 3.6, .22), color)
-    item.box("Skirting", ((left+right)/2, .085, z+.13), (right-left,.17,.065), "slate")
+    span = right - left
+    cx = (left + right) * 0.5
+    layout["boxes"].append([(cx, 1.8, z), (span, 3.6, .22)])
+    # Recessed dark spine + modular molded wall panels with 2.6cm vertical seams
+    item.box(label + " core", (cx, 1.8, z), (span - .02, 3.56, .17), "navy")
+    n_panels = max(1, round(span / 1.65))
+    step = span / n_panels
+    for i in range(n_panels):
+        px = left + (i + 0.5) * step
+        tint_p = "lilac" if (n_panels >= 4 and i == n_panels - 2) else color
+        item.box(label, (px, 1.82, z), (max(.18, step - .026), 3.16, .22), tint_p)
+    if span >= 4.5:
+        slanted_wall_seam(item.mesh, (cx - span*.18, 1.35, z - .11), 1.15, .92, math.pi, "navy", "lilac")
+        repair_patch_plate(item.mesh, (cx + span*.22, .68, z + .11), .74, .44, 0.0, "galvanized", "navy")
+    # Grounding double-sided baseboard plinth + top crown header rail
+    stepped_plinth(item.mesh, "Skirting plinth", (cx, .115, z), span, .23, .29, "slate", flare=.022)
+    item.box("Skirting lip", (cx, .245, z), (span, .048, .265), "lilac")
+    segmented_coping(item.mesh, "Wall crown rail", (cx, 3.50, z), span, .20, .285, "navy", seg_len=1.65, gap=.024, slant=.14, wear=.48)
 
 
 shell = kit("architecture")
@@ -151,14 +184,18 @@ for i in range(14):
     z = -19.5+i*3
     for side in (-1,1):
         x = side*26.86
-        shell.box("Curtain wall sill",(x,.14,z),(.28,.28,3),"slate")
-        shell.box("Curtain wall header",(x,3.69,z),(.28,.18,3),"slate")
-        shell.box("Curtain wall mullion",(x,1.92,z-1.5),(.25,3.72,.11),"navy")
-        shell.box("Glass seam rail",(x,.86,z),(.12,.07,3),"slate")
+        shell.box("Curtain wall sill",(x,.16,z),(.34,.32,2.96),"slate",taper=(.06,.01))
+        shell.box("Curtain wall sill cap",(x,.34,z),(.38,.075,2.96),"ivory")
+        shell.box("Curtain wall header",(x,3.69,z),(.34,.20,2.96),"slate")
+        shell.box("Curtain wall mullion",(x,1.92,z-1.5),(.28,3.72,.14),"navy",taper=(.04,.04))
+        shell.box("Glass seam rail",(x,.86,z),(.16,.09,2.96),"slate")
 for side in (-1,1):
     layout["glass"].append([[side*26.9,1.93,0],[42,3.57],math.pi/2])
     for z in (-17,-8,2,12,19):
-        solid(shell,"Perimeter column",(side*26.45,1.92,z),(.78,3.84,.76),"navy")
+        layout["boxes"].append([(side*26.45,1.92,z),(.78,3.84,.76)])
+        shell.box("Perimeter column",(side*26.45,1.92,z),(.78,3.48,.76),"navy",taper=(.04,.04))
+        stepped_plinth(shell.mesh,"Column plinth",(side*26.45,.18,z),.86,.36,.84,"slate",flare=.04)
+        shell.box("Column capital",(side*26.45,3.70,z),(.88,.24,.86),"slate",taper=(-.05,-.05))
 for col in range(18):
     for row in range(14):
         x, z = -25.5+col*3, -19.5+row*3
@@ -167,23 +204,29 @@ for col in range(18):
             tint = "carpet_dark"
         shell.box("Carpet tile",(x,.003,z),(2.988,.006,2.988),tint)
 for x in (-21,-14,-7,0,7,14,21):
-    shell.box("Suspended ceiling beam",(x,3.78,0),(.31,.24,42),"slate")
+    shell.box("Suspended ceiling beam",(x,3.78,0),(.34,.25,42),"slate")
 for z in (-18,-12,-6,0,6,12,18):
-    shell.box("Cross ceiling beam",(0,3.78,z),(54,.22,.28),"slate")
+    shell.box("Cross ceiling beam",(0,3.78,z),(54,.23,.31),"slate")
 for x in (-21,-14,-7,0,7,14,21):
     for z in (-17,-11,-5,1,7,13,18):
-        shell.box("Suspended linear light housing",(x,3.53,z),(3.7,.16,.18),"slate")
-        shell.box("Strip diffuser",(x,3.435,z),(3.63,.04,.13),"lamp")
+        shell.box("Suspended linear light housing",(x,3.53,z),(3.66,.19,.24),"slate",taper=(.02,.08))
+        for end in (-1, 1):
+            shell.box("Light fixture end cap",(x+end*1.84,3.52,z),(.09,.21,.26),"navy")
+        shell.box("Strip diffuser",(x,3.428,z),(3.56,.05,.15),"lamp")
         for end in (-1,1):
-            shell.box("Pendant support",(x+end*1.47,3.69,z),(.044,.28,.045),"navy")
+            shell.rod("Pendant support",(x+end*1.47,3.61,z),(x+end*1.47,3.79,z),.032,"navy",8)
 
 services = kit("building_services")
 # Route the mechanical mains beside the light tracks and cross the room over the aisle ends.
 for x in (-9.4,9.4):
-    services.box("Central supply duct",(x,3.47,-.9),(.96,.50,23.8),"galvanized")
-    services.box("Insulated duct spine",(x,3.69,-.9),(.91,.12,23.8),"duct_joint")
+    services.box("Central supply duct",(x,3.47,-.9),(.98,.52,23.8),"galvanized")
+    services.box("Insulated duct spine",(x,3.72,-.9),(.88,.14,23.8),"duct_joint")
     for z in range(-12,12,2):
-        services.box("Flanged duct joint",(x,3.47,z),(1.03,.55,.075),"duct_joint")
+        services.box("Flanged duct joint",(x,3.47,z),(1.18,.70,.14),"duct_joint")
+        services.box("Flange gasket band",(x,3.47,z),(1.21,.73,.055),"ivory")
+        for sx in (-1, 1):
+            for sy in (-1, 1):
+                services.box("Duct flange bolt lug",(x+sx*.57,3.47+sy*.32,z),(.10,.10,.19),"gold")
     for z in (-9.2,-3.15,2.85,8.85):
         for target_x in (x-4.05,x+4.05):
             low_run=z==2.85
@@ -202,10 +245,12 @@ for x in (-9.4,9.4):
                                  (target_x-direction*.67,3.79,z+shift),.026,"slate",7)
             start=elbow_x if low_run else x
             services.box("Rectangular branch duct",((start+target_x)*.5,duct_y,z),
-                         (abs(start-target_x),.34,.54),"galvanized")
-            services.box("Ceiling diffuser",(target_x,diffuser_y,z),(.76,.105,.74),"ivory")
+                         (abs(start-target_x),.36,.56),"galvanized")
+            services.box("Branch duct collar",((start+target_x)*.5,duct_y,z),
+                         (.10,.44,.64),"duct_joint")
+            services.box("Ceiling diffuser",(target_x,diffuser_y,z),(.82,.13,.80),"ivory",taper=(-.06,-.06))
             for offset in (-.23,-.115,0,.115,.23):
-                services.box("Diffuser grille",(target_x+offset,diffuser_y-.062,z),(.046,.026,.61),"duct_joint")
+                services.box("Diffuser grille",(target_x+offset,diffuser_y-.068,z),(.052,.034,.62),"duct_joint")
         for shift in (-.65,.65):
             services.rod("Galvanized hanger rod",(x+shift,3.48,z),(x+shift,3.77,z),.026,"slate",6)
         services.box("Duct hanger rail",(x,3.185,z),(1.42,.056,.07),"slate")
@@ -261,28 +306,40 @@ for x in (-14,0,14):
 
 reception = kit("reception")
 solid(reception,"Company feature wall",(0,1.85,20.55),(16,3.5,.38),"violet")
-reception.box("Company wall inset",(0,1.91,20.33),(13.0,2.78,.07),"navy")
+stepped_plinth(reception.mesh,"Feature wall plinth",(0,.13,20.52),16.16,.26,.46,"slate",flare=.03)
+segmented_coping(reception.mesh,"Feature wall crown",(0,3.52,20.52),16.20,.20,.48,"navy",seg_len=2.0,gap=.026)
+reception.box("Company wall inset",(0,1.91,20.33),(13.0,2.78,.085),"navy")
 for x in (-6.78,6.78):
-    reception.box("Logo wall accent",(x,1.89,20.28),(.09,2.7,.08),"gold")
+    reception.box("Logo wall accent",(x,1.89,20.28),(.12,2.74,.11),"gold")
 for left,right in ((-18,-3.25),(3.25,18)):
     wall_between(reception,"Entrance wall return",left,right,16.25,"violet")
 for x in (-3.25,3.25):
-    reception.box("Glazed entry jamb",(x,1.77,16.25),(.15,3.54,.24),"navy")
-reception.box("Entrance header",(0,3.44,16.25),(6.65,.32,.26),"navy")
+    reception.box("Glazed entry jamb",(x,1.77,16.25),(.19,3.54,.32),"navy",taper=(.03,.03))
+    stepped_plinth(reception.mesh,"Glazed entry foot",(x,.13,16.25),.25,.26,.36,"slate",flare=.025)
+reception.box("Entrance header",(0,3.44,16.25),(6.75,.34,.34),"navy")
 for side in (-1,1):
     x=side*2.47
     # Fixed leaves are framed as an already-open doorway with a wide center passage.
     layout["glass"].append([[x,1.54,16.25],[1.48,3.05],0])
     for dx in (-.75,.75):
-        reception.box("Glass leaf stile",(x+dx,1.54,16.25),(.076,3.08,.084),"slate")
+        reception.box("Glass leaf stile",(x+dx,1.54,16.25),(.095,3.08,.105),"slate")
     for y in (.07,3.06):
-        reception.box("Glass leaf rail",(x,y,16.25),(1.52,.076,.084),"slate")
-    reception.box("Door pull",(x-side*.51,1.22,16.11),(.065,.5,.12),"gold")
-solid(reception,"Lobby bench",(-9.5,.25,19.22),(3.6,.5,1.02),"pink")
+        reception.box("Glass leaf rail",(x,y,16.25),(1.54,.095,.105),"slate")
+    reception.box("Door pull",(x-side*.51,1.22,16.11),(.075,.52,.14),"gold")
+layout["boxes"].append([(-9.5,.25,19.22),(3.6,.5,1.02)])
+stepped_plinth(reception.mesh,"Lobby bench plinth",(-9.5,.09,19.22),3.48,.18,.92,"slate",flare=.025)
+for bx in (-11.38, -9.5, -7.62):
+    reception.box("Lobby bench cushion",(bx,.34,19.22),(1.16,.32,1.02),"pink",taper=(.05,.05))
 
 rooms = kit("rooms")
 for x in (-22,-12,-5.5,5.5,12,22):
-    solid(rooms,"Room party wall",(x,1.8,-16.5),(.22,3.6,8.8),"violet")
+    layout["boxes"].append([(x,1.8,-16.5),(.22,3.6,8.8)])
+    rooms.box("Room party wall core",(x,1.8,-16.5),(.17,3.56,8.78),"navy")
+    for p_idx in range(5):
+        pz = -20.02 + p_idx * 1.76
+        rooms.box("Room party wall",(x,1.82,pz),(.22,3.16,1.734),"violet")
+    stepped_plinth(rooms.mesh,"Party wall plinth",(x,.115,-16.5),.29,.23,8.8,"slate",flare=.022)
+    segmented_coping(rooms.mesh,"Party wall crown",(x,3.50,-16.5),.285,.20,8.8,"navy",seg_len=1.76,gap=.024)
 for left,right in ((-22,-18.25),(-15.75,-12),(-12,-5.5),(-5.5,-2.05),(2.05,5.5),(5.5,12),(12,15.75),(18.25,22)):
     # Outside the conference and manager rooms, the inset alcoves remain open.
     if (left,right) in ((-12,-5.5),(5.5,12)):
@@ -292,17 +349,22 @@ for left,right in ((-22,-18.25),(-15.75,-12),(-12,-5.5),(-5.5,-2.05),(2.05,5.5),
         wall_between(rooms,"Sidelight side",left,window-.83,-12.1,"violet")
         wall_between(rooms,"Sidelight side",window+.83,right,-12.1,"violet")
         solid(rooms,"Sidelight knee wall",(window,.52,-12.1),(1.66,1.04,.22),"violet")
+        stepped_plinth(rooms.mesh,"Sidelight plinth",(window,.115,-12.1),1.70,.23,.29,"slate",flare=.022)
         solid(rooms,"Sidelight header",(window,3.16,-12.1),(1.66,.88,.22),"violet")
         layout["glass"].append([[window,1.88,-12.1],[1.66,1.68],0])
-        for y in (1.04,2.72):
-            rooms.box("Sidelight frame",(window,y,-12.1),(1.74,.09,.26),"slate")
+        rooms.box("Sidelight chunky sill",(window,1.04,-12.1),(1.82,.12,.36),"ivory",taper=(.02,.04))
+        rooms.box("Sidelight head casing",(window,2.73,-12.1),(1.82,.12,.33),"slate")
+        for side in (-1, 1):
+            rooms.box("Sidelight jamb casing",(window+side*.84,1.88,-12.1),(.11,1.68,.32),"slate")
     else:
         wall_between(rooms,"North corridor partition",left,right,-12.1,"violet")
 for x in (-17,0,17):
     span = 4.1 if x==0 else 2.5
     solid(rooms,"Portal lintel",(x,3.39,-12.1),(span,.42,.22),"slate")
+    rooms.box("Portal lintel cap",(x,3.52,-12.1),(span+.28,.16,.33),"navy")
     for side in (-1,1):
-        rooms.box("Portal lining",(x+side*span/2,1.64,-11.94),(.09,3.28,.12),"navy")
+        rooms.box("Portal lining",(x+side*span/2,1.68,-12.1),(.15,3.36,.32),"navy",taper=(.03,.03))
+        stepped_plinth(rooms.mesh,"Portal plinth block",(x+side*span/2,.13,-12.1),.20,.26,.36,"slate",flare=.025)
 rooms.box("Open meeting-room door",(1.99,1.57,-13.13),(.11,3.12,2.05),"wood")
 layout["boxes"].append([[1.99,1.57,-13.13],[.11,3.12,2.05]])
 for z in (-13.8,-12.55):
@@ -344,19 +406,55 @@ for i,x in enumerate((-9,9)):
 
 chair = kit("chair")
 def seat(item,x,z,angle=0):
-    item.box("Task chair seat",(x,.46,z),(.62,.13,.58),"slate",angle)
-    item.box("Task chair back",(x-.25*math.sin(angle),.74,z-.25*math.cos(angle)),(.60,.52,.13),"dark_teal",angle)
-    item.box("Chair contrast headrest",(x-.25*math.sin(angle),1.006,z-.25*math.cos(angle)),(.59,.055,.14),"orange",angle)
-    item.rod("Pedestal",(x,.06,z),(x,.43,z),.071,"ink",6)
-    for a in range(5):
-        a *= math.tau/5
-        item.rod("Caster base",(x,.10,z),(x+.28*math.cos(a),.06,z+.28*math.sin(a)),.034,"ink",5)
+    ca,sa=math.cos(angle),math.sin(angle)
+    def pt(u,v,w):
+        return (x+ca*u+sa*w,v,z-sa*u+ca*w)
+    def emit(label,points,faces,color):
+        item.mesh(label,[pt(*v) for v in points],faces,color)
+    # A continuous compound-curved shell: narrow lumbar waist, broad shoulders,
+    # swept upper corners and a bowed face. Rear structure is visible from aisles.
+    rows=[(.53,.23),(.61,.30),(.76,.25),(.94,.31),(1.04,.28),(1.075,.20)]
+    points=[]
+    cols=9
+    for depth in (-.045,.045):
+        for v,width in rows:
+            for j in range(cols):
+                u=width*(2*j/(cols-1)-1)
+                points.append((u,v,-.24+.065*(u/.31)**2-.07*((v-.53)/.545)+depth))
+    layer=len(rows)*cols
+    faces=[]
+    for row in range(len(rows)-1):
+        for j in range(cols-1):
+            q=row*cols+j
+            faces.extend([(q,q+cols,q+cols+1,q+1),
+                          (layer+q+1,layer+q+cols+1,layer+q+cols,layer+q)])
+    boundary=list(range(cols)) + [r*cols+cols-1 for r in range(1,len(rows))]
+    boundary += list(range(layer-2,layer-cols-1,-1)) + [r*cols for r in range(len(rows)-2,0,-1)]
+    for i,a in enumerate(boundary):
+        b=boundary[(i+1)%len(boundary)]
+        faces.append((a,b,layer+b,layer+a))
+    emit("Sculpted ergonomic chair back",points,faces,"dark_teal")
+    item.molded("Chair shoulder cap",pt(0,1.07,-.31),(.49,.10,.19),"orange",angle,.04)
+    item.molded("Chair cushion",pt(0,.46,.025),(.64,.14,.57),"slate",angle,.065)
+    item.molded("Chair lumbar pad",pt(0,.68,-.165),(.46,.18,.095),"teal",angle,.075)
+    for side in (-1,1):
+        item.rod("Chair back suspension",pt(side*.10,.40,-.29),pt(side*.17,.87,-.345),.033,"ink",7)
+        item.rod("Chair arm stalk",pt(side*.28,.44,-.12),pt(side*.31,.61,-.06),.028,"ink",7)
+        item.molded("Chair arm pad",pt(side*.31,.635,.015),(.085,.065,.33),"ink",angle,.03)
+    item.rod("Pedestal",pt(0,.10,0),pt(0,.40,0),.062,"galvanized",8)
+    for i in range(5):
+        a=i*math.tau/5
+        u,w=.27*math.cos(a),.27*math.sin(a)
+        item.rod("Caster base",pt(0,.16,0),pt(u,.085,w),.035,"ink",6)
+        item.rod("Caster wheel",pt(u-.037,.065,w),pt(u+.037,.065,w),.06,"ink",8)
 seat(chair,0,0)
 
 meeting = kit("meeting_table")
-meeting.box("Conference table",(0,.85,0),(2.16,.13,4.55),"ivory")
+meeting.box("Conference table",(0,.85,0),(2.20,.15,4.58),"ivory",taper=(-.02,-.01))
+meeting.box("Conference table apron",(0,.75,0),(1.92,.09,4.28),"teal")
 for z in (-1.71,1.71):
-    meeting.box("Conference table pedestal",(0,.4,z),(1.03,.8,.19),"slate")
+    meeting.box("Conference table pedestal",(0,.40,z),(1.12,.76,.24),"slate",taper=(.10,.08))
+    stepped_plinth(meeting.mesh,"Conference table foot",(0,.06,z),1.26,.12,.36,"navy",flare=.03)
 for x in (-1.48,1.48):
     for z in (-1.58,-.56,.56,1.58):
         seat(meeting,x,z,-math.copysign(math.pi/2,x))
@@ -365,20 +463,25 @@ for z in (-1.55,.28,1.3):
 instance("meeting_table","ConferenceTable",(0,0,-16.8),(3.56,1.1,4.55),impact="paper")
 
 def desk(item,width=2.4):
-    item.box("Laminate work surface",(0,.85,0),(width,.14,.95),"ivory")
+    item.molded("Laminate work surface",(0,.855,0),(width,.145,.96),"ivory",radius=.065)
+    item.box("Desk bumper rail",(0,.785,0),(width-.06,.055,.90),"teal")
     for x in (-width*.44,width*.44):
-        item.box("Desk leg",(x,.43,0),(.083,.85,.81),"slate")
-    item.box("Cable tray",(0,.68,-.33),(width*.82,.20,.14),"teal")
+        # Open cast A-frame rather than a solid slab under each desk.
+        for side in (-1,1):
+            item.rod("Desk splayed frame",(x,.08,side*.35),(x,.77,side*.18),.064,"slate",8)
+        item.molded("Desk sled foot",(x,.065,0),(.15,.11,.88),"navy",radius=.05)
+        item.box("Desk upper joint",(x,.76,0),(.17,.13,.51),"teal")
+    item.box("Cable tray",(0,.68,-.33),(width*.82,.20,.16),"teal")
     item.box("Document stack",(-width*.37,.936,.19),(.31,.032,.22),"paper")
     item.box("Note",(-width*.36,.958,.17),(.15,.013,.11),"gold",.16)
-    item.box("Rolling three-drawer pedestal",(width*.36,.33,-.04),(.41,.65,.70),"slate")
+    item.box("Rolling three-drawer pedestal",(width*.36,.34,-.04),(.43,.66,.72),"slate",taper=(.03,.03))
     for y in (.17,.37,.56):
-        item.box("Drawer face",(width*.36,y,.32),(.37,.168,.042),"carpet_dark")
-        item.box("Inset drawer handle",(width*.36,y+.037,.352),(.125,.034,.026),"ink")
-    item.box("Mouse mat",(.46,.933,.25),(.27,.022,.24),"dark_teal")
-    item.rod("Wireless mouse",(.46,.951,.25),(.46,.999,.25),.064,"slate",8,.049)
-    item.rod("Steel travel mug",(-width*.43,.92,.35),(-width*.43,1.108,.35),.064,"galvanized",9,.058)
-    item.rod("Travel mug lid",(-width*.43,1.106,.35),(-width*.43,1.126,.35),.067,"ink",9)
+        item.box("Drawer face",(width*.36,y,.33),(.38,.172,.055),"carpet_dark")
+        item.box("Inset drawer handle",(width*.36,y+.037,.368),(.14,.042,.034),"ink")
+    item.box("Mouse mat",(.46,.938,.25),(.28,.024,.25),"dark_teal")
+    item.rod("Wireless mouse",(.46,.956,.25),(.46,1.004,.25),.066,"slate",8,.050)
+    item.rod("Steel travel mug",(-width*.43,.928,.35),(-width*.43,1.115,.35),.066,"galvanized",10,.060)
+    item.rod("Travel mug lid",(-width*.43,1.113,.35),(-width*.43,1.135,.35),.070,"ink",10)
     seat(item,0,.93,math.pi)
 
 def penguin(item,x,y,z,s):
@@ -393,8 +496,27 @@ def penguin(item,x,y,z,s):
     item.box("Beak",(x,y+s*.67,z+s*.245),(s*.19,s*.085,s*.13),"gold")
 
 def screen(item,x,y,z,w,h,kind):
-    item.box("Display bezel",(x,y,z),(w+.045,h+.045,.07),"ink")
-    item.box("Lit display",(x,y,z+.041),(w,h,.017),"laptop_glass" if kind=="waterfall" else "display_glass")
+    # Rounded front surround and a single lofted rear casing, without layered blocks.
+    profile_shell(item.mesh,"Molded display rear shell",(x,y,z),[
+        (-.245,rounded_profile(w*.58,h*.60,.07)),
+        (-.18,rounded_profile(w*.84,h*.90,.095)),
+        (-.055,rounded_profile(w+.10,h+.10,.075)),
+        (.005,rounded_profile(w+.10,h+.10,.075)),
+    ],"teal")
+    for vy in (-.055, .015, .085):
+        item.box("Display rear vent",(x,y+vy,z-.249),(w*.36,.022,.018),"ink")
+    # A ring with a real recessed glass opening, rather than a solid front slab.
+    outer=rounded_profile(w+.11,h+.11,.075)
+    inner=rounded_profile(w+.012,h+.012,.028)
+    points=[(x+u,y+v,z+depth) for depth,loop in ((.035,outer),(.081,outer),(.081,inner),(.018,inner)) for u,v in loop]
+    n=len(outer)
+    faces=[]
+    for ring in range(3):
+        faces += [(ring*n+i,ring*n+(i+1)%n,(ring+1)*n+(i+1)%n,(ring+1)*n+i) for i in range(n)]
+    item.mesh("Molded display surround",points,faces,"ivory")
+    item.box("Display inner shadow",(x,y,z+.024),(w+.02,h+.02,.032),"ink")
+    item.box("Lit display",(x,y,z+.041),(w,h,.018),"laptop_glass" if kind=="waterfall" else "display_glass")
+    item.box("Power LED",(x+w*.42,y-h*.5-.022,z+.080),(.036,.022,.026),"code")
     f=z+.054
     if kind=="code":
         for row in range(8):
@@ -496,32 +618,59 @@ partition_assets=("partition","partition_low","partition_storage")
 partition_wings=((1.02,1.18,.13),(.74,.88,.13),(.65,1.30,.42))
 for variant,asset in enumerate(partition_assets):
     partition=kit(asset)
-    partition.box("Teal fabric baffle",(0,1.00,0),(5.1,1.26,.115),"teal")
-    partition.box("Blue acoustic cap",(0,1.66,0),(5.15,.07,.156),"navy")
-    for x in (-2.46,0,2.46):
-        partition.box("Baffle post",(x,.85,0),(.084,1.7,.164),"slate")
-        partition.box("Fabric trim",(x,1.0,.069),(.055,1.24,.03),"mint")
+    # Recessed frame spine + 3 modular molded acoustic panels + chunky top coping + splayed feet
+    partition.box("Partition spine core",(0,.96,0),(5.04,1.34,.085),"navy")
+    stepped_plinth(partition.mesh,"Partition base rail",(0,.14,0),5.06,.24,.175,"slate",flare=.022)
+    for bay_x in (-1.64, 0.0, 1.64):
+        partition.molded("Teal fabric baffle",(bay_x,1.00,0),(1.54,1.20,.145),"teal",radius=.18)
+    partition.molded("Acoustic cap",(0,1.66,0),(5.18,.10,.195),"ivory",radius=.045)
+    for x in (-2.46,-0.82,0.82,2.46):
+        partition.box("Baffle post",(x,.86,0),(.105,1.68,.195),"slate",taper=(.04,.04))
+        if abs(x) > 2.0:
+            stepped_plinth(partition.mesh,"Baffle post foot",(x,.055,0),.18,.11,.36,"navy",flare=.025)
     for x in (-1.75,-.72,.83,1.82):
         for side in (-1,1):
-            partition.box("Pinned sprint note",(x,1.49,side*.067),(.18,.21,.016),"gold" if x<0 else "paper",.09)
+            partition.box("Pinned sprint note",(x,1.46,side*.082),(.18,.21,.016),"gold" if x<0 else "paper",.09)
     for x in (-2.49,2.49):
         if variant==0:
-            partition.box("Privacy wing lower panel",(x,.79,0),(.11,.72,2.94),"dark_teal")
-            partition.box("Frosted upper window",(x,1.39,0),(.076,.42,2.92),"screen")
-            for z in (-1.44,-.05,.05,1.44):
-                partition.box("Frosted screen stile",(x,1.38,z),(.13,.46,.075),"navy")
-            for y in (1.15,1.61):
-                partition.box("Window frame rail",(x,y,0),(.13,.065,2.94),"navy")
+            partition.box("Privacy wing core",(x,.82,0),(.09,1.52,2.92),"navy")
+            stepped_plinth(partition.mesh,"Wing base plinth",(x,.09,0),.24,.18,2.98,"slate",flare=.03)
+            for bz in (-.73, .73):
+                partition.molded("Privacy wing lower panel",(x,.64,bz),(1.34,.86,.16),"dark_teal",math.pi/2,.16)
+                partition.molded("Wing inset accent",(x,.64,bz),(1.12,.62,.185),"teal",math.pi/2,.14)
+                partition.box("Frosted upper window",(x,1.38,bz),(.08,.42,1.32),"screen")
+            partition.box("Wing window sill",(x,1.14,0),(.24,.095,2.98),"ivory")
+            for z in (-1.45,0.0,1.45):
+                partition.box("Frosted screen stile",(x,.85,z),(.23,1.60,.13),"slate",taper=(.05,.04))
+                if abs(z) > 1.0:
+                    stepped_plinth(partition.mesh,"Wing end foot",(x,.06,z),.34,.12,.26,"navy",flare=.03)
+                    partition.box("Wing post cap",(x,1.67,z),(.25,.12,.16),"gold")
+            segmented_coping(partition.mesh,"Window frame rail",(x,1.63,0),.25,.11,3.00,"ivory",seg_len=1.48,gap=.026)
         elif variant==1:
-            partition.box("Low acoustic wing",(x,.74,0),(.11,.88,2.94),"lilac")
-            partition.box("Low screen top rail",(x,1.18,0),(.13,.065,2.94),"violet")
+            # Continuous molded wing with rounded shoulders, without the old
+            # square stiles breaking its outline into six small blocks.
+            partition.molded("Low wing shell",(x,.67,0),(2.98,1.12,.23),"violet",math.pi/2,.23)
+            stepped_plinth(partition.mesh,"Low wing plinth",(x,.09,0),.24,.18,2.98,"slate",flare=.03)
+            for bz in (-.72,.72):
+                partition.molded("Low wing cushion panel",(x,.66,bz),(1.30,.77,.255),"lilac",math.pi/2,.19)
+            for z in (-1.30,1.30):
+                partition.molded("Low wing end sleeve",(x,.35,z),(.30,.56,.22),"slate",radius=.08)
+                stepped_plinth(partition.mesh,"Low wing end foot",(x,.06,z),.34,.12,.26,"navy",flare=.03)
+            # Ivory rail follows the rounded shoulder profile.
+            for side in (-1,1):
+                for j in range(4):
+                    a0=j*math.pi/8; a1=(j+1)*math.pi/8
+                    partition.rod("Rounded wing cap",(x,1.00+.23*math.cos(a0),side*(1.26+.23*math.sin(a0))),
+                                  (x,1.00+.23*math.cos(a1),side*(1.26+.23*math.sin(a1))),.043,"ivory",6)
+            partition.rod("Continuous wing cap",(x,1.23,-1.26),(x,1.23,1.26),.043,"ivory",8)
         else:
-            partition.box("End-of-row storage cabinet",(x,.65,0),(.42,1.30,2.94),"dark_teal")
-            partition.box("Laminate cabinet worktop",(x,1.30,0),(.46,.065,2.94),"ivory")
+            stepped_plinth(partition.mesh,"Cabinet plinth",(x,.08,0),.48,.16,2.98,"slate",flare=.03)
+            partition.molded("End-of-row storage cabinet",(x,.68,0),(2.92,1.14,.42),"dark_teal",math.pi/2,.19)
+            segmented_coping(partition.mesh,"Laminate cabinet worktop",(x,1.31,0),.50,.11,3.00,"ivory",seg_len=1.48,gap=.026)
             for z in (-1.04,-.36,.36,1.04):
                 face=x+math.copysign(.224,x)
-                partition.box("Locker door reveal",(face,.72,z),(.033,1.03,.61),"teal")
-                partition.box("Inset locker pull",(face+math.copysign(.018,x),1.01,z),(.026,.068,.17),"gold")
+                partition.box("Locker door reveal",(face,.70,z),(.058,.96,.59),"teal")
+                partition.box("Inset locker pull",(face+math.copysign(.036,x),1.01,z),(.044,.095,.19),"gold")
 
 leaf = kit("shade_leaf")
 leaf.rod("Leaf clamp stem",(0,0,0),(0,1.52,0),.045,"green",8)
@@ -631,12 +780,15 @@ for i,(x,z) in enumerate(((-24.5,-12.3),(24.5,-12.3),(-25,7),(25,7),(-6.8,19.5),
     instance("planter",f"Planter{i}",(x,0,z),(.72,1.22,.72),impact="leaf")
 
 cooler = kit("water_cooler")
-cooler.box("Water cooler cabinet",(0,.49,0),(.63,.98,.59),"ivory")
-cooler.box("Dispenser dark recess",(0,.80,.302),(.46,.40,.038),"navy")
-cooler.box("Drip tray",(0,.59,.353),(.47,.055,.17),"galvanized")
+cooler.molded("Water cooler lower cabinet",(0,.30,0),(.63,.60,.59),"ivory",radius=.11)
+cooler.molded("Water cooler crown",(0,.96,0),(.63,.14,.59),"ivory",radius=.06)
+cooler.molded("Dispenser recess back",(0,.75,-.15),(.48,.34,.19),"navy",radius=.07)
+for side in (-1,1):
+    cooler.molded("Dispenser side cheek",(side*.267,.76,0),(.096,.34,.59),"ivory",radius=.04)
+cooler.molded("Drip tray",(0,.59,.215),(.47,.055,.28),"galvanized",radius=.025)
 for x,color in ((-.13,"blue"),(.13,"red")):
-    cooler.box("Hot or cold tap",(x,.89,.349),(.104,.071,.105),color)
-    cooler.rod("Tap spout",(x,.88,.401),(x,.82,.401),.028,"galvanized",7)
+    cooler.box("Hot or cold tap",(x,.84,.08),(.104,.071,.105),color)
+    cooler.rod("Tap spout",(x,.83,.13),(x,.77,.13),.028,"galvanized",7)
 cooler.rod("Blue refill bottle neck",(0,.96,0),(0,1.14,0),.095,"blue",10)
 cooler.rod("Refill bottle shoulder",(0,1.14,0),(0,1.29,0),.12,"screen",10,.236)
 cooler.rod("Refill bottle body",(0,1.28,0),(0,1.73,0),.236,"laptop_glass",10,.218)
@@ -647,15 +799,23 @@ for i,(x,z,angle) in enumerate(((-24.1,10.8,math.pi/2),(24.1,-4.3,-math.pi/2),(9
     instance("water_cooler",f"WaterCooler{i}",(x,0,z),(.70,1.75,.77),angle,impact="water")
 
 copy = kit("copy_station")
-copy.box("Shared printer pedestal",(0,.46,0),(1.44,.92,.77),"slate")
-copy.box("Copier white body",(0,1.12,0),(1.41,.47,.76),"ivory")
-copy.box("Document feeder",(0,1.40,-.12),(1.24,.13,.55),"carpet_dark")
-copy.box("Output tray",(.26,1.01,.41),(.67,.072,.22),"ink")
-copy.box("Half-printed report",(.26,1.066,.44),(.36,.021,.23),"paper")
-copy.box("Copier control display",(-.48,1.382,.29),(.26,.11,.057),"screen")
-for y in (.16,.42,.66):
-    copy.box("Copy paper drawer",(0,y,.402),(1.28,.20,.067),"galvanized")
-    copy.box("Paper drawer pull",(0,y+.025,.445),(.28,.05,.035),"slate")
+copy.molded("Printer lower casting",(0,.40,-.015),(1.44,.78,.74),"slate",radius=.13)
+copy.molded("Copier rear bridge",(0,1.03,-.22),(1.41,.50,.32),"ivory",radius=.12)
+for side in (-1,1):
+    copy.molded("Copier side pier",(side*.60,1.00,.09),(.21,.48,.53),"ivory",radius=.08)
+copy.molded("Scanner crown",(0,1.28,0),(1.41,.19,.76),"ivory",radius=.08)
+profile_shell(copy.mesh,"Molded document feeder",(0,0,-.10),[
+    (-.27,rounded_profile(1.19,.12,.05,y=1.40)),
+    (.08,rounded_profile(1.19,.12,.05,y=1.40)),
+    (.27,rounded_profile(1.02,.065,.025,y=1.37)),
+],"carpet_dark")
+copy.molded("Recessed output bed",(0,.82,.095),(1.03,.065,.58),"ink",radius=.03)
+copy.box("Paper inside output well",(.16,.861,.17),(.41,.021,.30),"paper")
+copy.molded("Copier control console",(-.48,1.27,.37),(.32,.18,.12),"slate",radius=.05)
+copy.molded("Copier control display",(-.48,1.28,.435),(.25,.105,.015),"screen",radius=.025)
+for y in (.17,.40,.63):
+    copy.molded("Copy paper drawer",(0,y,.372),(1.25,.20,.067),"galvanized",radius=.065)
+    copy.molded("Inset drawer grip",(0,y+.025,.408),(.30,.045,.018),"slate",radius=.02)
 copy.box("Paper carton",(-.98,.24,.05),(.43,.48,.51),"card")
 copy.box("Carton tape",(-.98,.486,.05),(.086,.018,.52),"paper")
 for i,(x,z) in enumerate(((-7.45,6.15),(7.65,-5.95))):
@@ -707,8 +867,9 @@ layout.update({
 
 # The exports share a local origin. The editable file arranges their collections
 # in a separate component yard so individual workstations remain easy to edit.
+total_tris = 0
 for item in kits.values():
-    item.export()
+    total_tris += item.export()
 for index,item in enumerate(kits.values()):
     if item.name in layout["fixed"]:
         continue
@@ -718,3 +879,4 @@ for index,item in enumerate(kits.values()):
 bpy.context.preferences.filepaths.save_version = 0
 bpy.ops.wm.save_as_mainfile(filepath=str(ROOT/"art_source/bb_office.blend"),compress=True)
 (ROOT/"tools/maps/bb_office_layout.json").write_text(json.dumps(layout,indent=2)+"\n")
+print("BB_OFFICE_KIT_READY", len(kits), "kits,", total_tris, "exported kit triangles")

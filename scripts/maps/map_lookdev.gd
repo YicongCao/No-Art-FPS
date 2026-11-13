@@ -1,8 +1,11 @@
 extends Node3D
 ## Map-owned materials and fixture receivers. Gameplay geometry remains untouched.
 const SURFACE = preload("res://assets/shaders/map_surface.gdshader")
+const PAINT = preload("res://assets/shaders/toy_paint.gdshader")
+const WALL_PAINT = preload("res://assets/shaders/wall_paint.gdshader")
 const SPILL = preload("res://assets/shaders/fixture_spill.gdshader")
 const DETAIL = preload("res://assets/textures/rain_market/surface_noise.png")
+const Palette = preload("res://scripts/maps/toy_palette.gd")
 const PROFILES = {
  "yard":[.52,.18,.67,"b5ceef",0.0],
  "amusement_park":[.48,.16,.52,"a7bafa",.0013],
@@ -44,6 +47,7 @@ func setup() -> void:
  authored_ambient=arena.game.world_environment.environment.ambient_light_color
  configure_materials()
  configure_fixtures()
+ add_practicals()
  configure_atmosphere()
  if arena.map_id=="last_ferry" and DisplayServer.get_name()!="headless":configure_reflection()
  arena.set_meta("lookdev_v1",true)
@@ -83,6 +87,8 @@ func apply_state(active: bool) -> void:
    if entry.has("light"):entry.light.visible=not active
  for material in cache.values():
   if material is ShaderMaterial:material.set_shader_parameter("daylight",0.0 if active else 1.0)
+ Palette.apply(arena.map_id,env,arena.game.sun,active)
+ preload("res://scripts/maps/toy_look.gd").apply(env)
 
 func classify(label: String) -> int:
  if label in ["metal","steel","iron","galvanized","copper","bronze","brass","gold","rail","duct_joint"]:return 1
@@ -95,36 +101,73 @@ func classify(label: String) -> int:
  if label=="lake":return 8
  return 0
 
+func apply_weathering(mat: ShaderMaterial) -> void:
+ var w: Array = Palette.weathering(arena.map_id)
+ mat.set_shader_parameter("detail_noise",DETAIL)
+ mat.set_shader_parameter("wear_amount",w[0])
+ mat.set_shader_parameter("grime_tint",w[1])
+ mat.set_shader_parameter("edge_tint",w[2])
+ mat.set_shader_parameter("streak_amount",w[3])
+
 func configure_materials() -> void:
+ if arena.get("materials") is Dictionary:
+  for mural_mat in arena.materials.values():
+   if mural_mat is ShaderMaterial and mural_mat.shader==WALL_PAINT:
+    apply_weathering(mural_mat)
  for mesh: MeshInstance3D in arena.find_children("*","MeshInstance3D",true,false):
-  if not mesh.mesh or mesh.material_override is ShaderMaterial:continue
+  if not mesh.mesh:continue
+  if mesh.material_override is ShaderMaterial:
+   if (mesh.material_override as ShaderMaterial).shader==WALL_PAINT:
+    apply_weathering(mesh.material_override as ShaderMaterial)
+   continue
   var surfaces: Array = [-1] if mesh.material_override else range(mesh.mesh.get_surface_count())
   for index in surfaces:
-   var original = (mesh.material_override if index==-1 else mesh.get_active_material(index)) as StandardMaterial3D
+   var active_mat = mesh.material_override if index==-1 else mesh.get_active_material(index)
+   if active_mat is ShaderMaterial:
+    if (active_mat as ShaderMaterial).shader==WALL_PAINT:
+     apply_weathering(active_mat as ShaderMaterial)
+    continue
+   var original = active_mat as StandardMaterial3D
    if not original or original.transparency!=BaseMaterial3D.TRANSPARENCY_DISABLED or original.shading_mode==BaseMaterial3D.SHADING_MODE_UNSHADED:continue
    var context := str(mesh.get_path()).to_lower()
-   var key := str(original.get_instance_id())+":"+str(arena.map_id=="night_studio" and "curtain" in context)+":"+str(arena.map_id=="amusement_park" and "carouselcanopy" in context)
+   # Static kits from tools/maps/bake_vertex_light.py carry sky occlusion in their vertex colours.
+   var baked: bool = index>=0 and mesh.mesh is ArrayMesh and (mesh.mesh as ArrayMesh).surface_get_format(index)&Mesh.ARRAY_FORMAT_COLOR!=0
+   var tinted: bool = original.vertex_color_use_as_albedo or baked
+   var key := str(original.get_instance_id())+":"+str(baked)+":"+str(arena.map_id=="night_studio" and "curtain" in context)+":"+str(arena.map_id=="amusement_park" and "carouselcanopy" in context)
    if not cache.has(key):
     var canopy_bulb: bool = arena.map_id=="amusement_park" and "CarouselCanopy" in str(mesh.get_path()) and original.resource_name=="gold_light"
     var kind := classify(original.resource_name)
     # Colored coatings stay dielectric, including white greenhouse frames.
     if original.resource_name=="gold" and arena.map_id=="amusement_park":kind=0
     if arena.map_id=="night_studio" and "curtain" in context:kind=4
-    if original.emission_enabled or original.albedo_texture or canopy_bulb or kind==0:
+    if original.emission_enabled or original.albedo_texture or canopy_bulb:
      var copy := original.duplicate() as StandardMaterial3D
      if canopy_bulb:
       copy.emission_enabled=true;copy.emission=Color("ffd18a");copy.emission_energy_multiplier=1.2
-     elif copy.emission_enabled:copy.emission_energy_multiplier *= 1.35
+     elif copy.emission_enabled:copy.emission_energy_multiplier *= 1.35*Palette.emission_boost(arena.map_id)
+     copy.vertex_color_use_as_albedo = tinted
      cache[key] = copy
+    elif kind==0:
+     # Plain coatings keep the authored colour, roughness and metallic exactly.
+     var coat := ShaderMaterial.new()
+     coat.shader = surface_shader(original.cull_mode,PAINT)
+     coat.set_shader_parameter("base_color",original.albedo_color)
+     coat.set_shader_parameter("use_vertex_color",tinted)
+     coat.set_shader_parameter("roughness_value",original.roughness)
+     coat.set_shader_parameter("metallic_value",original.metallic)
+     coat.set_shader_parameter("specular_value",original.metallic_specular)
+     coat.set_shader_parameter("floor_height",arena.global_position.y)
+     apply_weathering(coat)
+     cache[key] = coat
     else:
      var material := ShaderMaterial.new()
-     material.shader = surface_shader(original.cull_mode)
+     material.shader = surface_shader(original.cull_mode,SURFACE)
      var roughness := .64
      var metallic := 0.0
      match kind:
       1:roughness = .28;metallic = .65
-      2:roughness = .92
-      3:roughness = .67
+      2:roughness = .68
+      3:roughness = .58
       4:roughness = .98
       5:roughness = .87
       6:roughness = .94
@@ -134,25 +177,66 @@ func configure_materials() -> void:
      if original.resource_name in ["ice","glass","window","display_glass","glass_blue","laptop_glass"]:roughness = .19;metallic = .18
      if original.resource_name=="soil":roughness = .58
      material.set_shader_parameter("base_color",original.albedo_color)
-     material.set_shader_parameter("use_vertex_color",original.vertex_color_use_as_albedo)
-     material.set_shader_parameter("detail_noise",DETAIL)
+     material.set_shader_parameter("use_vertex_color",tinted)
      material.set_shader_parameter("kind",kind)
      material.set_shader_parameter("roughness_value",roughness)
      material.set_shader_parameter("metallic_value",metallic)
      material.set_shader_parameter("roof_pattern",arena.map_id=="palm_house" and original.resource_name in ["paving","paving_dark","stone","gravel"])
+     material.set_shader_parameter("floor_height",arena.global_position.y)
+     apply_weathering(material)
      cache[key] = material
    if index==-1:mesh.material_override=cache[key]
    else:mesh.set_surface_override_material(index,cache[key])
+ for multi: MultiMeshInstance3D in arena.find_children("*","MultiMeshInstance3D",true,false):
+  if not multi.has_meta("palette") or not multi.multimesh or not multi.multimesh.mesh or multi.material_override is ShaderMaterial:continue
+  var palette_key := str(multi.get_meta("palette"))
+  if palette_key in ["net","light"]:continue
+  var m_surface_mat := multi.multimesh.mesh.surface_get_material(0)
+  if m_surface_mat is ShaderMaterial:
+   if (m_surface_mat as ShaderMaterial).shader==WALL_PAINT:
+    apply_weathering(m_surface_mat as ShaderMaterial)
+   continue
+  var original := m_surface_mat as StandardMaterial3D
+  if not original or original.transparency!=BaseMaterial3D.TRANSPARENCY_DISABLED:continue
+  var key := "mm:"+palette_key+":"+str(original.get_instance_id())
+  if not cache.has(key):
+   var kind := classify(palette_key)
+   if kind==0:
+    var coat := ShaderMaterial.new()
+    coat.shader = surface_shader(original.cull_mode,PAINT)
+    coat.set_shader_parameter("base_color",original.albedo_color)
+    coat.set_shader_parameter("use_vertex_color",false)
+    coat.set_shader_parameter("roughness_value",.54)
+    coat.set_shader_parameter("metallic_value",0.0)
+    coat.set_shader_parameter("specular_value",.5)
+    coat.set_shader_parameter("floor_height",arena.global_position.y)
+    apply_weathering(coat)
+    cache[key] = coat
+   else:
+    var material := ShaderMaterial.new()
+    material.shader = surface_shader(original.cull_mode,SURFACE)
+    var roughness := .68 if kind==2 else .58
+    material.set_shader_parameter("base_color",original.albedo_color)
+    material.set_shader_parameter("use_vertex_color",false)
+    material.set_shader_parameter("kind",kind)
+    material.set_shader_parameter("roughness_value",roughness)
+    material.set_shader_parameter("metallic_value",0.0)
+    material.set_shader_parameter("roof_pattern",false)
+    material.set_shader_parameter("floor_height",arena.global_position.y)
+    apply_weathering(material)
+    cache[key] = material
+  multi.material_override = cache[key]
 
-func surface_shader(cull: int) -> Shader:
- if not surface_shaders.has(cull):
-  if cull==BaseMaterial3D.CULL_BACK:surface_shaders[cull]=SURFACE
+func surface_shader(cull: int, base: Shader) -> Shader:
+ var key := str(base.get_instance_id())+":"+str(cull)
+ if not surface_shaders.has(key):
+  if cull==BaseMaterial3D.CULL_BACK:surface_shaders[key]=base
   else:
    var shader := Shader.new()
    var mode := "cull_disabled" if cull==BaseMaterial3D.CULL_DISABLED else "cull_front"
-   shader.code=SURFACE.code.replace("render_mode diffuse_burley,", "render_mode "+mode+", diffuse_burley,")
-   surface_shaders[cull]=shader
- return surface_shaders[cull]
+   shader.code=base.code.replace("render_mode diffuse_burley,", "render_mode "+mode+", diffuse_burley,")
+   surface_shaders[key]=shader
+ return surface_shaders[key]
 
 # Extract separate fixture boxes from their original mesh, before material names are replaced.
 # Spatial clustering joins duplicated triangle vertices but never merges different lamps.
@@ -279,12 +363,24 @@ func add_receiver(at: Vector3, extent: Vector2, tint: Color, strength: float, mo
  var receiver := MeshInstance3D.new();receiver.mesh=shape;receiver.material_override=paint
  receiver.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
  add_child(receiver)
- receivers.append({"node":receiver,"paint":paint,"mode":mode,"fixture":fixture,"strength":strength})
+ receivers.append({"node":receiver,"paint":paint,"mode":mode,"fixture":fixture,"strength":strength,"at":at,"tint":tint})
  fixture_count+=1
- if fixture_count<=2:
+ if fixture_count<=2 and mode!="normal":
   var light := OmniLight3D.new();light.position=at;light.light_color=tint;light.light_energy=1.0;light.omni_range=5
   add_child(light)
   receivers[-1]["light"]=light
+
+# Lamps nearest the start get a real, shadowless light so they visibly light the floor and the
+# enemies walking under them; the rest keep only their painted pool.
+func add_practicals() -> void:
+ var practical: Array = Palette.practicals(arena.map_id)
+ var start: Vector3 = arena.player_start().origin
+ var lamps: Array = receivers.filter(func(entry): return entry.mode=="normal" and entry.has("at"))
+ lamps.sort_custom(func(a,b): return a.at.distance_squared_to(start)<b.at.distance_squared_to(start))
+ for entry in lamps.slice(0,practical[0]):
+  var light := OmniLight3D.new();light.position=entry.at;light.light_color=entry.tint;light.light_energy=practical[1];light.omni_range=practical[2]
+  add_child(light)
+  entry["light"]=light
 
 func configure_reflection() -> void:
  var sea := arena.get_node_or_null("HarborWater") as MeshInstance3D

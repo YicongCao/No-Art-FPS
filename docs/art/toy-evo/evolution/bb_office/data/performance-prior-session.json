@@ -1,0 +1,370 @@
+{
+  "excluded_from_comparison": true,
+  "reason": "Session conditions changed; old models remeasured in current session.",
+  "samples": [
+    {
+      "display": "macOS",
+      "gpu": "Apple M5",
+      "maps": [
+        {
+          "draw_calls_p50": 2874.0,
+          "draw_calls_p95": 3128.0,
+          "end_state": "RUNNING",
+          "frame_ms_max": 100.518,
+          "frame_ms_p50": 51.558,
+          "frame_ms_p95": 67.915,
+          "frame_ms_p99": 80.929,
+          "frames": 154,
+          "frames_over_16_67_ms": 154,
+          "frames_over_33_33_ms": 153,
+          "map": "bb_office",
+          "objects_p50": 3095.0,
+          "phase": "frenzy",
+          "primitives_p50": 785229.0,
+          "seconds": 8.0,
+          "stalls_over_100_ms": [
+            {
+              "elapsed_ms": 5336.449,
+              "frame": 99,
+              "frame_ms": 100.518,
+              "physics_ms": 1.638,
+              "process_ms": 62.928
+            }
+          ],
+          "static_bytes": 82802171.0,
+          "texture_bytes": 153994488.0,
+          "toggle_cpu_ms": 0.0
+        }
+      ],
+      "note": "Live AI, stationary player, gentle camera yaw. Frame intervals include CPU/GPU scheduling and VSync; not GPU timer queries. Memory counters are engine process totals, not incremental per-map allocations.",
+      "renderer": "Compatibility",
+      "viewport": "(1280, 720)",
+      "vsync": 1
+    },
+    {
+      "display": "macOS",
+      "gpu": "Apple M5",
+      "maps": [
+        {
+          "draw_calls_p50": 2812.0,
+          "draw_calls_p95": 3197.0,
+          "end_state": "RUNNING",
+          "frame_ms_max": 81.466,
+          "frame_ms_p50": 50.661,
+          "frame_ms_p95": 73.589,
+          "frame_ms_p99": 79.245,
+          "frames": 153,
+          "frames_over_16_67_ms": 153,
+          "frames_over_33_33_ms": 153,
+          "map": "bb_office",
+          "objects_p50": 3033.0,
+          "phase": "frenzy",
+          "primitives_p50": 771754.0,
+          "seconds": 8.0,
+          "stalls_over_100_ms": [],
+          "static_bytes": 82802575.0,
+          "texture_bytes": 153994488.0,
+          "toggle_cpu_ms": 0.0
+        }
+      ],
+      "note": "Live AI, stationary player, gentle camera yaw. Frame intervals include CPU/GPU scheduling and VSync; not GPU timer queries. Memory counters are engine process totals, not incremental per-map allocations.",
+      "renderer": "Compatibility",
+      "viewport": "(1280, 720)",
+      "vsync": 1
+    },
+    {
+      "display": "macOS",
+      "gpu": "Apple M5",
+      "maps": [
+        {
+          "draw_calls_p50": 2822.0,
+          "draw_calls_p95": 3175.0,
+          "end_state": "RUNNING",
+          "frame_ms_max": 79.384,
+          "frame_ms_p50": 51.35,
+          "frame_ms_p95": 69.928,
+          "frame_ms_p99": 79.065,
+          "frames": 151,
+          "frames_over_16_67_ms": 151,
+          "frames_over_33_33_ms": 150,
+          "map": "bb_office",
+          "objects_p50": 3043.0,
+          "phase": "frenzy",
+          "primitives_p50": 773966.0,
+          "seconds": 8.0,
+          "stalls_over_100_ms": [],
+          "static_bytes": 82836275.0,
+          "texture_bytes": 153994488.0,
+          "toggle_cpu_ms": 0.0
+        }
+      ],
+      "note": "Live AI, stationary player, gentle camera yaw. Frame intervals include CPU/GPU scheduling and VSync; not GPU timer queries. Memory counters are engine process totals, not incremental per-map allocations.",
+      "renderer": "Compatibility",
+      "viewport": "(1280, 720)",
+      "vsync": 1
+    },
+    {
+      "display": "macOS",
+      "gpu": "Apple M5",
+      "maps": [
+        {
+          "draw_calls_p50": 2718.0,
+          "draw_calls_p95": 3070.0,
+          "end_state": "RUNNING",
+          "frame_ms_max": 1108.426,
+          "frame_ms_p50": 56.922,
+          "frame_ms_p95": 100.869,
+          "frame_ms_p99": 122.184,
+          "frames": 112,
+          "frames_over_16_67_ms": 112,
+          "frames_over_33_33_ms": 112,
+          "map": "bb_office",
+          "objects_p50": 2939.0,
+          "observed_destroy_frame": 58,
+          "phase": "natural_transition",
+          "primitives_p50": 740024.0,
+          "seconds": 8.0,
+          "stalls_over_100_ms": [
+            {
+              "elapsed_ms": 4083.874,
+              "frame": 59,
+              "frame_ms": 1108.426,
+              "physics_ms": 1.381,
+              "process_ms": 67.392
+            },
+            {
+              "elapsed_ms": 4343.068,
+              "frame": 62,
+              "frame_ms": 122.184,
+              "physics_ms": 1.838,
+              "process_ms": 1098.562
+            },
+            {
+              "elapsed_ms": 5284.85,
+              "frame": 78,
+              "frame_ms": 109.336,
+              "physics_ms": 1.823,
+              "process_ms": 116.087
+            },
+            {
+              "elapsed_ms": 6251.531,
+              "frame": 89,
+              "frame_ms": 100.869,
+              "physics_ms": 3.008,
+              "process_ms": 101.318
+            },
+            {
+              "elapsed_ms": 6352.518,
+              "frame": 90,
+              "frame_ms": 100.987,
+              "physics_ms": 3.008,
+              "process_ms": 101.318
+            },
+            {
+              "elapsed_ms": 6645.936,
+              "frame": 93,
+              "frame_ms": 107.561,
+              "physics_ms": 2.935,
+              "process_ms": 91.148
+            }
+          ],
+          "static_bytes": 87095061.0,
+          "texture_bytes": 158188792.0,
+          "toggle_cpu_ms": 0.0
+        }
+      ],
+      "note": "Live AI, stationary player, gentle camera yaw. Frame intervals include CPU/GPU scheduling and VSync; not GPU timer queries. Memory counters are engine process totals, not incremental per-map allocations.",
+      "renderer": "Compatibility",
+      "viewport": "(1280, 720)",
+      "vsync": 1
+    },
+    {
+      "display": "macOS",
+      "gpu": "Apple M5",
+      "maps": [
+        {
+          "draw_calls_p50": 2776.0,
+          "draw_calls_p95": 3007.0,
+          "end_state": "RUNNING",
+          "frame_ms_max": 1470.513,
+          "frame_ms_p50": 54.243,
+          "frame_ms_p95": 70.694,
+          "frame_ms_p99": 117.184,
+          "frames": 120,
+          "frames_over_16_67_ms": 120,
+          "frames_over_33_33_ms": 120,
+          "map": "bb_office",
+          "objects_p50": 2997.0,
+          "observed_destroy_frame": 51,
+          "phase": "natural_transition",
+          "primitives_p50": 761924.0,
+          "seconds": 8.0,
+          "stalls_over_100_ms": [
+            {
+              "elapsed_ms": 4474.578,
+              "frame": 52,
+              "frame_ms": 1470.513,
+              "physics_ms": 1.769,
+              "process_ms": 65.033
+            },
+            {
+              "elapsed_ms": 4683.839,
+              "frame": 54,
+              "frame_ms": 117.184,
+              "physics_ms": 2.091,
+              "process_ms": 1460.081
+            }
+          ],
+          "static_bytes": 87113386.0,
+          "texture_bytes": 158188792.0,
+          "toggle_cpu_ms": 0.0
+        }
+      ],
+      "note": "Live AI, stationary player, gentle camera yaw. Frame intervals include CPU/GPU scheduling and VSync; not GPU timer queries. Memory counters are engine process totals, not incremental per-map allocations.",
+      "renderer": "Compatibility",
+      "viewport": "(1280, 720)",
+      "vsync": 1
+    },
+    {
+      "display": "macOS",
+      "gpu": "Apple M5",
+      "maps": [
+        {
+          "draw_calls_p50": 2739.0,
+          "draw_calls_p95": 3045.0,
+          "end_state": "RUNNING",
+          "frame_ms_max": 852.467,
+          "frame_ms_p50": 51.473,
+          "frame_ms_p95": 73.451,
+          "frame_ms_p99": 98.152,
+          "frames": 136,
+          "frames_over_16_67_ms": 136,
+          "frames_over_33_33_ms": 135,
+          "map": "bb_office",
+          "objects_p50": 2960.0,
+          "observed_destroy_frame": 58,
+          "phase": "natural_transition",
+          "primitives_p50": 750524.0,
+          "seconds": 8.0,
+          "stalls_over_100_ms": [
+            {
+              "elapsed_ms": 3811.421,
+              "frame": 59,
+              "frame_ms": 852.467,
+              "physics_ms": 1.365,
+              "process_ms": 57.704
+            }
+          ],
+          "static_bytes": 87059149.0,
+          "texture_bytes": 158188792.0,
+          "toggle_cpu_ms": 0.0
+        }
+      ],
+      "note": "Live AI, stationary player, gentle camera yaw. Frame intervals include CPU/GPU scheduling and VSync; not GPU timer queries. Memory counters are engine process totals, not incremental per-map allocations.",
+      "renderer": "Compatibility",
+      "viewport": "(1280, 720)",
+      "vsync": 1
+    },
+    {
+      "display": "macOS",
+      "gpu": "Apple M5",
+      "maps": [
+        {
+          "draw_calls_p50": 2579.0,
+          "draw_calls_p95": 2912.0,
+          "end_state": "RUNNING",
+          "frame_ms_max": 138.992,
+          "frame_ms_p50": 58.436,
+          "frame_ms_p95": 72.609,
+          "frame_ms_p99": 94.591,
+          "frames": 137,
+          "frames_over_16_67_ms": 137,
+          "frames_over_33_33_ms": 136,
+          "map": "bb_office",
+          "objects_p50": 2800.0,
+          "phase": "normal",
+          "primitives_p50": 701386.0,
+          "seconds": 8.0,
+          "stalls_over_100_ms": [
+            {
+              "elapsed_ms": 4714.272,
+              "frame": 75,
+              "frame_ms": 138.992,
+              "physics_ms": 1.681,
+              "process_ms": 67.002
+            }
+          ],
+          "static_bytes": 82035821.0,
+          "texture_bytes": 153994488.0,
+          "toggle_cpu_ms": 0.0
+        }
+      ],
+      "note": "Live AI, stationary player, gentle camera yaw. Frame intervals include CPU/GPU scheduling and VSync; not GPU timer queries. Memory counters are engine process totals, not incremental per-map allocations.",
+      "renderer": "Compatibility",
+      "viewport": "(1280, 720)",
+      "vsync": 1
+    },
+    {
+      "display": "macOS",
+      "gpu": "Apple M5",
+      "maps": [
+        {
+          "draw_calls_p50": 2647.0,
+          "draw_calls_p95": 2909.0,
+          "end_state": "RUNNING",
+          "frame_ms_max": 84.55,
+          "frame_ms_p50": 48.952,
+          "frame_ms_p95": 69.919,
+          "frame_ms_p99": 81.812,
+          "frames": 157,
+          "frames_over_16_67_ms": 157,
+          "frames_over_33_33_ms": 156,
+          "map": "bb_office",
+          "objects_p50": 2868.0,
+          "phase": "normal",
+          "primitives_p50": 726242.0,
+          "seconds": 8.0,
+          "stalls_over_100_ms": [],
+          "static_bytes": 82038949.0,
+          "texture_bytes": 153994488.0,
+          "toggle_cpu_ms": 0.0
+        }
+      ],
+      "note": "Live AI, stationary player, gentle camera yaw. Frame intervals include CPU/GPU scheduling and VSync; not GPU timer queries. Memory counters are engine process totals, not incremental per-map allocations.",
+      "renderer": "Compatibility",
+      "viewport": "(1280, 720)",
+      "vsync": 1
+    },
+    {
+      "display": "macOS",
+      "gpu": "Apple M5",
+      "maps": [
+        {
+          "draw_calls_p50": 2657.0,
+          "draw_calls_p95": 2858.0,
+          "end_state": "RUNNING",
+          "frame_ms_max": 86.805,
+          "frame_ms_p50": 52.215,
+          "frame_ms_p95": 69.263,
+          "frame_ms_p99": 78.995,
+          "frames": 152,
+          "frames_over_16_67_ms": 152,
+          "frames_over_33_33_ms": 151,
+          "map": "bb_office",
+          "objects_p50": 2878.0,
+          "phase": "normal",
+          "primitives_p50": 730438.0,
+          "seconds": 8.0,
+          "stalls_over_100_ms": [],
+          "static_bytes": 82037777.0,
+          "texture_bytes": 153994488.0,
+          "toggle_cpu_ms": 0.0
+        }
+      ],
+      "note": "Live AI, stationary player, gentle camera yaw. Frame intervals include CPU/GPU scheduling and VSync; not GPU timer queries. Memory counters are engine process totals, not incremental per-map allocations.",
+      "renderer": "Compatibility",
+      "viewport": "(1280, 720)",
+      "vsync": 1
+    }
+  ]
+}

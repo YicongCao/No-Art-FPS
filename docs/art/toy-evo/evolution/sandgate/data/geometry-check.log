@@ -1,0 +1,9 @@
+00:03.633  blend            | Read blend: "/Users/cong/Documents/Projects/No-Art-FPS/art_source/sandgate.blend"
+BlenderMCP addon registered
+CONTINUOUS_SHELL a_stall_north 272 270 signed_volume 0.337124947130685
+CONTINUOUS_SHELL a_stall_south 272 270 signed_volume 0.3531300960445432
+HERO_GEOMETRY_PASS 87 editable parts
+BlenderMCP addon unregistered
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:49:19)
+
+Blender quit

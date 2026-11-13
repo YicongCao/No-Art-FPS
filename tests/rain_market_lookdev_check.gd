@@ -21,7 +21,7 @@ func check() -> void:
 	game.begin_running()
 	assert(game.live_enemies().size()==8 and game.rules.duration==60.0)
 	var ink: ShaderMaterial = game.player.outline.material_override
-	assert(is_equal_approx(ink.get_shader_parameter("ink_strength"),.34))
+	assert(is_equal_approx(ink.get_shader_parameter("ink_strength"),.34*.8))
 	var source = arena.get_node("Architecture/street").find_children("*","MeshInstance3D",true,false)[0]
 	assert(source.mesh.surface_get_material(0) is StandardMaterial3D)
 	assert(source.get_active_material(0) is ShaderMaterial)
@@ -48,7 +48,7 @@ func check() -> void:
 	assert(arena.nav.navigation_mesh.get_polygon_count()==nav_before)
 	game.state = "TITLE"
 	await game.select_session(game.SANDGATE_SESSION_PATH,"sandgate")
-	assert(is_equal_approx(ink.get_shader_parameter("ink_strength"),.48))
+	assert(is_equal_approx(ink.get_shader_parameter("ink_strength"),.48*.8))
 	await process_frame
 	assert(not is_instance_valid(old))
 	await game.select_session(game.CONCEPT_SESSIONS.rain_market,"rain_market")

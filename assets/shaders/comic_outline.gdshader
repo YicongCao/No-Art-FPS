@@ -7,6 +7,12 @@ uniform float width_pixels : hint_range(0.5, 3.0) = 1.15;
 uniform float color_edge_strength = 0.7;
 uniform float ink_strength = 0.88;
 uniform vec3 ink : source_color = vec3(0.075, 0.10, 0.14);
+// Painted-toy lines: a darker shade of the surface, absent on the viewmodel and
+// thinning with distance so far scenery reads as clean colour blocks.
+uniform float shade_tint = 0.6;
+uniform vec2 near_fade = vec2(0.7, 1.4);
+uniform vec2 far_fade = vec2(12.0, 55.0);
+uniform float far_strength = 0.35;
 
 void vertex() {
     POSITION = vec4(VERTEX.xy, 1.0, 1.0);
@@ -41,6 +47,9 @@ void fragment() {
         color_edge = max(color_edge, length(base-texture(scene_color,uv).rgb));
     }
     float edge = max(smoothstep(0.035,0.11,geometry_edge),smoothstep(0.22,0.42,color_edge)*color_edge_strength);
-    ALBEDO = mix(base,ink,edge*ink_strength);
+    edge *= smoothstep(near_fade.x, near_fade.y, center_depth);
+    edge *= mix(1.0, far_strength, smoothstep(far_fade.x, far_fade.y, center_depth));
+    vec3 line = mix(ink, base * vec3(0.34, 0.36, 0.44), shade_tint);
+    ALBEDO = mix(base,line,edge*ink_strength);
     ALPHA = 1.0;
 }

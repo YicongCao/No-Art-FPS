@@ -1,0 +1,19 @@
+{
+  "layout_sha256": "affee2b668d8510f19f1f8ff9e5a6e310459b1b190a468d07dd06fa45c220024",
+  "byte_identical": true,
+  "changed_models": [
+    "chair",
+    "copy_station",
+    "executive",
+    "meeting_table",
+    "partition",
+    "partition_low",
+    "partition_storage",
+    "programmer",
+    "programmer_lunch",
+    "project_manager",
+    "project_manager_lunch",
+    "water_cooler"
+  ],
+  "static_exports_restored": true
+}

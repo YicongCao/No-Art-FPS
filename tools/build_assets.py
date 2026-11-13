@@ -4,10 +4,17 @@ Author in Godot coordinates (Y up, forward -Z); convert to Blender on creation.
 The saved blend presents each asset separately; GLBs retain origin-at-ground.
 """
 import bpy
+import bmesh
 import math
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'tools'))
+from toy_bevel import toy_soften
+sys.path.insert(0, str(ROOT / 'tools/maps'))
+from hero_geometry import profile_shell, rounded_profile
+from mathutils import Vector
 OUT = ROOT / 'assets/models'
 OUT.mkdir(parents=True, exist_ok=True)
 bpy.ops.object.select_all(action='SELECT')
@@ -27,7 +34,7 @@ for name, code in COLORS.items():
     m.use_nodes = True
     p = next(n for n in m.node_tree.nodes if n.type == 'BSDF_PRINCIPLED')
     p.inputs['Base Color'].default_value = rgba
-    p.inputs['Roughness'].default_value = .88
+    p.inputs['Roughness'].default_value = .44 if name in ('yellow', 'red', 'green', 'purple', 'blue') else .52
     p.inputs['Metallic'].default_value = 0
     MATS[name] = m
 
@@ -52,11 +59,30 @@ def box(name, p, size, color, bevel=0):
     obj = bpy.context.object
     obj.dimensions = (size[0], size[2], size[1])
     bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
-    if bevel:
-        mod = obj.modifiers.new('Crisp tiny bevel', 'BEVEL')
-        mod.width = bevel
-        mod.segments = 1
-        bpy.ops.object.modifier_apply(modifier=mod.name)
+    toy_soften(obj, min(size), bevel)
+    return finish_obj(obj, name, color)
+
+def chipped_box(name, p, size, color, corner=(1, 1, 1), cut=.075, bevel=0):
+    bpy.ops.mesh.primitive_cube_add(size=1, location=xyz(p))
+    obj = bpy.context.object
+    obj.dimensions = (size[0], size[2], size[1])
+    bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+    bm = bmesh.new()
+    bm.from_mesh(obj.data)
+    cx, cy, cz = corner[0], -corner[2], corner[1]
+    c_pt = Vector((cx * size[0] * .5, cy * size[2] * .5, cz * size[1] * .5))
+    n_vec = Vector((cx * .64, cy * .56, cz * .52)).normalized()
+    ret = bmesh.ops.bisect_plane(
+        bm, geom=list(bm.verts)+list(bm.edges)+list(bm.faces),
+        plane_co=c_pt - n_vec * cut, plane_no=n_vec, clear_outer=True,
+    )
+    edges = [g for g in ret['geom_cut'] if isinstance(g, bmesh.types.BMEdge) and g.is_valid]
+    if len(edges) >= 3:
+        bmesh.ops.contextual_create(bm, geom=edges)
+    bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
+    bm.to_mesh(obj.data)
+    bm.free()
+    toy_soften(obj, min(size), bevel)
     return finish_obj(obj, name, color)
 
 def cyl(name, p, r, depth, color, vertices=8, axis='y'):
@@ -64,7 +90,43 @@ def cyl(name, p, r, depth, color, vertices=8, axis='y'):
     obj = bpy.context.object
     if axis == 'z': obj.rotation_euler.x = math.pi/2
     if axis == 'x': obj.rotation_euler.y = math.pi/2
+    toy_soften(obj, min(2*r, depth))
     return finish_obj(obj, name, color)
+
+def mesh(name, vertices, faces, color):
+    data=bpy.data.meshes.new(name)
+    data.from_pydata([xyz(p) for p in vertices],[],faces)
+    bm=bmesh.new();bm.from_mesh(data)
+    bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces))
+    bm.to_mesh(data);bm.free()
+    obj=bpy.data.objects.new(name,data)
+    bpy.context.collection.objects.link(obj)
+    bpy.ops.object.select_all(action='DESELECT')
+    bpy.context.view_layer.objects.active=obj
+    obj.select_set(True)
+    toy_soften(obj,.10,segments=1)
+    return finish_obj(obj,name,color)
+
+def beam(name,a,b,thickness,color):
+    start,end=Vector(xyz(a)),Vector(xyz(b))
+    bpy.ops.mesh.primitive_cube_add(size=1,location=(start+end)/2)
+    obj=bpy.context.object
+    obj.dimensions=(thickness,thickness,(end-start).length)
+    obj.rotation_euler=(end-start).to_track_quat('Z','Y').to_euler()
+    bpy.ops.object.transform_apply(location=False,rotation=False,scale=True)
+    toy_soften(obj,thickness)
+    return finish_obj(obj,name,color)
+
+def wheel_arch(x,z,r):
+    steps=10
+    verts=[(x+dx,.36+rad*math.sin(i*math.pi/steps),z+rad*math.cos(i*math.pi/steps))
+           for dx in (-.10,.10) for rad in (r,r+.12) for i in range(steps+1)]
+    n=steps+1;faces=[]
+    for i in range(steps):
+        faces += [(i,i+1,n+i+1,n+i),(2*n+i,3*n+i,3*n+i+1,2*n+i+1),
+                  (i,2*n+i,2*n+i+1,i+1),(n+i+1,3*n+i+1,3*n+i,n+i)]
+    faces += [(0,n,3*n,2*n),(steps,2*n+steps,3*n+steps,n+steps)]
+    mesh('cast_wheel_arch',verts,faces,'yellow')
 
 def export(name, merge=False):
     if merge:
@@ -87,16 +149,39 @@ def export(name, merge=False):
 for color in ('green', 'red', 'cream', 'purple'):
     name = 'container_' + color
     begin(name)
-    box('body', (0,1.45,0), (6,2.9,2.8), color)
+    box('body', (0,1.45,0), (5.68,2.9,2.8), color)
     for x in (-2.96, 2.96):
         for z in (-1.39,1.39):
             box('corner', (x,1.45,z), (.12,2.9,.12), 'ink')
-            for y in (.12,2.78): box('casting',(x,y,z),(.24,.24,.2),'cream')
+            for y in (.12,2.78):
+                if y > 2.0 and x * z > 0:
+                    chipped_box('casting', (x,y,z), (.24,.24,.2), 'cream',
+                                corner=(1 if x>0 else -1, 1, 1 if z>0 else -1), cut=.075)
+                else:
+                    box('casting',(x,y,z),(.24,.24,.2),'cream')
     for z in (-1.42,1.42):
         for i in range(17):
-            box('rib',(-2.7+i*.3375,1.46,z),(.045,2.55,.035),color)
+            rh = 2.28 if i in (3, 13) else 2.55
+            ry = 1.32 if i in (3, 13) else 1.46
+            box('rib',(-2.7+i*.3375,ry,z),(.045,rh,.035),color)
         for y in (.12,2.78):box('rim',(0,y,z),(5.9,.12,.07),'ink')
+        # Riveted repair patch plate near lower corner (clear of center graffiti)
+        pz = z + (.028 if z > 0 else -.028)
+        chipped_box('repair_patch', (2.02, .68, pz), (.68, .46, .036), 'cream',
+                    corner=(1, 1, 1 if z > 0 else -1), cut=.09)
+        for rx in (1.76, 2.28):
+            for ry_b in (.52, .84):
+                if rx > 2.1 and ry_b > .7:
+                    continue
+                box('patch_rivet', (rx, ry_b, pz + (.018 if z > 0 else -.018)), (.045, .045, .024), 'ink')
     for x in (-3.02,3.02):
+        sign=1 if x>0 else -1
+        box('door_gasket',(sign*2.88,1.45,0),(.09,2.65,2.56),'ink')
+        for z in (-.65,.65):
+            box('inset_door',(sign*2.93,1.45,z),(.08,2.48,1.20),color,.025)
+            for y in (.34,2.56):box('pressed_door_panel',(sign*2.985,y,z),(.06,.27,1.01),color,.02)
+        for z in (-1.27,0,1.27):box('door_jamb',(x,1.45,z),(.13,2.7,.12),color,.02)
+        for y in (.15,2.75):box('door_header',(x,y,0),(.13,.17,2.66),color,.02)
         box('door_seam',(x,1.45,0),(.03,2.65,.04),'ink')
         for z in (-.78,.78):
             box('locking_bar',(x,1.45,z),(.055,2.45,.045),'cream')
@@ -145,21 +230,49 @@ box('EnemyGun',(.22,1.12,-.35),(.1,.12,.45),'dark')
 export('enemy')
 
 begin('forklift')
-box('base',(0,.48,0),(1.6,.68,2.4),'yellow',.04)
-box('rear',(0,1.0,.7),(1.55,.65,.75),'yellow')
+def hull_ring(w,bottom,top,r=.16):
+    return rounded_profile(w,top-bottom,r,y=(top+bottom)/2)
+profile_shell(mesh,'base',(0,0,0),[
+    (-1.18,hull_ring(1.24,.18,.65)),(-.80,hull_ring(1.50,.18,.78)),
+    (.45,hull_ring(1.54,.18,.85)),(.95,hull_ring(1.48,.22,.87)),
+    (1.16,hull_ring(1.30,.28,.78))],'yellow')
+profile_shell(mesh,'cast_counterweight',(0,0,0),[
+    (.40,hull_ring(1.45,.62,1.18)),(.68,hull_ring(1.58,.57,1.38)),
+    (1.02,hull_ring(1.50,.52,1.34)),(1.16,hull_ring(1.28,.53,1.18))],'yellow')
+chipped_box('rear_bumper',(0,.40,1.13),(1.44,.20,.14),'blue',corner=(1,1,1),cut=.075,bevel=.035)
+for y in (.73,.87,1.01):box('rear_vent',(0,y,1.17),(.72,.065,.025),'blue',.012)
 for x in (-.82,.82):
     for z in (-.7,.7):
-        cyl('wheel',(x,.36,z),.36,.24,'blue',10,'x')
+        cyl('wheel',(x,.36,z),.36,.24,'blue',16,'x')
         cyl('hub',(x*1.02,.36,z),.14,.26,'cream',8,'x')
+        wheel_arch(x*.94,z,.395)
 for x in (-.68,.68):
-    for z in (-.65,.65):box('cab_post',(x,1.65,z),(.09,1.75,.09),'blue')
-box('roof',(0,2.55,0),(1.65,.16,1.7),'yellow')
-box('seat',(0,1.05,.2),(.65,.15,.65),'ink')
-box('seat_back',(0,1.35,.5),(.65,.6,.12),'ink')
+    beam('front_cab_pillar',(x,.83,-.68),(x*.91,2.47,-.49),.115,'blue')
+    beam('rear_cab_pillar',(x,.90,.68),(x*.91,2.47,.53),.115,'blue')
+    box('entry_step',(x,.42,-.05),(.19,.12,.66),'blue',.02)
+profile_shell(mesh,'cast_roof',(0,0,0),[
+    (-.85,hull_ring(1.48,2.44,2.55,.06)),(-.65,hull_ring(1.73,2.46,2.63,.075)),
+    (.62,hull_ring(1.73,2.46,2.63,.075)),(.85,hull_ring(1.48,2.44,2.55,.06))],'yellow')
+profile_shell(mesh,'seat_cushion',(0,0,0),[
+    (-.20,hull_ring(.54,1.00,1.14,.06)),(.05,hull_ring(.68,.98,1.17,.08)),
+    (.45,hull_ring(.60,1.02,1.18,.07))],'ink')
+profile_shell(mesh,'seat_back',(0,0,0),[
+    (.40,hull_ring(.62,1.10,1.65,.12)),(.55,hull_ring(.54,1.12,1.61,.12))],'ink')
+beam('steering_column',(0,.78,-.36),(0,1.32,-.55),.065,'blue')
+bpy.ops.mesh.primitive_torus_add(major_segments=16,minor_segments=6,
+    major_radius=.22,minor_radius=.027,location=xyz((0,1.32,-.55)))
+steering=bpy.context.object
+steering.rotation_euler.x=math.radians(20)
+finish_obj(steering,'steering_wheel','ink')
+beam('steering_spoke',(-.2,1.32,-.55),(.2,1.32,-.55),.028,'blue')
 for x in (-.55,.55):
-    box('mast',(x,1.2,-1.3),(.15,2.4,.15),'cream')
+    box('mast',(x,1.2,-1.3),(.16,2.4,.18),'cream')
+    box('mast_inner_guide',(x,1.22,-1.42),(.085,2.24,.07),'blue')
     box('fork',(x,.16,-1.9),(.14,.12,1.25),'ink')
-box('cross',(0,.8,-1.3),(1.2,.15,.15),'cream')
+for y in (.38,.82):box('carriage',(0,y,-1.40),(1.26,.15,.18),'cream')
+cyl('hydraulic_barrel',(0,.67,-1.31),.095,.92,'blue',12)
+cyl('hydraulic_rod',(0,1.38,-1.31),.043,.62,'cream',10)
+box('mast_crown',(0,2.31,-1.3),(1.21,.18,.19),'cream',.025)
 export('forklift',True)
 
 begin('barrel')
@@ -169,10 +282,13 @@ cyl('cap',(0,1.21,0),.42,.04,'ink',10)
 export('barrel',True)
 
 begin('tree')
-cyl('trunk',(0,.9,0),.16,1.8,'ink',6)
-for y,r in [(1.7,1.1),(2.5,.85),(3.2,.6)]:
-    bpy.ops.mesh.primitive_cone_add(vertices=4, radius1=r, radius2=0, depth=1.8, location=xyz((0,y,0)))
-    finish_obj(bpy.context.object,'foliage','leaf')
+cyl('trunk',(0,.9,0),.18,1.8,'ink',8)
+box('trunk_foot',(0,.08,0),(.48,.16,.48),'cream',.02)
+for y,r in [(1.7,1.12),(2.5,.87),(3.2,.62)]:
+    bpy.ops.mesh.primitive_cone_add(vertices=6, radius1=r, radius2=.08, depth=1.75, location=xyz((0,y,0)))
+    cone = bpy.context.object
+    toy_soften(cone, r*.4, .02, 1)
+    finish_obj(cone,'foliage','leaf')
 export('tree',True)
 
 begin('cloud')
@@ -185,13 +301,23 @@ export('cloud',True)
 
 begin('pallet')
 for z in [-.55,0,.55]:box('runner',(0,.12,z),(1.3,.24,.15),'yellow')
-for x in [-.57,-.28,0,.28,.57]:box('slat',(x,.27,0),(.22,.08,1.4),'cream')
+for i,x in enumerate([-.57,-.28,0,.28,.57]):
+    if i == 1:
+        chipped_box('slat',(x,.27,.06),(.22,.08,1.24),'cream',corner=(-1,1,-1),cut=.06)
+    else:
+        box('slat',(x,.27,0),(.22,.08,1.4),'cream')
 export('pallet',True)
 
 begin('crate')
 box('cargo',(0,.55,0),(1.1,1.1,1.1),'yellow',.025)
 for y in [.09,1.01]:
-    for z in [-.56,.56]:box('brace',(0,y,z),(1.15,.13,.07),'cream')
+    for z in [-.56,.56]:
+        if y > .5 and z > 0:
+            chipped_box('brace',(0,y,z),(1.15,.13,.07),'cream',corner=(1,1,1),cut=.055)
+        else:
+            box('brace',(0,y,z),(1.15,.13,.07),'cream')
+for z in [-.57,.57]:
+    beam('diag_brace',(-.44,.16,z),(.44,.94,z),.055,'cream')
 for x in [-.48,.48]:
     for z in [-.56,.56]:box('strap',(x,.55,z),(.07,1.1,.035),'ink')
 box('label',(0,.7,-.58),(.32,.22,.02),'cream')

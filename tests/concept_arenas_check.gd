@@ -183,7 +183,8 @@ func check() -> void:
 		if id=="palm_house":
 			var arena = game.arena
 			assert(not arena.grow_lights.visible and arena.mist_jets.all(func(jet):return not jet.visible))
-			assert(arena.environment_override.background_color==arena.normal_sky and game.sun.light_color==arena.sun_color)
+			var expected_sun: Color = preload("res://scripts/maps/toy_palette.gd").PALETTES.get("palm_house",{}).get("sun",[arena.sun_color])[0]
+			assert(arena.environment_override.background_color==arena.normal_sky and game.sun.light_color==expected_sun)
 		if id=="snowline":
 			assert(is_zero_approx(game.arena.shutter_left.rotation.y))
 			assert(is_zero_approx(game.arena.shutter_right.rotation.y))
