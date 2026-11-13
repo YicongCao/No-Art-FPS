@@ -44,4 +44,17 @@
 | 棕榈屋 | ![](palm_house-before.png) | ![](palm_house-after.png) |
 | 银座站 | ![](ginza_station-before.png) | ![](ginza_station-after.png) |
 
-线上验证在发布后记录。
+## 发布与浏览器验证
+
+- 主功能提交 bf5a71e；清场补充提交 40d5329。两者均已推送 origin/main。
+- GitHub Pages [部署 43393397937](https://github.com/YicongCao/No-Art-FPS/actions/runs/43393397937) 成功，线上 23 个文件按 manifest 校验大小与 SHA-256。
+- 自定义域名最终版本 20261113-v6，保留 v5 与上一功能版本 v4 可回滚。22 个站点文件与 4 个 CDN 资源校验通过，healthz、Brotli、CORS、Range、私有源站限制与缺失文件状态检查通过。
+- Web 导出 1052 个打包资源、23 个发布文件。相比上一功能版本 v4，未压缩发布文件总量增加约 0.56 MB；这不是运行时帧率基准。
+- Chrome 在两个站点分别进入沙城、拖动瞄准并普通射击：绿色陶罐破坏，蓝色相邻陶罐保留，弹药消耗；Pages 重新加载后物体恢复。浏览器 error 日志均为空。
+- 本轮是桌面浏览器触控布局验收和脚本控制的九图检查，没有做物理手机或完整人工游玩测试。
+
+![自定义域名普通射击前](custom-before-shot.png)
+
+![自定义域名绿色陶罐破坏后](custom-after-shot.png)
+
+证据见 browser-verification.json、pages-verification.json 和 custom-verification.json。

@@ -1,0 +1,17 @@
+{
+  "date": "2026-11-13",
+  "commit": "40d5329",
+  "customRelease": "20261113-v6",
+  "browser": "Desktop Chrome touch=1; not a physical phone playtest",
+  "checks": [
+    "Both sites launched Sandgate",
+    "New props visible",
+    "Normal shots broke the green pot; adjacent blue pot remained",
+    "Ammo consumed",
+    "Pages reload restored props"
+  ],
+  "errors": {
+    "pages": [],
+    "custom": []
+  }
+}
