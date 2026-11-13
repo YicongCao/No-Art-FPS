@@ -1,0 +1,14 @@
+{
+  "mode": "Chrome touch-mode smoke, not physical mobile testing",
+  "pages": {
+    "map": "sandgate",
+    "running": true,
+    "restart": true,
+    "errors": []
+  },
+  "custom": {
+    "map": "sandgate",
+    "running": true,
+    "errors": []
+  }
+}

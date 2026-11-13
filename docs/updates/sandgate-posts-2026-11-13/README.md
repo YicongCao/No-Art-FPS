@@ -11,3 +11,11 @@
 |修复前|修复后|
 |---|---|
 |![修复前](before.png)|![修复后](after.png)|
+
+## 线上发布
+
+修复提交 `1641bc7` 已推送至 `origin/main`。[GitHub Pages 工作流](https://github.com/YicongCao/No-Art-FPS/actions/runs/43365455657)构建及发布成功，线上 23 个资源通过 manifest 哈希与大小校验。
+
+[正式域名](https://fps.yicong.me/)版本为 `20261113-v2`，保留 `20261113-v1` 回滚。22 个外壳文件、4 个 CDN 文件、压缩/CORS/Range、健康检查及其他站点可访问性验证通过。两个入口均在 Chrome 触控模式下实际加载并进入沙门对局，控制台错误列表为空；Pages 另外完成重开及开火操作。浏览器冒烟不等于真机手机验收。
+
+来源构建保持干净，后续记录提交只增加发布证据，不改变游戏资源。回滚可在 server-connect 项目执行 `python3 scripts/publish_fps.py activate 20261113-v1`，随后校验旧版本健康。
