@@ -23,9 +23,9 @@ const PALETTES = {
 		"weather": [.38,Color("a89882"),Color("f7e8ce"),.12],
 	},
 	"yard": {
-		# Late-morning container yard: clean warm key, periwinkle shade, light blue distance.
-		"sun": [Color("ffe4bd"),.95,Vector3(-38,-35,0)],
-		"ambient": [Color("adbaf2"),.55],
+		# Late-morning yard: restrained warm key keeps cream paint and yellow props distinct.
+		"sun": [Color("ffe4bd"),.58,Vector3(-38,-35,0)],
+		"ambient": [Color("adbaf2"),.32],
 		"fog": [Color("cfe0fa"),.0016],
 		"rim": [Color("9fe4ff"),.6],
 		"weather": [.36,Color("c8b69a"),Color("faf2df"),.06],
