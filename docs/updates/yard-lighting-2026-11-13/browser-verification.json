@@ -1,0 +1,29 @@
+{
+  "browser": "Chrome",
+  "mode": "touch=1 on desktop",
+  "physical_mobile_tested": false,
+  "sites": [
+    {
+      "url": "https://yicongcao.github.io/No-Art-FPS/",
+      "map": "yard",
+      "title_loaded": true,
+      "started_round": true,
+      "timer_observed": "00:43",
+      "fire_pressed": true,
+      "ammo_depletion_observed": true,
+      "console_errors": [],
+      "screenshot": "pages-play.png"
+    },
+    {
+      "url": "https://fps.yicong.me/",
+      "map": "yard",
+      "title_loaded": true,
+      "started_round": true,
+      "timer_observed": "00:43",
+      "fire_pressed": true,
+      "ammo_depletion_observed": true,
+      "console_errors": [],
+      "screenshot": "custom-play.png"
+    }
+  ]
+}
