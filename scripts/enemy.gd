@@ -2,6 +2,7 @@ extends CharacterBody3D
 
 const ShotLine = preload("res://scripts/shot_line.gd")
 const CombatFX = preload("res://scripts/combat_fx.gd")
+const HeadshotFX = preload("res://scripts/headshot_fx.gd")
 const ComedyFX = preload("res://scripts/comedy_fx.gd")
 const TOY_MODEL = "res://assets/models/toy/enemy.glb"
 const RUSHER_MODEL = "res://assets/models/toy/rusher.glb"
@@ -52,6 +53,13 @@ var highlighted := false
 var aim_offset = Vector3.ZERO
 var aim_line: ShotLine
 var death_time = 0.0
+var headshot_death := false
+var headshot_direction := Vector3.ZERO
+var headshot_origin := Vector3.INF
+var headshot_normal := Vector3.ZERO
+var headshot_lean := Vector3.ZERO
+var headshot_start_rotation := Vector3.ZERO
+var head_core: MeshInstance3D
 var walk_phase = 0.0
 var hurt = 0.0
 var body_hit_time = 0.0
@@ -164,7 +172,17 @@ func _physics_process(delta: float) -> void:
 	if game.state=="RUNNING" and body_hit_time>0:
 		update_body_hit(delta)
 	if dead:
+		if game.state!="RUNNING":return
 		death_time += delta
+		if headshot_death:
+			var pulse := smoothstep(0,.07,death_time)*(1-smoothstep(.12,.38,death_time))
+			visual.rotation.x = headshot_start_rotation.x+headshot_lean.x*pulse
+			if is_instance_valid(head_core):
+				head_core.visible = death_time<.22
+				head_core.scale = Vector3.ONE*(1-smoothstep(.04,.22,death_time)*.85)
+			if death_time<.075 and not game.reduced_motion:
+				visual.rotation.z = headshot_start_rotation.z+headshot_lean.z*pulse
+				return
 		visual.rotation.z = lerpf(visual.rotation.z,1.48,delta*9)
 		visual.position.y = lerpf(visual.position.y,-.35,delta*5)
 		if death_time > 1.4:queue_free()
@@ -378,8 +396,43 @@ func can_see_player() -> bool:
 	var query = PhysicsRayQueryParameters3D.create(global_position+Vector3(0,1.4,0),game.player.global_position+Vector3(0,1.1,0),1)
 	return get_world_3d().direct_space_state.intersect_ray(query).is_empty()
 
-func take_hit(is_head: bool, body_one_shot: bool = false) -> void:
+func take_hit(is_head: bool, body_one_shot: bool = false, point: Vector3 = Vector3.INF, direction: Vector3 = Vector3.ZERO, normal: Vector3 = Vector3.ZERO) -> void:
+	if dead:return
+	if is_head:
+		headshot_origin = point
+		headshot_direction = direction
+		headshot_normal = normal
 	take_damage(MAX_HEALTH if is_head or body_one_shot else BODY_SHOT_DAMAGE,is_head)
+
+func play_headshot_kill() -> void:
+	if headshot_death:return
+	headshot_death = true
+	body_hit_time = 0
+	headshot_start_rotation = visual.rotation
+	var incoming := headshot_direction
+	if incoming.length_squared()<.01:incoming = game.player.camera.global_position.direction_to(global_position+Vector3.UP*1.7)
+	var local_direction: Vector3 = global_basis.inverse()*incoming
+	headshot_lean = Vector3(local_direction.z*.30,0,-local_direction.x*.22)
+	if game.reduced_motion:headshot_lean *= .2
+	var point := headshot_origin if headshot_origin.is_finite() else global_position+Vector3.UP*1.7
+	var fx = HeadshotFX.new()
+	fx.name = "HeadshotBurst"
+	game.effects.add_child(fx)
+	fx.setup(game,point,incoming,headshot_normal,fast,game.comedy_mode.is_empty(),global_position.y+.04)
+	if not game.comedy_mode.is_empty():return
+	for part in ["Helmet","Visor"]:
+		var node = visual.find_child(part,true,false) as Node3D
+		if node:node.hide()
+	# The original dark mechanical head remains, exposed beneath the detached shell.
+	var head = visual.find_child("Head",true,false) as Node3D
+	if head:
+		head_core = MeshInstance3D.new()
+		head_core.name = "HeadshotCore"
+		head_core.mesh = HeadshotFX.reactor_mesh
+		head_core.material_override = CombatFX.paint_for(false)
+		head_core.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		head.add_child(head_core)
+		head_core.position = Vector3(0,.02,-.17)
 
 func apply_nonlethal_hit() -> void:
 	if armor_hit==null:

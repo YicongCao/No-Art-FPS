@@ -61,6 +61,7 @@ var game: Node
 var touch_inset_available = false
 var font: Font
 var hit = 0.0
+var headshot_confirm = 0.0
 var kill_pop = 0.0
 var kill_group = 1
 var multi_time = 0.0
@@ -487,6 +488,7 @@ func _process(delta: float) -> void:
 		health_shade = move_toward(health_shade,target,delta*(1.15 if target>health_shade else .85))
 		vignette.material.set_shader_parameter("severity",health_shade)
 		vignette.material.set_shader_parameter("hit_flash",pow(clampf(damage/.8,0,1),2))
+	headshot_confirm = maxf(0,headshot_confirm-delta) if game and game.state in ["RUNNING","PAUSED"] else 0.0
 	hit = maxf(0,hit-delta)
 	kill_pop = maxf(0,kill_pop-delta)
 	multi_time = maxf(0,multi_time-delta)
@@ -1268,7 +1270,9 @@ func _draw() -> void:
 	if game.respawn_time<=0:
 		var gap = 5+shot*24
 		var aim_center = c+game.player.crosshair_offset
-		if hit>0:
+		if headshot_confirm>0:
+			draw_headshot_confirm(aim_center)
+		elif hit>0:
 			var col = GOLD if kill_pop>0 else WHITE
 			for a in [Vector2(-1,-1),Vector2(1,-1),Vector2(-1,1),Vector2(1,1)]:draw_line(aim_center+a*7,aim_center+a*12,col,2)
 		elif game.player.aim_blend>=.5 and game.player.uses_iron_sights():
@@ -1532,3 +1536,17 @@ func mission_time_style() -> StyleBoxFlat:
 	style.bg_color = Color(INK,.88)
 	style.set_corner_radius_all(6)
 	return style
+
+func draw_headshot_confirm(center: Vector2) -> void:
+	var age: float = .22-headshot_confirm
+	var fade := 1-smoothstep(.13,.22,age)
+	var motion := 0.0 if game.reduced_motion else 1.0
+	var radius := 8.0+motion*(5.0*(1-smoothstep(0,.055,age))+2.0*sin(clampf((age-.055)/.12,0,1)*PI))
+	var ui_scale := clampf(size.y/810.0,.75,1.5)
+	for axis in [Vector2(-1,-1),Vector2(1,-1),Vector2(-1,1),Vector2(1,1)]:
+		var direction: Vector2 = axis.normalized()
+		var start := center+direction*radius*ui_scale
+		var end := center+direction*(radius+6)*ui_scale
+		draw_line(start,end,Color(INK,fade),5*ui_scale,true)
+		draw_line(start,end,Color(GOLD,fade),3*ui_scale,true)
+		draw_line(start,start.lerp(end,.55),Color(WHITE,fade),1.5*ui_scale,true)
