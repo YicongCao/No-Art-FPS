@@ -39,3 +39,7 @@ python3 docs/design/moonbase-plan-2026-11-13/construction/validate_kit.py
 二维路线校验只针对选定矩形包络、以 1.75 m 半宽沿中心线采样；它不能替代实际角色胶囊、跳跃、完整美术包络、碰撞或导航验证。
 
 所有文件在 `docs/`；项目的 `docs/.gdignore` 和导出排除规则避免它们作为游戏资产导入或打包。本轮不更新游戏发布站点。
+
+## Space 分支施工顺序
+
+见 [分阶段施工路线](../../../art/space/README.md)：补充官方 Tripo MCP 接入、程序化与 AI 初模分工，以及灰盒/材质基准、样板、全场整合和 Web 验收顺序。原有构件编号与五视图继续作为设计依据。
