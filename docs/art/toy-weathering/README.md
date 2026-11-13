@@ -1,84 +1,96 @@
-# 十二张地图风格化微缩沙盘做旧（Stylized Diorama Weathering）
+# 十二张地图干净向几何做旧升级（Clean Toy Palette + Sculpted Geometric Wear）
 
-日期：2026-11-13，分支：`toy`（仅本地客户端，不发布 Web）。解决 12 张地图建筑、地面与道具“太平滑、太崭新”的问题，在不引入写实高频脏乱贴图、零新增纹理内存（复用已驻留 `512 x 512` `surface_noise.png`）、零额外 Draw Call 且严守“远看干净大色块、近看丰富使用痕迹”美术规则的前提下，为全图建立统一的玩具沙盘手涂做旧体系。
-
----
-
-## 一、核心做旧机制（四大场景着色器统一升级）
-
-覆盖 [`assets/shaders/toy_paint.gdshader`](../../../assets/shaders/toy_paint.gdshader)、[`assets/shaders/map_surface.gdshader`](../../../assets/shaders/map_surface.gdshader)、[`assets/shaders/wall_paint.gdshader`](../../../assets/shaders/wall_paint.gdshader) 与 [`assets/shaders/market_surface.gdshader`](../../../assets/shaders/market_surface.gdshader)：
-
-1. **真实 3D 倒角干扫掉漆（Dry-Brushed Bevel Edge Wear）：** 利用世界法线曲率梯度 `length(fwidth(world_normal)) / length(fwidth(world))` 自动捕捉此前在 12 张地图中建好的 3D 倒角、肋条、窗框与压顶边缘，结合笔触遮罩在 `14`–`42` 米近中景浮现不连续的浅色底漆磨白（金属件露出亮银钢边，彩漆与石木露出暖白粉化边），远景自动淡出以保持干净色块。
-2. **接地飞溅渍迹与烘焙暗角积尘（Base Splash & AO Crevice Grime）：** 墙根 `0.45`–`0.70` 米内按地图气候叠加上返泥沙、青苔或踢擦痕迹，并与静态建筑的离线烘焙顶点遮蔽（`COLOR.rgb`）联动，使污渍自然沉淀在墙角、檐下与台阶根部；货场喷绘壁画（`SECTOR 01`、`WAREHOUSE`）边缘同步做轻微斑驳剥落。
-3. **立面雨水流挂与顶部日晒褪色（Vertical Drip Streaks & Sun-Chalking）：** 在垂直立面拉伸竖向水渍/锈迹条纹，朝上平面做柔和的日晒粉化与手涂色温起伏。
-4. **地面动线踩踏与粗糙度破光（Traffic Scuffs & Roughness Breakup）：** 打破恒定粗糙度造成的“全新注塑反光”，污渍区转为哑光，常摩擦的棱角与通道地面微抛光，配合极克制的余切微浮雕打碎死板直线高光。
+日期：2026-11-13，分支：`toy`（仅本地客户端，不发布 Web）。针对第一轮纯着色器噪点做旧导致的“画面发脏、水渍泥斑糊住玩具色块”问题，重构做旧策略：**大幅收敛表面着色器污渍，恢复明亮干净的上漆塑料色块，改用真实 3D 几何切角、斜角墙缝、局部剥落露砖、斜缝错位压顶石与铆钉修补板来表达鲜活的不规则使用痕迹**。
 
 ---
 
-## 二、逐地图主题化风化色板（`scripts/maps/toy_palette.gd`）
+## 一、两层重构机制
 
-每张地图通过 `weather: [wear_amount, grime_tint, edge_tint, streak_amount]` 注入专属环境故事感：
+### 1. 表面着色器净色化（清除泥斑水渍，只留光泽破光与干净亮边）
 
-| 地图 | 风化强度 | 接地/流挂渍色 | 棱角磨白底色 | 场景风化特征 |
-| --- | ---: | --- | --- | --- |
-| `score_attack` (`yard`) | `0.82` | 铁锈棕褐 `543f30` | 暖米底漆 `faf1dc` | 集装箱棱角掉漆、叉车道磨损、墙面涂鸦斑驳 |
-| `sandgate` | `0.84` | 沙漠赭石 `7e5e3d` | 日晒白垩 `fff5df` | 夯土墙水渍剥落、石墩磨边、沙地风蚀色差 |
-| `bb_office` | `0.68` | 灰紫鞋印 `43455c` | 象牙浅底 `f7f3ea` | 工位踢脚擦痕、地毯走廊踩踏路径、风管接缝陈旧 |
-| `amusement_park` | `0.76` | 海风暖褐 `64493b` | 奶油褪色漆 `fff2da` | 步道踩踏磨损、售票亭与护栏日晒掉漆 |
-| `last_ferry` | `0.88` | 咸湿青灰 `323f50` | 盐霜冷白 `ebf0f6` | 船甲板潮湿水迹、引桥踏板磨边、灯柱与油桶海盐锈蚀 |
-| `night_studio` | `0.70` | 舞台炭紫 `2e3145` | 浅灰底漆 `ece9f8` | 演播厅地胶车轮印、声学墙与背景板搬运磕碰边 |
-| `hogwarts` | `0.82` | 高地苔藓绿 `3c4932` | 风化砂岩 `f5e2c4` | 城堡石墙青苔雨痕、草坪比赛踩踏斑块、木看台旧化 |
-| `palm_house` | `0.78` | 温室湿苔 `35503b` | 白漆粉化 `f6f5e8` | 潮湿红砖底座返碱长苔、铸铁白框冷凝水痕 |
-| `snowline` | `0.76` | 冻融岩灰 `4e5f78` | 冰霜冷白 `f2f7ff` | 橙色观测鼓楼冻融流挂、蓝色门柱风雪磨边 |
-| `baggage_below` | `0.80` | 橡胶胎痕灰 `3b4250` | 铝白磨边 `f0f3f8` | 橙色员工门框刮擦、混凝土地面与传送带胶轮印 |
-| `ginza_station` | `0.74` | 站台煤灰 `404654` | 米白釉底 `f4f1e8` | 屏蔽门下半部通勤擦痕、水磨石地面与瓷砖缝沉淀 |
-| `rain_market` | `0.84` | 海旁潮霉绿 `364238` | 旧灰泥白 `f5ebd8` | 唐楼外墙雨水流挂、海鲜档台底座潮湿磨损 |
+更新 [`assets/shaders/toy_paint.gdshader`](../../../assets/shaders/toy_paint.gdshader)、[`assets/shaders/map_surface.gdshader`](../../../assets/shaders/map_surface.gdshader)、[`assets/shaders/wall_paint.gdshader`](../../../assets/shaders/wall_paint.gdshader)、[`assets/shaders/market_surface.gdshader`](../../../assets/shaders/market_surface.gdshader) 与 [`scripts/maps/toy_palette.gd`](../../../scripts/maps/toy_palette.gd)：
+
+- **移除发脏覆盖层**：去掉地面泥印斑块、立面深色雨水流挂、顶点 AO 叠脏以及地毯/草坪脏污贴片；大面积色彩扰动收敛至 `±2%–3%`，墙面与地面恢复清透纯正的玩具色块。
+- **保留克制亮边与光泽质感**：仅在真实 3D 倒角、崩角切面与斜角缝唇边保留手涂亮色底漆干扫（上限 `0.28–0.32`），墙根接地灰尘压缩至 `< 12 cm` 的暖色微过渡，主要由粗糙度微差（`ROUGHNESS`）提供触感而不污染固有色。
+
+### 2. 程序化 3D 几何做旧原语（[`tools/maps/toy_kit.py`](../../../tools/maps/toy_kit.py) 与 [`tools/maps/arena_kit.py`](../../../tools/maps/arena_kit.py)）
+
+所有几何做旧完全限制在视觉网格（`.glb` / 视觉子网格）中，碰撞盒、斜坡与导航数据（`tools/maps/*_layout.json`）保持零改动，并在离线阶段重新执行 Cycles 顶点光遮蔽烘焙：
+
+1. **斜角墙缝（`slanted_wall_seam`）**：由内凹深色斜缝槽与两侧对向斜切凸缘组成（可选配跨缝铁扒钉），用真实结构明暗转折打破整块平滑直墙。
+2. **立体崩角切口（`chipped_box`）**：通过 BMesh 平面切削门洞墩柱、转角柱、护柱与货箱包角，生成带单段加权法线倒角的干净多边形缺口，并露出内层浅色石芯或钢芯。
+3. **斜缝错位与残缺压顶石（升级 `segmented_coping`）**：压顶石改用交替斜角灰缝（Slanted mortar joints）、微小沉降高低差，并在风化墙段留出成对残桩的不对称 V 形缺口。
+4. **低浮雕灰泥剥落露砖（`exposed_masonry_patch`）**：阶梯状低浮雕砂浆底衬搭配错缝单段倒角砂岩/红砖块与斜向破损灰泥边唇。
+5. **铆钉修补板与风积沙堆/碎石（`repair_patch_plate`、`sand_drift`、`weathered_rubble`）**：用于工业集装箱、渡轮舱壁、地铁与机场设备的切角铆钉补丁板，以及沙漠墙根的多面体风积沙棱与崩落陶罐/石块残片。
 
 ---
 
-## 三、十二张地图同机位做旧前后实机对比
+## 二、十二张地图几何使用痕迹配置
 
-以下全部为 `1600 x 900` 本地实机渲染（**左：做旧前微缩沙盘状态 / 右：风格化手涂做旧后状态**），单张高清图保存在 [`renders/`](renders/)。
+| 地图 | 表面风化强度 | 专属 3D 几何破碎与不规则使用痕迹 |
+| --- | ---: | --- |
+| `sandgate` | `0.40` | 沙漠立面斜角墙缝配铁扒钉、阶梯剥落露砂岩砖、拱门墩柱立体崩角与错落拱券石、斜缝残缺压顶石与垛口、墙角风积沙堆与碎陶片 |
+| `score_attack` (`yard`) | `0.36` | 集装箱四角铸件切角缺口、局部凹短波纹筋与奶油色铆钉修补板；二层平台与仓库立面斜角墙缝、残缺挑檐压顶；木托盘断板与木箱斜撑 |
+| `hogwarts` | `0.38` | 城堡大礼堂扶壁与石护栏墩柱立体崩角、石砌斜角墙缝、高低残缺女墙垛口、霍格莫德商铺露石块墙皮与庭院碎石 |
+| `palm_house` | `0.34` | 温室红砖墙裙与花坛斜角伸缩缝、花坛与入口石柱崩角露芯、斜缝石压顶、锅炉房铁箍斜缝与育苗棚剥落露红砖 |
+| `amusement_park` | `0.32` | 入口大门金柱崩角、售票亭与小吃亭斜角墙缝及底部露红砖块、过山车站台斜角缝与金属修补板 |
+| `last_ferry` | `0.38` | 码头岸壁斜缝残缺压顶石、候船楼斜角墙缝与黄铜修补板、驾驶室围槛斜缝与补丁、船甲板货箱崩角立柱 |
+| `snowline` | `0.32` | 橙色观测鼓楼抗冻斜角伸缩缝与钢制修补护板、防风门柱崩角露钢芯、防雪木栅栏断柱与斜缺横板 |
+| `rain_market` | `0.36` | 唐楼外墙斜角沉降缝配钢拉结件、隔跨交替的露混凝土块与金属修补板、斜缝错位檐口线脚 |
+| `baggage_below` | `0.30` | 防撞黄护柱叉车磕碰缺口露钢芯、安检隔墙斜角伸缩缝、行李分拣传送带机壳铆钉检修补丁板 |
+| `ginza_station` | `0.26` | 轨道隔墙斜角伸缩缝与局部掉砖露底块、隧道混凝土门柱崩角、站台瓷砖立柱边角磕碰缺口与斜缝 |
+| `night_studio` | `0.26` | 声学隔墙异色替换吸音板、斜角拼缝与金色检修补丁板、舞台金色台唇边角磨损切口、地面斜向过线槽 |
+| `bb_office` | `0.25` | 走廊隔断局部异色更换面板、干墙斜角接缝与镀锌检修盖板，整体保持整洁明亮办公空间 |
 
-### 1. 货场（`score_attack`）与 沙门（`sandgate`）
+---
 
-| 货场实战视角 | 沙门实战视角 |
+## 三、同机位实机渲染对比（左：第一轮过脏着色器做旧 / 右：本轮干净色块 + 3D 几何做旧）
+
+全部 `12` 张地图 `1600 x 900` 的 `play` 与 `view` 高清原图及对比图均保存在 [`renders/`](renders/)。
+
+### 1. 沙门（`sandgate`）与 货场（`score_attack`）
+
+| 沙门实战视角 | 货场实战视角 |
 | --- | --- |
-| ![货场做旧对比](renders/compare-score_attack-play.png) | ![沙门做旧对比](renders/compare-sandgate-play.png) |
+| ![沙门对比](renders/compare-sandgate-play.png) | ![货场对比](renders/compare-score_attack-play.png) |
 
-### 2. 棕榈温室（`palm_house`）与 末班渡轮（`last_ferry`）
-
-| 棕榈温室实战视角 | 末班渡轮实战视角 |
+| 沙门全景视角 | 货场全景视角 |
 | --- | --- |
-| ![棕榈温室做旧对比](renders/compare-palm_house-play.png) | ![末班渡轮做旧对比](renders/compare-last_ferry-play.png) |
+| ![沙门全景对比](renders/compare-sandgate-view.png) | ![货场全景对比](renders/compare-score_attack-view.png) |
 
-### 3. 雪线天文台（`snowline`）与 行李层（`baggage_below`）
+### 2. 棕榈温室（`palm_house`）与 银座站（`ginza_station`）
+
+| 棕榈温室实战视角 | 银座站实战视角 |
+| --- | --- |
+| ![棕榈温室对比](renders/compare-palm_house-play.png) | ![银座站对比](renders/compare-ginza_station-play.png) |
+
+### 3. 霍格沃茨（`hogwarts`）与 末班渡轮（`last_ferry`）
+
+| 霍格沃茨实战视角 | 末班渡轮实战视角 |
+| --- | --- |
+| ![霍格沃茨对比](renders/compare-hogwarts-play.png) | ![末班渡轮对比](renders/compare-last_ferry-play.png) |
+
+### 4. 雪线天文台（`snowline`）与 行李层（`baggage_below`）
 
 | 雪线天文台实战视角 | 行李层实战视角 |
 | --- | --- |
-| ![雪线做旧对比](renders/compare-snowline-play.png) | ![行李层做旧对比](renders/compare-baggage_below-play.png) |
+| ![雪线对比](renders/compare-snowline-play.png) | ![行李层对比](renders/compare-baggage_below-play.png) |
 
-### 4. 银座站（`ginza_station`）与 办公室（`bb_office`）
+### 5. 游乐园（`amusement_park`）与 香港雨市（`rain_market`）
 
-| 银座站实战视角 | 办公室实战视角 |
+| 游乐园实战视角 | 香港雨市实战视角 |
 | --- | --- |
-| ![银座站做旧对比](renders/compare-ginza_station-play.png) | ![办公室做旧对比](renders/compare-bb_office-play.png) |
+| ![游乐园对比](renders/compare-amusement_park-play.png) | ![香港雨市对比](renders/compare-rain_market-play.png) |
 
-### 5. 游乐园（`amusement_park`）与 午夜演播室（`night_studio`）
+### 6. 午夜演播室（`night_studio`）与 办公室（`bb_office`）
 
-| 游乐园实战视角 | 午夜演播室实战视角 |
+| 午夜演播室实战视角 | 办公室实战视角 |
 | --- | --- |
-| ![游乐园做旧对比](renders/compare-amusement_park-play.png) | ![演播室做旧对比](renders/compare-night_studio-play.png) |
-
-### 6. 霍格沃茨（`hogwarts`）与 香港雨市（`rain_market`）
-
-| 霍格沃茨实战视角 | 香港雨市实战视角 |
-| --- | --- |
-| ![霍格沃茨做旧对比](renders/compare-hogwarts-play.png) | ![香港雨市做旧对比](renders/compare-rain_market-play.png) |
+| ![演播室对比](renders/compare-night_studio-play.png) | ![办公室对比](renders/compare-bb_office-play.png) |
 
 ---
 
 ## 四、验证与性能实测
 
-- **自动化检查全部通过**（尚未人工完整试玩）：`rules_test.gd`、`color_material_check.gd`、`rain_market_lookdev_check.gd`、`map_scene_test.gd`、`--combat`。
-- **渲染性能零负担**：Apple M4 Pro（`1440 x 810` 视口，AI 激活扫镜采样）下，`score_attack` P50 `9.05 ms`、`sandgate` `8.75 ms`、`hogwarts` `8.61 ms`、`palm_house` `8.66 ms`、`ginza_station` `8.77 ms`、`bb_office` `11.58 ms`，纹理显存与 Draw Calls 均无额外增长。
+- **碰撞与导航零回退**：`tools/maps/*_layout.json` 零变更；`rules_test.gd`、`color_material_check.gd`、`rain_market_lookdev_check.gd`、`map_scene_test.gd`、`sandgate_check.gd`、`hogwarts_check.gd`、`concept_arenas_check.gd`、`--combat`、`--qa --destroy` 全部通过（注：以上为引擎自动化检查与脚本渲染采样，尚未代替人工完整对局试玩）。
+- **实机渲染性能**（Apple M4 Pro，`1440 x 810`，敌人 AI 激活扫镜采样）：`score_attack` P50 `10.31 ms`、`sandgate` `9.28 ms`、`hogwarts` `9.25 ms`、`palm_house` `8.89 ms`、`ginza_station` `8.58 ms`、`bb_office` `12.17 ms`，几何合并进原有单材质批次，Draw Calls 零额外增长。
