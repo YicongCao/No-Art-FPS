@@ -247,8 +247,10 @@ def long_house(x,z,w,d,h,windows,hero=False):
         slanted_wall_seam(mesh,(face,5.08,z+d*.12),1.45,.92,math.pi/2,"shade","plaster",flip=True)
 
 
-def canopy(x,z,y,width,angle=0,accent="stripe",depth=1.45):
-    cambered_canopy(mesh,(x,y,z),width,depth,.42,angle,accent,"cap","wood",post_h=2.02)
+def canopy(x,z,y,width,angle=0,accent="stripe",depth=1.45,ground_y=0):
+    # Keep the canopy fixed and extend its posts to the local supporting floor.
+    post_h = y - .42 * .85 - ground_y
+    cambered_canopy(mesh,(x,y,z),width,depth,.42,angle,accent,"cap","wood",post_h=post_h)
 
 
 def lathe(label,x,y,z,profile,color,segments=10):
@@ -565,7 +567,7 @@ arch("A lookout",17.7,-16.98,2.4,r=1.24,spring=1.91,side=1.25,solid=False)
 for i_m, x in enumerate([10.1,11.6,13.1,22.1]):
     mh = .34 if i_m == 1 else .42
     chipped_box(mesh,"A parapet merlon",(x,6.77+mh*.5,-17.6),(.58,mh,.68),"cap",taper=(.10,.10),seed=40+i_m)
-canopy(18.75,-15.85,5.4,3.7)
+canopy(18.75,-15.85,5.4,3.7,ground_y=2.4)
 facade("A lookout upper crown",18.56,-17.36,4.75,.70,1.90,"plaster",None,floor=6.48,solid=False)
 for x in [17.32,18.50,19.68]:
     box("Lookout slit",x,7.41,-16.98,.32,.80,.065,"wood")

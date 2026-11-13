@@ -23,6 +23,7 @@ const VIEWS := {
 		"container": [Vector3(-.6, .05, -5.3), Vector3(-3.0, 1.5, -3)],
 	},
 	"sandgate": {
+		"canopy": [Vector3(17.2, 2.45, -10.6), Vector3(18.2, 4.15, -16.3)],
 		"combat": [Vector3(15.73, .05, 13.48), Vector3(12.0, 3.3, 7.5)],
 		"near": [Vector3(14.0, .05, 11.0), Vector3(11.75, 3.6, 9.15)],
 		"side": [Vector3(13.5, .05, 4.1), Vector3(11.8, 3.1, 10.3)],
