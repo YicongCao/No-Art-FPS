@@ -1,0 +1,83 @@
+{
+  "world": [
+    "MOONBASE_WORLD_PASS groups=8 targets=20"
+  ],
+  "map": [
+    "MOONBASE_BUILD_PASS grey=false polygons=294"
+  ],
+  "import": [],
+  "export": [
+    "MOONBASE_EXPORT_PASS {\"pck_bytes\": 64621716, \"packed_resources\": 454, \"sessions\": [\"data/sessions/moonbase_trial.tres.remap\"], \"maps\": [\"scenes/maps/moonbase_trial.tscn.remap\"], \"note\": \"Common legacy character/UI/FX dependencies remain until replacement; no original map geometry or sessions.\"}"
+  ],
+  "legacy-props": [
+    "INTERACTIVE_MAP_PASS {\"draw_calls_intact\":725.0,\"embedded_targets\":[],\"groups\":9,\"map\":\"amusement_park\",\"placement_warnings\":[],\"targets\":39}",
+    "INTERACTIVE_MAP_PASS {\"draw_calls_intact\":2678.0,\"embedded_targets\":[],\"groups\":9,\"map\":\"bb_office\",\"placement_warnings\":[],\"targets\":21}",
+    "INTERACTIVE_MAP_PASS {\"draw_calls_intact\":438.0,\"embedded_targets\":[],\"groups\":9,\"map\":\"ginza_station\",\"placement_warnings\":[],\"targets\":30}",
+    "INTERACTIVE_MAP_PASS {\"draw_calls_intact\":212.0,\"embedded_targets\":[],\"groups\":9,\"map\":\"hogwarts\",\"placement_warnings\":[],\"targets\":21}",
+    "INTERACTIVE_MAP_PASS {\"draw_calls_intact\":317.0,\"embedded_targets\":[],\"groups\":9,\"map\":\"last_ferry\",\"placement_warnings\":[],\"targets\":24}",
+    "INTERACTIVE_MAP_PASS {\"draw_calls_intact\":851.0,\"embedded_targets\":[],\"groups\":9,\"map\":\"night_studio\",\"placement_warnings\":[],\"targets\":33}",
+    "INTERACTIVE_MAP_PASS {\"draw_calls_intact\":440.0,\"embedded_targets\":[],\"groups\":9,\"map\":\"palm_house\",\"placement_warnings\":[],\"targets\":27}",
+    "INTERACTIVE_MAP_PASS {\"draw_calls_intact\":440.0,\"embedded_targets\":[],\"groups\":9,\"map\":\"sandgate\",\"placement_warnings\":[],\"targets\":33}",
+    "INTERACTIVE_MAP_PASS {\"draw_calls_intact\":368.0,\"embedded_targets\":[],\"groups\":9,\"map\":\"snowline\",\"placement_warnings\":[],\"targets\":30}",
+    "INTERACTIVE_PROPS_PASS: 9 maps, normal/frenzy rays, grenade LOS, reset and unchanged navigation"
+  ],
+  "perf": [
+    "MOONBASE_RAMP_PASS (-9.5, 2.400392, -15.28306)",
+    "MOONBASE_CHECK_PASS {\"frames\":10648,\"max_ms\":60.177,\"p50_ms\":5.094,\"p95_ms\":7.842,\"p99_ms\":8.866}"
+  ],
+  "stress": [
+    "MOONBASE_RAMP_PASS (-9.5, 2.400392, -15.28306)",
+    "MOONBASE_CHECK_PASS {\"frames\":10754,\"max_ms\":37.33,\"p50_ms\":5.162,\"p95_ms\":7.563,\"p99_ms\":8.691}"
+  ],
+  "touch": {
+    "viewport": [
+      844,
+      390
+    ],
+    "state": "RUNNING",
+    "errors": [],
+    "evidence": {
+      "moveAndFire": true,
+      "reload": true,
+      "grenade": true
+    },
+    "checks": [
+      "start",
+      "simultaneous joystick and fire gestures",
+      "reload",
+      "ADS state",
+      "grenade gesture",
+      "pause",
+      "touch resume"
+    ],
+    "note": "Desktop Chrome touch emulation; not a physical iOS/Android performance result."
+  },
+  "base_commit": "7ce0551",
+  "additional_tripo_credits": 0,
+  "tested_source_sha256": {
+    "scripts/player.gd": "a55f3dba6c0da2295fdec14c31eeffce4de9c0c04f2539e6f6d1d9ab1d6b9dc4",
+    "scripts/maps/moonbase.gd": "b807293c71a6ea0ba289986c1a2db23d26fb43723b5c4d37ce3b0e16b773db37",
+    "scripts/maps/interactive_prop.gd": "2ae0f67f31aa36110faf503935344ac7f3f2dc00a42b0bc5ff98e8ffc2e618e8",
+    "scripts/maps/interactive_props.gd": "3374bbdbc2ee2cfb4fe3ce66353f2327f32d074fda8543226bba1b3314b49ef2",
+    "scenes/maps/moonbase_trial.tscn": "9a9d9417122a585a3923c11c3e66184a9eb35b8e4b0a15e34b89708e74b018d9"
+  },
+  "web": [
+    "moonbase entry",
+    "comedy hidden",
+    "start",
+    "fire/reload",
+    "full round",
+    "results",
+    "retry",
+    "pause"
+  ],
+  "review_page": {
+    "images_decoded": 20,
+    "viewport_widths": [
+      1440,
+      390
+    ],
+    "horizontal_overflow": false,
+    "comparison_slider_keyboard": true
+  }
+}

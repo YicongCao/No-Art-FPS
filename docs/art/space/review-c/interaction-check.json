@@ -1,0 +1,16 @@
+{
+  "checks": [
+    "navigation ready",
+    "all four families real bullet hits",
+    "two-hit panels",
+    "broken remnant visible",
+    "hit collider disabled",
+    "battery chain reaction",
+    "pause freezes chain",
+    "blast response",
+    "round reset restores all props"
+  ],
+  "groups": 8,
+  "note": "Scripted actual rendering and raycast interaction, not manual playtest.",
+  "targets": 20
+}

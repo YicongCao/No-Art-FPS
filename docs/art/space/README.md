@@ -1,6 +1,6 @@
 # Space：月球基地施工路线
 
-日期：2026-11-14。分支：`space`，从 `e60721f` 创建。本文是现有策划案的实施顺序补充；已完成工具接入、基地混合资产试验，以及独立月球可玩样片的评审 A、B 版本。月球入口为 `scenes/moonbase.tscn`；原九图入口保留。评审 A 已获通过；当前待确认的飞船、机甲与枪械证据见 [评审 B](review-b/index.html)。实测见 [基地试验报告](base-pilot/README.md)。
+日期：2026-11-14。分支：`space`，从 `e60721f` 创建。本文是现有策划案的实施顺序补充；已完成工具接入、基地混合资产试验，以及独立月球可玩样片的评审 A、B 及全图外景版本。月球入口为 `scenes/moonbase.tscn`；原九图入口保留。评审 A、B 已获通过；当前全图美术与可破坏物证据见 [全图版本](review-c/index.html)。实测见 [基地试验报告](base-pilot/README.md)。
 
 入口：[完整策划案](../../design/moonbase-plan-2026-11-13/index.html)、[构件五视图](../../design/moonbase-plan-2026-11-13/construction/index.html)、[构件数据](../../design/moonbase-plan-2026-11-13/construction/kit.json)。
 

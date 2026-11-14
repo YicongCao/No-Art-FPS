@@ -1,0 +1,89 @@
+{
+  "ordinary_native": {
+    "frames": 10648,
+    "max_ms": 60.177,
+    "p50_ms": 5.094,
+    "p95_ms": 7.842,
+    "p99_ms": 8.866
+  },
+  "ordinary_transition_43_to_48": {
+    "frames": 891,
+    "max_ms": 11.145,
+    "p50_ms": 4.941,
+    "p95_ms": 8.244,
+    "p99_ms": 9.187
+  },
+  "destruction_native": {
+    "frames": 10754,
+    "max_ms": 37.33,
+    "p50_ms": 5.162,
+    "p95_ms": 7.563,
+    "p99_ms": 8.691
+  },
+  "destruction_transition_43_to_48": {
+    "frames": 892,
+    "max_ms": 19.579,
+    "p50_ms": 5.172,
+    "p95_ms": 7.818,
+    "p99_ms": 8.911
+  },
+  "destruction_events": [
+    {
+      "action": "break all targets",
+      "time": 12.0000000000002
+    },
+    {
+      "action": "restore",
+      "time": 30.0166666666662
+    },
+    {
+      "action": "break all targets",
+      "time": 44.4166666666654
+    }
+  ],
+  "draw_range": [
+    592.0,
+    841.0
+  ],
+  "web": {
+    "p50Ms": 16.69999999999709,
+    "p95Ms": 16.70000000001164,
+    "p99Ms": 16.80000000000291,
+    "maxMs": 116.59999999999854
+  },
+  "web_stalls_over_33_3ms": [
+    [
+      48,
+      50,
+      "RUNNING"
+    ],
+    [
+      531,
+      83.3,
+      "RUNNING"
+    ],
+    [
+      10298,
+      49.9,
+      "RUNNING"
+    ],
+    [
+      29347,
+      33.4,
+      "RUNNING"
+    ],
+    [
+      43363,
+      33.4,
+      "RUNNING"
+    ],
+    [
+      46079,
+      116.6,
+      "RUNNING"
+    ]
+  ],
+  "pck_bytes": 64621716,
+  "status": "Recorded; optimization deferred by user",
+  "method": "Single rounds. Native monotonic uncapped wall-clock intervals; Web RAF at 60 Hz. No screenshot readbacks during sampling. Different AI trajectories; not GPU timing or mobile-device certification."
+}

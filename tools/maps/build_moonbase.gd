@@ -208,6 +208,7 @@ func build() -> void:
 			geometry(mesh,Transform3D(Basis.IDENTITY.scaled(Vector3.ONE*rng.randf_range(.08,.28)),at),rock)
 		for at in [Vector3(10,2.2,-14),Vector3(2,2.2,-14),Vector3(10,2.2,13.7),Vector3(-8,1.1,6),Vector3(1,1.1,10)]:
 			var lamp = OmniLight3D.new()
+			lamp.light_cull_mask=1
 			lamp.position=at;lamp.light_color=Color("ffd5a1");lamp.light_energy=1.2;lamp.omni_range=5;lamp.shadow_enabled=false
 			add(arena,lamp,"EntryLight")
 		for x in [-18,-8,1,12,19]:

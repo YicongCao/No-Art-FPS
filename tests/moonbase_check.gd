@@ -3,12 +3,14 @@ var game: Node
 var samples: Array[float] = []
 var frenzy_samples: Array[float] = []
 var frames: Array = []
-var phase = "heroes" if "--review-b" in OS.get_cmdline_user_args() else "grey" if "--grey" in OS.get_cmdline_user_args() else "corner"
-var directory = "res://docs/art/space/review-b/" if "--review-b" in OS.get_cmdline_user_args() else "res://docs/art/space/review-a/"
+var phase = "world" if "--review-c" in OS.get_cmdline_user_args() else "heroes" if "--review-b" in OS.get_cmdline_user_args() else "grey" if "--grey" in OS.get_cmdline_user_args() else "corner"
+var directory = "res://docs/art/space/review-c/" if "--review-c" in OS.get_cmdline_user_args() else "res://docs/art/space/review-b/" if "--review-b" in OS.get_cmdline_user_args() else "res://docs/art/space/review-a/"
 var draw_samples: Array = []
 var capture_done = false
 var done = false
 var last_frame_us = 0
+var prop_events: Array = []
+var stress_stage = 0
 
 func _ready() -> void:
 	set_process(false)
@@ -84,6 +86,15 @@ func _process(_delta: float) -> void:
 	var frame_ms = (now-last_frame_us)/1000.0 if last_frame_us else 0.0
 	last_frame_us = now
 	var elapsed: float = game.rules.elapsed
+	if "--prop-stress" in OS.get_cmdline_user_args():
+		var thresholds = [12.0,30.0,44.4]
+		if stress_stage<3 and elapsed>=thresholds[stress_stage]:
+			prop_events.append({"time":elapsed,"action":"restore" if stress_stage==1 else "break all targets"})
+			if stress_stage==1:game.arena.interactive_props.restore()
+			else:
+				for prop in game.arena.interactive_props.props:
+					for target in prop.targets:prop.hit(target.id,target.body.global_position,true)
+			stress_stage+=1
 	if elapsed>3:samples.append(frame_ms)
 	if frames.size()%60==0:draw_samples.append([elapsed,Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME)])
 	if elapsed>=43 and elapsed<=48:frenzy_samples.append(frame_ms)
@@ -96,8 +107,8 @@ func _process(_delta: float) -> void:
 	if game.state=="RESULTS":
 		done = true
 		assert(game.state=="RESULTS" and capture_done)
-		var report = {"phase":phase,"device":RenderingServer.get_video_adapter_name(),"resolution":str(get_viewport().get_texture().get_size()),"warm":stats(samples),"transition_43_to_48":stats(frenzy_samples),"draw_calls":Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),"rendered_primitives":Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME),"frames":frames,"draw_samples":draw_samples,"checks":["session isolation","map actions blocked","navigation all markers","physical ramp ascent","pause freeze","full 60 seconds","frenzy at 45 seconds","results"],"screenshot_readbacks_in_sample":not "--perf-only" in OS.get_cmdline_user_args(),"note":"Uncapped native monotonic wall-clock frame intervals including CPU scheduling; not GPU timings. Asset stage is identified by phase. Automatic test, not human playtest."}
-		FileAccess.open(directory+phase+("-clean" if "--perf-only" in OS.get_cmdline_user_args() else "")+"-performance.json",FileAccess.WRITE).store_string(JSON.stringify(report))
+		var report = {"phase":phase,"prop_events":prop_events,"device":RenderingServer.get_video_adapter_name(),"resolution":str(get_viewport().get_texture().get_size()),"warm":stats(samples),"transition_43_to_48":stats(frenzy_samples),"draw_calls":Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),"rendered_primitives":Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME),"frames":frames,"draw_samples":draw_samples,"checks":["session isolation","map actions blocked","navigation all markers","physical ramp ascent","pause freeze","full 60 seconds","frenzy at 45 seconds","results"],"screenshot_readbacks_in_sample":not "--perf-only" in OS.get_cmdline_user_args(),"note":"Uncapped native monotonic wall-clock frame intervals including CPU scheduling; not GPU timings. Asset stage is identified by phase. Automatic test, not human playtest."}
+		FileAccess.open(directory+phase+("-props" if "--prop-stress" in OS.get_cmdline_user_args() else "")+("-clean" if "--perf-only" in OS.get_cmdline_user_args() else "")+"-performance.json",FileAccess.WRITE).store_string(JSON.stringify(report))
 		game.start_run()
 		assert(game.rules.elapsed==0 and game.rules.kills==0)
 		print("MOONBASE_CHECK_PASS ",JSON.stringify(stats(samples)))

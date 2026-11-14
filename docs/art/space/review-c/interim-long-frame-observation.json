@@ -1,0 +1,30 @@
+{
+  "stage": "Before final viewmodel lighting isolation",
+  "runtime_commit": "7ce0551",
+  "web_p95_ms": 16.8,
+  "web_p99_ms": 16.8,
+  "web_max_ms": 250,
+  "observed_stalls_elapsed_ms_interval_ms": [
+    [
+      49,
+      50
+    ],
+    [
+      616,
+      250
+    ],
+    [
+      732,
+      116.6
+    ],
+    [
+      21698,
+      100
+    ],
+    [
+      38314,
+      66.7
+    ]
+  ],
+  "note": "Interim values retained from the earlier run. Final complete trace is web/web.json. Different runs are not a controlled optimization comparison; this does not establish that the lighting correction fixes stalls."
+}

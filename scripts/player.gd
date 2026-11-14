@@ -108,7 +108,7 @@ func set_weapon_style(mode: String) -> void:
 		gun.add_child(model)
 		for part in model.find_children("*","MeshInstance3D",true,false):
 			part.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-			part.layers |= VIEWMODEL_LAYER
+			part.layers = VIEWMODEL_LAYER if game.session.visual_profile else part.layers | VIEWMODEL_LAYER
 		if not mode.is_empty():
 			var sticker = ComedyFX.sprite(ComedyFX.ROACH_ART[0] if mode=="roach" else ComedyFX.SPLAT,.18)
 			sticker.position = Vector3(-.146,.028,.09)
