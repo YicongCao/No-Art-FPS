@@ -24,6 +24,10 @@ var throw_hand: Node3D
 var held_grenade: Node3D
 var weapon_mode = ""
 var weapon_models: Dictionary = {}
+var magazine: Node3D
+var magazine_origin := Vector3.ZERO
+var support_hand: Node3D
+var support_origin := Vector3.ZERO
 var enabled = true
 var pitch = 0.0
 var recoil = 0.0
@@ -87,7 +91,7 @@ func add_viewmodel_lights() -> void:
 		var lamp := OmniLight3D.new()
 		lamp.position = spec[0]
 		lamp.light_color = spec[1]
-		lamp.light_energy = spec[2]
+		lamp.light_energy = spec[2]*(.4 if game.session.visual_profile else 1.0)
 		lamp.omni_range = spec[3]
 		lamp.light_specular = 1.0
 		lamp.light_cull_mask = VIEWMODEL_LAYER
@@ -113,11 +117,20 @@ func set_weapon_style(mode: String) -> void:
 		weapon_models[mode] = model
 	weapon_mode = mode
 	weapon_models[mode].show()
+	magazine = weapon_models[mode].find_child("Magazine",true,false)
+	if magazine:
+		if not magazine.has_meta("rest_position"):magazine.set_meta("rest_position",magazine.position)
+		magazine_origin = magazine.get_meta("rest_position")
+	support_hand = weapon_models[mode].find_child("SupportHand",true,false)
+	if support_hand:
+		if not support_hand.has_meta("rest_position"):support_hand.set_meta("rest_position",support_hand.position)
+		support_origin = support_hand.get_meta("rest_position")
 
 func weapon_muzzle() -> Vector3:
 	match weapon_mode:
 		"comedy":return gun.to_global(Vector3(0,.072,-.665))
 		"roach":return gun.to_global(Vector3(0,.15,-.82))
+	if game.session.visual_profile:return gun.to_global(game.session.visual_profile.rifle_muzzle)
 	return gun.to_global(Vector3(0,.015,-1.0))
 
 func prepare_grenade(mode: String) -> void:
@@ -237,15 +250,23 @@ func _process(delta: float) -> void:
 		var reload_phase = sin((1-game.reload_time/game.RELOAD_DURATION)*PI)
 		gun.position.y -= reload_phase*.18
 		gun.rotation.z -= reload_phase*.25
+	if magazine:
+		var progress = 1.0-game.reload_time/game.RELOAD_DURATION if game.reload_time>0 else 0.0
+		magazine.position = magazine_origin+Vector3(0,-.28*sin(progress*PI),.10*sin(progress*PI))
+		if support_hand:
+			var grab = sin(progress*PI)
+			support_hand.position = support_origin.lerp(Vector3(-.10,-.27,-.04),grab)+Vector3(0,-.14*grab,0)
 	if game:animate_grenade_throw()
 
 func uses_iron_sights() -> bool:
 	return weapon_mode.is_empty()
 
 func rifle_sight_pose() -> Transform3D:
-	var line := RIFLE_FRONT_POST_TIP-RIFLE_REAR_APERTURE
+	var rear: Vector3 = game.session.visual_profile.sight_rear if game.session.visual_profile else RIFLE_REAR_APERTURE
+	var front: Vector3 = game.session.visual_profile.sight_front if game.session.visual_profile else RIFLE_FRONT_POST_TIP
+	var line := front-rear
 	var basis := Basis(Vector3.RIGHT,atan2(-line.y,-line.z))
-	var tip := basis*(RIFLE_FRONT_POST_TIP*gun.scale)
+	var tip := basis*(front*gun.scale)
 	return Transform3D(basis,Vector3(0,0,-RIFLE_POST_DISTANCE)-tip)
 
 func reset_position() -> void:

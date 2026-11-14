@@ -1,0 +1,17 @@
+{
+  "rifle-mech": {
+    "triangles": 29055,
+    "meshes": 36,
+    "materials": 10
+  },
+  "assault-mech": {
+    "triangles": 21059,
+    "meshes": 26,
+    "materials": 5
+  },
+  "interceptor": {
+    "triangles": 29132,
+    "meshes": 25,
+    "materials": 6
+  }
+}

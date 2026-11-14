@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/modes/visual_profile.gd" id="1"]
+[resource]
+script = ExtResource("1")
+rifle_enemy = "res://assets/models/space/rifle-mech.glb"
+rusher_enemy = "res://assets/models/space/assault-mech.glb"
+rifle = "res://assets/models/space/ion-rifle.glb"
+legacy_toy_materials = false
+rifle_muzzle = Vector3(0,0.015,-1.025)
+sight_rear = Vector3(0,0.32,-0.12)
+sight_front = Vector3(0,0.32,-0.50)

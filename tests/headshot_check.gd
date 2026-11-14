@@ -3,7 +3,7 @@ var game: Node3D
 const FX = preload("res://scripts/headshot_fx.gd")
 func _initialize() -> void:run.call_deferred()
 func run() -> void:
-	game = load("res://scenes/main.tscn").instantiate()
+	game = load("res://scenes/moonbase.tscn" if "--moonbase" in OS.get_cmdline_user_args() else "res://scenes/main.tscn").instantiate()
 	game.remember_title_selection = false
 	root.add_child(game)
 	for i in range(900):
@@ -73,7 +73,7 @@ func run() -> void:
 		assert(foe.dead and not foe.headshot_death and game.hud.headshot_confirm==0)
 		assert(get_nodes_in_group("headshot_feedback").is_empty())
 	print("HEADSHOT_SOURCE_FILTER_PASS")
-	for mode in ["comedy","roach"]:
+	for mode in ([] if game.is_moonbase() else ["comedy","roach"]):
 		game.clear_round()
 		await process_frame
 		game.comedy_mode = mode

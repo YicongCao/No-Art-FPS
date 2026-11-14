@@ -10,6 +10,7 @@ const RUSHER_ORANGE = Color("ee641c")
 static var rim_pass: ShaderMaterial
 
 var game: Node
+var space_visual = false
 var patrol_brain: Node
 var visual: Node3D
 var agent: NavigationAgent3D
@@ -40,6 +41,8 @@ var dodge_time = 0.0
 var dodge_cooldown = 0.0
 var burn_ticks = 0
 var burn_time = 0.0
+var rush_warning: StandardMaterial3D
+var blade_meshes: Array[Node] = []
 var orange: StandardMaterial3D
 var age = 0.0
 var think = 0.0
@@ -97,8 +100,20 @@ func _ready() -> void:
 	var model: PackedScene = game.rusher_model if fast else game.enemy_model
 	visual = (model if model else load(game.visual_path("rusher_enemy" if fast else "rifle_enemy",RUSHER_MODEL if fast else TOY_MODEL))).instantiate()
 	add_child(visual)
-	add_toy_rim(visual)
-	if fast:
+	space_visual = game.session.visual_profile != null and not game.session.visual_profile.legacy_toy_materials
+	if not space_visual:add_toy_rim(visual)
+	if fast and space_visual:
+		var arm = visual.find_child("RightArm",true,false)
+		knife_arm = Node3D.new()
+		visual.add_child(knife_arm)
+		knife_arm.position = arm.position
+		arm.reparent(knife_arm)
+		knife = visual.find_child("MeleeBlade",true,false)
+		blade_meshes = knife.find_children("*","MeshInstance3D",true,false)
+		rush_warning = StandardMaterial3D.new()
+		rush_warning.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		rush_warning.albedo_color = Color("ffe38c")
+	elif fast:
 		orange = StandardMaterial3D.new()
 		orange.albedo_color = RUSHER_ORANGE
 		orange.roughness = .34
@@ -158,6 +173,14 @@ static func add_toy_rim(model: Node3D) -> void:
 		for index in mesh.get_surface_override_material_count():
 			var paint := mesh.get_active_material(index) as StandardMaterial3D
 			if paint and paint.next_pass==null and not paint.emission_enabled:paint.next_pass = toy_rim()
+
+func animate_mechanical_knees(stride: float) -> void:
+	for i in range(2):
+		var side = "Left" if i==0 else "Right"
+		var knee = visual.find_child(side+"Knee",true,false)
+		var foot = visual.find_child(side+"Foot",true,false)
+		if knee:knee.rotation.x = maxf(0,sin(walk_phase+float(i)*PI))*.5*stride
+		if foot:foot.rotation.x = -sin(walk_phase+float(i)*PI)*.16*stride
 
 func set_comedy_head(mode: String) -> void:
 	if mode.is_empty() or comedy_head:return
@@ -269,6 +292,7 @@ func _physics_process(delta: float) -> void:
 		else:
 			limbs[i].rotation.x = sin(walk_phase)*.06*stride
 		limbs[i].position = limb_origins[i]
+	if space_visual:animate_mechanical_knees(stride)
 	if enemy_gun:enemy_gun.rotation.x = sin(walk_phase)*.06*stride
 	visual.position.y = absf(sin(walk_phase))*.035
 	visual.rotation.z = sin(age*40)*hurt*.25
@@ -569,12 +593,18 @@ func start_slash() -> void:
 	slash_hit = false
 	game.play_world_sound("charge",global_position+Vector3.UP,-9)
 
+func set_rush_warning(active: bool) -> void:
+	if space_visual:
+		for mesh in blade_meshes:mesh.material_overlay = rush_warning if active else null
+	elif orange:
+		orange.albedo_color = Color("fff1b7") if active else RUSHER_ORANGE
+
 func recover_charge() -> void:
 	rush_state = "RECOVER"
 	rush_time = .65
 	velocity.x = 0
 	velocity.z = 0
-	orange.albedo_color = RUSHER_ORANGE
+	set_rush_warning(false)
 
 func process_rusher(delta: float) -> void:
 	var to_player = game.player.global_position-global_position
@@ -609,13 +639,13 @@ func process_rusher(delta: float) -> void:
 				speed = 0
 		"WINDUP":
 			rush_time -= delta
-			orange.albedo_color = Color("fff1b7") if int(rush_time*12)%2==0 else RUSHER_ORANGE
+			set_rush_warning(int(rush_time*12)%2==0)
 			knife_arm.rotation.x = lerpf(0,-2.35,clampf(1-rush_time/.4,0,1))
 			if rush_time<=0:
 				if in_front:
 					rush_state = "SLASH"
 					rush_time = .24
-					orange.albedo_color = RUSHER_ORANGE
+					set_rush_warning(false)
 				else:
 					recover_charge()
 		"SLASH":
@@ -644,6 +674,7 @@ func process_rusher(delta: float) -> void:
 	for i in range(limbs.size()):
 		if limbs[i].name!="RightArm":limbs[i].rotation.x = sin(walk_phase+float(i%2)*PI)*.55*minf(movement/5.8,1)
 	if rush_state=="CHASE":
+		if space_visual:animate_mechanical_knees(minf(movement/5.8,1))
 		knife_arm.rotation.x = -.36+sin(walk_phase)*.18
 		knife_arm.rotation.z = -.16
 	else:

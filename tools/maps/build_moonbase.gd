@@ -137,13 +137,32 @@ func build() -> void:
 	for z in [-20.8,-15.2]:
 		for x in range(-11,-2,2):box(Vector3(x,2.9,z),Vector3(.06,1,.06),rail,false)
 		if z<-20:box(Vector3(-7,3.4,z),Vector3(8,.06,.06),rail,false)
-	# Ship/pad and south service area intentionally remain layout proxies at review A.
+	# Ship stays inside the approved landing-pad envelope; service station remains a proxy.
 	var pad = CylinderMesh.new()
 	pad.top_radius = 6;pad.bottom_radius = 6;pad.height = .2;pad.radial_segments = 48
 	geometry(pad,Transform3D(Basis.IDENTITY,Vector3(-13,.1,2)),dark)
-	box(Vector3(-13,1.5,2),Vector3(5,1.4,8),white)
-	box(Vector3(-13,1.4,2.5),Vector3(11,.25,3),dark)
-	for x in [-15,-11]:box(Vector3(x,2.8,4),Vector3(.22,2.2,2),orange,false)
+	if grey:
+		box(Vector3(-13,1.5,2),Vector3(5,1.4,8),white)
+		box(Vector3(-13,1.4,2.5),Vector3(11,.25,3),dark)
+		for x in [-15,-11]:box(Vector3(x,2.8,4),Vector3(.22,2.2,2),orange,false)
+	else:
+		var ship = model("interceptor",Vector3(-13,.2,2))
+		var hull = ship.find_child("Hull",true,false) as MeshInstance3D
+		assert(hull != null)
+		var collision = StaticBody3D.new()
+		collision.collision_mask = 0
+		add(hull,collision,"HullCollision")
+		var shape = CollisionShape3D.new()
+		shape.shape = hull.mesh.create_trimesh_shape()
+		add(collision,shape,"Shape")
+		var pad_body = StaticBody3D.new()
+		pad_body.position = Vector3(-13,.1,2)
+		add(arena,pad_body,"LandingPadCollision")
+		var pad_shape = CollisionShape3D.new()
+		var cylinder = CylinderShape3D.new()
+		cylinder.radius=6; cylinder.height=.2
+		pad_shape.shape=cylinder
+		add(pad_body,pad_shape,"Shape")
 	box(Vector3(10,1.6,16),Vector3(5,3.2,4),white)
 	# High quality oxygen/industrial corner.
 	if grey:box(Vector3(16,3.3,-12),Vector3(3,6.6,2.2),white,false)
@@ -192,6 +211,7 @@ func build() -> void:
 		var instance = MeshInstance3D.new();instance.mesh=mesh
 		add(arena,instance,"StaticBatch")
 	arena.start_path = marker_paths("Start",[Vector3(2,.05,13)])[0]
+	arena.get_node(arena.start_path).rotation.y = .30
 	arena.opening_paths = marker_paths("Opening",[Vector3(1,.05,0),Vector3(8,.05,-2),Vector3(-4,.05,1),Vector3(17,.05,4),Vector3(-19,.05,-6),Vector3(0,.05,18),Vector3(16,.05,19),Vector3(-16,.05,19)])
 	arena.reinforcement_paths = marker_paths("Spawn",[Vector3(-19,.05,-10),Vector3(0,.05,-10),Vector3(19,.05,-10),Vector3(-19,.05,10),Vector3(19,.05,10),Vector3(0,.05,20),Vector3(-17,.05,20),Vector3(17,.05,20),Vector3(-4,.05,-3),Vector3(7,.05,1),Vector3(17,.05,-4),Vector3(-10,.05,14)])
 	arena.respawn_paths = marker_paths("Respawn",[Vector3(-19,.05,18),Vector3(19,.05,18),Vector3(0,.05,20),Vector3(-19,.05,-12),Vector3(19,.05,-18),Vector3(0,.05,-10)])

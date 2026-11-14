@@ -1,0 +1,35 @@
+[
+  {
+    "asset": "rifle-mech",
+    "task_id": "fbcab21b-9b49-417d-bb49-67eb922cdff1",
+    "credits_consumed": 110,
+    "model": "P2-20260801",
+    "face_limit_requested": 20000,
+    "seed": 14022,
+    "pbr": true,
+    "reference": "references/rifle-mech.png",
+    "source": "art_source/space/heroes/inputs/rifle-mech.blend"
+  },
+  {
+    "asset": "assault-mech",
+    "task_id": "527162ff-ff0a-41ff-b25c-d1ae02327db7",
+    "credits_consumed": 110,
+    "model": "P2-20260801",
+    "face_limit_requested": 20000,
+    "seed": 14022,
+    "pbr": true,
+    "reference": "references/assault-mech.png",
+    "source": "art_source/space/heroes/inputs/assault-mech.blend"
+  },
+  {
+    "asset": "interceptor",
+    "task_id": "a491bd09-7754-4e72-8071-2e1541a739da",
+    "credits_consumed": 110,
+    "model": "P2-20260801",
+    "face_limit_requested": 20000,
+    "seed": 14022,
+    "pbr": true,
+    "reference": "references/interceptor.png",
+    "source": "art_source/space/heroes/inputs/interceptor.blend"
+  }
+]
