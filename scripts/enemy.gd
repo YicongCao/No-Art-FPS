@@ -95,7 +95,7 @@ func _ready() -> void:
 	head_area.add_child(hs)
 	add_child(head_area)
 	var model: PackedScene = game.rusher_model if fast else game.enemy_model
-	visual = (model if model else load(RUSHER_MODEL if fast else TOY_MODEL)).instantiate()
+	visual = (model if model else load(game.visual_path("rusher_enemy" if fast else "rifle_enemy",RUSHER_MODEL if fast else TOY_MODEL))).instantiate()
 	add_child(visual)
 	add_toy_rim(visual)
 	if fast:

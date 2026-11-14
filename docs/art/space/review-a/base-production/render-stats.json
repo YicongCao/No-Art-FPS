@@ -1,0 +1,42 @@
+{
+  "msaa": "4x",
+  "note": "Single asset lab snapshots, including floor and shadows; not gameplay FPS.",
+  "renderer": "gl_compatibility",
+  "samples": [
+    {
+      "draw_calls": 16,
+      "rendered_objects": 16,
+      "rendered_primitives": 74822,
+      "view": "front"
+    },
+    {
+      "draw_calls": 14,
+      "rendered_objects": 14,
+      "rendered_primitives": 66978,
+      "view": "rear"
+    },
+    {
+      "draw_calls": 16,
+      "rendered_objects": 16,
+      "rendered_primitives": 74822,
+      "view": "side"
+    },
+    {
+      "draw_calls": 17,
+      "rendered_objects": 17,
+      "rendered_primitives": 85735,
+      "view": "fps"
+    },
+    {
+      "draw_calls": 18,
+      "rendered_objects": 18,
+      "rendered_primitives": 85951,
+      "view": "detail"
+    }
+  ],
+  "viewport": [
+    1280,
+    800
+  ],
+  "asset": "production palette export"
+}

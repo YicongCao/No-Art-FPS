@@ -1,9 +1,54 @@
 """Deterministic production exports. Editable hybrid source is never overwritten."""
-import bpy, math, json, random
+import bpy, json
 from pathlib import Path
 from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[3]
 OUT=ROOT/'assets/models/space'; OUT.mkdir(parents=True,exist_ok=True)
+def palette_batch(label):
+ """Batch opaque constant PBR surfaces; keep textures/emission in separate passes."""
+ objects=[];palette=[]
+ for o in bpy.context.scene.objects:
+  if o.type!='MESH' or len(o.data.materials)!=1:continue
+  m=o.data.materials[0];p=m.node_tree.nodes.get('Principled BSDF')
+  if not p or any(n.type=='TEX_IMAGE' for n in m.node_tree.nodes):continue
+  if p.inputs['Emission Strength'].default_value>0:continue
+  if m not in palette:palette.append(m)
+  objects.append(o)
+ if len(objects)<2:return
+ size=max(8,len(palette));pixels=[]
+ for y in range(size):
+  for x in range(size):
+   p=palette[min(x,len(palette)-1)].node_tree.nodes.get('Principled BSDF')
+   pixels.extend([1,p.inputs['Roughness'].default_value,p.inputs['Metallic'].default_value,1])
+ image=bpy.data.images.new(label+'_PBR',width=size,height=size)
+ image.colorspace_settings.name='Non-Color';image.pixels=pixels;image.pack()
+ material=bpy.data.materials.new(label+'_Palette');material.use_nodes=True
+ nodes=material.node_tree.nodes;links=material.node_tree.links;p=nodes.get('Principled BSDF')
+ # glTF base-color images are sRGB; encode constant linear PBR colors explicitly.
+ def srgb(v):return 12.92*v if v<=.0031308 else 1.055*v**(1/2.4)-.055
+ colors=[]
+ for y in range(size):
+  for x in range(size):
+   col=palette[min(x,len(palette)-1)].node_tree.nodes.get('Principled BSDF').inputs['Base Color'].default_value
+   colors.extend([srgb(col[0]),srgb(col[1]),srgb(col[2]),1])
+ color_image=bpy.data.images.new(label+'_Albedo',width=size,height=size)
+ color_image.colorspace_settings.name='Non-Color';color_image.pixels=colors;color_image.pack()
+ albedo=nodes.new('ShaderNodeTexImage');albedo.image=color_image;albedo.interpolation='Closest'
+ links.new(albedo.outputs['Color'],p.inputs['Base Color'])
+ tex=nodes.new('ShaderNodeTexImage');tex.image=image;tex.interpolation='Closest'
+ split=nodes.new('ShaderNodeSeparateColor');links.new(tex.outputs['Color'],split.inputs['Color'])
+ links.new(split.outputs['Green'],p.inputs['Roughness']);links.new(split.outputs['Blue'],p.inputs['Metallic'])
+ for o in objects:
+  old=o.data.materials[0]
+  while o.data.uv_layers:o.data.uv_layers.remove(o.data.uv_layers[0])
+  uv=o.data.uv_layers.new(name='MaterialParameters')
+  for v in uv.data:v.uv=((palette.index(old)+.5)/size,.5)
+  if 'PaintColor' in o.data.color_attributes:o.data.color_attributes.remove(o.data.color_attributes['PaintColor'])
+  o.data.materials.clear();o.data.materials.append(material)
+ bpy.ops.object.select_all(action='DESELECT')
+ for o in objects:o.select_set(True)
+ bpy.context.view_layer.objects.active=objects[0];bpy.ops.object.join();objects[0].name=label+'_OpaquePalette'
+
 bpy.ops.wm.open_mainfile(filepath=str(ROOT/'art_source/space/base-hybrid/base-hybrid.blend'))
 # Closed exterior: batch across the original assembly boundaries by material.
 for m in list(bpy.data.materials):
@@ -16,6 +61,7 @@ for m in list(bpy.data.materials):
  o=objects[0]; world=o.matrix_world.copy();o.parent=None;o.matrix_world=world;o.name='Static_'+m.name
 for o in list(bpy.context.scene.objects):
  if o.type!='MESH':bpy.data.objects.remove(o,do_unlink=True)
+palette_batch('Base')
 bpy.ops.export_scene.gltf(filepath=str(OUT/'base.glb'),export_format='GLB')
 for o in bpy.context.scene.objects:
  if o.type=='MESH':o.data.calc_loop_triangles()
@@ -27,7 +73,7 @@ def material(name,color,metal=0,rough=.55,emission=0):
  p=m.node_tree.nodes.get('Principled BSDF');p.inputs['Base Color'].default_value=(*color,1);p.inputs['Metallic'].default_value=metal;p.inputs['Roughness'].default_value=rough
  if emission:p.inputs['Emission Color'].default_value=(*color,1);p.inputs['Emission Strength'].default_value=emission
  return m
-white=material('Ceramic paint',(.68,.67,.61),.05,.48)
+white=material('Ceramic paint',(.48,.47,.43),.05,.58)
 dark=material('Graphite chassis',(.055,.075,.10),.7,.42)
 orange=material('Safety orange',(.70,.14,.045),.05,.5)
 metal=material('Machined alloy',(.28,.32,.35),.85,.3)
@@ -53,9 +99,10 @@ def export(name):
   bpy.context.view_layer.objects.active=obs[0]
   if len(obs)>1:bpy.ops.object.join()
  bpy.ops.wm.save_as_mainfile(filepath=str(ROOT/'art_source/space/trial'/(name+'.blend')))
+ palette_batch(name)
  bpy.ops.export_scene.gltf(filepath=str(OUT/(name+'.glb')),export_format='GLB')
  for o in list(bpy.context.scene.objects):bpy.data.objects.remove(o,do_unlink=True)
-box('Crate chassis',(0,0,.65),(1.6,1.25,1.3),dark,.09)
+box('Crate chassis',(0,0,.65),(1.45,1.10,1.06),dark,.09)
 box('Shell',(0,0,.67),(1.53,1.18,1.12),white,.07)
 for x in [-.58,.58]:
  box('Load straps',(x,0,.68),(.13,1.28,1.36),dark,.025)

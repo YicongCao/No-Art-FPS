@@ -5,8 +5,10 @@ var frenzy_samples: Array[float] = []
 var frames: Array = []
 var phase = "grey" if "--grey" in OS.get_cmdline_user_args() else "corner"
 var directory = "res://docs/art/space/review-a/"
+var draw_samples: Array = []
 var capture_done = false
 var done = false
+var last_frame_us = 0
 
 func _ready() -> void:
 	set_process(false)
@@ -30,6 +32,7 @@ func _ready() -> void:
 	game.player.enabled = false
 	game.player.position = Vector3(2,.05,13)
 	game.player.camera.rotation.x = -.05
+	await get_tree().create_timer(1.0).timeout
 	await capture("opening")
 	# Inspect the playable ramp with actual CharacterBody movement, not nav alone.
 	game.player.position = Vector3(-9.5,.05,-6.5)
@@ -51,19 +54,40 @@ func _ready() -> void:
 	game.player.enabled = false
 	game.player.position = Vector3(2,.05,13)
 	game.player.camera.rotation.x = -.05
+	if "--visual-only" in OS.get_cmdline_user_args():
+		game.rules.elapsed = 44.8
+		await get_tree().create_timer(1.0).timeout
+		assert(game.destroy_active)
+		await capture("frenzy")
+		game.set_physics_process(false)
+		game.clear_round()
+		await get_tree().process_frame
+		await get_tree().process_frame
+		get_tree().quit()
+		return
 	set_process(true)
 
 func capture(label: String) -> void:
+	if "--perf-only" in OS.get_cmdline_user_args():return
 	for i in 8:await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	assert(get_viewport().get_texture().get_image().save_png(directory+phase+"-"+label+".png")==OK)
+	if phase=="corner" and label=="opening":
+		game.hud.hide()
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_webp(directory+"title-background.webp")
+		game.hud.show()
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if done:return
+	var now = Time.get_ticks_usec()
+	var frame_ms = (now-last_frame_us)/1000.0 if last_frame_us else 0.0
+	last_frame_us = now
 	var elapsed: float = game.rules.elapsed
-	if elapsed>3:samples.append(delta*1000)
-	if elapsed>=43 and elapsed<=48:frenzy_samples.append(delta*1000)
-	frames.append([snappedf(elapsed,.001),snappedf(delta*1000,.001),game.destroy_active])
+	if elapsed>3:samples.append(frame_ms)
+	if frames.size()%60==0:draw_samples.append([elapsed,Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME)])
+	if elapsed>=43 and elapsed<=48:frenzy_samples.append(frame_ms)
+	frames.append([snappedf(elapsed,.001),snappedf(frame_ms,.001),game.destroy_active])
 	game.player.rotation.y = sin(elapsed*.14)*.28
 	if elapsed>=45.3 and not capture_done:
 		capture_done = true
@@ -72,8 +96,8 @@ func _process(delta: float) -> void:
 	if game.state=="RESULTS":
 		done = true
 		assert(game.state=="RESULTS" and capture_done)
-		var report = {"phase":phase,"device":RenderingServer.get_video_adapter_name(),"resolution":str(get_viewport().get_texture().get_size()),"warm":stats(samples),"transition_43_to_48":stats(frenzy_samples),"draw_calls":Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),"rendered_primitives":Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME),"frames":frames,"checks":["session isolation","map actions blocked","navigation all markers","physical ramp ascent","pause freeze","full 60 seconds","frenzy at 45 seconds","results"],"note":"Uncapped native engine frame intervals including CPU scheduling; not GPU timings. Placeholder enemies and weapon. Automatic test, not human playtest."}
-		FileAccess.open(directory+phase+"-performance.json",FileAccess.WRITE).store_string(JSON.stringify(report,"  "))
+		var report = {"phase":phase,"device":RenderingServer.get_video_adapter_name(),"resolution":str(get_viewport().get_texture().get_size()),"warm":stats(samples),"transition_43_to_48":stats(frenzy_samples),"draw_calls":Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),"rendered_primitives":Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME),"frames":frames,"draw_samples":draw_samples,"checks":["session isolation","map actions blocked","navigation all markers","physical ramp ascent","pause freeze","full 60 seconds","frenzy at 45 seconds","results"],"screenshot_readbacks_in_sample":not "--perf-only" in OS.get_cmdline_user_args(),"note":"Uncapped native monotonic wall-clock frame intervals including CPU scheduling; not GPU timings. Placeholder enemies and weapon. Automatic test, not human playtest."}
+		FileAccess.open(directory+phase+("-clean" if "--perf-only" in OS.get_cmdline_user_args() else "")+"-performance.json",FileAccess.WRITE).store_string(JSON.stringify(report))
 		game.start_run()
 		assert(game.rules.elapsed==0 and game.rules.kills==0)
 		print("MOONBASE_CHECK_PASS ",JSON.stringify(stats(samples)))

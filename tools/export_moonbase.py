@@ -34,9 +34,12 @@ for name in ['frag-grenade.svg','stink-bomb.svg','roach-bomb.svg']:
  shutil.copy2(ROOT/'assets/ui'/name,OUT/name)
 for name in ['comedy.svg','roach.svg']:shutil.copy2(ROOT/'assets/ui/settings'/name,OUT/name)
 for src,dst in [('assets/fonts/OFL.txt','FONT-LICENSE.txt'),('assets/fonts/GlowSans-OFL.txt','GlowSans-LICENSE.txt')]:shutil.copy2(ROOT/src,OUT/dst)
-# Prevent flashing the original map's loading still before the renderer is ready.
+# Use the trial's native frame during loading; no old-map preview or saved map selection.
+opening=ROOT/'docs/art/space/review-a/title-background.webp'
+if opening.exists():shutil.copy2(opening,OUT/'title-background.webp')
 html=(OUT/'index.html').read_text().replace('<title>NO ART FPS</title>','<title>Moonbase Trial</title>')
 html=html.replace('<body','<body class="moonbase"',1)
+html=html.replace('no-art-fps.title.v1','moonbase-trial.title.v1')
 (OUT/'index.html').write_text(html)
 for name in ['index.png','index.png.import','icon.svg.import']:(OUT/name).unlink(missing_ok=True)
 data=(OUT/'index.pck').read_bytes(); header=struct.unpack_from('<6I2Q',data)

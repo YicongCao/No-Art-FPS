@@ -68,7 +68,7 @@ func build() -> void:
 	arena.name = "Moonbase"
 	arena.map_id = "moonbase_trial"
 	arena.sun_rotation_degrees = Vector3(-32,-35,0)
-	arena.sun_energy = 1.05
+	arena.sun_energy = .65
 	arena.sun_color = Color("fff2df")
 	arena.sun_shadow_bias = .04
 	var env = Environment.new()
@@ -76,13 +76,15 @@ func build() -> void:
 	env.background_color = Color("080d15")
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = Color("8eacc9")
-	env.ambient_light_energy = .38
+	env.ambient_light_energy = .30
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	arena.environment_override = env
-	var ground = mat("regolith","777a7e",0,.96)
+	var ground = mat("regolith","9b9ea2",0,.96)
+	var rock = mat("rock","6d737c",0,.98)
 	var white = mat("paint","c4c2b8",.05,.56)
 	var dark = mat("chassis","263445",.65,.45)
 	var orange = mat("marking","d85c38",.02,.54)
+	var rail = mat("rail","dcb04c",.1,.5)
 	var alloy = mat("alloy","697582",.8,.35)
 	var cyan = mat("light","70cfdf",0,.4)
 	cyan.emission_enabled = true
@@ -97,12 +99,18 @@ func build() -> void:
 		var image = noise.get_seamless_image(512,512,false,false)
 		image.save_png("res://assets/models/space/regolith-height.png")
 		var normal = image.duplicate()
-		normal.bump_map_to_normal_map(2.5)
+		normal.bump_map_to_normal_map(.8)
 		normal.save_png("res://assets/models/space/regolith-normal.png")
+		for y in image.get_height():
+			for x in image.get_width():
+				var value = .82+image.get_pixel(x,y).r*.14
+				image.set_pixel(x,y,Color(value,value,value))
+		image.generate_mipmaps()
+		normal.generate_mipmaps()
 		ground.albedo_texture = ImageTexture.create_from_image(image)
 		ground.normal_enabled = true
 		ground.normal_texture = ImageTexture.create_from_image(normal)
-		ground.normal_scale = .65
+		ground.normal_scale = .28
 		ground.uv1_scale = Vector3(22,24,1)
 	box(Vector3(0,-.25,0),Vector3(44,.5,48),ground)
 	# Physical boundary is separate from the horizon artwork.
@@ -124,11 +132,11 @@ func build() -> void:
 		for side in [-1,1]:
 			for z in range(-15,-6,2):
 				var h = (-7-z)*.3
-				box(Vector3(x+side*1.17,h+.5,z),Vector3(.06,1,.06),orange,false)
-			box(Vector3(x+side*1.17,2.2,-11),Vector3(.055,.055,8.35),orange,false,atan2(2.4,8.0))
+				box(Vector3(x+side*1.17,h+.5,z),Vector3(.06,1,.06),rail,false)
+			box(Vector3(x+side*1.17,2.2,-11),Vector3(.055,.055,8.35),rail,false,atan2(2.4,8.0))
 	for z in [-20.8,-15.2]:
-		for x in range(-11,-2,2):box(Vector3(x,2.9,z),Vector3(.06,1,.06),orange,false)
-		if z<-20:box(Vector3(-7,3.4,z),Vector3(8,.06,.06),orange,false)
+		for x in range(-11,-2,2):box(Vector3(x,2.9,z),Vector3(.06,1,.06),rail,false)
+		if z<-20:box(Vector3(-7,3.4,z),Vector3(8,.06,.06),rail,false)
 	# Ship/pad and south service area intentionally remain layout proxies at review A.
 	var pad = CylinderMesh.new()
 	pad.top_radius = 6;pad.bottom_radius = 6;pad.height = .2;pad.radial_segments = 48
@@ -138,15 +146,15 @@ func build() -> void:
 	for x in [-15,-11]:box(Vector3(x,2.8,4),Vector3(.22,2.2,2),orange,false)
 	box(Vector3(10,1.6,16),Vector3(5,3.2,4),white)
 	# High quality oxygen/industrial corner.
-	if grey:box(Vector3(16,3.3,-12),Vector3(3,6.6,2.2),white)
+	if grey:box(Vector3(16,3.3,-12),Vector3(3,6.6,2.2),white,false)
 	else:model("industrial",Vector3(16,0,-12))
 	body(Vector3(16,3.3,-12),Vector3(3,6.6,2.2))
 	for at in [Vector3(12,0,-5),Vector3(14,0,-5),Vector3(9,0,-9)]:
-		if grey:box(at+Vector3.UP,Vector3(1.2,2,1.2),white)
+		if grey:box(at+Vector3.UP,Vector3(1.2,2,1.2),white,false)
 		else:model("oxygen",at)
 		body(at+Vector3.UP,Vector3(1.2,2.2,1.2))
 	for at in [Vector3(2,0,-7),Vector3(0,0,-6),Vector3(12,0,1),Vector3(-5,0,9),Vector3(7,0,7),Vector3(-16,0,14)]:
-		if grey:box(at+Vector3.UP*.65,Vector3(1.6,1.3,1.25),white)
+		if grey:box(at+Vector3.UP*.65,Vector3(1.6,1.3,1.25),white,false)
 		else:model("crate",at)
 		body(at+Vector3.UP*.65,Vector3(1.6,1.3,1.25))
 	# Overhead industrial feed, supported at both ends.
@@ -154,16 +162,23 @@ func build() -> void:
 	box(Vector3(13,7,-14),Vector3(6,.45,.45),alloy,false)
 	for x in range(10,17):box(Vector3(x,7,-14),Vector3(.10,.58,.58),dark,false)
 	if not grey:
+		var probe = ReflectionProbe.new()
+		probe.position = Vector3(7,3,-9)
+		probe.size = Vector3(28,14,28)
+		probe.update_mode = ReflectionProbe.UPDATE_ONCE
+		probe.intensity = .55
+		probe.enable_shadows = false
+		add(arena,probe,"CornerReflection")
 		for i in 42:
 			var mesh = SphereMesh.new()
 			mesh.radial_segments = 7;mesh.rings = 3;mesh.radius = 1;mesh.height = 2
 			var angle = TAU*i/42.0
 			var at = Vector3(cos(angle)*rng.randf_range(39,49),rng.randf_range(1,5),sin(angle)*rng.randf_range(40,52))
-			geometry(mesh,Transform3D(Basis.IDENTITY.scaled(Vector3(rng.randf_range(6,12),rng.randf_range(4,10),rng.randf_range(6,12))),at),ground)
+			geometry(mesh,Transform3D(Basis.IDENTITY.scaled(Vector3(rng.randf_range(6,12),rng.randf_range(4,10),rng.randf_range(6,12))),at),rock)
 		for i in 90:
 			var mesh = SphereMesh.new();mesh.radial_segments=5;mesh.rings=2
 			var at = Vector3(rng.randf_range(-21,21),-.04,rng.randf_range(-23,23))
-			geometry(mesh,Transform3D(Basis.IDENTITY.scaled(Vector3.ONE*rng.randf_range(.12,.38)),at),ground)
+			geometry(mesh,Transform3D(Basis.IDENTITY.scaled(Vector3.ONE*rng.randf_range(.12,.38)),at),rock)
 		for at in [Vector3(10,2.2,-14),Vector3(2,2.2,-14)]:
 			var lamp = OmniLight3D.new()
 			lamp.position=at;lamp.light_color=Color("ffd5a1");lamp.light_energy=1.2;lamp.omni_range=5;lamp.shadow_enabled=false
@@ -183,7 +198,7 @@ func build() -> void:
 	arena.route_paths = marker_paths("Route",[Vector3(-9.5,2.45,-17),Vector3(-4.5,2.45,-17),Vector3(-20,.05,0),Vector3(20,.05,0)])
 	var nav = NavigationRegion3D.new()
 	var mesh = NavigationMesh.new()
-	mesh.agent_radius=.5;mesh.agent_height=1.8;mesh.agent_max_climb=.25;mesh.agent_max_slope=37
+	mesh.agent_radius=.5;mesh.agent_height=2.0;mesh.agent_max_climb=.25;mesh.agent_max_slope=37
 	mesh.cell_size=.25;mesh.cell_height=.25
 	mesh.geometry_parsed_geometry_type=NavigationMesh.PARSED_GEOMETRY_STATIC_COLLIDERS
 	mesh.geometry_source_geometry_mode=NavigationMesh.SOURCE_GEOMETRY_GROUPS_WITH_CHILDREN
