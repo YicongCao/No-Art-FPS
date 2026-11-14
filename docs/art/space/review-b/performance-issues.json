@@ -1,0 +1,58 @@
+{
+  "native": {
+    "warm": {
+      "frames": 13978,
+      "max_ms": 30.82,
+      "p50_ms": 3.623,
+      "p95_ms": 6.906,
+      "p99_ms": 8.565
+    },
+    "transition_43_to_48": {
+      "frames": 1092,
+      "max_ms": 12.68,
+      "p50_ms": 4.123,
+      "p95_ms": 7.25,
+      "p99_ms": 8.838
+    },
+    "draw_range": [
+      204.0,
+      545.0
+    ]
+  },
+  "web": {
+    "p50Ms": 16.69999999999709,
+    "p95Ms": 16.799999999995634,
+    "p99Ms": 16.80000000000291,
+    "maxMs": 83.19999999999891
+  },
+  "web_stalls_gt_33_3ms": [
+    [
+      839,
+      83.2,
+      "RUNNING"
+    ],
+    [
+      7572,
+      50,
+      "RUNNING"
+    ],
+    [
+      106,
+      33.4,
+      "RUNNING"
+    ],
+    [
+      43354,
+      33.4,
+      "RUNNING"
+    ],
+    [
+      59370,
+      33.4,
+      "RESULTS"
+    ]
+  ],
+  "pck_bytes": 57756080,
+  "status": "Recorded, not optimized or performance-approved",
+  "method": "Native uncapped monotonic frame intervals; Web 60 Hz RAF. Single rounds with different AI paths; not GPU timings. No screenshots in either measured round."
+}

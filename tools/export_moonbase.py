@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Export the isolated trial using explicit roots, then audit the actual PCK."""
 from pathlib import Path
-import subprocess, json, shutil, struct, hashlib, os, re
+import subprocess, json, shutil, struct, hashlib, os, re, argparse
 ROOT=Path(__file__).resolve().parents[1]
 GODOT=os.environ.get('GODOT_BIN','/Applications/Godot.app/Contents/MacOS/Godot')
+parser=argparse.ArgumentParser();parser.add_argument('--review',choices=['a','b'],default='b');args=parser.parse_args()
+REVIEW=ROOT/('docs/art/space/review-'+args.review)
 OUT=ROOT/'builds/moonbase'; OUT.mkdir(parents=True,exist_ok=True)
 # Godot's selected-resource export does not discover every GDScript preload.
 # Build an explicit transitive source manifest, including lazy core resources.
@@ -35,7 +37,7 @@ for name in ['frag-grenade.svg','stink-bomb.svg','roach-bomb.svg']:
 for name in ['comedy.svg','roach.svg']:shutil.copy2(ROOT/'assets/ui/settings'/name,OUT/name)
 for src,dst in [('assets/fonts/OFL.txt','FONT-LICENSE.txt'),('assets/fonts/GlowSans-OFL.txt','GlowSans-LICENSE.txt')]:shutil.copy2(ROOT/src,OUT/dst)
 # Use the trial's native frame during loading; no old-map preview or saved map selection.
-opening=ROOT/'docs/art/space/review-a/title-background.webp'
+opening=REVIEW/'title-background.webp'
 if opening.exists():shutil.copy2(opening,OUT/'title-background.webp')
 html=(OUT/'index.html').read_text().replace('<title>NO ART FPS</title>','<title>Moonbase Trial</title>')
 html=html.replace('<body','<body class="moonbase"',1)
@@ -57,7 +59,7 @@ for p in paths:
  for old in ['sandgate','park','ferry','studio','bb_office','hogwarts','snowline','palm_house','ginza_station','rain_market','baggage_below']:
   assert 'assets/models/'+old+'/' not in p,p
 report={'pck_bytes':len(data),'packed_resources':len(paths),'sessions':sessions,'maps':maps,'note':'Common legacy character/UI/FX dependencies remain until replacement; no original map geometry or sessions.'}
-(ROOT/'docs/art/space/review-a/package-audit.json').write_text(json.dumps(report,indent=2)+'\n')
+(REVIEW/'package-audit.json').write_text(json.dumps(report,indent=2)+'\n')
 manifest={p.name:{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in OUT.iterdir() if p.is_file() and p.name!='manifest.json'}
 (OUT/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
 print('MOONBASE_EXPORT_PASS',json.dumps(report))

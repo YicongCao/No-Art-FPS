@@ -3,8 +3,8 @@ var game: Node
 var samples: Array[float] = []
 var frenzy_samples: Array[float] = []
 var frames: Array = []
-var phase = "grey" if "--grey" in OS.get_cmdline_user_args() else "corner"
-var directory = "res://docs/art/space/review-a/"
+var phase = "heroes" if "--review-b" in OS.get_cmdline_user_args() else "grey" if "--grey" in OS.get_cmdline_user_args() else "corner"
+var directory = "res://docs/art/space/review-b/" if "--review-b" in OS.get_cmdline_user_args() else "res://docs/art/space/review-a/"
 var draw_samples: Array = []
 var capture_done = false
 var done = false
@@ -96,7 +96,7 @@ func _process(_delta: float) -> void:
 	if game.state=="RESULTS":
 		done = true
 		assert(game.state=="RESULTS" and capture_done)
-		var report = {"phase":phase,"device":RenderingServer.get_video_adapter_name(),"resolution":str(get_viewport().get_texture().get_size()),"warm":stats(samples),"transition_43_to_48":stats(frenzy_samples),"draw_calls":Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),"rendered_primitives":Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME),"frames":frames,"draw_samples":draw_samples,"checks":["session isolation","map actions blocked","navigation all markers","physical ramp ascent","pause freeze","full 60 seconds","frenzy at 45 seconds","results"],"screenshot_readbacks_in_sample":not "--perf-only" in OS.get_cmdline_user_args(),"note":"Uncapped native monotonic wall-clock frame intervals including CPU scheduling; not GPU timings. Placeholder enemies and weapon. Automatic test, not human playtest."}
+		var report = {"phase":phase,"device":RenderingServer.get_video_adapter_name(),"resolution":str(get_viewport().get_texture().get_size()),"warm":stats(samples),"transition_43_to_48":stats(frenzy_samples),"draw_calls":Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),"rendered_primitives":Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME),"frames":frames,"draw_samples":draw_samples,"checks":["session isolation","map actions blocked","navigation all markers","physical ramp ascent","pause freeze","full 60 seconds","frenzy at 45 seconds","results"],"screenshot_readbacks_in_sample":not "--perf-only" in OS.get_cmdline_user_args(),"note":"Uncapped native monotonic wall-clock frame intervals including CPU scheduling; not GPU timings. Asset stage is identified by phase. Automatic test, not human playtest."}
 		FileAccess.open(directory+phase+("-clean" if "--perf-only" in OS.get_cmdline_user_args() else "")+"-performance.json",FileAccess.WRITE).store_string(JSON.stringify(report))
 		game.start_run()
 		assert(game.rules.elapsed==0 and game.rules.kills==0)
