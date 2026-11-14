@@ -1,0 +1,46 @@
+{
+  "service-station": {
+    "triangles": 16768,
+    "meshes": 7
+  },
+  "oxygen-reservoir": {
+    "triangles": 5912,
+    "meshes": 3
+  },
+  "perimeter-wall": {
+    "triangles": 648,
+    "meshes": 3
+  },
+  "landing-lamp": {
+    "triangles": 432,
+    "meshes": 3
+  },
+  "cargo-crate": {
+    "triangles": 5500,
+    "meshes": 5
+  },
+  "solar-array": {
+    "triangles": 1732,
+    "meshes": 3
+  },
+  "battery-rack": {
+    "triangles": 2500,
+    "meshes": 16
+  },
+  "pressure-valves": {
+    "triangles": 3480,
+    "meshes": 14
+  },
+  "control-console": {
+    "triangles": 2500,
+    "meshes": 16
+  },
+  "supply-case": {
+    "triangles": 1852,
+    "meshes": 10
+  },
+  "lunar-terrain": {
+    "triangles": 76480,
+    "meshes": 1
+  }
+}

@@ -6,14 +6,15 @@ var props: Array[Node3D] = []
 
 func setup(map: Node3D) -> void:
 	name = "InteractiveProps"
-	for entry in Catalog.PLACEMENTS.get(map.map_id,[]):
+	var entries = map.interactive_prop_entries() if map.has_method("interactive_prop_entries") else Catalog.PLACEMENTS.get(map.map_id,[])
+	for entry in entries:
 		var prop := Node3D.new()
 		prop.set_script(Prop)
 		prop.name = "%s_%02d"%[entry.kind,props.size()]
 		add_child(prop)
 		prop.position = Vector3(entry.at[0],entry.at[1],entry.at[2])
 		prop.rotation.y = entry.yaw
-		prop.setup(map.game,entry.kind,Catalog.MODELS[entry.kind])
+		prop.setup(map.game,entry.kind,load(entry.asset) if entry.has("asset") else Catalog.MODELS[entry.kind])
 		props.append(prop)
 
 func restore() -> void:

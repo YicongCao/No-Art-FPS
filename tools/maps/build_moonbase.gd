@@ -79,7 +79,7 @@ func build() -> void:
 	env.ambient_light_energy = .30
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	arena.environment_override = env
-	var ground = mat("regolith","9b9ea2",0,.96)
+	var ground = mat("regolith","858b93",0,.96)
 	var rock = mat("rock","6d737c",0,.98)
 	var white = mat("paint","c4c2b8",.05,.56)
 	var dark = mat("chassis","263445",.65,.45)
@@ -114,8 +114,12 @@ func build() -> void:
 		ground.uv1_scale = Vector3(22,24,1)
 	box(Vector3(0,-.25,0),Vector3(44,.5,48),ground)
 	# Physical boundary is separate from the horizon artwork.
-	for x in [-22.4,22.4]:box(Vector3(x,1,0),Vector3(.8,2,49),dark)
-	for z in [-24.4,24.4]:box(Vector3(0,1,z),Vector3(44,2,.8),dark)
+	for x in [-22.4,22.4]:
+		if grey:box(Vector3(x,1,0),Vector3(.8,2,49),dark)
+		else:body(Vector3(x,1,0),Vector3(.8,2,49))
+	for z in [-24.4,24.4]:
+		if grey:box(Vector3(0,1,z),Vector3(44,2,.8),dark)
+		else:body(Vector3(0,1,z),Vector3(44,2,.8))
 	# Base front faces the player's southern approach. Interior remains closed.
 	if grey:box(Vector3(4,3.6,-19),Vector3(12,7.2,9),white,false)
 	else:model("base",Vector3(4,0,-18),PI)
@@ -137,7 +141,7 @@ func build() -> void:
 	for z in [-20.8,-15.2]:
 		for x in range(-11,-2,2):box(Vector3(x,2.9,z),Vector3(.06,1,.06),rail,false)
 		if z<-20:box(Vector3(-7,3.4,z),Vector3(8,.06,.06),rail,false)
-	# Ship stays inside the approved landing-pad envelope; service station remains a proxy.
+	# Ship stays inside the approved landing-pad envelope.
 	var pad = CylinderMesh.new()
 	pad.top_radius = 6;pad.bottom_radius = 6;pad.height = .2;pad.radial_segments = 48
 	geometry(pad,Transform3D(Basis.IDENTITY,Vector3(-13,.1,2)),dark)
@@ -163,7 +167,10 @@ func build() -> void:
 		cylinder.radius=6; cylinder.height=.2
 		pad_shape.shape=cylinder
 		add(pad_body,pad_shape,"Shape")
-	box(Vector3(10,1.6,16),Vector3(5,3.2,4),white)
+	if grey:box(Vector3(10,1.6,16),Vector3(5,3.2,4),white)
+	else:
+		model("service-station",Vector3(10,0,16))
+		body(Vector3(10,1.6,16),Vector3(5,3.2,4))
 	# High quality oxygen/industrial corner.
 	if grey:box(Vector3(16,3.3,-12),Vector3(3,6.6,2.2),white,false)
 	else:model("industrial",Vector3(16,0,-12))
@@ -174,12 +181,16 @@ func build() -> void:
 		body(at+Vector3.UP,Vector3(1.2,2.2,1.2))
 	for at in [Vector3(2,0,-7),Vector3(0,0,-6),Vector3(12,0,1),Vector3(-5,0,9),Vector3(7,0,7),Vector3(-16,0,14)]:
 		if grey:box(at+Vector3.UP*.65,Vector3(1.6,1.3,1.25),white,false)
-		else:model("crate",at)
+		else:model("cargo-crate",at)
 		body(at+Vector3.UP*.65,Vector3(1.6,1.3,1.25))
 	# Overhead industrial feed, supported at both ends.
-	for x in [10,16]:box(Vector3(x,3.5,-14),Vector3(.22,7,.22),alloy)
-	box(Vector3(13,7,-14),Vector3(6,.45,.45),alloy,false)
-	for x in range(10,17):box(Vector3(x,7,-14),Vector3(.10,.58,.58),dark,false)
+	if grey:
+		box(Vector3(13,7,-14),Vector3(6,.45,.45),alloy,false)
+	else:
+		model("oxygen-reservoir",Vector3(12,0,-18),PI)
+		for x in [10,16]:box(Vector3(x,3.5,-14),Vector3(.22,7,.22),alloy)
+		pipe_between(Vector3(10,7,-14),Vector3(16,7,-14),.22,alloy)
+		pipe_between(Vector3(16,7,-14),Vector3(16,5.6,-12),.22,alloy)
 	if not grey:
 		var probe = ReflectionProbe.new()
 		probe.position = Vector3(7,3,-9)
@@ -188,23 +199,19 @@ func build() -> void:
 		probe.intensity = .55
 		probe.enable_shadows = false
 		add(arena,probe,"CornerReflection")
-		for i in 42:
-			var mesh = SphereMesh.new()
-			mesh.radial_segments = 7;mesh.rings = 3;mesh.radius = 1;mesh.height = 2
-			var angle = TAU*i/42.0
-			var at = Vector3(cos(angle)*rng.randf_range(39,49),rng.randf_range(1,5),sin(angle)*rng.randf_range(40,52))
-			geometry(mesh,Transform3D(Basis.IDENTITY.scaled(Vector3(rng.randf_range(6,12),rng.randf_range(4,10),rng.randf_range(6,12))),at),rock)
-		for i in 90:
+		model("lunar-terrain",Vector3.ZERO)
+		dress_environment()
+		add_orbital_backdrop()
+		for i in 500:
 			var mesh = SphereMesh.new();mesh.radial_segments=5;mesh.rings=2
 			var at = Vector3(rng.randf_range(-21,21),-.04,rng.randf_range(-23,23))
-			geometry(mesh,Transform3D(Basis.IDENTITY.scaled(Vector3.ONE*rng.randf_range(.12,.38)),at),rock)
-		for at in [Vector3(10,2.2,-14),Vector3(2,2.2,-14)]:
+			geometry(mesh,Transform3D(Basis.IDENTITY.scaled(Vector3.ONE*rng.randf_range(.08,.28)),at),rock)
+		for at in [Vector3(10,2.2,-14),Vector3(2,2.2,-14),Vector3(10,2.2,13.7),Vector3(-8,1.1,6),Vector3(1,1.1,10)]:
 			var lamp = OmniLight3D.new()
 			lamp.position=at;lamp.light_color=Color("ffd5a1");lamp.light_energy=1.2;lamp.omni_range=5;lamp.shadow_enabled=false
 			add(arena,lamp,"EntryLight")
 		for x in [-18,-8,1,12,19]:
-			box(Vector3(x,.3,10),Vector3(.18,.6,.18),dark,false)
-			box(Vector3(x,.62,10),Vector3(.2,.12,.2),cyan,false)
+			model("landing-lamp",Vector3(x,0,10))
 	for material in batches:
 		var mesh = batches[material].commit()
 		mesh.surface_set_material(0,material)
@@ -237,3 +244,67 @@ func build() -> void:
 	assert(ResourceSaver.save(scene,"res://scenes/maps/moonbase_trial.tscn")==OK)
 	print("MOONBASE_BUILD_PASS grey=",grey," polygons=",mesh.get_polygon_count())
 	quit()
+
+func pipe_between(a: Vector3, b: Vector3, radius: float, paint: Material) -> void:
+	var mesh = CylinderMesh.new();mesh.top_radius=radius;mesh.bottom_radius=radius;mesh.height=a.distance_to(b);mesh.radial_segments=16
+	var up=(b-a).normalized()
+	var tangent=up.cross(Vector3.FORWARD).normalized() if abs(up.dot(Vector3.FORWARD))<.95 else up.cross(Vector3.RIGHT).normalized()
+	var basis=Basis(tangent,up,tangent.cross(up))
+	geometry(mesh,Transform3D(basis,(a+b)*.5),paint)
+	for t in [.08,.92]:
+		var collar=CylinderMesh.new();collar.top_radius=radius*1.3;collar.bottom_radius=radius*1.3;collar.height=.10;collar.radial_segments=16
+		geometry(collar,Transform3D(basis,a.lerp(b,t)),materials.chassis)
+
+func dress_environment() -> void:
+	# Panelized boundaries dress the existing collision envelope, without new blocking walls.
+	for x in range(-20,21,4):
+		model("perimeter-wall",Vector3(x,0,-24))
+		model("perimeter-wall",Vector3(x,0,24),PI)
+	for z in range(-22,23,4):
+		model("perimeter-wall",Vector3(-22,0,z),PI*.5)
+		model("perimeter-wall",Vector3(22,0,z),-PI*.5)
+	for at in [Vector3(18,0,16),Vector3(-17,0,-18),Vector3(3,0,21)]:model("solar-array",at)
+	for i in 12:
+		var angle=TAU*i/12.0
+		model("landing-lamp",Vector3(-13+cos(angle)*5.65,.2,2+sin(angle)*5.65))
+	# Raised markings, landing sectors and service deck seams give large surfaces scale.
+	for i in 64:
+		var angle=TAU*i/64.0
+		var a=Vector3(-13+cos(angle)*5.35,.205,2+sin(angle)*5.35)
+		var b=Vector3(-13+cos(angle+.05)*5.35,.205,2+sin(angle+.05)*5.35)
+		pipe_between(a,b,.025,materials.rail)
+	for x in range(-10,-3):
+		box(Vector3(x,2.407,-18),Vector3(.025,.012,5.8),materials.alloy,false)
+	for z in range(-20,-14):
+		box(Vector3(-7,2.409,z),Vector3(7.8,.012,.025),materials.alloy,false)
+	for x in [-9.5,-4.5]:
+		for j in 24:
+			var z=-7-j/3.0
+			box(Vector3(x,(-7-z)*.3+.10,z),Vector3(2.15,.018,.055),materials.chassis,false,atan2(2.4,8))
+	# Small industrial service pipework stays against the boundary.
+	for z in [-19,-17,-15,-13,-11,-9,-7]:
+		pipe_between(Vector3(21,.65,z),Vector3(21,.65,z+2),.12,materials.alloy)
+		box(Vector3(21,.25,z),Vector3(.45,.5,.25),materials.chassis,false)
+
+func add_orbital_backdrop() -> void:
+	# Spherical noise is baked in authoring. This is a stylized planet, not a geography map.
+	var tex=Image.create(512,256,false,Image.FORMAT_RGB8)
+	var land=FastNoiseLite.new();land.seed=711;land.frequency=2.3
+	var clouds=FastNoiseLite.new();clouds.seed=919;clouds.frequency=8
+	for y in 256:
+		var lat=PI*(float(y)/255-.5)
+		for x in 512:
+			var lon=TAU*x/511.0
+			var p=Vector3(cos(lat)*cos(lon),sin(lat),cos(lat)*sin(lon))
+			var elevation=land.get_noise_3dv(p)
+			var color=Color("174a81")
+			if elevation>.06:color=Color("61785b").lerp(Color("b5a786"),clampf(elevation*3,0,1))
+			var cloud=clampf((clouds.get_noise_3dv(p+Vector3(.2,0,0))-.05)*4,0,.85)
+			color=color.lerp(Color("e0e8e9"),maxf(cloud,pow(absf(p.y),18)))
+			tex.set_pixel(x,y,color)
+	tex.generate_mipmaps()
+	var paint=StandardMaterial3D.new();paint.albedo_texture=ImageTexture.create_from_image(tex);paint.roughness=1
+	paint.emission_enabled=true;paint.emission=Color("839db8");paint.emission_texture=paint.albedo_texture;paint.emission_energy_multiplier=.07;paint.albedo_color=Color("97a9b9")
+	var sphere=SphereMesh.new();sphere.radius=5.6;sphere.height=11.2;sphere.radial_segments=48;sphere.rings=24
+	var planet=MeshInstance3D.new();planet.mesh=sphere;planet.material_override=paint;planet.position=Vector3(-28,34,-105);planet.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add(arena,planet,"OrbitalPlanet")

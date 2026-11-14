@@ -14,7 +14,8 @@ func setup(context: Node, family: String, model: PackedScene) -> void:
 	game = context
 	kind = family
 	material_kind = "wood"
-	if kind in ["pots","seedlings"]:material_kind = "ceramic"
+	if kind.begins_with("space_"):material_kind = "metal"
+	elif kind in ["pots","seedlings"]:material_kind = "ceramic"
 	elif kind in ["popcorn","bottles","icicles","frost","vending"]:material_kind = "glass"
 	elif kind in ["vests","balloons","snowman","figures"]:material_kind = "soft"
 	elif kind in ["cans","armor","chairs","screens","umbrellas","nozzles"]:material_kind = "metal"
@@ -49,7 +50,7 @@ func hit(id: int, point: Vector3, burning: bool = false) -> void:
 	for target in targets:
 		if target.id!=id or target.broken:continue
 		target.hits += 1
-		var strength := 2 if kind in ["slats","foam","screens","vending","frost"] else 1
+		var strength := 2 if kind in ["slats","foam","screens","vending","frost","space_console","space_supply"] else 1
 		if burning or target.hits>=strength:
 			break_target(target,point)
 		else:
@@ -67,6 +68,11 @@ func break_target(target: Dictionary, point: Vector3) -> void:
 	if target.remnant:target.remnant.show()
 	emit_fragments(point,4 if game.reduced_motion else 8)
 	game.play_world_sound("prop_"+material_kind,point,-15,1.35 if kind=="balloons" else 1.0)
+	if kind=="space_battery":
+		for next in targets:
+			if next.id!=target.id and not next.broken and not pending.any(func(entry):return entry.id==next.id):
+				pending.append({"time":.18+next.id*.09,"id":next.id})
+				set_process(true)
 	if kind=="cans" and target.id<3:
 		for next in targets:
 			if next.id>=3 and not next.broken:
@@ -101,13 +107,18 @@ func emit_fragments(point: Vector3, count: int) -> void:
 		if material_kind in ["paper","glass"]:extent = Vector3(.15,.012,.12)
 		if kind=="balloons":extent = Vector3(.07,.012,.05)
 		var velocity = Vector3(cos(angle)*1.8,1.4+(i%3)*.4,sin(angle)*1.8)
-		if kind=="nozzles":
+		if kind in ["nozzles","space_valves"]:
 			extent = Vector3(.035,.09,.035)
 			tint = Color("9cddea")
 			velocity = Vector3(2.5,1.6+i*.15,sin(angle)*.5)
 		if kind=="fruit":
 			fx.add_piece(Debris.Shape.ORB,point,Vector3.ONE*.11,Color("e9a34d") if i%2 else Color("8cbb62"),velocity,Vector3.ZERO,global_position.y+.08)
 		else:fx.chunk(point,extent,tint,velocity,global_position.y+.05)
+	if kind in ["space_battery","space_console"]:
+		fx.bloom(point,.05,Color("c5f4ff"))
+		for i in range(2 if game.reduced_motion else 5):
+			var angle=i*TAU/5
+			fx.add_piece(Debris.Shape.FLAME,point,Vector3(.018,.12,.018),Color("54d6e8"),Vector3(cos(angle)*2,1.4,sin(angle)*2))
 	fx.show_pieces()
 
 func blast(center: Vector3, radius: float) -> void:

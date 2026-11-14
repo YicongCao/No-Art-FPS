@@ -2,7 +2,7 @@ extends SceneTree
 
 var game: Node3D
 var evidence: Array = []
-const OUT = "res://docs/updates/interactive-props-2026-11-13/"
+var OUT = "res://artifacts/local/space-c-legacy-props/" if "--space-regression" in OS.get_cmdline_user_args() else "res://docs/updates/interactive-props-2026-11-13/"
 
 func _initialize() -> void:
 	check.call_deferred()
