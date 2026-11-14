@@ -3,8 +3,8 @@ var game: Node
 var samples: Array[float] = []
 var frenzy_samples: Array[float] = []
 var frames: Array = []
-var phase = "finish" if "--review-d" in OS.get_cmdline_user_args() else "world" if "--review-c" in OS.get_cmdline_user_args() else "heroes" if "--review-b" in OS.get_cmdline_user_args() else "grey" if "--grey" in OS.get_cmdline_user_args() else "corner"
-var directory = "res://docs/art/space/review-d/" if "--review-d" in OS.get_cmdline_user_args() else "res://docs/art/space/review-c/" if "--review-c" in OS.get_cmdline_user_args() else "res://docs/art/space/review-b/" if "--review-b" in OS.get_cmdline_user_args() else "res://docs/art/space/review-a/"
+var phase = "presentation" if "--review-e" in OS.get_cmdline_user_args() else "finish" if "--review-d" in OS.get_cmdline_user_args() else "world" if "--review-c" in OS.get_cmdline_user_args() else "heroes" if "--review-b" in OS.get_cmdline_user_args() else "grey" if "--grey" in OS.get_cmdline_user_args() else "corner"
+var directory = "res://docs/art/space/review-e/" if "--review-e" in OS.get_cmdline_user_args() else "res://docs/art/space/review-d/" if "--review-d" in OS.get_cmdline_user_args() else "res://docs/art/space/review-c/" if "--review-c" in OS.get_cmdline_user_args() else "res://docs/art/space/review-b/" if "--review-b" in OS.get_cmdline_user_args() else "res://docs/art/space/review-a/"
 var draw_samples: Array = []
 var capture_done = false
 var done = false

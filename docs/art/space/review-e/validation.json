@@ -1,0 +1,157 @@
+{
+  "baseline": "a820da7",
+  "branch": "space",
+  "checks": {
+    "import": {
+      "errors": 0,
+      "evidence": []
+    },
+    "map": {
+      "errors": 0,
+      "evidence": [
+        "MOONBASE_BUILD_PASS grey=false polygons=340"
+      ]
+    },
+    "after": {
+      "errors": 0,
+      "evidence": [
+        "RETICLE_OFFSET_PX 0.00054931640625",
+        "PRESENTATION_PASS before=false ADS=0.00018310546875"
+      ]
+    },
+    "earth-baseline": {
+      "errors": 0,
+      "evidence": []
+    },
+    "heroes": {
+      "errors": 0,
+      "evidence": [
+        "MOONBASE_HEROES_PASS ADS_error=0.00003051757812"
+      ]
+    },
+    "rules": {
+      "errors": 0,
+      "evidence": [
+        "RULES_PASS: idle, duplicate death, deadline, late score, restart, fixed tick clock"
+      ]
+    },
+    "legacy-aim": {
+      "errors": 0,
+      "evidence": [
+        "AIM_SIGHTS_PASS: rear aperture and front post sit on the shot point for desktop and touch"
+      ]
+    },
+    "perf": {
+      "errors": 0,
+      "evidence": [
+        "MOONBASE_RAMP_PASS (-9.5, 2.400392, -15.39973)",
+        "MOONBASE_CHECK_PASS {\"frames\":11803,\"max_ms\":39.443,\"p50_ms\":5.005,\"p95_ms\":8.046,\"p99_ms\":9.179}"
+      ]
+    },
+    "export": {
+      "errors": 0,
+      "evidence": [
+        "MOONBASE_EXPORT_PASS {\"pck_bytes\": 78478600, \"packed_resources\": 800, \"sessions\": [\"data/sessions/moonbase_trial.tres.remap\"], \"maps\": [\"scenes/maps/moonbase_trial.tscn.remap\"], \"note\": \"Common legacy character/UI/FX dependencies remain until replacement; no original map geometry or sessions.\"}"
+      ]
+    },
+    "web": {
+      "errors": 0,
+      "evidence": []
+    },
+    "touch": {
+      "errors": 0,
+      "evidence": [
+        "MOONBASE_TOUCH_PASS RUNNING"
+      ]
+    }
+  },
+  "sha256": {
+    "assets/models/space/ion-rifle.glb": "ae0413fe210c2bcfe8ae1b2da19bada00da56dd1ad05f74a14abfa8853a68e0f",
+    "assets/models/space/earth/bluemarble-2048.png": "ae6214b078ed0864c96f74bcb10ae3021f6eb116f8059797efe0fa9ea8b89d35",
+    "assets/models/space/earth/clouds-2048.jpg": "daddaad84d7a33bbbc86cdda3f591099f57cee8607b7bcf3b67eb7e4f7a1c793",
+    "assets/shaders/lunar_earth.gdshader": "b1b86732830ba3b5b25184142071af0d7a302b6c960bfe7a5ce3464bc4e936ca",
+    "scripts/hud.gd": "cf622b9cc55567790e8c1ccaf4ee05137cf56ea9892059d1291193a6815d29b5",
+    "scripts/player.gd": "48344aab1ff2b0af3e4be91fc1c1e2b34c2341889e21e4c1fdcbb153dc51c77e",
+    "data/moonbase_visuals.tres": "a46f7e345dbc4b63b84aef19af5808ccc3e8bb13865de93cd44086d8018ab62d",
+    "scenes/maps/moonbase_trial.tscn": "5618cd564d27a9f8e4bba50c181980b46eedb48e86bb70306ea196da9b08d9a0"
+  },
+  "web": {
+    "url": "http://localhost:8766",
+    "mode": "desktop",
+    "loadMs": 4399,
+    "performance": {
+      "seconds": 61.00190000019074,
+      "frames": 3653,
+      "meanMs": 16.697946892964097,
+      "p50Ms": 16.69999999999709,
+      "p95Ms": 16.79999999998836,
+      "p99Ms": 16.80000000000291,
+      "maxMs": 50,
+      "canvas": [
+        1280,
+        720
+      ],
+      "state": "RESULTS",
+      "heapBytes": 114654614,
+      "frameTraceColumns": [
+        "elapsedMs",
+        "intervalMs",
+        "state"
+      ]
+    },
+    "errors": [],
+    "logs": [
+      "Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org",
+      "OpenGL API OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium)) - Compatibility - Using Device: WebKit - WebKit WebGL"
+    ],
+    "checks": [
+      "moonbase entry",
+      "comedy hidden",
+      "start",
+      "fire/reload",
+      "full round",
+      "results",
+      "retry",
+      "pause"
+    ],
+    "note": "Hardware Chrome RAF intervals, not GPU timer queries. Fresh browser cache; localhost loading is not an internet download benchmark."
+  },
+  "touch": {
+    "viewport": [
+      844,
+      390
+    ],
+    "state": "RUNNING",
+    "errors": [],
+    "evidence": {
+      "moveAndFire": true,
+      "reload": true,
+      "grenade": true
+    },
+    "checks": [
+      "start",
+      "simultaneous joystick and fire gestures",
+      "reload",
+      "ADS state",
+      "grenade gesture",
+      "pause",
+      "touch resume"
+    ],
+    "note": "Desktop Chrome touch emulation; not a physical iOS/Android performance result."
+  },
+  "limits": [
+    "Single native and Web samples, not performance optimization acceptance.",
+    "Desktop touch emulation, not physical mobile.",
+    "Art acceptance awaits user review."
+  ],
+  "review_page": {
+    "viewport_widths": [
+      1440,
+      390
+    ],
+    "images_decoded": 13,
+    "local_links_checked": 14,
+    "horizontal_overflow": false,
+    "slider_keyboard": true
+  }
+}

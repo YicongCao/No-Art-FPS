@@ -1,0 +1,18 @@
+{
+  "ads_error_pixels": 0.000030517578125,
+  "checks": [
+    "navigation",
+    "hero profile",
+    "named rigid pivots",
+    "melee blade socket",
+    "windup warning / slash / recover",
+    "moving articulated actors",
+    "rifle socket",
+    "ADS projected error <2px",
+    "magazine motion",
+    "real bullet headshot",
+    "helmet removal",
+    "frenzy render"
+  ],
+  "note": "Scripted native visual check; full-round timing is tested separately."
+}

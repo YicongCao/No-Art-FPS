@@ -14,3 +14,6 @@ extends Resource
 @export_file("*.glb") var glove = ""
 
 @export var held_grenade_scale = 1.0
+
+@export var rifle_hip_origin = Vector3(.25,-.32,-.66)
+@export var rifle_hip_rotation_degrees = Vector3.ZERO

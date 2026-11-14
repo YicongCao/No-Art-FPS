@@ -12,3 +12,5 @@ sight_front = Vector3(0,0.24,-0.50)
 grenade = "res://assets/models/space/lunar-grenade.glb"
 glove = "res://assets/models/space/lunar-glove.glb"
 held_grenade_scale = 0.62
+rifle_hip_origin = Vector3(0.37,-0.31,-0.83)
+rifle_hip_rotation_degrees = Vector3(0,9,-3)

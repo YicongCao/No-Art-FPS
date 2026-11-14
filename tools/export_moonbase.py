@@ -45,6 +45,7 @@ if args.review=='d':
  for p in (ROOT/'assets/fonts/space').glob('*OFL.txt'):shutil.copy2(p,OUT/p.name)
  shutil.copy2(ROOT/'assets/ui/space-grenade.svg',OUT/'frag-grenade.svg')
  shutil.copy2(ROOT/'assets/audio/space/SOURCE.txt',OUT/'LUNAR-AUDIO-SOURCE.txt')
+ shutil.copy2(ROOT/'assets/models/space/earth/SOURCE.txt',OUT/'EARTH-IMAGERY-SOURCE.txt')
  css="<style>@font-face{font-family:SpaceDigits;src:url('Oxanium.woff2')}@font-face{font-family:SpaceChinese;src:url('NotoSansSC.woff2')}body.moonbase,body.moonbase button{font-family:SpaceDigits,SpaceChinese,sans-serif!important}body.moonbase #loader-scene{font-family:SpaceDigits,sans-serif}</style>"
  html=html.replace('</head>',css+'</head>')
  html=html.replace('>NO</text>','>LUNAR</text>').replace('>ART</text>','>OUTPOST</text>').replace('>FPS</text>','></text>')

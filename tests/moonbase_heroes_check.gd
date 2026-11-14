@@ -2,6 +2,7 @@ extends SceneTree
 var game: Node3D
 var OUT = "res://docs/art/space/review-d/" if "--review-d" in OS.get_cmdline_user_args() else "res://docs/art/space/review-b/"
 func _initialize():
+ if "--review-e" in OS.get_cmdline_user_args():OUT="res://docs/art/space/review-e/heroes/"
  if "--sensor-heads" in OS.get_cmdline_user_args():OUT="res://docs/art/space/sensor-heads/"
  run.call_deferred()
 func pose(at: Vector3, target: Vector3):

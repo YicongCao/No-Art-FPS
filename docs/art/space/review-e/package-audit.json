@@ -1,0 +1,11 @@
+{
+  "pck_bytes": 78478600,
+  "packed_resources": 800,
+  "sessions": [
+    "data/sessions/moonbase_trial.tres.remap"
+  ],
+  "maps": [
+    "scenes/maps/moonbase_trial.tscn.remap"
+  ],
+  "note": "Common legacy character/UI/FX dependencies remain until replacement; no original map geometry or sessions."
+}

@@ -62,6 +62,7 @@ func _ready() -> void:
 	camera.fov = HIP_FOV
 	camera.near = .035
 	add_child(camera)
+	if game.session.visual_profile:gun_origin=game.session.visual_profile.rifle_hip_origin
 	gun = Node3D.new()
 	camera.add_child(gun)
 	gun.position = gun_origin
@@ -265,6 +266,9 @@ func _process(delta: float) -> void:
 	gun.position += Vector3(sprint_sway.x*.046,sprint_sway.y*.025,recoil*.06)
 	gun.rotation.x = recoil*.04+sprint_sway.y*.035+aim_pitch*aim_pose
 	gun.rotation.z = -sprint_sway.x*.10
+	gun.rotation.y = 0
+	if game.session.visual_profile:
+		gun.rotation+=game.session.visual_profile.rifle_hip_rotation_degrees*(PI/180.0)*(1-aim_pose)
 	if game and game.reload_time>0:
 		var reload_phase = sin((1-game.reload_time/game.RELOAD_DURATION)*PI)
 		gun.position.y -= reload_phase*.18

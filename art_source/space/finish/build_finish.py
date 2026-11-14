@@ -59,7 +59,7 @@ for path in sorted((HERE.parent/'environment').glob('*.blend')):
 bpy.ops.wm.open_mainfile(filepath=str(HERE.parent/'heroes/ion-rifle.blend'))
 for mat in bpy.data.materials:
  p=mat.node_tree.nodes.get('Principled BSDF') if mat.use_nodes else None
- if p and mat.name.startswith('Lunar ceramic'):p.inputs['Base Color'].default_value=(.30,.29,.26,1)
+ if p and mat.name.startswith('Lunar ceramic'):p.inputs['Base Color'].default_value=(.24,.25,.24,1)
  if p and mat.name.startswith('Machined alloy'):p.inputs['Roughness'].default_value=.5
 export('ion-rifle',True)
 for name in ['oxygen','industrial']:

@@ -1,0 +1,13 @@
+{
+  "ads_error_pixels": 0.00018310546875,
+  "note": "Fixed-camera native renderer; Earth detail uses 12 degree FOV for asset inspection only.",
+  "states": [
+    "opening",
+    "ADS",
+    "reload",
+    "0/1/4/20 ammo",
+    "999 kills",
+    "overload",
+    "earth detail"
+  ]
+}

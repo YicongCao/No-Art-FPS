@@ -1,0 +1,16 @@
+NASA Blue Marble imagery used as a local game background texture; not current weather.
+Retrieved 2026-11-14. No NASA logo, identifiable person, or endorsement is used.
+
+Surface: NASA Scientific Visualization Studio, Blue Marble - A Seamless Image Mosaic of the Earth (WMS), ID 2915.
+https://svs.gsfc.nasa.gov/2915
+https://svs.gsfc.nasa.gov/vis/a000000/a002900/a002915/bluemarble-2048.png
+Credit: NASA Goddard Space Flight Center. Reto Stockli (land surface, shallow water, clouds); Robert Simmon (ocean color/compositing). MODIS science teams; USGS topography.
+
+Clouds: NASA Blue Marble (2002), cloud composite, not live weather.
+https://science.nasa.gov/earth/earth-observatory/the-blue-marble-true-color-global-imagery-at-1km-resolution/
+https://assets.science.nasa.gov/content/dam/science/esd/eo/content-feature/bluemarble/images/cloud_combined_2048.jpg
+
+Usage guidance verified at https://www.nasa.gov/nasa-brand-center/images-and-media/
+NASA content generally is not subject to copyright in the US; acknowledge its source and do not imply endorsement. Third-party material has separate terms. See the linked guidance for complete conditions.
+
+Files are retained unchanged. The game combines them in a stylized sphere shader with fixed lighting and an approximate blue atmospheric limb. This is a game rendition, not a NASA scientific simulation or an astronomically dated view.

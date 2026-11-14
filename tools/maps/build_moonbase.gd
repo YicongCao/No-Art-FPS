@@ -274,26 +274,14 @@ func dress_environment() -> void:
 		box(Vector3(21,.25,z),Vector3(.45,.5,.25),materials.chassis,false)
 
 func add_orbital_backdrop() -> void:
-	# Spherical noise is baked in authoring. This is a stylized planet, not a geography map.
-	var tex=Image.create(512,256,false,Image.FORMAT_RGB8)
-	var land=FastNoiseLite.new();land.seed=711;land.frequency=2.3
-	var clouds=FastNoiseLite.new();clouds.seed=919;clouds.frequency=8
-	for y in 256:
-		var lat=PI*(float(y)/255-.5)
-		for x in 512:
-			var lon=TAU*x/511.0
-			var p=Vector3(cos(lat)*cos(lon),sin(lat),cos(lat)*sin(lon))
-			var elevation=land.get_noise_3dv(p)
-			var color=Color("174a81")
-			if elevation>.06:color=Color("61785b").lerp(Color("b5a786"),clampf(elevation*3,0,1))
-			var cloud=clampf((clouds.get_noise_3dv(p+Vector3(.2,0,0))-.05)*4,0,.85)
-			color=color.lerp(Color("e0e8e9"),maxf(cloud,pow(absf(p.y),18)))
-			tex.set_pixel(x,y,color)
-	tex.generate_mipmaps()
-	var paint=StandardMaterial3D.new();paint.albedo_texture=ImageTexture.create_from_image(tex);paint.roughness=1
-	paint.emission_enabled=true;paint.emission=Color("839db8");paint.emission_texture=paint.albedo_texture;paint.emission_energy_multiplier=.07;paint.albedo_color=Color("97a9b9")
-	var sphere=SphereMesh.new();sphere.radius=5.6;sphere.height=11.2;sphere.radial_segments=48;sphere.rings=24
-	var planet=MeshInstance3D.new();planet.mesh=sphere;planet.material_override=paint;planet.position=Vector3(-28,34,-105);planet.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	# NASA Blue Marble geography and observed cloud composite, rendered in one opaque pass.
+	var paint=ShaderMaterial.new();paint.shader=load("res://assets/shaders/lunar_earth.gdshader")
+	paint.set_shader_parameter("surface_map",load("res://assets/models/space/earth/bluemarble-2048.png"))
+	paint.set_shader_parameter("cloud_map",load("res://assets/models/space/earth/clouds-2048.jpg"))
+	var sun_basis=Basis.from_euler(arena.sun_rotation_degrees*(PI/180.0))
+	paint.set_shader_parameter("sun_direction",sun_basis.z.normalized())
+	var sphere=SphereMesh.new();sphere.radius=6.4;sphere.height=12.8;sphere.radial_segments=64;sphere.rings=32
+	var planet=MeshInstance3D.new();planet.mesh=sphere;planet.material_override=paint;planet.position=Vector3(-28,34,-105);planet.rotation_degrees=Vector3(0,140,23.4);planet.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add(arena,planet,"OrbitalPlanet")
 
 func finish_contacts() -> void:

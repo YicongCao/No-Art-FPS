@@ -1,0 +1,39 @@
+{
+  "native_over_33ms": [
+    [
+      2.117,
+      146.732,
+      false
+    ],
+    [
+      2.667,
+      69.835,
+      false
+    ],
+    [
+      60.0,
+      39.443,
+      true
+    ]
+  ],
+  "web_over_33ms": [
+    [
+      354,
+      50,
+      "RUNNING"
+    ],
+    [
+      59335,
+      50,
+      "RESULTS"
+    ]
+  ],
+  "native_transition_43_48": {
+    "frames": 787,
+    "max_ms": 17.134,
+    "p50_ms": 6.089,
+    "p95_ms": 8.388,
+    "p99_ms": 10.937
+  },
+  "note": "Native seconds and Web elapsed milliseconds use different origins. Single runs, frame intervals rather than GPU time. No claim that stutters are solved."
+}
