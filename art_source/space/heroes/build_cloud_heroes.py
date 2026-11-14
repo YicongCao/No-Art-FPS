@@ -4,6 +4,7 @@ from pathlib import Path
 from mathutils import Vector,Matrix
 HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[2];INPUTS=HERE/'inputs';OUT=ROOT/'assets/models/space';sys.path.insert(0,str(HERE))
 from geometry import *
+from build_sensor_heads import replace_head
 report={}
 
 def roughen():
@@ -58,6 +59,7 @@ for name,slim in [('rifle-mech',False),('assault-mech',True)]:
  head=group('Head',(0,0,1.70),root);helmet=parts.pop('Helmet')
  for v in helmet.data.vertices:v.co.z-=1.70
  helmet.location.z=1.70;attach(helmet,head)
+ helmet=replace_head(head,helmet,slim)
  beam('Neck',(0,0,1.57),(0,0,1.70),.055,m['dark'],head)
  # Real emissive core, hidden under the removable helmet until a headshot.
  beam('Head core',(0,0,1.67),(0,0,1.76),.058,m['dark'],head)

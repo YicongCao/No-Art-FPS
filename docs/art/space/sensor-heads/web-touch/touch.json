@@ -1,0 +1,23 @@
+{
+  "viewport": [
+    844,
+    390
+  ],
+  "state": "RUNNING",
+  "errors": [],
+  "evidence": {
+    "moveAndFire": true,
+    "reload": true,
+    "grenade": true
+  },
+  "checks": [
+    "start",
+    "simultaneous joystick and fire gestures",
+    "reload",
+    "ADS state",
+    "grenade gesture",
+    "pause",
+    "touch resume"
+  ],
+  "note": "Desktop Chrome touch emulation; not a physical iOS/Android performance result."
+}

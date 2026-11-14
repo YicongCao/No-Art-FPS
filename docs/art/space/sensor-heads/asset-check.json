@@ -1,0 +1,12 @@
+{
+  "rifle-mech": {
+    "red_sensors": 4,
+    "face": "recessed black panel",
+    "helmet_alias": "Helmet"
+  },
+  "assault-mech": {
+    "red_sensors": 4,
+    "face": "recessed black panel",
+    "helmet_alias": "Helmet"
+  }
+}

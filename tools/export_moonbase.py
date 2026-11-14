@@ -4,8 +4,8 @@ from pathlib import Path
 import subprocess, json, shutil, struct, hashlib, os, re, argparse
 ROOT=Path(__file__).resolve().parents[1]
 GODOT=os.environ.get('GODOT_BIN','/Applications/Godot.app/Contents/MacOS/Godot')
-parser=argparse.ArgumentParser();parser.add_argument('--review',choices=['a','b','c','d'],default='d');args=parser.parse_args()
-REVIEW=ROOT/('docs/art/space/review-'+args.review)
+parser=argparse.ArgumentParser();parser.add_argument('--review',choices=['a','b','c','d'],default='d');parser.add_argument('--review-dir',type=Path);args=parser.parse_args()
+REVIEW=(ROOT/args.review_dir).resolve() if args.review_dir else ROOT/('docs/art/space/review-'+args.review)
 OUT=ROOT/'builds/moonbase'; OUT.mkdir(parents=True,exist_ok=True)
 # Godot's selected-resource export does not discover every GDScript preload.
 # Build an explicit transitive source manifest, including lazy core resources.

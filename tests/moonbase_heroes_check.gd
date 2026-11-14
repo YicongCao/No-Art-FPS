@@ -1,7 +1,9 @@
 extends SceneTree
 var game: Node3D
 var OUT = "res://docs/art/space/review-d/" if "--review-d" in OS.get_cmdline_user_args() else "res://docs/art/space/review-b/"
-func _initialize():run.call_deferred()
+func _initialize():
+ if "--sensor-heads" in OS.get_cmdline_user_args():OUT="res://docs/art/space/sensor-heads/"
+ run.call_deferred()
 func pose(at: Vector3, target: Vector3):
  game.player.position=at
  var direction=game.player.camera.global_position.direction_to(target)
@@ -44,6 +46,10 @@ func run():
  assert(actors[1].knife!=null and actors[0].enemy_gun!=null)
  game.player.gun.hide()
  await shot("mech-pair")
+ if "--sensor-heads" in OS.get_cmdline_user_args():
+  for actor in actors:assert(actor.visual.find_children("*Red*","MeshInstance3D",true,false).size()==4)
+  pose(Vector3(3,.05,0),Vector3(3,1.55,-2.5));await shot("sensor-closeup")
+  pose(Vector3(3,.05,3),Vector3(3,1.0,-2.5))
  for actor in actors:actor.set_physics_process(true)
  await create_timer(.45).timeout
  await shot("mechs-moving")
@@ -93,6 +99,8 @@ func run():
  game.shoot()
  assert(actors[0].dead and actors[0].headshot_death)
  assert(not actors[0].visual.find_child("Helmet",true,false).visible)
+ if "--sensor-heads" in OS.get_cmdline_user_args():
+  for sensor in actors[0].visual.find_children("*Red*","MeshInstance3D",true,false):assert(not sensor.is_visible_in_tree())
  await shot("headshot")
  game.set_destroy_active(true);game.rules.elapsed=46
  game.fire_time=0;game.shoot()
