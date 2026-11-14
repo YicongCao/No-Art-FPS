@@ -5,7 +5,17 @@ const WEB_RENDER_SCALES = [1.0,.85,.70]
 const WEB_SHADOW_RANGES = [65.0,45.0,32.0]
 const FINALE_FX_CELL_SIZE = 16.0
 
-const DefaultSession = preload("res://data/sessions/sandgate.tres")
+@export var startup: Resource
+var DefaultSession: Resource
+
+func is_moonbase() -> bool:
+	return startup != null and startup.single_map
+
+func visual_path(key: String, fallback: String) -> String:
+	if session and session.visual_profile:
+		var path: String = session.visual_profile.get(key)
+		if not path.is_empty():return path
+	return fallback
 const PARK_SESSION_PATH = "res://data/sessions/amusement_park.tres"
 const FERRY_SESSION_PATH = "res://data/sessions/last_ferry.tres"
 const STUDIO_SESSION_PATH = "res://data/sessions/night_studio.tres"
@@ -25,7 +35,7 @@ const CONCEPT_SESSIONS = {
 	"palm_house":"res://data/sessions/palm_house.tres",
 	"ginza_station":"res://data/sessions/ginza_station.tres",
 }
-var session = DefaultSession
+var session: Resource
 var opening: Array[Dictionary] = []
 const Player = preload("res://scripts/player.gd")
 const Enemy = preload("res://scripts/enemy.gd")
@@ -56,7 +66,7 @@ var player: CharacterBody3D
 var hud: Control
 var enemies: Node3D
 var effects: Node3D
-var rules = DefaultSession.make_rules()
+var rules: RefCounted
 var state = "TITLE"
 var previous_state = "RUNNING"
 const MAGAZINE_SIZE = 20
@@ -136,7 +146,7 @@ var headshot_effects_warmed = false
 var enemy_model: PackedScene
 var rusher_model: PackedScene
 var title_frame_ready = false
-var title_session_id = DefaultSession.session_id
+var title_session_id = ""
 var remember_title_selection = true
 var destroy_active = false
 var finale_active = false
@@ -176,6 +186,10 @@ func capture_pointer() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _ready() -> void:
+	DefaultSession = startup.session if startup else load("res://data/sessions/sandgate.tres")
+	session = DefaultSession
+	rules = session.make_rules()
+	if is_moonbase():remember_title_selection = false
 	if OS.has_feature("web"):
 		Engine.max_fps = 60
 		get_viewport().msaa_3d = Viewport.MSAA_2X
@@ -196,7 +210,9 @@ func _ready() -> void:
 	TranslationServer.set_locale(initial_language())
 	rng.seed = 61105
 	var restored_session := false
-	if "--mission" in OS.get_cmdline_user_args():
+	if is_moonbase():
+		pass
+	elif "--mission" in OS.get_cmdline_user_args():
 		session = load("res://data/sessions/defuse.tres")
 		rules = session.make_rules()
 	elif "--park" in OS.get_cmdline_user_args():
@@ -298,13 +314,14 @@ func _ready() -> void:
 	if not title_frame_ready:await capture_opening_frame()
 	if OS.has_feature("web"):
 		await RenderingServer.frame_post_draw
+		JavaScriptBridge.eval("document.body.classList.toggle('moonbase',%s)" % str(is_moonbase()).to_lower())
 		JavaScriptBridge.eval("window.noArtReady?.()")
 	if "--capture" in OS.get_cmdline_user_args():
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png("res://artifacts/title.png")
 		get_tree().quit()
 	if qa_mode:
-		var test_path = "res://tests/playtest.gd"
+		var test_path = "res://tests/moonbase_check.gd" if "--moonbase-check" in OS.get_cmdline_user_args() else "res://tests/playtest.gd"
 		if "--record-demo" in OS.get_cmdline_user_args():test_path = "res://tests/demo_capture.gd"
 		if "--check" in OS.get_cmdline_user_args():test_path = "res://tests/interaction_check.gd"
 		if "--benchmark" in OS.get_cmdline_user_args():test_path = "res://tests/benchmark.gd"
@@ -340,7 +357,7 @@ func _ready() -> void:
 		add_child(qa)
 
 func apply_map_lighting() -> void:
-	preload("res://scripts/maps/map_lookdev.gd").apply.call_deferred(arena,arena.environment_override)
+	if not is_moonbase():preload("res://scripts/maps/map_lookdev.gd").apply.call_deferred(arena,arena.environment_override)
 	world_environment.environment = arena.environment_override if arena.environment_override else daylight_environment
 	sun.rotation_degrees = arena.sun_rotation_degrees
 	sun.light_color = arena.sun_color
@@ -675,7 +692,7 @@ func prepare_loaded_run(ticket: int) -> void:
 		push_error("Navigation unavailable; returned to title")
 		return
 	loading.report(.2)
-	var path = "res://assets/models/toy/enemy.glb"
+	var path = visual_path("rifle_enemy","res://assets/models/toy/enemy.glb")
 	if OS.has_feature("web"):
 		# The opening frame already cached this scene. Single-thread Web builds
 		# must not depend on a worker thread to prepare it again.
@@ -705,7 +722,7 @@ func prepare_loaded_run(ticket: int) -> void:
 				return
 			await loading_frame()
 			if ticket!=load_ticket:return
-	if not rusher_model:rusher_model = load("res://assets/models/toy/rusher.glb")
+	if not rusher_model:rusher_model = load(visual_path("rusher_enemy","res://assets/models/toy/rusher.glb"))
 	# Instantiate and render one actor per frame before gameplay to warm
 	# imported meshes/materials without a single eight-enemy creation burst.
 	for i in range(opening.size()):
@@ -1073,6 +1090,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		save_record()
 
 func menu_action(action: String) -> void:
+	if is_moonbase() and (action in TITLE_SESSIONS or action in CONCEPT_SESSIONS or action in ["arena","defuse","comedy","roach"]):return
 	match action:
 		"play", "retry":
 			request_run()

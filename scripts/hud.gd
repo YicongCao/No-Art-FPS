@@ -939,6 +939,9 @@ func rebuild_menu() -> void:
 			["MapHogwarts",tr("Hogwarts"),"hogwarts",HOGWARTS_THUMBNAIL,"hogwarts",3],
 			["MapPalmHouse",tr("Palm House"),"palm_house",PALM_THUMBNAIL,"palm_house",5],
 		]
+		if game.is_moonbase():
+			maps = []
+			map_scroll.hide()
 		var tab_order = [fire_button]
 		for i in range(maps.size()):
 			var item: Array = maps[i]
@@ -947,7 +950,7 @@ func rebuild_menu() -> void:
 			var position = Vector2(column*(width+gap),row*(height+gap))
 			tab_order.append(map_button(item[0],item[1],item[2],item[3],Rect2(position,Vector2(width,height)),
 				game.title_session_id==item[4],game.map_best_score(item[4]),item[5]))
-		if not OS.has_feature("web"):
+		if not OS.has_feature("web") and not game.is_moonbase():
 			var modes = [["comedy",tr("Poop Mode"),COMEDY_ICON,Color("62412f")],
 				["roach",tr("Cockroach Mode"),ROACH_ICON,Color("533c65")]]
 			for i in range(modes.size()):

@@ -1,0 +1,11 @@
+[gd_scene load_steps=5 format=3]
+[ext_resource type="Script" path="res://scripts/game.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/modes/startup_definition.gd" id="2"]
+[ext_resource type="Resource" path="res://data/sessions/moonbase_trial.tres" id="3"]
+[sub_resource type="Resource" id="Startup"]
+script = ExtResource("2")
+session = ExtResource("3")
+single_map = true
+[node name="MoonbaseTrial" type="Node3D"]
+script = ExtResource("1")
+startup = SubResource("Startup")

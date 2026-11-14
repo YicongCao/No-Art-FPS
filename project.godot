@@ -5,6 +5,7 @@ config_version=5
 config/name="No-Art-FPS"
 config/version="0.3.0"
 run/main_scene="res://scenes/main.tscn"
+run/main_scene.moonbase="res://scenes/moonbase.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/description="Sixty seconds. Make every shot count."
 

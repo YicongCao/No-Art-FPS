@@ -97,7 +97,7 @@ func add_viewmodel_lights() -> void:
 func set_weapon_style(mode: String) -> void:
 	if weapon_models.has(weapon_mode):weapon_models[weapon_mode].hide()
 	if not weapon_models.has(mode):
-		var asset = "res://assets/models/toy/rifle.glb"
+		var asset = game.visual_path("rifle","res://assets/models/toy/rifle.glb")
 		if mode=="comedy":asset = "res://assets/models/comedy/water_blaster.glb"
 		if mode=="roach":asset = "res://assets/models/comedy/mop_launcher.glb"
 		var model = load(asset).instantiate()
@@ -263,6 +263,7 @@ func teleport_to(pose: Transform3D) -> void:
 	camera.rotation.x = 0
 
 func set_map_outline(map_id: String) -> void:
+	outline.visible = map_id != "moonbase_trial"
 	var profile: Array = preload("res://scripts/maps/map_lookdev.gd").PROFILES.get(map_id,[.88,.7])
 	if map_id=="rain_market":profile=[.34,.08]
 	var paint := outline.material_override as ShaderMaterial
