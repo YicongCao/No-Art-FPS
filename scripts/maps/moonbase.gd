@@ -16,3 +16,6 @@ func interactive_prop_entries() -> Array:
 		{"kind":"space_supply","asset":"res://assets/models/space/supply-case.glb","at":[-16,0,11],"yaw":PI},
 		{"kind":"space_supply","asset":"res://assets/models/space/supply-case.glb","at":[3,0,5],"yaw":PI}
 	]
+
+func set_destroy_lighting(active: bool) -> void:
+	for lamp in find_children("OverloadLight*","OmniLight3D",true,false):lamp.light_energy = .85 if active else 0.0

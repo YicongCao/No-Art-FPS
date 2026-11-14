@@ -30,7 +30,7 @@ func _ready() -> void:
 	sphere.radius = RADIUS
 	collider.shape = sphere
 	add_child(collider)
-	visual = MODELS[style].instantiate()
+	visual = (load(game.visual_path("grenade","res://assets/models/grenades/frag.glb")) if style.is_empty() else MODELS[style]).instantiate()
 	add_child(visual)
 	var lamp = BoxMesh.new()
 	lamp.size = Vector3.ONE*.052

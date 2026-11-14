@@ -9,3 +9,8 @@ extends Resource
 @export var rifle_muzzle = Vector3(0,.015,-1.0)
 @export var sight_rear = Vector3(0,.269,-.17)
 @export var sight_front = Vector3(0,.205,-.65)
+
+@export_file("*.glb") var grenade = ""
+@export_file("*.glb") var glove = ""
+
+@export var held_grenade_scale = 1.0

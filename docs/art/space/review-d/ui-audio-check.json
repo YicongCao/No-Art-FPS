@@ -1,0 +1,83 @@
+{
+  "font_missing_characters": [],
+  "digit_advance_widths": [
+    578,
+    578,
+    578,
+    578,
+    578,
+    578,
+    578,
+    578,
+    578,
+    578
+  ],
+  "audio": {
+    "cartridge_insert.wav": {
+      "duration_s": 0.08,
+      "sample_rate": 22050,
+      "peak_pcm": 10022
+    },
+    "charge.wav": {
+      "duration_s": 0.4,
+      "sample_rate": 22050,
+      "peak_pcm": 18524
+    },
+    "enemy_raise.wav": {
+      "duration_s": 0.32,
+      "sample_rate": 22050,
+      "peak_pcm": 15229
+    },
+    "explosion.wav": {
+      "duration_s": 0.8,
+      "sample_rate": 22050,
+      "peak_pcm": 26868
+    },
+    "headshot.wav": {
+      "duration_s": 0.28,
+      "sample_rate": 22050,
+      "peak_pcm": 14536
+    },
+    "hit.wav": {
+      "duration_s": 0.1,
+      "sample_rate": 22050,
+      "peak_pcm": 14060
+    },
+    "lunar-round.wav": {
+      "duration_s": 60.0,
+      "sample_rate": 22050,
+      "peak_pcm": 8925
+    },
+    "magazine_latch.wav": {
+      "duration_s": 0.12,
+      "sample_rate": 22050,
+      "peak_pcm": 12307
+    },
+    "moon_step.wav": {
+      "duration_s": 0.18,
+      "sample_rate": 22050,
+      "peak_pcm": 16722
+    },
+    "prop_metal.wav": {
+      "duration_s": 0.24,
+      "sample_rate": 22050,
+      "peak_pcm": 16693
+    },
+    "reload.wav": {
+      "duration_s": 0.34997732426303857,
+      "sample_rate": 22050,
+      "peak_pcm": 12824
+    },
+    "shot.wav": {
+      "duration_s": 0.22,
+      "sample_rate": 22050,
+      "peak_pcm": 26868
+    },
+    "tick.wav": {
+      "duration_s": 0.08,
+      "sample_rate": 22050,
+      "peak_pcm": 11131
+    }
+  },
+  "note": "Glyph coverage and file integrity, not a listening or physical-device test."
+}

@@ -1,0 +1,173 @@
+{
+  "import": [],
+  "map": [
+    "MOONBASE_BUILD_PASS grey=false polygons=340"
+  ],
+  "heroes": [
+    "MOONBASE_HEROES_PASS ADS_error=0.00003051757812"
+  ],
+  "world": [
+    "MOONBASE_WORLD_PASS groups=8 targets=20"
+  ],
+  "rules": [
+    "RULES_PASS: idle, duplicate death, deadline, late score, restart, fixed tick clock"
+  ],
+  "finish-check": [
+    "MOONBASE_FINISH_PASS"
+  ],
+  "perf": [
+    "MOONBASE_RAMP_PASS (-9.5, 2.400392, -15.28306)",
+    "MOONBASE_CHECK_PASS {\"frames\":10151,\"max_ms\":38.285,\"p50_ms\":5.436,\"p95_ms\":7.876,\"p99_ms\":8.969}"
+  ],
+  "stress": [
+    "MOONBASE_RAMP_PASS (-9.5, 2.400392, -15.28306)",
+    "MOONBASE_CHECK_PASS {\"frames\":10515,\"max_ms\":38.772,\"p50_ms\":5.242,\"p95_ms\":7.659,\"p99_ms\":8.795}"
+  ],
+  "legacy-aim": [
+    "AIM_SIGHTS_PASS: rear aperture and front post sit on the shot point for desktop and touch"
+  ],
+  "legacy-grenade": [
+    "GRENADE_PASS: three styles, release stock, fuse pause, travel and wall bounce, death/respawn, empty, finale, cover and floor, self damage, barrel and toilet chains, frenzy scenery"
+  ],
+  "export": [
+    "MOONBASE_EXPORT_PASS {\"pck_bytes\": 75484808, \"packed_resources\": 791, \"sessions\": [\"data/sessions/moonbase_trial.tres.remap\"], \"maps\": [\"scenes/maps/moonbase_trial.tscn.remap\"], \"note\": \"Common legacy character/UI/FX dependencies remain until replacement; no original map geometry or sessions.\"}"
+  ],
+  "touch": {
+    "viewport": [
+      844,
+      390
+    ],
+    "state": "RUNNING",
+    "errors": [],
+    "evidence": {
+      "moveAndFire": true,
+      "reload": true,
+      "grenade": true
+    },
+    "checks": [
+      "start",
+      "simultaneous joystick and fire gestures",
+      "reload",
+      "ADS state",
+      "grenade gesture",
+      "pause",
+      "touch resume"
+    ],
+    "note": "Desktop Chrome touch emulation; not a physical iOS/Android performance result."
+  },
+  "web": [
+    "moonbase entry",
+    "comedy hidden",
+    "start",
+    "fire/reload",
+    "full round",
+    "results",
+    "retry",
+    "pause"
+  ],
+  "base_commit": "db53cec",
+  "additional_tripo_credits": 0,
+  "tested_source_sha256": {
+    "scripts/player.gd": "773019efc2e301a2600feeeebf641cc874a423fee25dcced7ccb1e03ff3d9c19",
+    "scripts/hud.gd": "ae028dcac02a2ae4827baf95c6df4db6cd8398287342d4944becd2d1b4effe0b",
+    "scripts/game.gd": "fd3e930cdd4e3a59d960ca21de57027c644711720ea36c5db496fac47ab6bb8a",
+    "scripts/grenade.gd": "71ab2b88be52043b82145eded0a5fd22b23f69688886be6867f1d9244a8feb96",
+    "scripts/maps/moonbase.gd": "d3b46608e916124d1acdb2c354635e8820bf21e2e58db89211c31451ab155bb2",
+    "scenes/maps/moonbase_trial.tscn": "7f52e757b22e98b3663d09ed85082771dbbd1eaf706b40aa4710d4ab4e45b9fe",
+    "data/moonbase_visuals.tres": "980a92a207217b776026d51529df0fdb85315c219542a3889ef93d67c91cfde4",
+    "data/sessions/moonbase_trial.tres": "7e5c9c4d6fd77de8759b39fff036f5fe183270e825fe0ce4608414c25f5fb841"
+  },
+  "ui_audio": {
+    "font_missing_characters": [],
+    "digit_advance_widths": [
+      578,
+      578,
+      578,
+      578,
+      578,
+      578,
+      578,
+      578,
+      578,
+      578
+    ],
+    "audio": {
+      "cartridge_insert.wav": {
+        "duration_s": 0.08,
+        "sample_rate": 22050,
+        "peak_pcm": 10022
+      },
+      "charge.wav": {
+        "duration_s": 0.4,
+        "sample_rate": 22050,
+        "peak_pcm": 18524
+      },
+      "enemy_raise.wav": {
+        "duration_s": 0.32,
+        "sample_rate": 22050,
+        "peak_pcm": 15229
+      },
+      "explosion.wav": {
+        "duration_s": 0.8,
+        "sample_rate": 22050,
+        "peak_pcm": 26868
+      },
+      "headshot.wav": {
+        "duration_s": 0.28,
+        "sample_rate": 22050,
+        "peak_pcm": 14536
+      },
+      "hit.wav": {
+        "duration_s": 0.1,
+        "sample_rate": 22050,
+        "peak_pcm": 14060
+      },
+      "lunar-round.wav": {
+        "duration_s": 60,
+        "sample_rate": 22050,
+        "peak_pcm": 8925
+      },
+      "magazine_latch.wav": {
+        "duration_s": 0.12,
+        "sample_rate": 22050,
+        "peak_pcm": 12307
+      },
+      "moon_step.wav": {
+        "duration_s": 0.18,
+        "sample_rate": 22050,
+        "peak_pcm": 16722
+      },
+      "prop_metal.wav": {
+        "duration_s": 0.24,
+        "sample_rate": 22050,
+        "peak_pcm": 16693
+      },
+      "reload.wav": {
+        "duration_s": 0.34997732426303857,
+        "sample_rate": 22050,
+        "peak_pcm": 12824
+      },
+      "shot.wav": {
+        "duration_s": 0.22,
+        "sample_rate": 22050,
+        "peak_pcm": 26868
+      },
+      "tick.wav": {
+        "duration_s": 0.08,
+        "sample_rate": 22050,
+        "peak_pcm": 11131
+      }
+    },
+    "note": "Glyph coverage and file integrity, not a listening or physical-device test."
+  },
+  "review_page": {
+    "viewport_widths": [
+      1440,
+      390
+    ],
+    "images_decoded": 15,
+    "links_checked": 9,
+    "horizontal_overflow": false,
+    "slider_keyboard": true
+  }
+}

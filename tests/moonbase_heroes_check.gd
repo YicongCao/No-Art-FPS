@@ -1,6 +1,6 @@
 extends SceneTree
 var game: Node3D
-const OUT = "res://docs/art/space/review-b/"
+var OUT = "res://docs/art/space/review-d/" if "--review-d" in OS.get_cmdline_user_args() else "res://docs/art/space/review-b/"
 func _initialize():run.call_deferred()
 func pose(at: Vector3, target: Vector3):
  game.player.position=at
@@ -74,6 +74,18 @@ func run():
  assert(game.player.magazine.position.distance_to(game.player.magazine_origin)>.2)
  game.reload_time=0
  await process_frame
+ if "--review-d" in OS.get_cmdline_user_args():
+  assert(game.sounds["shot"].resource_path.contains("/space/"))
+  assert(game.session.round_music.resource_path.ends_with("lunar-round.wav"))
+  assert(game.hud.font.has_char("月".unicode_at(0)))
+  game.request_grenade();game.grenade_throw_time=game.GRENADE_WINDUP-.06
+  game.player.animate_grenade_throw()
+  assert(game.player.held_grenade.visible)
+  await shot("grenade")
+  game.clear_grenades()
+  var kills=game.rules.kills;game.rules.kills=999
+  await shot("hud-999");game.rules.kills=kills
+
  var target=actors[0].global_position+Vector3.UP*1.70
  pose(Vector3(3,.05,3),target)
  game.player.crosshair_offset=Vector2.ZERO;game.fire_time=0;game.ammo=20
@@ -85,7 +97,7 @@ func run():
  game.set_destroy_active(true);game.rules.elapsed=46
  game.fire_time=0;game.shoot()
  await shot("frenzy")
- FileAccess.open(OUT+"interaction-check.json",FileAccess.WRITE).store_string(JSON.stringify({"checks":["navigation","hero profile","named rigid pivots","melee blade socket","windup warning / slash / recover","moving articulated actors","rifle socket","ADS projected error <2px","magazine motion","real bullet headshot","helmet removal","frenzy render"],"ads_error_pixels":projected.distance_to(center),"note":"Scripted native visual check; full-round timing is tested separately."},"  "))
+ FileAccess.open(OUT+("heroes-interaction-check.json" if "--review-d" in OS.get_cmdline_user_args() else "interaction-check.json"),FileAccess.WRITE).store_string(JSON.stringify({"checks":["navigation","hero profile","named rigid pivots","melee blade socket","windup warning / slash / recover","moving articulated actors","rifle socket","ADS projected error <2px","magazine motion","real bullet headshot","helmet removal","frenzy render"],"ads_error_pixels":projected.distance_to(center),"note":"Scripted native visual check; full-round timing is tested separately."},"  "))
  print("MOONBASE_HEROES_PASS ADS_error=",projected.distance_to(center))
  game.clear_round();game.queue_free()
  for i in 3:await process_frame

@@ -1,0 +1,110 @@
+{
+  "comedy.svg": {
+    "bytes": 371,
+    "sha256": "cb6b3841a9e75ef44f5d221c41da77801d6f937ff8755bd3fbed774310bde125"
+  },
+  "index.wasm": {
+    "bytes": 39514754,
+    "sha256": "fc74679e3b97f76878947fcd4fbe1268cbfa6188182a2e33bbc3f5dc9bfa57d0"
+  },
+  "gyro-setup.js": {
+    "bytes": 10560,
+    "sha256": "69acfe5c237c941a2a590ad24c6f999aa8770c2b3b7a19cf6c1dcde8065bde5a"
+  },
+  "FONT-LICENSE.txt": {
+    "bytes": 4373,
+    "sha256": "f62ef357d3a1c3d27edd35a6e1ba350e8a8d13499797964eeadefbf0b3b15d1f"
+  },
+  "index.html": {
+    "bytes": 48207,
+    "sha256": "a761239f049469525c900c2fb3b9d5de2f71014d5b81011809d93cdf31c7a1c4"
+  },
+  "Oxanium-OFL.txt": {
+    "bytes": 4384,
+    "sha256": "fe17c0f2581d71b4e1ea7e636e7f4877c29223e11bb1dd1a871e8c3f2a86336b"
+  },
+  "GlowSans-LICENSE.txt": {
+    "bytes": 4339,
+    "sha256": "0e6528c4501c23408fc6393ab2df6436d34c65cad95a9ec57c2ed3a5f60b2aa0"
+  },
+  "Oxanium.woff2": {
+    "bytes": 4868,
+    "sha256": "474d62c5ab4e2e2f905500bcacc8b9dcc52d3b6b679e8acbec5293bbba4b840d"
+  },
+  "index.audio.worklet.js": {
+    "bytes": 7298,
+    "sha256": "5b476a9c9ce642c0ee4256436d1bc31d9c38f868aca0f9a8e2a57c18d2dec2a3"
+  },
+  "Rajdhani-Bold.woff2": {
+    "bytes": 8672,
+    "sha256": "9491d1dc605e381694cd58dea31c5517d639c253e1fd76808fc8089601f197de"
+  },
+  "roach.svg": {
+    "bytes": 553,
+    "sha256": "18652eed23100ac32db0f357ee2eb15b61c6f48927f0cbe9cf38656b0b285d17"
+  },
+  "icon.svg": {
+    "bytes": 220,
+    "sha256": "f29ebf950accae99d9fb5487e8aca3267f6d8dc1a5edf9f382e1151a23e756c4"
+  },
+  "index.js": {
+    "bytes": 279815,
+    "sha256": "33c94cb3175f3333b82e2a3be5e8e86f77986f0aa2042b1631f6367a4e5bb6ba"
+  },
+  "NotoSansSC.woff2": {
+    "bytes": 161608,
+    "sha256": "f22789af8f85aa40615a3b3e5fa59430de68e6c2dbe40caadd183c6bcba1c154"
+  },
+  "GlowSansSC-UI.woff2": {
+    "bytes": 43544,
+    "sha256": "049231dcfa9c575919bd4a9101c20da5fcabc95ca0d2e43cb9ab386394f60cb0"
+  },
+  "index.audio.position.worklet.js": {
+    "bytes": 2973,
+    "sha256": "be33985bc7160d6bf9646f259cd86b259cd67b02ccb297ee5c44f8ac84327bc8"
+  },
+  "stink-bomb.svg": {
+    "bytes": 335,
+    "sha256": "80ca3ac966f872b5a95fc79a0905dd46255d7bcc7d5fde0f1c43c29f48a74f82"
+  },
+  "gyro.js": {
+    "bytes": 10139,
+    "sha256": "237f928b70aa57f9205b31e90bf39e1224b4476d3cc563fdf7cd24a0404c728f"
+  },
+  "roach-bomb.svg": {
+    "bytes": 388,
+    "sha256": "4ff6b933d7643851fa02fc6404ebda359c571f8f9649e92e146203a146688e1f"
+  },
+  "title-background.webp": {
+    "bytes": 649118,
+    "sha256": "8d8f1d3fd0d4f29ef6c7dca277d986e832f91aae23ac1a87fb52a1ef3a3127aa"
+  },
+  "LUNAR-AUDIO-SOURCE.txt": {
+    "bytes": 119,
+    "sha256": "502171e8c7f826c094766966da909b678efec2d5a897f415d659e4a342308dee"
+  },
+  "frag-grenade.svg": {
+    "bytes": 378,
+    "sha256": "94772dae17df61743013bb6a5dbf7441ee4dae9df05be7fd9cb394c99014cecb"
+  },
+  "index.pck": {
+    "bytes": 75484808,
+    "sha256": "17a460066f2cd3fc89ac8709453260c4e21a7532942a54dca34a6e771c527db2"
+  },
+  "GODOT-COPYRIGHT.txt": {
+    "bytes": 100108,
+    "sha256": "cb1980c88089573bcacd7221d777c689bb8bbd778799f24c27fca0fe5f774d6d"
+  },
+  "locale.js": {
+    "bytes": 7749,
+    "sha256": "64e64562fdb2cb4dfcdf9beffbe322d3d546ad887c1d3be91c7972a78827b912"
+  },
+  "NotoSansCJK-OFL.txt": {
+    "bytes": 4301,
+    "sha256": "6a73f9541c2de74158c0e7cf6b0a58ef774f5a780bf191f2d7ec9cc53efe2bf2"
+  },
+  "GODOT-LICENSE.txt": {
+    "bytes": 1149,
+    "sha256": "b0435e3b3e4e55238f05f4b306f30524a1b2e20147810d436eaa554fa6855c80"
+  }
+}

@@ -4,13 +4,13 @@ from pathlib import Path
 import subprocess, json, shutil, struct, hashlib, os, re, argparse
 ROOT=Path(__file__).resolve().parents[1]
 GODOT=os.environ.get('GODOT_BIN','/Applications/Godot.app/Contents/MacOS/Godot')
-parser=argparse.ArgumentParser();parser.add_argument('--review',choices=['a','b','c'],default='c');args=parser.parse_args()
+parser=argparse.ArgumentParser();parser.add_argument('--review',choices=['a','b','c','d'],default='d');args=parser.parse_args()
 REVIEW=ROOT/('docs/art/space/review-'+args.review)
 OUT=ROOT/'builds/moonbase'; OUT.mkdir(parents=True,exist_ok=True)
 # Godot's selected-resource export does not discover every GDScript preload.
 # Build an explicit transitive source manifest, including lazy core resources.
 files={'scenes/moonbase.tscn','scripts/game.gd','scripts/maps/moonbase.gd','data/sessions/moonbase_trial.tres'}
-for folder, pattern in [('assets/audio','*.wav'),('assets/models/toy','*.glb'),('assets/models/space','*.glb'),('assets/fonts','*')]:
+for folder, pattern in [('assets/audio/space','*.wav'),('assets/fonts/space','*'),('assets/audio','*.wav'),('assets/models/toy','*.glb'),('assets/models/space','*.glb'),('assets/fonts','*')]:
  files.update(str(p.relative_to(ROOT)) for p in (ROOT/folder).glob(pattern) if p.is_file() and p.suffix not in ['.import','.txt'])
 queue=list(files);visited=set()
 while queue:
@@ -40,7 +40,16 @@ for src,dst in [('assets/fonts/OFL.txt','FONT-LICENSE.txt'),('assets/fonts/GlowS
 opening=REVIEW/'title-background.webp'
 if opening.exists():shutil.copy2(opening,OUT/'title-background.webp')
 html=(OUT/'index.html').read_text().replace('<title>NO ART FPS</title>','<title>Moonbase Trial</title>')
-html=html.replace('<body','<body class="moonbase"',1)
+if args.review=='d':
+ for p in (ROOT/'assets/fonts/space').glob('*.woff2'):shutil.copy2(p,OUT/p.name)
+ for p in (ROOT/'assets/fonts/space').glob('*OFL.txt'):shutil.copy2(p,OUT/p.name)
+ shutil.copy2(ROOT/'assets/ui/space-grenade.svg',OUT/'frag-grenade.svg')
+ shutil.copy2(ROOT/'assets/audio/space/SOURCE.txt',OUT/'LUNAR-AUDIO-SOURCE.txt')
+ css="<style>@font-face{font-family:SpaceDigits;src:url('Oxanium.woff2')}@font-face{font-family:SpaceChinese;src:url('NotoSansSC.woff2')}body.moonbase,body.moonbase button{font-family:SpaceDigits,SpaceChinese,sans-serif!important}body.moonbase #loader-scene{font-family:SpaceDigits,sans-serif}</style>"
+ html=html.replace('</head>',css+'</head>')
+ html=html.replace('>NO</text>','>LUNAR</text>').replace('>ART</text>','>OUTPOST</text>').replace('>FPS</text>','></text>')
+ html=html.replace("mobile?106:160","mobile?56:88").replace("mobile?100:150","mobile?64:100").replace('#754c87','#c86636')
+html=html.replace('<body' ,'<body class="moonbase"',1)
 html=html.replace('no-art-fps.title.v1','moonbase-trial.title.v1')
 (OUT/'index.html').write_text(html)
 for name in ['index.png','index.png.import','icon.svg.import']:(OUT/name).unlink(missing_ok=True)

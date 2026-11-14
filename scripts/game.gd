@@ -286,7 +286,9 @@ func _ready() -> void:
 	achievements.unlocked.connect(hud.queue_badge_toast)
 	achievements.changed.connect(queue_progress_save)
 	for key in ["shot","hit","kill","headshot","reload","hurt","tick","end","fuse","explosion","charge","cartridge_insert","magazine_latch","comedy_plop","roach_buzz","water_shot","slipper_shot","roach_grenade","enemy_raise","hit_impact","whiz","prop_ceramic","prop_wood","prop_glass","prop_metal","prop_paper","prop_soft","prop_soil"]:
-		sounds[key] = load("res://assets/audio/"+key+".wav")
+		var space_audio = "res://assets/audio/space/"+key+".wav"
+		sounds[key] = load(space_audio if is_moonbase() and ResourceLoader.exists(space_audio) else "res://assets/audio/"+key+".wav")
+	if is_moonbase():sounds["moon_step"]=load("res://assets/audio/space/moon_step.wav")
 	for i in range(12):
 		var voice = AudioStreamPlayer.new()
 		add_child(voice)
@@ -369,6 +371,7 @@ func set_destroy_active(active: bool) -> void:
 	if destroy_active==active:return
 	destroy_active = active
 	arena.set_destroy_lighting(active)
+	if is_instance_valid(player):player.set_space_overload(active)
 	if arena.map_id=="yard":
 		world_environment.environment = destroy_yard_environment if active else daylight_environment
 		if OS.has_feature("web"):

@@ -1,0 +1,210 @@
+{
+  "supply-case.glb": {
+    "bytes": 874456,
+    "meshes": 10,
+    "materials": 4,
+    "images": 9,
+    "triangles_without_lod": 1852,
+    "sha256": "87bb1c961efc0ad44d06273f85e3047a63378e18feb6cdc0f70739bc0c5a41c6"
+  },
+  "lunar-grenade.glb": {
+    "bytes": 869904,
+    "meshes": 5,
+    "materials": 5,
+    "images": 9,
+    "triangles_without_lod": 1632,
+    "sha256": "da0117460615a995e6b25db44f4c8b42450287493bbd1121b915b4d93ce0794d"
+  },
+  "base.glb": {
+    "bytes": 4749636,
+    "meshes": 3,
+    "materials": 3,
+    "images": 5,
+    "triangles_without_lod": 18757,
+    "sha256": "ea60f7bcc13e9c823a5759d969c1bc1ec2d79a51e4cc56f1b3b2f2ee6b15cf68"
+  },
+  "control-console.glb": {
+    "bytes": 1068740,
+    "meshes": 16,
+    "materials": 6,
+    "images": 11,
+    "triangles_without_lod": 2500,
+    "sha256": "5368b17828c57de1f3509015c15c68833311b36a2beb002598704fc8504f4da3"
+  },
+  "landing-lamp.glb": {
+    "bytes": 457116,
+    "meshes": 3,
+    "materials": 3,
+    "images": 5,
+    "triangles_without_lod": 432,
+    "sha256": "8e6b82720d7f6dd9fa79baeb4a6ce6428cec3c6a774f5e1ec1310474890231a4"
+  },
+  "mech-rifle.glb": {
+    "bytes": 553712,
+    "meshes": 13,
+    "materials": 6,
+    "images": 0,
+    "triangles_without_lod": 9788,
+    "sha256": "c10cf21f99532ef558898b44a67994ca8cef9f2063e627d21bca7e064171d500"
+  },
+  "oxygen-reservoir.glb": {
+    "bytes": 832408,
+    "meshes": 3,
+    "materials": 3,
+    "images": 7,
+    "triangles_without_lod": 5912,
+    "sha256": "a097537ef305f7eb3b3e4bf97a17dce422c6de1ee8bbdf2a42c36191b5adda18"
+  },
+  "ion-rifle.glb": {
+    "bytes": 1657168,
+    "meshes": 19,
+    "materials": 6,
+    "images": 11,
+    "triangles_without_lod": 12540,
+    "sha256": "e48ccf1fdf907fe82c6439c8ef5727c77f0ed457026c4b870037af055403d412"
+  },
+  "solar-array.glb": {
+    "bytes": 683620,
+    "meshes": 3,
+    "materials": 3,
+    "images": 7,
+    "triangles_without_lod": 1732,
+    "sha256": "e89da501481061093285f58997478a8d78dd3a5b26de47faef379fff805a7519"
+  },
+  "rock-2.glb": {
+    "bytes": 284312,
+    "meshes": 1,
+    "materials": 1,
+    "images": 3,
+    "triangles_without_lod": 320,
+    "sha256": "2def9fd148d7a899b84fbbac9242b3c314eef5bc6549b4c5e78f209041fee83f"
+  },
+  "rock-3.glb": {
+    "bytes": 284184,
+    "meshes": 1,
+    "materials": 1,
+    "images": 3,
+    "triangles_without_lod": 320,
+    "sha256": "d00a4603339d029963399516d891b8724e80f7247adc7c80b24834f469a6939e"
+  },
+  "lunar-terrain.glb": {
+    "bytes": 2038428,
+    "meshes": 1,
+    "materials": 1,
+    "images": 1,
+    "triangles_without_lod": 76480,
+    "sha256": "3c891e22dbfabb34524e77fe4e88789ed4c0ef3a860e65490f6d64f32bfd00db"
+  },
+  "rock-1.glb": {
+    "bytes": 284584,
+    "meshes": 1,
+    "materials": 1,
+    "images": 3,
+    "triangles_without_lod": 320,
+    "sha256": "ce08b6f69bc1686e01893baf1422073bf0ab071319bb21de87cba86124165b57"
+  },
+  "rock-0.glb": {
+    "bytes": 284500,
+    "meshes": 1,
+    "materials": 1,
+    "images": 3,
+    "triangles_without_lod": 320,
+    "sha256": "31f6b027b2e9a513dabc0f3ff1113eba89945065c2757fd6e2e141820840507e"
+  },
+  "industrial.glb": {
+    "bytes": 958404,
+    "meshes": 5,
+    "materials": 5,
+    "images": 9,
+    "triangles_without_lod": 4272,
+    "sha256": "e50707df5293f32aad0134d7bcfaa92500ff72a10296e4d1d05f243f3ebfbe35"
+  },
+  "perimeter-wall.glb": {
+    "bytes": 655512,
+    "meshes": 3,
+    "materials": 3,
+    "images": 7,
+    "triangles_without_lod": 648,
+    "sha256": "855afc3587f7b96e7adbc82dbcce909d5965cb0605b687b60130eab5d30579c5"
+  },
+  "interceptor.glb": {
+    "bytes": 8317072,
+    "meshes": 25,
+    "materials": 6,
+    "images": 3,
+    "triangles_without_lod": 29132,
+    "sha256": "17fa14dc7aeb00a6967a6f548990c7ac34e9662a8732632e4fc59cb6cb799ab8"
+  },
+  "pressure-valves.glb": {
+    "bytes": 936172,
+    "meshes": 14,
+    "materials": 4,
+    "images": 9,
+    "triangles_without_lod": 3480,
+    "sha256": "b7161f8bf89d59e88ab36c5b34213aae14e727df4c76cf5d5eed4c79f64bf704"
+  },
+  "assault-mech.glb": {
+    "bytes": 7799552,
+    "meshes": 26,
+    "materials": 5,
+    "images": 3,
+    "triangles_without_lod": 21059,
+    "sha256": "62900936e136cb72f30126ddbae03198758684d6ee2abeb2472074e6b237dd06"
+  },
+  "crate.glb": {
+    "bytes": 107704,
+    "meshes": 2,
+    "materials": 2,
+    "images": 2,
+    "triangles_without_lod": 1512,
+    "sha256": "d2aa2924f57baf0f11ddef42e0745785f8574d1e53089a0b03dfc45ea00ed5bb"
+  },
+  "service-station.glb": {
+    "bytes": 1853492,
+    "meshes": 7,
+    "materials": 7,
+    "images": 11,
+    "triangles_without_lod": 16768,
+    "sha256": "32913d1f2a3d2118b95cd0b3346d667b8f6dbfc0ae61c005846bdb2f835a2c13"
+  },
+  "oxygen.glb": {
+    "bytes": 859640,
+    "meshes": 5,
+    "materials": 5,
+    "images": 9,
+    "triangles_without_lod": 2028,
+    "sha256": "fa6b9a2a0265e179ebdfc2d28c7936b23da162e9eac166f13a0629eb510012f9"
+  },
+  "cargo-crate.glb": {
+    "bytes": 1231328,
+    "meshes": 5,
+    "materials": 5,
+    "images": 11,
+    "triangles_without_lod": 5500,
+    "sha256": "161f660a4f9b231f57c280489cbdfc0986929b5d221fe9a72487eed87045beee"
+  },
+  "rifle-mech.glb": {
+    "bytes": 9142524,
+    "meshes": 36,
+    "materials": 10,
+    "images": 3,
+    "triangles_without_lod": 29055,
+    "sha256": "605b890410b691864b32aadde242354f9b79a5461f6de765cc8a223ee2547d69"
+  },
+  "lunar-glove.glb": {
+    "bytes": 886056,
+    "meshes": 4,
+    "materials": 4,
+    "images": 9,
+    "triangles_without_lod": 1916,
+    "sha256": "d2bb8bd8edf577c29f249f9695e14bf4c4b640faca905b8c9a646bd9fd141e57"
+  },
+  "battery-rack.glb": {
+    "bytes": 920492,
+    "meshes": 16,
+    "materials": 5,
+    "images": 9,
+    "triangles_without_lod": 2500,
+    "sha256": "8e9e10f71a127c8e3bce8ece8a66ec2390c61d23c8b02d7965a373d68c3ac737"
+  }
+}

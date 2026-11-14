@@ -91,26 +91,10 @@ func build() -> void:
 	cyan.emission = Color("70cfdf")
 	cyan.emission_energy_multiplier = 1.3
 	if not grey:
-		# Generate once at authoring time, never run noise per pixel in the game.
-		var noise = FastNoiseLite.new()
-		noise.seed = 61105
-		noise.frequency = .035
-		noise.fractal_octaves = 4
-		var image = noise.get_seamless_image(512,512,false,false)
-		image.save_png("res://assets/models/space/regolith-height.png")
-		var normal = image.duplicate()
-		normal.bump_map_to_normal_map(.8)
-		normal.save_png("res://assets/models/space/regolith-normal.png")
-		for y in image.get_height():
-			for x in image.get_width():
-				var value = .82+image.get_pixel(x,y).r*.14
-				image.set_pixel(x,y,Color(value,value,value))
-		image.generate_mipmaps()
-		normal.generate_mipmaps()
-		ground.albedo_texture = ImageTexture.create_from_image(image)
+		ground.albedo_texture = load("res://assets/models/space/regolith-detail.png")
 		ground.normal_enabled = true
-		ground.normal_texture = ImageTexture.create_from_image(normal)
-		ground.normal_scale = .28
+		ground.normal_texture = load("res://assets/models/space/regolith-detail-normal.png")
+		ground.normal_scale = .65
 		ground.uv1_scale = Vector3(22,24,1)
 	box(Vector3(0,-.25,0),Vector3(44,.5,48),ground)
 	# Physical boundary is separate from the horizon artwork.
@@ -202,6 +186,8 @@ func build() -> void:
 		model("lunar-terrain",Vector3.ZERO)
 		dress_environment()
 		add_orbital_backdrop()
+		finish_contacts()
+		exterior_glazing()
 		for i in 500:
 			var mesh = SphereMesh.new();mesh.radial_segments=5;mesh.rings=2
 			var at = Vector3(rng.randf_range(-21,21),-.04,rng.randf_range(-23,23))
@@ -309,3 +295,38 @@ func add_orbital_backdrop() -> void:
 	var sphere=SphereMesh.new();sphere.radius=5.6;sphere.height=11.2;sphere.radial_segments=48;sphere.rings=24
 	var planet=MeshInstance3D.new();planet.mesh=sphere;planet.material_override=paint;planet.position=Vector3(-28,34,-105);planet.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add(arena,planet,"OrbitalPlanet")
+
+func finish_contacts() -> void:
+	var image=Image.create(128,128,false,Image.FORMAT_RGBA8)
+	for y in 128:
+		for x in 128:
+			var radius=Vector2((x-63.5)/63.5,(y-63.5)/63.5).length()
+			image.set_pixel(x,y,Color(.035,.042,.055,pow(maxf(0,1-radius),2)*.30))
+	var paint=StandardMaterial3D.new();paint.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA;paint.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED;paint.albedo_texture=ImageTexture.create_from_image(image);paint.depth_draw_mode=BaseMaterial3D.DEPTH_DRAW_DISABLED
+	for spec in [[Vector3(4,.008,-18),Vector2(16,11)],[Vector3(10,.009,16),Vector2(7,6)],[Vector3(16,.008,-12),Vector2(6,5)],[Vector3(-13,.208,2),Vector2(9,8)]]:
+		var plane=PlaneMesh.new();plane.size=spec[1]
+		var contact=MeshInstance3D.new();contact.mesh=plane;contact.material_override=paint;contact.position=spec[0];contact.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF;add(arena,contact,"StaticContact")
+	for i in 14:
+		var angle=TAU*i/14.0+.12
+		var at=Vector3(cos(angle)*27,0,sin(angle)*29)
+		var stone=model("rock-"+str(i%4),at,angle)
+		stone.scale=Vector3(1.5,1.1,1.8)*(1+float(i%3)*.5)
+	for i in 6:
+		var at=[Vector3(-19,0,8),Vector3(-18,0,-15),Vector3(20.5,0,13),Vector3(18,0,-19),Vector3(-2,0,21),Vector3(20,0,-1)][i]
+		var stone=model("rock-"+str(i%4),at,float(i))
+		stone.scale=Vector3(.55,.45,.7)
+		body(at+Vector3.UP*.22,Vector3(.8,.44,.9))
+	for at in [Vector3(5,2.8,-14.7),Vector3(10,2.8,13.6),Vector3(15,4,-11)]:
+		var light=OmniLight3D.new();light.position=at;light.light_color=Color("f88535");light.light_energy=0;light.omni_range=4;light.shadow_enabled=false;light.light_cull_mask=1;add(arena,light,"OverloadLight")
+
+func exterior_glazing() -> void:
+	# Opaque coated glass closes the exterior; no interior geometry or extra render pass.
+	var glass=mat("coated_glass","183440",.45,.32)
+	for spec in [[Vector3(1.05,2.55,-16.12),Vector2(4.3,1.32)],[Vector3(.8,5.60,-16.12),Vector2(3.2,.85)],[Vector3(6.65,5.60,-16.12),Vector2(3.2,.85)]]:
+		var center: Vector3=spec[0];var half: Vector2=spec[1]*.5;var cut=.15
+		var points=[Vector2(-half.x+cut,-half.y),Vector2(half.x-cut,-half.y),Vector2(half.x,-half.y+cut),Vector2(half.x,half.y-cut),Vector2(half.x-cut,half.y),Vector2(-half.x+cut,half.y),Vector2(-half.x,half.y-cut),Vector2(-half.x,-half.y+cut)]
+		var surface=SurfaceTool.new();surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+		for i in 8:
+			for p in [Vector2.ZERO,points[(i+1)%8],points[i]]:
+				surface.set_normal(Vector3(0,0,1));surface.add_vertex(center+Vector3(p.x,p.y,0))
+		var mesh=MeshInstance3D.new();mesh.mesh=surface.commit();mesh.material_override=glass;add(arena,mesh,"ExteriorGlazing")

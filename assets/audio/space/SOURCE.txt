@@ -1,0 +1,1 @@
+Original deterministic synthesis by art_source/space/finish/build_ui_audio.py. No external samples. 22050 Hz mono PCM.

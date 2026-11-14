@@ -114,6 +114,7 @@ var map_touch_scroll := 0
 var map_touch_dragged := false
 const TOP_HUD_SCALE = 1.5
 const TITLE_SHADE_OPACITY = .55
+var space_grenade_icon: Texture2D
 const FIRE_PURPLE = Color("754c87")
 const FIRE_PROGRESS_TRACK = Color("452d53")
 const WHITE = Color("fff8e8")
@@ -210,6 +211,9 @@ func draw_grenade_icon(icon: Texture2D, extent: float, tint: Color = Color.WHITE
 	if not game.touch_mode:draw_texture_rect(GRENADE_KEY_G,rect,false,tint)
 
 func draw_grenade_stock() -> void:
+	if game.is_moonbase():
+		for i in game.grenade_stock:draw_texture_rect(space_grenade_icon,grenade_stock_rect(i).grow(-6),false)
+		return
 	if game.rules.mission:return
 	var stock: int = game.grenade_stock
 	var icon = GRENADE_ICONS[game.comedy_mode]
@@ -252,6 +256,9 @@ func draw_round(region: Rect2, center: Vector2, extent: Vector2, angle: float = 
 	draw_set_transform(Vector2.ZERO)
 
 func draw_magazine() -> void:
+	if game.is_moonbase():
+		draw_space_ammo()
+		return
 	var count = clampi(game.ammo,0,game.MAGAZINE_SIZE)
 	var shift = 16*feed_shift/FEED_TIME
 	var incoming = 0.0
@@ -411,8 +418,10 @@ func _ready() -> void:
 			if args.size()==1 and str(args[0]) in ["comedy","roach"]:game.menu_action(str(args[0])))
 		browser.noArtToggleComedy = web_comedy_callback
 		JavaScriptBridge.eval("window.noArtSyncTitleLayout?.()")
-	font = preload("res://assets/fonts/Rajdhani-Bold.ttf")
-	font.fallbacks = [preload("res://assets/fonts/GlowSansSC-UI.otf")]
+	font = load("res://assets/fonts/space/Oxanium.ttf") if game.is_moonbase() else preload("res://assets/fonts/Rajdhani-Bold.ttf")
+	if game.is_moonbase():space_grenade_icon=load("res://assets/ui/space-grenade.svg")
+	font = font.duplicate()
+	font.fallbacks = [load("res://assets/fonts/space/NotoSansSC.otf") if game.is_moonbase() else preload("res://assets/fonts/GlowSansSC-UI.otf")]
 	theme = Theme.new()
 	theme.default_font = font
 	vignette = ColorRect.new()
@@ -876,7 +885,7 @@ func rebuild_menu() -> void:
 			fire_button.add_theme_color_override(color_name,Color.WHITE)
 		for style_name in ["normal","hover","pressed","focus"]:
 			var style = StyleBoxFlat.new()
-			style.bg_color = FIRE_PURPLE
+			style.bg_color = Color("c86636") if game.is_moonbase() else FIRE_PURPLE
 			if style_name=="hover":style.bg_color = style.bg_color.lightened(.12)
 			if style_name=="pressed":style.bg_color = style.bg_color.darkened(.14)
 			if style_name=="focus":
@@ -897,7 +906,7 @@ func rebuild_menu() -> void:
 			var track = StyleBoxFlat.new()
 			track.bg_color = FIRE_PROGRESS_TRACK
 			var fill = StyleBoxFlat.new()
-			fill.bg_color = FIRE_PURPLE
+			fill.bg_color = Color("c86636") if game.is_moonbase() else FIRE_PURPLE
 			fire_progress.add_theme_stylebox_override("background",track)
 			fire_progress.add_theme_stylebox_override("fill",fill)
 			fire_button.add_child(fire_progress)
@@ -1240,7 +1249,14 @@ func _draw() -> void:
 		var fed = game.loading.rounds
 		var count = mini(20,int(fed))
 		var incoming = smoothstep(0,1,fmod(fed,1.0)) if count<20 else 0.0
-		draw_magazine_body(loading_magazine_rect(),count,16*incoming,incoming)
+		if game.is_moonbase():
+			var area=loading_magazine_rect()
+			for i in 20:draw_rect(Rect2(area.position+Vector2(i*area.size.x/20,area.size.y*.4),Vector2(area.size.x/20-3,8)),Color("70d4dc") if i<count else Color("343d47"))
+		else:draw_magazine_body(loading_magazine_rect(),count,16*incoming,incoming)
+		return
+	if state == "TITLE" and game.is_moonbase():
+		label("LUNAR",Vector2(36,110),72,Color.WHITE)
+		label("OUTPOST",Vector2(36,174),56,Color.WHITE)
 		return
 	if state == "TITLE":
 		var gutters = title_gutters()
@@ -1429,6 +1445,9 @@ func draw_side_aim_warnings() -> void:
 		draw_set_transform(Vector2.ZERO)
 
 func draw_top_summary() -> void:
+	if game.is_moonbase():
+		draw_space_summary()
+		return
 	var origin = Vector2(size.x*.5,0)
 	var scale = Vector2.ONE*TOP_HUD_SCALE
 	draw_set_transform(origin,0,scale)
@@ -1547,3 +1566,29 @@ func draw_headshot_confirm(center: Vector2) -> void:
 		draw_line(start,end,Color(INK,fade),5*ui_scale,true)
 		draw_line(start,end,Color(GOLD,fade),3*ui_scale,true)
 		draw_line(start,start.lerp(end,.55),Color(WHITE,fade),1.5*ui_scale,true)
+
+func draw_space_summary() -> void:
+	var seconds=ceili(game.rules.remaining())
+	var timer="%02d:%02d"%[seconds/60,seconds%60]
+	var score="%02d"%game.rules.kills
+	var fs=26 if game.touch_mode else 36
+	var a=font.get_string_size(timer,HORIZONTAL_ALIGNMENT_LEFT,-1,fs).x
+	var b=font.get_string_size(score,HORIZONTAL_ALIGNMENT_LEFT,-1,fs).x
+	var x=(size.x-a-b-40)*.5
+	var y=42.0 if game.touch_mode else 52.0
+	label(timer,Vector2(x,y),fs,Color("ff915c") if seconds<=10 else Color.WHITE)
+	draw_line(Vector2(x+a+20,y-fs*.8),Vector2(x+a+20,y+3),Color("ed6b37"),2)
+	label(score,Vector2(x+a+40,y),fs,Color("ffb06a") if kill_pop>0 else Color.WHITE)
+
+func draw_space_ammo() -> void:
+	var body=magazine_rect()
+	var count=game.ammo
+	if game.reload_time>0:count=mini(game.MAGAZINE_SIZE,game.reload_start_ammo+int(reload_rounds_fed()))
+	var x=body.position.x+body.size.x*.22
+	var y=body.end.y-12
+	var step=body.size.x*.022
+	for i in game.MAGAZINE_SIZE:
+		var color=Color("eef3f4") if i<count else Color(1,1,1,.18)
+		draw_rect(Rect2(x+i*step,y-17,step*.60,17),color)
+	label("%02d"%count,Vector2(body.end.x-54,y),26,Color("ff915c") if count<=4 else Color.WHITE)
+	if game.reload_time>0:draw_line(Vector2(x,y+7),Vector2(x+game.MAGAZINE_SIZE*step*(1-game.reload_time/game.RELOAD_DURATION),y+7),Color("66cbd9"),2)

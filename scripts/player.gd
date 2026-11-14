@@ -28,6 +28,8 @@ var magazine: Node3D
 var magazine_origin := Vector3.ZERO
 var support_hand: Node3D
 var support_origin := Vector3.ZERO
+var step_time = 0.0
+var coil_materials: Array[StandardMaterial3D] = []
 var enabled = true
 var pitch = 0.0
 var recoil = 0.0
@@ -91,7 +93,7 @@ func add_viewmodel_lights() -> void:
 		var lamp := OmniLight3D.new()
 		lamp.position = spec[0]
 		lamp.light_color = spec[1]
-		lamp.light_energy = spec[2]*(.4 if game.session.visual_profile else 1.0)
+		lamp.light_energy = spec[2]*(.25 if game.session.visual_profile else 1.0)
 		lamp.omni_range = spec[3]
 		lamp.light_specular = 1.0
 		lamp.light_cull_mask = VIEWMODEL_LAYER
@@ -107,6 +109,13 @@ func set_weapon_style(mode: String) -> void:
 		var model = load(asset).instantiate()
 		gun.add_child(model)
 		for part in model.find_children("*","MeshInstance3D",true,false):
+			if game.is_moonbase() and mode.is_empty():
+				for surface in part.mesh.get_surface_count():
+					var material=part.get_active_material(surface)
+					if material is StandardMaterial3D and material.emission_enabled and material.emission.b>material.emission.r:
+						var own=material.duplicate()
+						part.set_surface_override_material(surface,own)
+						coil_materials.append(own)
 			part.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			part.layers = VIEWMODEL_LAYER if game.session.visual_profile else part.layers | VIEWMODEL_LAYER
 		if not mode.is_empty():
@@ -135,13 +144,17 @@ func weapon_muzzle() -> Vector3:
 
 func prepare_grenade(mode: String) -> void:
 	if is_instance_valid(throw_hand):throw_hand.queue_free()
-	throw_hand = Grenade.GLOVE.instantiate()
+	throw_hand = load(game.visual_path("glove","res://assets/models/grenades/glove.glb")).instantiate()
 	throw_hand.name = "ThrowHand"
 	camera.add_child(throw_hand)
-	held_grenade = Grenade.MODELS[mode].instantiate()
+	held_grenade = (load(game.visual_path("grenade","res://assets/models/grenades/frag.glb")) if mode.is_empty() else Grenade.MODELS[mode]).instantiate()
 	throw_hand.add_child(held_grenade)
+	if game.session.visual_profile:
+		held_grenade.scale=Vector3.ONE*game.session.visual_profile.held_grenade_scale
+		held_grenade.position=Vector3(0,.08,-.04)
 	for part in throw_hand.find_children("*","MeshInstance3D",true,false):
 		part.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		if game.is_moonbase():part.layers=VIEWMODEL_LAYER
 	animate_grenade_throw()
 
 func animate_grenade_throw() -> void:
@@ -155,6 +168,7 @@ func animate_grenade_throw() -> void:
 	var reach = .55 if game.reduced_motion else 1.0
 	throw_hand.position = Vector3(-.32,-.47,-.39)+Vector3(.06,.25,-.07)*swing*reach
 	throw_hand.position += Vector3(-.11,-.34,-.11)*follow
+	if game.is_moonbase():throw_hand.position+=Vector3(0,.13,-.12)
 	throw_hand.rotation.x = (-.5+.68*swing)*reach
 	gun.position.y -= .19*(swing-follow)*reach
 
@@ -208,6 +222,11 @@ func _physics_process(delta: float) -> void:
 	touch_jump = false
 	move_and_slide()
 	var travel = get_real_velocity()
+	if game.is_moonbase():
+		step_time=maxf(0,step_time-delta)
+		if is_on_floor() and Vector2(travel.x,travel.z).length()>1 and step_time<=0:
+			game.play_sound("moon_step",-22,1.1 if wants_sprint else 1.0)
+			step_time=.30 if wants_sprint else .42
 	sprinting = wants_sprint and is_on_floor() and Vector2(travel.x,travel.z).length()>WALK_SPEED
 	if position.y < game.arena.fall_limit:
 		if game.rules.respawn_allowed:reset_position()
@@ -291,3 +310,8 @@ func set_map_outline(map_id: String) -> void:
 	# Toy look: geometry silhouettes only; colour boundaries stay clean paint.
 	paint.set_shader_parameter("color_edge_strength",0.0)
 	paint.set_shader_parameter("ink_strength",profile[0]*.8)
+
+func set_space_overload(active: bool) -> void:
+	for material in coil_materials:
+		material.emission=Color("ff8c37") if active else Color("58dce8")
+		material.emission_energy_multiplier=2.3 if active else 1.4

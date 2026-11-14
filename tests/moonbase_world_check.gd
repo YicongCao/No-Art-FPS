@@ -1,6 +1,6 @@
 extends SceneTree
 var game: Node3D
-const OUT="res://docs/art/space/review-c/"
+var OUT="res://docs/art/space/review-d/" if "--review-d" in OS.get_cmdline_user_args() else "res://docs/art/space/review-c/"
 func _initialize():run.call_deferred()
 func pose(at: Vector3, target: Vector3):
  game.player.position=at

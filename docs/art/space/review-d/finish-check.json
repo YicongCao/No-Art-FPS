@@ -1,0 +1,12 @@
+{
+  "checks": [
+    "8/15/20m rendered readability samples",
+    "local coil overload and reset",
+    "new projectile asset",
+    "single release stock debit",
+    "fuse freezes during actual pause",
+    "restart clears thrown grenade",
+    "cancel before release restores stock"
+  ],
+  "note": "Automated functional checks and captured samples; not three manual playthroughs."
+}

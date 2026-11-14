@@ -1,0 +1,68 @@
+{
+  "native_normal_over_33ms": [
+    [
+      1.883,
+      72.987,
+      false
+    ],
+    [
+      2.083,
+      80.23,
+      false
+    ],
+    [
+      2.567,
+      69.697,
+      false
+    ],
+    [
+      60.0,
+      38.285,
+      true
+    ]
+  ],
+  "native_stress_over_33ms": [
+    [
+      2.067,
+      141.361,
+      false
+    ],
+    [
+      2.583,
+      78.62,
+      false
+    ],
+    [
+      12.017,
+      38.772,
+      false
+    ]
+  ],
+  "web_over_33ms": [
+    [
+      433,
+      66.6,
+      "RUNNING"
+    ],
+    [
+      59331,
+      33.4,
+      "RESULTS"
+    ]
+  ],
+  "transition_normal": {
+    "frames": 882,
+    "max_ms": 12.352,
+    "p50_ms": 5.276,
+    "p95_ms": 7.633,
+    "p99_ms": 8.724
+  },
+  "transition_stress": {
+    "frames": 877,
+    "max_ms": 24.116,
+    "p50_ms": 5.242,
+    "p95_ms": 8.01,
+    "p99_ms": 9.306
+  },
+  "note": "Intervals, not GPU timing. Single runs do not prove optimization. Native seconds and Web elapsed milliseconds have different origins."
+}

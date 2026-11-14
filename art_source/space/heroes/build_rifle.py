@@ -4,7 +4,7 @@ HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[2];sys.path.insert(0,str(
 from geometry import *
 bpy.ops.wm.read_factory_settings(use_empty=True);m=palette();root=group('IonRifle')
 # The bore is exactly +Y at Z .015. Real apertures and separated armor plates.
-box('Receiver',(0,.06,.015),(.15,.65,.17),m['dark'],.025,root)
+box('Receiver',(0,-.055,.015),(.15,.42,.17),m['dark'],.025,root)
 for side in [-1,1]:
  panel('Receiver armor',side*.085,.028,[(-.27,-.065),(.12,-.065),(.19,.0),(.14,.11),(-.24,.11),(-.30,.06)],m['white'],root)
  panel('Forward shroud',side*.094,.025,[(.39,-.055),(.85,-.055),(.92,.02),(.87,.095),(.43,.095)],m['white'],root)
@@ -14,7 +14,8 @@ for side in [-1,1]:
  for y,z in [(-.22,.07),(.10,-.03),(.46,.05),(.83,.04)]:beam('Panel fastener',(side*.107,y,z),(side*.112,y,z),.009,m['metal'],root,8)
 beam('Ion chamber',(0,.18,.015),(0,.45,.015),.072,m['metal'],root,24)
 for y in [.23,.31,.39]:beam('Ion coil',(0,y,.015),(0,y+.023,.015),.076,m['cyan'],root,24)
-for x in [-.07,.07]:box('Chamber cage',(x,.32,.015),(.018,.29,.11),m['dark'],.006,root)
+for x in [-.065,.065]:
+ for z in [-.045,.075]:box('Chamber cage',(x,.32,z),(.018,.29,.018),m['dark'],.006,root)
 beam('Inner barrel',(0,.43,.015),(0,.97,.015),.034,m['metal'],root)
 # Muzzle uses four rails around the bore instead of an opaque cylinder end cap.
 for x,z,w,h in [(-.055,.015,.025,.14),(.055,.015,.025,.14),(0,-.045,.09,.025),(0,.075,.09,.025)]:box('Muzzle brake',(x,.98,z),(w,.15,h),m['dark'],.009,root)
@@ -34,6 +35,7 @@ for side in [-1,1]:
 box('Sight top',(0,.12,.408),(.15,.18,.027),m['white'],.008,optic)
 for side in [-1,1]:box('Sight marking',(side*.098,.10,.34),(.008,.07,.033),m['orange'],.003,optic)
 beam('Reticle',(0,.18,.32),(0,.183,.32),.0028,m['cyan'],optic,12)
+optic.scale=(.78,.82,.68);optic.location.z=.24
 # Detachable magazine and grips have independent pivots, for the reload animation.
 mag=group('Magazine',(0,.02,-.07),root)
 magshape=panel('Cell magazine',0,.12,[(-.06,-.08),(.12,-.08),(.17,-.36),(-.02,-.40),(-.08,-.29)],m['orange'],mag)
