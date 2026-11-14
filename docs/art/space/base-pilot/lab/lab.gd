@@ -27,7 +27,9 @@ func _ready() -> void:
  floor_mesh.material_override = floor_mat
  floor_mesh.position.y = -0.02
  add_child(floor_mesh)
- var model: Node3D = load("res://model.glb").instantiate()
+ var hybrid := "--hybrid" in OS.get_cmdline_user_args()
+ var output := "res://../../base-hybrid/" if hybrid else "res://../"
+ var model: Node3D = load("res://hybrid.glb" if hybrid else "res://model.glb").instantiate()
  add_child(model)
  camera = Camera3D.new()
  camera.fov = 63
@@ -41,13 +43,15 @@ func _ready() -> void:
   ["fps",Vector3(0,1.65,-12),Vector3(0,2.5,0)],
   ["detail",Vector3(5,4,-9),Vector3(2,3,-2)]
  ]
+ var samples: Array = []
  for view in views:
   camera.position = view[1]
   camera.look_at(view[2])
   for i in range(12): await get_tree().process_frame
   await RenderingServer.frame_post_draw
-  var err := get_viewport().get_texture().get_image().save_png("res://../godot-"+view[0]+".png")
+  var err := get_viewport().get_texture().get_image().save_png(output+"godot-"+view[0]+".png")
   print("PILOT_CAPTURE ",view[0]," ",err)
+  samples.append({"view": view[0], "draw_calls": RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME), "rendered_primitives": RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME), "rendered_objects": RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_OBJECTS_IN_FRAME)})
  var clay := StandardMaterial3D.new()
  clay.albedo_color = Color(0.65,0.65,0.65)
  clay.roughness = 0.8
@@ -59,6 +63,8 @@ func _ready() -> void:
   camera.look_at(view[2])
   for i in range(12): await get_tree().process_frame
   await RenderingServer.frame_post_draw
-  var err := get_viewport().get_texture().get_image().save_png("res://../godot-clay-"+view[0]+".png")
+  var err := get_viewport().get_texture().get_image().save_png(output+"godot-clay-"+view[0]+".png")
   print("PILOT_CLAY_CAPTURE ",view[0]," ",err)
+ var stats_file := FileAccess.open(output+"render-stats.json", FileAccess.WRITE)
+ stats_file.store_string(JSON.stringify({"hybrid": hybrid, "viewport": [1280,800], "renderer": "gl_compatibility", "msaa": "4x", "samples": samples, "note": "Single asset lab snapshots, including floor and shadows; not gameplay FPS."}, "  "))
  get_tree().quit()

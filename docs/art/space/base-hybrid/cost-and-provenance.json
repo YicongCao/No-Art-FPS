@@ -1,0 +1,38 @@
+{
+  "started_utc": "2026-11-14T00:00:09+00:00",
+  "last_render_completed_utc": "2026-11-14T00:08:41.930500+00:00",
+  "construction_and_verification_wall_seconds": 512.9305,
+  "wall_time_scope": "Agent work elapsed from initial inspection timer through final render; includes reasoning, coding, tool wait and rework; excludes this report and Git push. Not human labor or production-complete time.",
+  "new_tripo_tasks": 0,
+  "new_tripo_credits": 0,
+  "baseline_source_sha256_verified": true,
+  "hybrid_render_iterations": 5,
+  "corrections": [
+    "Cut-mask face extents and mounting deck to cover source seam",
+    "Door hinge parent transform update",
+    "Corner post deduplication",
+    "Lower residual railing cut threshold"
+  ],
+  "files": {
+    "art_source/space/base-hybrid/base-hybrid.blend": {
+      "bytes": 4344409,
+      "sha256": "2f955148a67a7ba60286dff7be53a6131a62a2fffe60e559b0cf05bcccfe7c5e"
+    },
+    "art_source/space/base-hybrid/recipe.json": {
+      "bytes": 1213,
+      "sha256": "c5e512df391a67882128a5665e179fed1d34d87318568f926640a9effb09d156"
+    },
+    "art_source/space/base-hybrid/build_hybrid.py": {
+      "bytes": 11175,
+      "sha256": "b763263aaf6f0fd82ce208118bba2b39a7a6a0e27269faa2718ed6c17e722aa4"
+    },
+    "docs/art/space/base-pilot/lab/model.glb": {
+      "bytes": 4491988,
+      "sha256": "873ea9dfad35ddf15b7e670f2f0dc2c37ba25e19646da9bb3a4ba3310f27e54f"
+    },
+    "docs/art/space/base-pilot/lab/hybrid.glb": {
+      "bytes": 4759696,
+      "sha256": "b95f5b3fb58fa86e523f47a3383c18af95457dd1ff184f2448db0042ef98190c"
+    }
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "removed_triangles_by_mask": {
+    "balcony_front": 1701,
+    "balcony_return": 28,
+    "ramp": 1719,
+    "airlock": 1848
+  },
+  "remaining_source_triangles": 10913,
+  "meshes": [
+    {
+      "name": "Access_Ramp_Space_BareMetal",
+      "triangles": 1620,
+      "materials": 1
+    },
+    {
+      "name": "Access_Ramp_Space_SafetyYellow",
+      "triangles": 504,
+      "materials": 1
+    },
+    {
+      "name": "Access_Ramp_Space_Structure",
+      "triangles": 1740,
+      "materials": 1
+    },
+    {
+      "name": "Access_Ramp_Space_WarmWhite",
+      "triangles": 216,
+      "materials": 1
+    },
+    {
+      "name": "Airlock_Frame_Space_Gasket",
+      "triangles": 172,
+      "materials": 1
+    },
+    {
+      "name": "Airlock_Leaf_Left_Space_AirlockOrange",
+      "triangles": 324,
+      "materials": 1
+    },
+    {
+      "name": "Airlock_Leaf_Right_Space_AirlockOrange",
+      "triangles": 324,
+      "materials": 1
+    },
+    {
+      "name": "Airlock_Mount",
+      "triangles": 108,
+      "materials": 1
+    },
+    {
+      "name": "Airlock_OuterFrame",
+      "triangles": 64,
+      "materials": 1
+    },
+    {
+      "name": "Airlock_Service_Space_StatusCyan",
+      "triangles": 216,
+      "materials": 1
+    },
+    {
+      "name": "Airlock_Service_Space_Structure",
+      "triangles": 216,
+      "materials": 1
+    },
+    {
+      "name": "Balcony_Railing_Space_SafetyYellow",
+      "triangles": 612,
+      "materials": 1
+    },
+    {
+      "name": "Balcony_Railing_Space_Structure",
+      "triangles": 1404,
+      "materials": 1
+    },
+    {
+      "name": "Base_StaticShell_Tripo",
+      "triangles": 10913,
+      "materials": 1
+    },
+    {
+      "name": "Door_Lock",
+      "triangles": 108,
+      "materials": 1
+    },
+    {
+      "name": "Door_Lock.001",
+      "triangles": 108,
+      "materials": 1
+    },
+    {
+      "name": "Door_Threshold",
+      "triangles": 108,
+      "materials": 1
+    }
+  ],
+  "total_triangles": 18757,
+  "mesh_count": 17,
+  "material_count": 8,
+  "upper_railing_unique_post_count": 11,
+  "ramp_slope_degrees": 11.549261823559359,
+  "cut_and_load_seconds": 0.02916970895603299,
+  "total_build_export_seconds": 0.4200528340879828,
+  "source_preserved": true,
+  "variant": false,
+  "balcony_height": 1.12,
+  "balcony_pitch": 1.4,
+  "structural_checks": "finite coordinates; closed door bounds; ramp slope and threshold match passed",
+  "note": "Script time is not engineering labor; masks are manually fitted to this mesh. No full collision/gameplay integration."
+}

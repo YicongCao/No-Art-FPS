@@ -1,0 +1,42 @@
+{
+  "hybrid": true,
+  "msaa": "4x",
+  "note": "Single asset lab snapshots, including floor and shadows; not gameplay FPS.",
+  "renderer": "gl_compatibility",
+  "samples": [
+    {
+      "draw_calls": 57,
+      "rendered_objects": 57,
+      "rendered_primitives": 67194,
+      "view": "front"
+    },
+    {
+      "draw_calls": 47,
+      "rendered_objects": 47,
+      "rendered_primitives": 65446,
+      "view": "rear"
+    },
+    {
+      "draw_calls": 56,
+      "rendered_objects": 56,
+      "rendered_primitives": 68670,
+      "view": "side"
+    },
+    {
+      "draw_calls": 64,
+      "rendered_objects": 64,
+      "rendered_primitives": 82691,
+      "view": "fps"
+    },
+    {
+      "draw_calls": 72,
+      "rendered_objects": 72,
+      "rendered_primitives": 84223,
+      "view": "detail"
+    }
+  ],
+  "viewport": [
+    1280,
+    800
+  ]
+}

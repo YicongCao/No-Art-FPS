@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "coordinates": "Blender Z up, front +Y; exported Godot front -Z",
+  "source": "art_source/space/base-pilot/base-pilot.blend",
+  "balcony": {
+    "x_min": -5.6,
+    "x_max": 5.6,
+    "front_y": 2.88,
+    "back_y": 1.62,
+    "deck_z": 4.52,
+    "height": 1.12,
+    "post_pitch": 1.4,
+    "radius": 0.045
+  },
+  "ramp": {
+    "center_x": -2.22,
+    "width": 3.55,
+    "door_y": 1.65,
+    "foot_y": 6.25,
+    "door_z": 1.02,
+    "foot_z": 0.08,
+    "thickness": 0.14,
+    "rail_height": 1.05,
+    "post_pitch": 1.2,
+    "radius": 0.045
+  },
+  "airlock": {
+    "center_x": -2.22,
+    "front_y": 1.7,
+    "bottom_z": 1.02,
+    "width": 3.45,
+    "height": 2.95,
+    "corner": 0.48,
+    "frame_width": 0.22,
+    "frame_depth": 0.22
+  },
+  "cut_regions": {
+    "balcony_front": [
+      2.32,
+      4.4,
+      6.05
+    ],
+    "balcony_return": [
+      5.1,
+      1.62,
+      4.4,
+      6.05
+    ],
+    "ramp": [
+      -4.65,
+      -0.05,
+      1.72,
+      3.15
+    ],
+    "airlock": [
+      -4.01,
+      -0.4,
+      0.98,
+      0.7,
+      4.03
+    ]
+  },
+  "note": "Cut coordinates are fitted to this one Tripo asset. Generators are reusable; this extraction mask is not automatically transferable."
+}
