@@ -1,0 +1,29 @@
+{
+  "version": "0.4.0",
+  "macos_architectures": "x86_64 arm64",
+  "macos_bundle_version": "0.4.0",
+  "macos_codesign": "ad-hoc; strict verify passed before and after ZIP extraction",
+  "windows": "PE32+ x86_64; ZIP payload matches export; not executed on Windows",
+  "packed_runtime_resources": 1061,
+  "zip_integrity": "passed",
+  "source_art_and_tests_excluded": true,
+  "assets": [
+    {
+      "name": "No-Art-FPS-v0.4.0-Windows-x64.zip",
+      "bytes": 91660870,
+      "sha256": "8efef3f0bcbafa9ba7709be14f1259d2ea12cac7fe7ada03e4c2d8d896cf1ff1"
+    },
+    {
+      "name": "No-Art-FPS-v0.4.0-macOS-universal.zip",
+      "bytes": 114053080,
+      "sha256": "17536d54fde3739913131efcd03bb9e7cce6655cbe88801d1cb572d982a91c4c"
+    },
+    {
+      "name": "Sandgate-gameplay.png",
+      "bytes": 1171621,
+      "sha256": "5cea92806b7b332471835378151190101545feb31ec537d8591c8fd387782f30"
+    }
+  ],
+  "macos_manual_smoke": "Exported app launched via native UI; Sandgate selected; run, fire and Escape pause observed",
+  "pack_load_smoke": "Windows export PCK mounted with macOS Godot headless: version 0.4.0, default Sandgate and navigation ready; not a Windows runtime test"
+}
