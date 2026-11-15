@@ -36,6 +36,8 @@ var knife: Node3D
 var slash_hit = false
 const CLOSE_SHOT_RANGE = 8.0
 const KNIFE_FRONT_DOT = .5 # 60 degrees to either side of the player's forward direction.
+const MELEE_STAND_DISTANCE = 1.7
+const MELEE_STEP_BACK_SPEED = 5.8
 var dodge_direction = Vector3.ZERO
 var dodge_time = 0.0
 var dodge_cooldown = 0.0
@@ -399,7 +401,25 @@ func apply_safe_velocity(safe_velocity: Vector3) -> void:
 	if not fast or rush_state=="CHASE":
 		velocity.x = safe_velocity.x
 		velocity.z = safe_velocity.z
+	if fast:
+		# RVO can push a stopped attacker inward; constrain the final movement too.
+		var spaced := melee_spacing_velocity(Vector3(velocity.x,0,velocity.z),get_physics_process_delta_time())
+		velocity.x = spaced.x
+		velocity.z = spaced.z
 	move_and_slide()
+
+func melee_spacing_velocity(desired: Vector3, delta: float) -> Vector3:
+	var toward: Vector3 = game.player.global_position-global_position
+	if absf(toward.y)>=1.0:return desired
+	toward.y = 0
+	var distance := toward.length()
+	if distance>=MELEE_STAND_DISTANCE+.6:return desired
+	# Recover even if a player walks through the non-blocking enemy capsule.
+	toward = toward/distance if distance>.001 else -global_basis.z
+	var response := minf(10.0,1.0/maxf(delta,.001))
+	var allowed := clampf((distance-MELEE_STAND_DISTANCE)*response,-MELEE_STEP_BACK_SPEED,MELEE_STEP_BACK_SPEED)
+	var inward := desired.dot(toward)
+	return desired-toward*maxf(0,inward-allowed)
 
 func can_see_player() -> bool:
 	var query = PhysicsRayQueryParameters3D.create(global_position+Vector3(0,1.4,0),game.player.global_position+Vector3(0,1.1,0),1)

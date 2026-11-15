@@ -1,0 +1,7 @@
+{
+  "actor": "(15.65324, -0.019148, 15.78168)",
+  "distance_m": 1.70005106925964,
+  "player": "(15.73, 0.05, 17.48)",
+  "scenario": "Same sandgate spawn and camera, compact Web model, cooldown chase for 150 physics ticks; no camera or model scaling",
+  "viewport": "(1280, 592)"
+}
