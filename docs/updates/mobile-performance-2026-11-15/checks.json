@@ -1,0 +1,53 @@
+{
+  "checks": [
+    {
+      "command": "Godot headless editor import",
+      "result": "pass"
+    },
+    {
+      "command": "node tests/mobile_input_test.mjs",
+      "result": "pass"
+    },
+    {
+      "command": "node tests/refresh_rate_test.mjs",
+      "result": "pass"
+    },
+    {
+      "command": "tests/rules_test.gd",
+      "result": "pass"
+    },
+    {
+      "command": "tests/frame_budget_check.gd",
+      "result": "pass"
+    },
+    {
+      "command": "tests/mobile_actor_check.gd",
+      "result": "pass"
+    },
+    {
+      "command": "tests/headshot_check.gd -- --mobile-actors",
+      "result": "pass"
+    },
+    {
+      "command": "tests/map_selector_check.gd",
+      "result": "pass"
+    },
+    {
+      "command": "tests/interactive_props_check.gd",
+      "result": "pass"
+    },
+    {
+      "command": "tools/export_web.sh / tools/verify_web.py",
+      "result": "pass"
+    },
+    {
+      "command": "Chrome production Web title -> FIRE -> touch fire; no error logs",
+      "result": "pass"
+    }
+  ],
+  "notes": [
+    "Headshot fixture previously exited with pending audio WAV playback references; stopped voices and allowed the mixer to settle before quitting, then the bounded check passed.",
+    "Scripted Chrome tests and desktop GPU measurements are not physical phone playtesting.",
+    "The normal production bundle has custom_features empty; perfbench excluded."
+  ]
+}
