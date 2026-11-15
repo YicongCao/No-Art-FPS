@@ -49,6 +49,8 @@ func run() -> void:
 	actor.position = AT+Vector3(0,0,-Enemy.MELEE_STAND_DISTANCE)
 	var tangent = actor.melee_spacing_velocity(Vector3(2,0,5.8),1.0/60)
 	assert(absf(tangent.x-2)<.001 and tangent.z<.1,"Final RVO command preserves sidesteps without pushing inward")
+	actor.position = AT+Vector3(0,.8,-1.7)
+	assert(actor.melee_spacing_velocity(Vector3(0,0,5.8),1.0/60).z>1.0,"Step-height pursuit must still close into the original 3D knife range")
 	actor.position = settled
 	print("MELEE_CLEARANCE_APPROACH_PASS gap=",gap(actor))
 	actor = foe(Vector3(0,0,3),true)

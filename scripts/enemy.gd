@@ -411,6 +411,7 @@ func apply_safe_velocity(safe_velocity: Vector3) -> void:
 func melee_spacing_velocity(desired: Vector3, delta: float) -> Vector3:
 	var toward: Vector3 = game.player.global_position-global_position
 	if absf(toward.y)>=1.0:return desired
+	var stand_distance := sqrt(MELEE_STAND_DISTANCE*MELEE_STAND_DISTANCE-toward.y*toward.y)
 	toward.y = 0
 	var distance := toward.length()
 	if distance>=MELEE_STAND_DISTANCE+.6:return desired
@@ -419,7 +420,7 @@ func melee_spacing_velocity(desired: Vector3, delta: float) -> Vector3:
 	# Recover even if a player walks through the non-blocking enemy capsule.
 	toward = toward/distance if distance>.001 else -global_basis.z
 	var response := minf(10.0,1.0/maxf(delta,.001))
-	var allowed := clampf((distance-MELEE_STAND_DISTANCE)*response,-MELEE_STEP_BACK_SPEED,MELEE_STEP_BACK_SPEED)
+	var allowed := clampf((distance-stand_distance)*response,-MELEE_STEP_BACK_SPEED,MELEE_STEP_BACK_SPEED)
 	var inward := desired.dot(toward)
 	return desired-toward*maxf(0,inward-allowed)
 
