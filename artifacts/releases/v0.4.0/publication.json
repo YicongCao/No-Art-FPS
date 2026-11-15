@@ -1,0 +1,40 @@
+{
+  "tag": "v0.4.0",
+  "name": "No-Art-FPS v0.4.0 · 喷漆塑料首版",
+  "url": "https://github.com/YicongCao/No-Art-FPS/releases/tag/v0.4.0",
+  "published_at": "2026-11-15T13:56:04Z",
+  "latest": true,
+  "source_commit": "75878b2cc39cf5dcb9996383f0856e38a951a5d1",
+  "previous_latest": "v0.3.0",
+  "all_server_digests_match": true,
+  "assets": [
+    {
+      "name": "No-Art-FPS-v0.4.0-macOS-universal.zip",
+      "bytes": 114053080,
+      "digest": "sha256:17536d54fde3739913131efcd03bb9e7cce6655cbe88801d1cb572d982a91c4c",
+      "url": "https://github.com/YicongCao/No-Art-FPS/releases/download/v0.4.0/No-Art-FPS-v0.4.0-macOS-universal.zip",
+      "state": "uploaded"
+    },
+    {
+      "name": "No-Art-FPS-v0.4.0-Windows-x64.zip",
+      "bytes": 91660870,
+      "digest": "sha256:8efef3f0bcbafa9ba7709be14f1259d2ea12cac7fe7ada03e4c2d8d896cf1ff1",
+      "url": "https://github.com/YicongCao/No-Art-FPS/releases/download/v0.4.0/No-Art-FPS-v0.4.0-Windows-x64.zip",
+      "state": "uploaded"
+    },
+    {
+      "name": "Sandgate-gameplay.png",
+      "bytes": 1171621,
+      "digest": "sha256:5cea92806b7b332471835378151190101545feb31ec537d8591c8fd387782f30",
+      "url": "https://github.com/YicongCao/No-Art-FPS/releases/download/v0.4.0/Sandgate-gameplay.png",
+      "state": "uploaded"
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "bytes": 292,
+      "digest": "sha256:f05018a4827a116284e1283470c4fbc56258a180fbb57fc98f4811af5b32b5e4",
+      "url": "https://github.com/YicongCao/No-Art-FPS/releases/download/v0.4.0/SHA256SUMS.txt",
+      "state": "uploaded"
+    }
+  ]
+}
