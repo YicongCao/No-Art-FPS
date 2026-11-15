@@ -414,6 +414,8 @@ func melee_spacing_velocity(desired: Vector3, delta: float) -> Vector3:
 	toward.y = 0
 	var distance := toward.length()
 	if distance>=MELEE_STAND_DISTANCE+.6:return desired
+	# Keep following corners when a wall, rather than open space, separates us.
+	if not can_see_player():return desired
 	# Recover even if a player walks through the non-blocking enemy capsule.
 	toward = toward/distance if distance>.001 else -global_basis.z
 	var response := minf(10.0,1.0/maxf(delta,.001))

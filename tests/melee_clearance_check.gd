@@ -84,6 +84,8 @@ func run() -> void:
 	wall.position = AT+Vector3(0,1.5,-.9);game.add_child(wall)
 	await ticks(48)
 	assert(game.health==game.MAX_HEALTH,"Solid cover still blocks knife damage")
+	var through_corner := Vector3(0,0,5.8)
+	assert(actor.melee_spacing_velocity(through_corner,1.0/60)==through_corner,"Occluded path following must not be stopped by the spacing rule")
 	wall.queue_free()
 	print("MELEE_CLEARANCE_COVER_PASS")
 	game.clear_round();game.player.position = AT
