@@ -1,0 +1,26 @@
+[
+  {
+    "map": "sandgate",
+    "version": "before",
+    "first_3s_max_ms": 105.4,
+    "over_33": 2
+  },
+  {
+    "map": "sandgate",
+    "version": "after",
+    "first_3s_max_ms": 110.5,
+    "over_33": 2
+  },
+  {
+    "map": "bb_office",
+    "version": "before",
+    "first_3s_max_ms": 176.6,
+    "over_33": 5
+  },
+  {
+    "map": "bb_office",
+    "version": "after",
+    "first_3s_max_ms": 168,
+    "over_33": 2
+  }
+]

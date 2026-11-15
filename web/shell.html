@@ -281,6 +281,7 @@
     </section>
   </div>
   <script src="locale.js"></script>
+  <script src="performance.js"></script>
   <script>
     window.noArtMobile=matchMedia('(pointer:coarse)').matches||new URLSearchParams(location.search).has('touch');
     const t=text=>window.noArtText?.(text)??text;
@@ -574,6 +575,7 @@
       if(missing.length){fail(t('此浏览器不支持运行游戏，请使用新版 Chrome 或 Firefox'));return;}
       const config=$GODOT_CONFIG;
       config.canvas=document.querySelector('#canvas');
+      window.noArtConfigurePerformance?.(config);
       phase.textContent=t('正在下载资源');
       config.onProgress=(current,total)=>{
         if(failed||ready)return;

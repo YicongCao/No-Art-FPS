@@ -44,7 +44,9 @@ void fragment() {
         vec2 uv = clamp(SCREEN_UV + direction * pixel, vec2(0.001), vec2(0.999));
         float adjacent = linear_depth(uv, INV_PROJECTION_MATRIX);
         geometry_edge = max(geometry_edge, abs(center_depth-adjacent) / max(0.25,min(center_depth,adjacent)));
-        color_edge = max(color_edge, length(base-texture(scene_color,uv).rgb));
+        if (color_edge_strength > 0.001) {
+            color_edge = max(color_edge, length(base-texture(scene_color,uv).rgb));
+        }
     }
     float edge = max(smoothstep(0.035,0.11,geometry_edge),smoothstep(0.22,0.42,color_edge)*color_edge_strength);
     edge *= smoothstep(near_fade.x, near_fade.y, center_depth);

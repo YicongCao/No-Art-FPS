@@ -6,7 +6,7 @@ mkdir -p builds/web
 touch builds/.gdignore
 "$GODOT_BIN" --headless --path . --editor --import
 "$GODOT_BIN" --headless --path . --export-release Web builds/web/index.html
-cp web/icon.svg web/locale.js web/gyro.js web/gyro-setup.js web/title-background.webp builds/web/
+cp web/icon.svg web/locale.js web/performance.js web/gyro.js web/gyro-setup.js web/title-background.webp builds/web/
 cp assets/ui/settings/comedy.svg assets/ui/settings/roach.svg builds/web/
 cp assets/ui/frag-grenade.svg assets/ui/stink-bomb.svg assets/ui/roach-bomb.svg builds/web/
 cp web/Rajdhani-Bold.woff2 web/GlowSansSC-UI.woff2 builds/web/

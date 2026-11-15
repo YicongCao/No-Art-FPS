@@ -1,8 +1,6 @@
 extends Node3D
 
 const TOUCH_LOOK_GAIN = 1.9
-const WEB_RENDER_SCALES = [1.0,.85,.70]
-const WEB_SHADOW_RANGES = [65.0,45.0,32.0]
 const FINALE_FX_CELL_SIZE = 16.0
 
 const DefaultSession = preload("res://data/sessions/sandgate.tres")
@@ -177,7 +175,7 @@ func capture_pointer() -> void:
 
 func _ready() -> void:
 	if OS.has_feature("web"):
-		Engine.max_fps = 60
+		Engine.max_fps = 0 # Browser VSync owns pacing; avoid a second 60 Hz limiter.
 		get_viewport().msaa_3d = Viewport.MSAA_2X
 		touch_mode = bool(JavaScriptBridge.eval("Boolean(window.noArtMobile)"))
 	spark_mesh.radial_segments = 6
@@ -289,6 +287,7 @@ func _ready() -> void:
 	music = AudioStreamPlayer.new()
 	music.stream = COMBAT_MUSIC
 	add_child(music)
+	if OS.has_feature("web"):apply_frame_budget(int(JavaScriptBridge.eval("window.noArtTargetFPS?.()||60")))
 	load_record()
 	set_music_volume(music_volume)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -299,6 +298,10 @@ func _ready() -> void:
 	if OS.has_feature("web"):
 		await RenderingServer.frame_post_draw
 		JavaScriptBridge.eval("window.noArtReady?.()")
+		get_viewport().size_changed.connect(func():apply_frame_budget(int(JavaScriptBridge.eval("window.noArtTargetFPS?.()||60"))))
+		var runtime = preload("res://scripts/performance/web_runtime.gd").new()
+		add_child(runtime)
+		runtime.setup(self)
 	if "--capture" in OS.get_cmdline_user_args():
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png("res://artifacts/title.png")
@@ -347,6 +350,7 @@ func apply_map_lighting() -> void:
 	sun.light_energy = arena.sun_energy
 	sun.shadow_bias = arena.sun_shadow_bias
 	if is_instance_valid(player):player.set_map_outline(arena.map_id)
+	if OS.has_feature("web"):apply_frame_budget(int(JavaScriptBridge.eval("window.noArtTargetFPS?.()||60")))
 
 func set_destroy_active(active: bool) -> void:
 	if destroy_active==active:return
@@ -675,7 +679,7 @@ func prepare_loaded_run(ticket: int) -> void:
 		push_error("Navigation unavailable; returned to title")
 		return
 	loading.report(.2)
-	var path = "res://assets/models/toy/enemy.glb"
+	var path = "res://assets/models/toy/enemy_mobile.glb" if OS.has_feature("web") else "res://assets/models/toy/enemy.glb"
 	if OS.has_feature("web"):
 		# The opening frame already cached this scene. Single-thread Web builds
 		# must not depend on a worker thread to prepare it again.
@@ -705,7 +709,7 @@ func prepare_loaded_run(ticket: int) -> void:
 				return
 			await loading_frame()
 			if ticket!=load_ticket:return
-	if not rusher_model:rusher_model = load("res://assets/models/toy/rusher.glb")
+	if not rusher_model:rusher_model = load("res://assets/models/toy/rusher_mobile.glb" if OS.has_feature("web") else "res://assets/models/toy/rusher.glb")
 	# Instantiate and render one actor per frame before gameplay to warm
 	# imported meshes/materials without a single eight-enemy creation burst.
 	for i in range(opening.size()):
@@ -720,13 +724,25 @@ func prepare_loaded_run(ticket: int) -> void:
 	opening_prepared = true
 	await warm_headshot_effects(ticket)
 	if ticket!=load_ticket:return
+	if OS.has_feature("web"):
+		# Compile body-hit overlay on the compact actor beneath the loading cover.
+		var warm_actor = Enemy.new()
+		warm_actor.game = self
+		enemies.add_child(warm_actor)
+		warm_actor.set_physics_process(false)
+		warm_actor.global_position = player.camera.to_global(Vector3(0,-1,-3))
+		warm_actor.health = 1
+		warm_actor.apply_nonlethal_hit()
+		await loading_frame()
+		warm_actor.queue_free()
+		if ticket!=load_ticket:return
 	# Warm the first shot's effect materials beneath the opaque loading cover.
 	var muzzle = player.weapon_muzzle()
 	spark(muzzle,Color("ffe19a"),.1,.035)
 	trace(muzzle,muzzle-Vector3(0,0,2),Color("fff1b7"),.025,.045)
 	var web = OS.has_feature("web")
 	var render_samples: Array[float] = []
-	for frame in range(4):
+	for frame in range(16):
 		var started = Time.get_ticks_usec()
 		await loading_frame()
 		if ticket!=load_ticket:return
@@ -751,6 +767,10 @@ func warm_map_destroy_lighting(ticket: int) -> void:
 	hud.warm_destroy_notice()
 	var yaw: float = player.rotation.y
 	set_destroy_active(true)
+	if OS.has_feature("web"):
+		# Effects also need the active frenzy light variants, not only daylight.
+		await warm_destroy_effects(ticket)
+		if ticket!=load_ticket:return
 	for turn in range(4):
 		player.rotation.y = yaw+turn*PI*.5
 		await loading_frame()
@@ -764,7 +784,7 @@ func warm_destroy_effects(ticket: int) -> void:
 	# WebGL, creating a material alone does not compile its draw variants.
 	var eye = player.camera
 	var at = eye.to_global(Vector3(0,0,-3))
-	for stage in range(3):
+	for stage in range(4):
 		var fx = CombatFX.new()
 		fx.game = self
 		effects.add_child(fx)
@@ -776,6 +796,7 @@ func warm_destroy_effects(ticket: int) -> void:
 				fx.flame(at+Vector3.UP*.4,.3,Color("ef7833"))
 			1:fx.chunk(at,Vector3.ONE*.25,Color("b65745"),Vector3.ZERO)
 			2:fx.bloom(at,.35,Color("f2d084"))
+			3:fx.add_piece(CombatFX.Shape.ORB,at,Vector3.ONE*.12,Color("efaf58"),Vector3.ZERO)
 		fx.show_pieces()
 		await loading_frame()
 		if ticket!=load_ticket:return
@@ -797,17 +818,24 @@ func warm_headshot_effects(ticket: int) -> void:
 func apply_web_render_budget(samples: Array[float]) -> bool:
 	# Size render targets behind the loading cover. Changing scale or shadow
 	# mode in combat can make WebGL reallocate buffers and compile new programs.
-	samples.sort()
-	var typical = samples[1]
-	var tier = 2 if typical>42 else (1 if typical>23 else 0)
+	var target := int(JavaScriptBridge.eval("window.noArtTargetFPS?.()||60")) if OS.has_feature("web") else 60
+	var tier := preload("res://scripts/performance/frame_budget.gd").tier_for(samples,target)
 	if tier<=web_render_tier:return false
 	web_render_tier = tier
-	get_viewport().scaling_3d_scale = WEB_RENDER_SCALES[tier]
-	sun.directional_shadow_max_distance = WEB_SHADOW_RANGES[tier]
-	if tier==2:
-		get_viewport().msaa_3d = Viewport.MSAA_DISABLED
-		sun.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL
+	apply_frame_budget(target)
 	return true
+
+func apply_frame_budget(target: int = 60) -> void:
+	if not OS.has_feature("web"):return
+	var refresh := float(JavaScriptBridge.eval("window.noArtRefreshHz?.()||60"))
+	Engine.max_fps = 0 if absf(refresh-target)<5 else target
+	get_viewport().scaling_3d_scale = preload("res://scripts/performance/frame_budget.gd").scale_for(get_viewport().size,target,web_render_tier,touch_mode)
+	if touch_mode:
+		sun.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL
+		sun.directional_shadow_max_distance = 32.0 if web_render_tier==0 else 24.0
+		get_viewport().msaa_3d = Viewport.MSAA_2X if web_render_tier==0 and target==60 else Viewport.MSAA_DISABLED
+		var env = world_environment.environment
+		if env:env.ssao_enabled = false
 
 func cancel_loading() -> void:
 	if state!="LOADING":return

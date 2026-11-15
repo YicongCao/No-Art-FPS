@@ -8,6 +8,7 @@ const TOY_MODEL = "res://assets/models/toy/enemy.glb"
 const RUSHER_MODEL = "res://assets/models/toy/rusher.glb"
 const RUSHER_ORANGE = Color("ee641c")
 static var rim_pass: ShaderMaterial
+static var mobile_paint: ShaderMaterial
 
 var game: Node
 var patrol_brain: Node
@@ -95,9 +96,11 @@ func _ready() -> void:
 	head_area.add_child(hs)
 	add_child(head_area)
 	var model: PackedScene = game.rusher_model if fast else game.enemy_model
-	visual = (model if model else load(RUSHER_MODEL if fast else TOY_MODEL)).instantiate()
+	var selected: PackedScene = model if model else load(("res://assets/models/toy/rusher_mobile.glb" if fast else "res://assets/models/toy/enemy_mobile.glb") if OS.has_feature("web") else (RUSHER_MODEL if fast else TOY_MODEL))
+	visual = selected.instantiate()
 	add_child(visual)
-	add_toy_rim(visual)
+	if selected.resource_path.ends_with("_mobile.glb"):apply_mobile_paint(visual)
+	else:add_toy_rim(visual)
 	if fast:
 		orange = StandardMaterial3D.new()
 		orange.albedo_color = RUSHER_ORANGE
@@ -145,6 +148,12 @@ func _ready() -> void:
 	if game.arena.uses_patrol(home_zone):
 		var posts = game.arena.patrol_points(home_zone)
 		patrol_offset = 1 if position.distance_to(posts[0])<position.distance_to(posts[1]) else 0
+
+static func apply_mobile_paint(model: Node3D) -> void:
+	if mobile_paint==null:
+		mobile_paint = ShaderMaterial.new()
+		mobile_paint.shader = preload("res://assets/shaders/mobile_actor.gdshader")
+	for mesh: MeshInstance3D in model.find_children("*","MeshInstance3D",true,false):mesh.material_override = mobile_paint
 
 static func toy_rim() -> ShaderMaterial:
 	if rim_pass==null:

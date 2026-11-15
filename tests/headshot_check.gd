@@ -10,6 +10,9 @@ func run() -> void:
 		await process_frame
 		if game.title_frame_ready:break
 	assert(game.title_frame_ready)
+	if "--mobile-actors" in OS.get_cmdline_user_args():
+		game.enemy_model = load("res://assets/models/toy/enemy_mobile.glb")
+		game.rusher_model = load("res://assets/models/toy/rusher_mobile.glb")
 	game.qa_mode = true
 	game.start_run()
 	game.begin_running()
@@ -105,6 +108,11 @@ func run() -> void:
 	await process_frame
 	assert(get_nodes_in_group("headshot_feedback").is_empty() and game.hud.headshot_confirm==0)
 	print("HEADSHOT_MODE_BUDGET_RESET_PASS")
+	# Headless runs can outpace the audio mixer; finish queued voices before exit.
+	for type in ["AudioStreamPlayer","AudioStreamPlayer3D"]:
+		for voice in game.find_children("*",type,true,false):voice.stop()
+	await create_timer(.15).timeout
 	game.queue_free()
+	await create_timer(.15).timeout
 	for i in range(3):await process_frame
 	quit()

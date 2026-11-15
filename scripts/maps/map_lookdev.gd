@@ -63,7 +63,7 @@ func apply_state(active: bool) -> void:
  if env:
   env.ambient_light_color = authored_ambient if not active else env.ambient_light_color
   env.ambient_light_energy = profile[2] if not active else minf(env.ambient_light_energy,.55)
-  env.ssao_enabled = true
+  env.ssao_enabled = not (OS.has_feature("web") and arena.game.touch_mode)
   env.ssao_radius = .48
   env.ssao_intensity = .85
   env.ssao_power = 1.3
