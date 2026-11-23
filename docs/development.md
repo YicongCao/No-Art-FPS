@@ -46,3 +46,16 @@ python3 -m http.server 8785 --bind 127.0.0.1 --directory builds/web
 ```
 
 Open [the local preview](http://127.0.0.1:8785/). The [Web delivery notes](updates/2026-11-06-web.md) cover the export and verification. See [`docs/updates/`](updates/) for feature history.
+
+### Web rendering benchmarks
+
+For a local benchmark only, set the Web preset's `custom_features` to `"perfbench"` before exporting. Restore the empty value before a release export. The benchmark plays a 60-second round with a fixed starting pose, repeatable camera motion and automatic fire; the player cannot die during that round. It does not run in production builds.
+
+With Playwright installed, run:
+
+```sh
+node tools/browser/benchmark_web.cjs http://127.0.0.1:8785/ /tmp/office-desktop.json desktop
+CPU_THROTTLE=4 node tools/browser/benchmark_web.cjs http://127.0.0.1:8785/ /tmp/office-touch.json touch
+```
+
+Use `PLAYWRIGHT_MODULE` for an isolated Playwright installation, `CHROME_BIN` for an installed Chrome, and `MAP_ID` to override `bb_office`. The touch run simulates a 3× physical canvas on desktop Chrome; CPU throttling is synthetic, not a phone test. Run builds serially with identical settings and compare the normal and frenzy summaries in the JSON. Frame intervals include VSync and scheduling; draw calls are the engine's counts, not GPU timing.

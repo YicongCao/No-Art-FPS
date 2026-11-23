@@ -1,7 +1,9 @@
 extends SceneTree
 
 const OfficeSession = preload("res://data/sessions/bb_office.tres")
+const PropBatches = preload("res://scripts/maps/office_prop_batches.gd")
 var game: Node3D
+var check_web_batches := "--web-batches" in OS.get_cmdline_user_args()
 
 func _initialize() -> void:
 	check.call_deferred()
@@ -17,6 +19,10 @@ func check() -> void:
 	if game.session != OfficeSession:
 		await game.select_session(OfficeSession)
 	assert(game.nav_ready and game.arena.validate_navigation())
+	var office = game.arena
+	assert(not office.has_node(PropBatches.BATCH_ROOT), "Desktop keeps individual models")
+	if check_web_batches:
+		check_batch_setup(office)
 	game.set_physics_process(false)
 	game.player.set_process_unhandled_input(false)
 	game.start_run()
@@ -26,7 +32,7 @@ func check() -> void:
 	assert(game.live_enemies().filter(func(enemy):return enemy.fast).size() == 2)
 	assert(game.score_record_key() == "score_bb_office_v1")
 	game.achievements.scores.clear()
-	game.achievements.merge_score("score", 21)
+	game.achievements.merge_score("score_sandgate_v1", 21)
 	game.best = 0
 	for enemy in game.live_enemies():
 		enemy.set_physics_process(false)
@@ -36,7 +42,6 @@ func check() -> void:
 	assert(game.rules.kills == 1, "The first target is visible from the office start")
 	game.clear_round()
 
-	var office = game.arena
 	var desks = office.get_node("Props").get_children().filter(func(node):
 		return node.name.begins_with("Programmer") or node.name.begins_with("PM") or node.name.begins_with("BackDesk")
 	)
@@ -110,16 +115,25 @@ func check() -> void:
 	for _tick in range(18):
 		await physics_frame
 	assert(computer.collapsed)
+	if check_web_batches:
+		assert_batch_visibility(office, computer, false)
+		assert_batch_visibility(office, office.get_node("Props/BackDesk10L"), true)
 	game.rules.elapsed = 59.99
 	game._physics_process(.01)
 	assert(game.finale_active)
+	if check_web_batches:
+		assert_batch_visibility(office, office.get_node("Props/BackDesk10L"), false)
 	game._physics_process(game.rules.finale_duration)
 	assert(game.state == "RESULTS")
-	assert(game.map_best_score("bb_office") >= 1 and game.map_best_score("score_attack") == 21)
+	assert(game.map_best_score("bb_office") >= 1 and game.map_best_score("sandgate") == 21)
 	game.start_run()
 	assert(not computer.collapsed and not office.get_node("Props/ManagerDoor0").collapsed)
 	assert(game.grenade_stock == 3 and not game.destroy_active and office.sweeps.all(func(spot):return not spot.visible))
 	assert(not office.arc.visible and not office.arc_light.visible and office.last_fault==-1)
+	if check_web_batches:
+		assert_batch_visibility(office, computer, true)
+		assert_batch_visibility(office, office.get_node("Props/BackDesk10L"), true)
+		print("BB_OFFICE_BATCH_PASS: materials, transforms, collapse, finale and restore")
 	print("BB_OFFICE_PASS: connected floor, two normal-phase breaches, props, six frenzy sweeps, finale, isolated record and reset")
 	var deadline = Time.get_ticks_msec()+450
 	while Time.get_ticks_msec() < deadline:
@@ -127,6 +141,50 @@ func check() -> void:
 	game.queue_free()
 	await process_frame
 	quit()
+
+func check_batch_setup(office: Node3D) -> void:
+	var desk := office.get_node("Props/Programmer10R")
+	var model := desk.get_node("Model")
+	var source := model as MeshInstance3D
+	if not source:
+		source = model.find_children("*", "MeshInstance3D", true, false)[0]
+	var original := source.mesh
+	var original_material := original.surface_get_material(0)
+	var expected: Array[Material] = []
+	for surface in original.get_surface_count():
+		expected.append(source.get_active_material(surface))
+	var pose := office.global_transform.affine_inverse() * source.global_transform
+	PropBatches.apply(office, office.get_node("MapLookdev").surface_shaders.values())
+	assert(source.mesh == null and original.surface_get_material(0) == original_material)
+	assert(desk.batch_parts.size() == 1 and office.get_node("Props/ManagerDoor0").batch_parts.is_empty())
+	var path: NodePath = desk.batch_parts.keys()[0]
+	var batch := office.get_node(path) as MultiMeshInstance3D
+	var instance: int = desk.batch_parts[path][0]
+	assert(batch.multimesh.instance_count > 1)
+	assert(office.initial_batches[batch][instance].is_equal_approx(pose))
+	assert(batch.layers == source.layers and batch.cast_shadow == source.cast_shadow)
+	assert(batch.multimesh.mesh.get_surface_count() == expected.size())
+	for surface in expected.size():
+		assert(batch.multimesh.mesh.surface_get_material(surface) == expected[surface])
+	assert_batch_visibility(office, desk, true)
+	var count := office.get_node(PropBatches.BATCH_ROOT).get_child_count()
+	PropBatches.apply(office, office.get_node("MapLookdev").surface_shaders.values())
+	assert(office.get_node(PropBatches.BATCH_ROOT).get_child_count() == count)
+
+func assert_batch_visibility(office: Node3D, prop: Node3D, active: bool) -> void:
+	assert(not prop.batch_parts.is_empty())
+	for path in prop.batch_parts:
+		var batch := office.get_node(path) as MultiMeshInstance3D
+		for index in prop.batch_parts[path]:
+			assert(index >= 0 and index < batch.multimesh.instance_count)
+			# The headless dummy renderer does not retain MultiMesh transforms.
+			if DisplayServer.get_name() != "headless":
+				var expected: Transform3D = office.initial_batches[batch][index]
+				if not active:
+					expected.basis = Basis.from_scale(Vector3.ZERO)
+				assert(batch.multimesh.get_instance_transform(index).is_equal_approx(expected))
+	for body in prop.collision_states:
+		assert(body.collision_layer == (prop.collision_states[body] if active else 0))
 
 func walk_to(goal: Vector3) -> bool:
 	var navigation_map = game.arena.nav.get_navigation_map()
