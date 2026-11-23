@@ -55,8 +55,8 @@ func setup() -> void:
  arena.set_meta("lookdev_resources",cache)
  arena.set_meta("lookdev_fixtures",fixture_count)
  apply_state(false)
- if OS.has_feature("web") and arena.map_id=="bb_office":
-  preload("res://scripts/maps/office_prop_batches.gd").apply(arena,surface_shaders.values())
+ if OS.has_feature("web"):
+  preload("res://scripts/maps/web_prop_batches.gd").apply(arena,surface_shaders.values())
 
 func apply_state(active: bool) -> void:
  frenzy = active

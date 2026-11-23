@@ -32,8 +32,9 @@ func check() -> void:
 	var map_id: String = arena.map_id
 	game.qa_mode = true
 	TranslationServer.set_locale("zh")
-	assert(game.hud.tr("DESTROY ALL")=="狂暴模式")
-	for ch in "狂暴模式":assert(game.hud.font.has_char(ch.unicode_at(0)))
+	var notice: String = game.hud.tr("DESTROY ALL")
+	assert(notice=="射爆一切")
+	for ch in notice:assert(game.hud.FRENZY_FONT_ZH.has_char(ch.unicode_at(0)))
 	game.start_run()
 	game.begin_running()
 	game.clear_round()

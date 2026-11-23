@@ -25,7 +25,7 @@ func check() -> void:
 	assert(game.live_enemies().filter(func(enemy):return enemy.fast).size()==2)
 	assert(game.score_record_key()=="score_sandgate_v1")
 	game.achievements.scores.clear()
-	game.achievements.merge_score("score",21)
+	game.achievements.merge_score("score_bb_office_v1",21)
 	game.best = 0
 	for enemy in game.live_enemies():enemy.set_physics_process(false)
 	game.touch_mode = true
@@ -108,7 +108,7 @@ func check() -> void:
 	assert(game.finale_active)
 	game._physics_process(game.rules.finale_duration)
 	assert(game.state=="RESULTS")
-	assert(game.best>=1 and game.map_best_score("sandgate")==game.best and game.map_best_score("score_attack")==21)
+	assert(game.best>=1 and game.map_best_score("sandgate")==game.best and game.map_best_score("bb_office")==21)
 	game.start_run()
 	assert(not gate.collapsed and not crates.collapsed and not game.destroy_active and game.grenade_stock==3)
 	print("SANDGATE_ROUND_PASS: 60 seconds, replenishment, respawn, grenades, 15-second frenzy, shortcut, finale, record isolation and reset")

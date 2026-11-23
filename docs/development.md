@@ -59,3 +59,16 @@ CPU_THROTTLE=4 node tools/browser/benchmark_web.cjs http://127.0.0.1:8785/ /tmp/
 ```
 
 Use `PLAYWRIGHT_MODULE` for an isolated Playwright installation, `CHROME_BIN` for an installed Chrome, and `MAP_ID` to override `bb_office`. The touch run simulates a 3× physical canvas on desktop Chrome; CPU throttling is synthetic, not a phone test. Run builds serially with identical settings and compare the normal and frenzy summaries in the JSON. Frame intervals include VSync and scheduling; draw calls are the engine's counts, not GPU timing.
+
+### Web map regression
+
+```sh
+# Batch ownership, collision, navigation, collapse, finale and restart.
+godot --headless --path . --fixed-fps 60 --quit-after 8000 --script tests/web_prop_batches_check.gd
+# Also compare fixed-view pixels and draw counts using the actual renderer.
+godot --path . --rendering-method gl_compatibility --resolution 960x540 --fixed-fps 60 --quit-after 8000 --script tests/web_prop_batches_check.gd
+# Serve a normal export (without perfbench) before testing browser input.
+node tools/browser/check_web_roster.cjs http://127.0.0.1:8785/ /tmp/web-roster-views
+```
+
+The browser check starts each score-attack map from the title screen, verifies its identity from frame diagnostics, and exercises desktop movement and simulated touch controls. Set `MAP_ID` or `WEB_MODE` (`desktop` or `touch`) to narrow the check. Screenshots are optional and local. The [nine-map rendering report](updates/2026-11-23-web-roster-rendering.md) records the measurements.

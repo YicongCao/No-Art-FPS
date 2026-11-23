@@ -1,7 +1,7 @@
 extends SceneTree
 
 const OfficeSession = preload("res://data/sessions/bb_office.tres")
-const PropBatches = preload("res://scripts/maps/office_prop_batches.gd")
+const PropBatches = preload("res://scripts/maps/web_prop_batches.gd")
 var game: Node3D
 var check_web_batches := "--web-batches" in OS.get_cmdline_user_args()
 
