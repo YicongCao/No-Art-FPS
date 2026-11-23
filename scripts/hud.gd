@@ -979,6 +979,7 @@ func rebuild_menu() -> void:
 		if game.rules.mission:
 			menu_button(tr("RETRY"),Rect2(c.x-174,c.y+106,160,70),"retry",true,tr("Retry · Enter"))
 			menu_button(tr("TITLE"),Rect2(c.x+14,c.y+106,160,70),"menu",false,tr("Title · Esc"))
+			if game.new_record:results_record_label(c+Vector2(0,76))
 		else:
 			var earned_badges = not game.achievements.run_unlocks.is_empty()
 			var actions_y = c.y+(156 if earned_badges else 106)
@@ -986,6 +987,7 @@ func rebuild_menu() -> void:
 			results_button(RETRY_ICON,Rect2(c.x-174,actions_y,160,button_height),"retry",true,tr("Retry · Enter"))
 			results_button(HOME_ICON,Rect2(c.x+14,actions_y,160,button_height),"menu",false,tr("Title · Esc"))
 			if earned_badges:results_badges(c)
+			if game.new_record:results_record_label(results_best_center(c,earned_badges)+Vector2(0,44))
 	elif menu_state == "PAUSED":
 		touch_inset_available = game.touch_mode and OS.has_feature("web") and bool(JavaScriptBridge.eval("window.noArtHasControlInset?.()"))
 		var card = pause_card()
@@ -1142,6 +1144,22 @@ func results_button(texture: Texture2D, rect: Rect2, action: String, primary: bo
 	button.button_up.connect(func():button.scale = Vector2.ONE)
 	return button
 
+func results_best_center(center: Vector2, earned_badges: bool) -> Vector2:
+	return center-Vector2(0,118) if earned_badges else center
+
+func results_record_label(center: Vector2) -> void:
+	var record := Label.new()
+	record.name = "NewRecord"
+	record.text = tr("NEW RECORD")
+	record.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	record.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	record.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	record.add_theme_color_override("font_color",GOLD)
+	record.add_theme_font_size_override("font_size",30)
+	menu.add_child(record)
+	record.size = record.get_minimum_size()
+	record.position = center-record.size*.5
+
 func draw_results() -> void:
 	var c = size*.5
 	draw_rect(Rect2(Vector2.ZERO,size),Color(.06,.09,.12,.38))
@@ -1164,14 +1182,14 @@ func draw_results() -> void:
 		label(detail,c+Vector2(0,8),26,WHITE,true)
 		if success and game.best_mission>0:label(tr("BEST %.1f s")%game.best_mission,c+Vector2(0,54),20,GOLD,true)
 		return
-	if earned_badges:c.y -= 90
+	var score_y = c.y-(90 if earned_badges else 0)
 	var score = str(game.rules.kills)
 	var score_size = 104 if score.length()<=3 else 80
 	var width = font.get_string_size(score,HORIZONTAL_ALIGNMENT_LEFT,-1,score_size).x
 	var left = c.x-(76+18+width)*.5
-	draw_texture_rect(KILLS_ICON,Rect2(Vector2(left,c.y-146),Vector2(76,76)),false)
-	label(score,Vector2(left+94,c.y-70),score_size,WHITE)
-	if earned_badges:c.y -= 28
+	draw_texture_rect(KILLS_ICON,Rect2(Vector2(left,score_y-146),Vector2(76,76)),false)
+	label(score,Vector2(left+94,score_y-70),score_size,WHITE)
+	c = results_best_center(c,earned_badges)
 	var best = str(game.best)
 	var best_width = font.get_string_size(best,HORIZONTAL_ALIGNMENT_LEFT,-1,34).x
 	var row_left = c.x-(42+12+best_width)*.5
