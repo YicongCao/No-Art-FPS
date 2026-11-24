@@ -62,7 +62,9 @@ func _process(delta: float) -> void:
 			if game.rules.elapsed>10:game.shoot()
 		if second>=1.0:
 			var sample = {"intervals":frames.duplicate(),"player":str(game.player.global_position),"actors":game.live_enemies().size(),"map":game.arena.map_id,"elapsed":game.rules.elapsed,"phase":"finale" if game.finale_active else ("frenzy" if game.destroy_active else "normal"),"frames":frames.size(),"p50":percentile(frames,.5),"p95":percentile(frames,.95),"p99":percentile(frames,.99),"max":percentile(frames,1),"draws":percentile(draws,.5),"cpu":percentile(cpu,.5),"physics":percentile(physics,.5),"spikes":spikes,"scale":game.get_viewport().scaling_3d_scale,"viewport":str(game.get_viewport().size),"render_size":str(Vector2i(Vector2(game.get_viewport().size)*game.get_viewport().scaling_3d_scale)),"cap":Engine.max_fps}
-			JavaScriptBridge.eval("window.noArtFrameReport?.(%s)"%JSON.stringify(sample))
+			if game.web_music_sync:
+				sample.music = {"origin":game.web_music_sync.origin,"driftMs":roundi(game.web_music_sync.drift*1000),"seeks":game.web_music_sync.seeks}
+			JavaScriptBridge.eval("{const sample=%s;if(window.noArtAudio)sample.audio=window.noArtAudio.snapshot();window.noArtFrameReport?.(sample)}"%JSON.stringify(sample))
 			frames.clear();draws.clear();cpu.clear();physics.clear();spikes.clear();second = 0
 		last_us = now
 	else:last_us = 0
