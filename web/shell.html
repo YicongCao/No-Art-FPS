@@ -282,6 +282,7 @@
   </div>
   <script src="locale.js"></script>
   <script src="performance.js"></script>
+  <script src="audio.js"></script>
   <script>
     window.noArtMobile=matchMedia('(pointer:coarse)').matches||new URLSearchParams(location.search).has('touch');
     const t=text=>window.noArtText?.(text)??text;
@@ -296,6 +297,8 @@
       const mobile=/iPhone|iPad|iPod|Mobile\//.test(agent)||(/Macintosh/.test(agent)&&browser.maxTouchPoints>1);
       return mobile&&/Version\/[\d.]+.*Safari\//.test(agent)&&!/CriOS|FxiOS|EdgiOS|OPiOS|DuckDuckGo|GSA/.test(agent);
     }
+    window.noArtMobileAudio=(isMobileSafari()||window.navigator?.standalone===true)&&new URLSearchParams(location.search).get('audio')!=='legacy';
+    if(window.noArtMobileAudio)window.noArtInstallAudio?.();
     function syncToolbarTip(){
       const height=window.visualViewport?.height||innerHeight;
       toolbarTip.hidden=toolbarTipIgnored||document.hidden||document.body.dataset.game!=='TITLE'||

@@ -109,6 +109,10 @@ var player_bullets: Array[Dictionary] = []
 var sounds: Dictionary = {}
 var audio_voices: Array[AudioStreamPlayer] = []
 var web_rifle: AudioStreamPlayer
+const WebMusicSync = preload("res://scripts/performance/web_music_sync.gd")
+var browser_audio: JavaScriptObject
+var web_music_sync: WebMusicSync
+var web_prop_voice_count := 0
 var heartbeat: AudioStreamPlayer
 var heartbeat_delay := 0.0
 var audio_index = 0
@@ -287,7 +291,9 @@ func _ready() -> void:
 	music = AudioStreamPlayer.new()
 	music.stream = COMBAT_MUSIC
 	add_child(music)
-	if OS.has_feature("web"):apply_frame_budget(int(JavaScriptBridge.eval("window.noArtTargetFPS?.()||60")))
+	if OS.has_feature("web"):
+		if bool(JavaScriptBridge.eval("Boolean(window.noArtMobileAudio)")):setup_mobile_audio()
+		apply_frame_budget(int(JavaScriptBridge.eval("window.noArtTargetFPS?.()||60")))
 	load_record()
 	set_music_volume(music_volume)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -619,6 +625,7 @@ func request_run() -> void:
 	rules.active = false
 	player.enabled = false
 	player.velocity = Vector3.ZERO
+	if browser_audio:browser_audio.stop()
 	if music:music.stop()
 	# Browser pointer lock must begin inside the actual FIRE/Enter gesture,
 	# not later when the asynchronous loading animation finishes.
@@ -851,6 +858,8 @@ func cancel_loading() -> void:
 
 func _process(delta: float) -> void:
 	update_heartbeat(delta)
+	if web_music_sync and state=="RUNNING" and rules.active and music_volume>0.0:
+		if web_music_sync.update(delta,rules.elapsed):last_music_position = 0.0
 	if OS.has_feature("web") and web_ui_state!=state:
 		web_ui_state = state
 		JavaScriptBridge.eval("window.noArtState("+JSON.stringify(state)+")")
@@ -911,6 +920,8 @@ func clear_round() -> void:
 		node.queue_free()
 	for voice in audio_voices:voice.stop()
 	if web_rifle:web_rifle.stop()
+	if browser_audio:browser_audio.stop()
+	if web_music_sync:web_music_sync.suspend()
 	if music:music.stop()
 
 func remove_comedy_toilet() -> void:
@@ -942,6 +953,7 @@ func begin_running() -> void:
 	last_music_position = 0.0
 	music.play()
 	rules.start()
+	if web_music_sync:web_music_sync.start_track(rules.elapsed)
 	player.enabled = true
 	hud.go_time = hud.GO_DURATION
 	# Reuse the opening actors prepared under the loading cover. Isolated QA
@@ -963,6 +975,8 @@ func finish_run() -> void:
 			if not objective.defused:finale_explosion(objective.global_position,1.2,Color("243440"))
 		play_sound("explosion",-8)
 	state = "RESULTS"
+	if browser_audio:browser_audio.stop()
+	if web_music_sync:web_music_sync.suspend()
 	music.stop()
 	rules.active = false
 	player.enabled = false
@@ -1014,6 +1028,8 @@ func start_finale() -> void:
 	settle_score_attack()
 	clear_grenades()
 	finale_elapsed = 0
+	if browser_audio:browser_audio.stop()
+	if web_music_sync:web_music_sync.suspend()
 	music.stop()
 	player.enabled = false
 	player.velocity = Vector3.ZERO
@@ -1059,11 +1075,17 @@ func _notification(what: int) -> void:
 	if state=="LOADING" and not qa_mode:
 		if what==NOTIFICATION_APPLICATION_FOCUS_OUT:loading.suspended = true
 		elif what==NOTIFICATION_APPLICATION_FOCUS_IN:loading.suspended = false
-	if what == NOTIFICATION_APPLICATION_FOCUS_OUT and not qa_mode and state in ["RUNNING","CAPTURING"]:
-		if state=="CAPTURING":state = previous_state
-		pause_run()
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT and not qa_mode:
+		if web_music_sync and is_instance_valid(effects):clear_mobile_effects()
+		if state in ["RUNNING","CAPTURING"]:
+			if state=="CAPTURING":state = previous_state
+			pause_run()
 
 func pause_run() -> void:
+	if web_music_sync:
+		web_music_sync.suspend()
+		if browser_audio:browser_audio.stop()
+		if web_rifle:web_rifle.stop()
 	player.reset_aim()
 	arena.cancel_interaction()
 	touch_interact = false
@@ -1190,6 +1212,7 @@ func _physics_process(delta: float) -> void:
 		if not session.round_music:
 			music.stream = session.destroy_music if session.destroy_music else DESTROY_MUSIC
 			music.play()
+			if web_music_sync:web_music_sync.start_track(rules.elapsed)
 	update_grenades(delta)
 	if grenade_pressed:request_grenade()
 	invulnerable = maxf(0,invulnerable-delta)
@@ -1846,10 +1869,32 @@ func shot_sound_key() -> String:
 		"roach":return "slipper_shot"
 	return "shot"
 
+func setup_mobile_audio() -> void:
+	web_music_sync = WebMusicSync.new()
+	web_music_sync.player = music
+	browser_audio = JavaScriptBridge.get_interface("noArtAudio")
+	if not browser_audio:return
+	for key in ["shot","water_shot","slipper_shot"]:
+		var sample: AudioStreamWAV = sounds[key]
+		if sample.format==AudioStreamWAV.FORMAT_16_BITS and not sample.stereo:
+			browser_audio.register(key,Marshalls.raw_to_base64(sample.data),sample.mix_rate)
+
+func clear_mobile_effects() -> void:
+	if browser_audio:browser_audio.stop()
+	if web_rifle:web_rifle.stop()
+	for voice in audio_voices:voice.stop()
+	if heartbeat:heartbeat.stop()
+	for node in effects.get_children():
+		if node is AudioStreamPlayer3D:
+			node.stop()
+			node.queue_free()
+
 func play_sound(key: String, volume: float = -10, pitch: float = 1) -> void:
-	var voice = web_rifle if key=="shot" and web_rifle else audio_voices[audio_index%audio_voices.size()]
+	var is_shot := key=="shot"
+	if is_shot and browser_audio and browser_audio.shot(shot_sound_key(),db_to_linear(volume),pitch):return
+	var voice = web_rifle if is_shot and web_rifle else audio_voices[audio_index%audio_voices.size()]
 	audio_index += 1
-	if voice!=web_rifle:voice.stream = sounds[shot_sound_key() if key=="shot" else key]
+	if voice!=web_rifle:voice.stream = sounds[shot_sound_key() if is_shot else key]
 	voice.volume_db = volume
 	voice.pitch_scale = pitch
 	voice.play()
@@ -1874,10 +1919,23 @@ func round_music_position() -> float:
 
 func set_music_volume(value: float) -> void:
 	music_volume = clampf(value,0,1)
-	if music:music.volume_db = linear_to_db(maxf(.0001,music_volume))-8.0
+	var db := linear_to_db(maxf(.0001,music_volume))-8.0
+	if web_music_sync:
+		if music_volume==0.0:web_music_sync.suspend()
+		web_music_sync.set_volume(db)
+	elif music:music.volume_db = db
 
 func play_world_sound(key: String, pos: Vector3, volume: float, pitch: float = 1.0) -> void:
+	var limited := web_music_sync!=null and key.begins_with("prop_")
+	if limited:
+		var listener := get_viewport().get_camera_3d()
+		# Don't allocate prop debris voices we cannot hear, or let a burst of
+		# breakables crowd out combat information. Threat cues are not limited.
+		if web_prop_voice_count>=4 or (listener and listener.global_position.distance_squared_to(pos)>32.0*32.0):return
 	var voice = AudioStreamPlayer3D.new()
+	if limited:
+		web_prop_voice_count += 1
+		voice.tree_exiting.connect(func():web_prop_voice_count -= 1,CONNECT_ONE_SHOT)
 	voice.stream = sounds[key]
 	voice.volume_db = volume
 	voice.pitch_scale = pitch
