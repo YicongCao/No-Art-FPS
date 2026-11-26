@@ -1,0 +1,164 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "a_cross_wall"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "a_cross_wall.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:a_cross_wall"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:a_cross_wall": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a21598-4ec2-728b-b39b-ba043f2aa6fe",
+          "slotName": "plaster",
+          "sourceKey": "material:plaster"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-4ec2-728b-b39b-ba058361798c",
+          "slotName": "stone",
+          "sourceKey": "material:stone"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-4ec3-7e33-87b7-b0316f925b8d",
+          "slotName": "red",
+          "sourceKey": "material:red"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-4ec3-7e33-87b7-b03220ec96f2",
+          "slotName": "cap",
+          "sourceKey": "material:cap"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-4ec3-7e33-87b7-b0331f868fa1",
+          "slotName": "shade",
+          "sourceKey": "material:shade"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-4ec3-7e33-87b7-b034dd07bbc4",
+          "slotName": "blue",
+          "sourceKey": "material:blue"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-4ec3-7e33-87b7-b0358c9e64c3",
+          "slotName": "blue_light",
+          "sourceKey": "material:blue_light"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a21598-4ec2-728b-b39b-ba03fc1f32cb",
+      "kind": "mesh",
+      "name": "a_cross_wall",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:a_cross_wall"
+    },
+    {
+      "guid": "01a21598-4ec2-728b-b39b-ba043f2aa6fe",
+      "kind": "material",
+      "name": "plaster",
+      "sourceIndex": 0,
+      "sourceKey": "material:plaster"
+    },
+    {
+      "guid": "01a21598-4ec2-728b-b39b-ba058361798c",
+      "kind": "material",
+      "name": "stone",
+      "sourceIndex": 1,
+      "sourceKey": "material:stone"
+    },
+    {
+      "guid": "01a21598-4ec3-7e33-87b7-b0316f925b8d",
+      "kind": "material",
+      "name": "red",
+      "sourceIndex": 2,
+      "sourceKey": "material:red"
+    },
+    {
+      "guid": "01a21598-4ec3-7e33-87b7-b03220ec96f2",
+      "kind": "material",
+      "name": "cap",
+      "sourceIndex": 3,
+      "sourceKey": "material:cap"
+    },
+    {
+      "guid": "01a21598-4ec3-7e33-87b7-b0331f868fa1",
+      "kind": "material",
+      "name": "shade",
+      "sourceIndex": 4,
+      "sourceKey": "material:shade"
+    },
+    {
+      "guid": "01a21598-4ec3-7e33-87b7-b034dd07bbc4",
+      "kind": "material",
+      "name": "blue",
+      "sourceIndex": 5,
+      "sourceKey": "material:blue"
+    },
+    {
+      "guid": "01a21598-4ec3-7e33-87b7-b0358c9e64c3",
+      "kind": "material",
+      "name": "blue_light",
+      "sourceIndex": 6,
+      "sourceKey": "material:blue_light"
+    },
+    {
+      "guid": "01a21598-4ec3-7e33-87b7-b0365a263048",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}

@@ -10,3 +10,8 @@ art_source/toy/hunyuan/*_raw.glb
 
 __pycache__/
 *.pyc
+
+# ForgeAX local toolchain and install caches
+.forgeax-sdk-0.5.0/
+.tools/
+.npm-tmp/

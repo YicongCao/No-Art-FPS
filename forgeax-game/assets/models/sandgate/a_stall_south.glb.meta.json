@@ -1,0 +1,188 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "a_stall_south"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "a_stall_south.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:a_stall_south"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:a_stall_south": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a21598-91b4-7290-b298-9b1e2a233d8e",
+          "slotName": "stone",
+          "sourceKey": "material:stone"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-91b4-7290-b298-9b1f997cebcc",
+          "slotName": "gold",
+          "sourceKey": "material:gold"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-91b4-7290-b298-9b20c425482e",
+          "slotName": "wood_light",
+          "sourceKey": "material:wood_light"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-91b4-7290-b298-9b2103300fd4",
+          "slotName": "crate",
+          "sourceKey": "material:crate"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-91b4-7290-b298-9b224112f08a",
+          "slotName": "cap",
+          "sourceKey": "material:cap"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-91b4-7290-b298-9b23da8fba1e",
+          "slotName": "stripe",
+          "sourceKey": "material:stripe"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-91b4-7290-b298-9b244d8fc8d3",
+          "slotName": "wood",
+          "sourceKey": "material:wood"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-91b4-7290-b298-9b2525f3a3bc",
+          "slotName": "clay",
+          "sourceKey": "material:clay"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-91b4-7290-b298-9b260466d54d",
+          "slotName": "teal",
+          "sourceKey": "material:teal"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a21598-91b3-7953-8f59-ddb33317b74a",
+      "kind": "mesh",
+      "name": "a_stall_south",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:a_stall_south"
+    },
+    {
+      "guid": "01a21598-91b4-7290-b298-9b1e2a233d8e",
+      "kind": "material",
+      "name": "stone",
+      "sourceIndex": 0,
+      "sourceKey": "material:stone"
+    },
+    {
+      "guid": "01a21598-91b4-7290-b298-9b1f997cebcc",
+      "kind": "material",
+      "name": "gold",
+      "sourceIndex": 1,
+      "sourceKey": "material:gold"
+    },
+    {
+      "guid": "01a21598-91b4-7290-b298-9b20c425482e",
+      "kind": "material",
+      "name": "wood_light",
+      "sourceIndex": 2,
+      "sourceKey": "material:wood_light"
+    },
+    {
+      "guid": "01a21598-91b4-7290-b298-9b2103300fd4",
+      "kind": "material",
+      "name": "crate",
+      "sourceIndex": 3,
+      "sourceKey": "material:crate"
+    },
+    {
+      "guid": "01a21598-91b4-7290-b298-9b224112f08a",
+      "kind": "material",
+      "name": "cap",
+      "sourceIndex": 4,
+      "sourceKey": "material:cap"
+    },
+    {
+      "guid": "01a21598-91b4-7290-b298-9b23da8fba1e",
+      "kind": "material",
+      "name": "stripe",
+      "sourceIndex": 5,
+      "sourceKey": "material:stripe"
+    },
+    {
+      "guid": "01a21598-91b4-7290-b298-9b244d8fc8d3",
+      "kind": "material",
+      "name": "wood",
+      "sourceIndex": 6,
+      "sourceKey": "material:wood"
+    },
+    {
+      "guid": "01a21598-91b4-7290-b298-9b2525f3a3bc",
+      "kind": "material",
+      "name": "clay",
+      "sourceIndex": 7,
+      "sourceKey": "material:clay"
+    },
+    {
+      "guid": "01a21598-91b4-7290-b298-9b260466d54d",
+      "kind": "material",
+      "name": "teal",
+      "sourceIndex": 8,
+      "sourceKey": "material:teal"
+    },
+    {
+      "guid": "01a21598-91b4-7290-b298-9b2769932b55",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}

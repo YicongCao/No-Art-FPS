@@ -1,0 +1,140 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "mid_return_box"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "mid_return_box.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:mid_return_box"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:mid_return_box": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a21599-23a0-7151-8210-b39e5d09702d",
+          "slotName": "crate",
+          "sourceKey": "material:crate"
+        },
+        {
+          "defaultMaterialGuid": "01a21599-23a0-7151-8210-b39f0ade6174",
+          "slotName": "gold",
+          "sourceKey": "material:gold"
+        },
+        {
+          "defaultMaterialGuid": "01a21599-23a0-7151-8210-b3a07d7d5cb6",
+          "slotName": "cap",
+          "sourceKey": "material:cap"
+        },
+        {
+          "defaultMaterialGuid": "01a21599-23a0-7151-8210-b3a1e9800d96",
+          "slotName": "wood_light",
+          "sourceKey": "material:wood_light"
+        },
+        {
+          "defaultMaterialGuid": "01a21599-23a0-7151-8210-b3a2cf8ced70",
+          "slotName": "wood",
+          "sourceKey": "material:wood"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a21599-23a0-7151-8210-b39df71e12b4",
+      "kind": "mesh",
+      "name": "mid_return_box",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:mid_return_box"
+    },
+    {
+      "guid": "01a21599-23a0-7151-8210-b39e5d09702d",
+      "kind": "material",
+      "name": "crate",
+      "sourceIndex": 0,
+      "sourceKey": "material:crate"
+    },
+    {
+      "guid": "01a21599-23a0-7151-8210-b39f0ade6174",
+      "kind": "material",
+      "name": "gold",
+      "sourceIndex": 1,
+      "sourceKey": "material:gold"
+    },
+    {
+      "guid": "01a21599-23a0-7151-8210-b3a07d7d5cb6",
+      "kind": "material",
+      "name": "cap",
+      "sourceIndex": 2,
+      "sourceKey": "material:cap"
+    },
+    {
+      "guid": "01a21599-23a0-7151-8210-b3a1e9800d96",
+      "kind": "material",
+      "name": "wood_light",
+      "sourceIndex": 3,
+      "sourceKey": "material:wood_light"
+    },
+    {
+      "guid": "01a21599-23a0-7151-8210-b3a2cf8ced70",
+      "kind": "material",
+      "name": "wood",
+      "sourceIndex": 4,
+      "sourceKey": "material:wood"
+    },
+    {
+      "guid": "01a21599-23a0-7151-8210-b3a3846c6a05",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}

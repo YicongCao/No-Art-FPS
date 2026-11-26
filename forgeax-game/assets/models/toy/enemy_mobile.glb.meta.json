@@ -1,0 +1,834 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "BrokenVest",
+        "enemy",
+        "EnemyGun",
+        "Head",
+        "Helmet",
+        "LeftPad",
+        "LeftPadTrim",
+        "LeftArm",
+        "LeftLeg",
+        "RightPad",
+        "RightArm",
+        "RightLeg",
+        "Torso",
+        "Vest",
+        "Visor"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "enemy_mobile.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:BrokenVest"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:Cube.075"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:Head"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:Helmet"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:LeftPad"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:LeftPadTrim"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:LeftArm"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:LeftLeg"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:RightPad"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:RightArm"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:RightLeg"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:Torso"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:Vest"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:Cube.058"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:BrokenVest": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a2159c-2f7e-7d7c-8502-21d973fe4b4a",
+          "slotName": "MobileActorVertexPaint",
+          "sourceKey": "material:MobileActorVertexPaint"
+        }
+      ]
+    },
+    "mesh:Cube.058": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a2159c-2f7e-7d7c-8502-21d973fe4b4a",
+          "slotName": "MobileActorVertexPaint",
+          "sourceKey": "material:MobileActorVertexPaint"
+        }
+      ]
+    },
+    "mesh:Cube.075": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a2159c-2f7e-7d7c-8502-21d973fe4b4a",
+          "slotName": "MobileActorVertexPaint",
+          "sourceKey": "material:MobileActorVertexPaint"
+        }
+      ]
+    },
+    "mesh:Head": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a2159c-2f7e-7d7c-8502-21d973fe4b4a",
+          "slotName": "MobileActorVertexPaint",
+          "sourceKey": "material:MobileActorVertexPaint"
+        }
+      ]
+    },
+    "mesh:Helmet": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a2159c-2f7e-7d7c-8502-21d973fe4b4a",
+          "slotName": "MobileActorVertexPaint",
+          "sourceKey": "material:MobileActorVertexPaint"
+        }
+      ]
+    },
+    "mesh:LeftArm": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a2159c-2f7e-7d7c-8502-21d973fe4b4a",
+          "slotName": "MobileActorVertexPaint",
+          "sourceKey": "material:MobileActorVertexPaint"
+        }
+      ]
+    },
+    "mesh:LeftLeg": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a2159c-2f7e-7d7c-8502-21d973fe4b4a",
+          "slotName": "MobileActorVertexPaint",
+          "sourceKey": "material:MobileActorVertexPaint"
+        }
+      ]
+    },
+    "mesh:LeftPad": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a2159c-2f7e-7d7c-8502-21d973fe4b4a",
+          "slotName": "MobileActorVertexPaint",
+          "sourceKey": "material:MobileActorVertexPaint"
+        }
+      ]
+    },
+    "mesh:LeftPadTrim": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a2159c-2f7e-7d7c-8502-21d973fe4b4a",
+          "slotName": "MobileActorVertexPaint",
+          "sourceKey": "material:MobileActorVertexPaint"
+        }
+      ]
+    },
+    "mesh:RightArm": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a2159c-2f7e-7d7c-8502-21d973fe4b4a",
+          "slotName": "MobileActorVertexPaint",
+          "sourceKey": "material:MobileActorVertexPaint"
+        }
+      ]
+    },
+    "mesh:RightLeg": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a2159c-2f7e-7d7c-8502-21d973fe4b4a",
+          "slotName": "MobileActorVertexPaint",
+          "sourceKey": "material:MobileActorVertexPaint"
+        }
+      ]
+    },
+    "mesh:RightPad": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a2159c-2f7e-7d7c-8502-21d973fe4b4a",
+          "slotName": "MobileActorVertexPaint",
+          "sourceKey": "material:MobileActorVertexPaint"
+        }
+      ]
+    },
+    "mesh:Torso": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a2159c-2f7e-7d7c-8502-21d973fe4b4a",
+          "slotName": "MobileActorVertexPaint",
+          "sourceKey": "material:MobileActorVertexPaint"
+        }
+      ]
+    },
+    "mesh:Vest": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a2159c-2f7e-7d7c-8502-21d973fe4b4a",
+          "slotName": "MobileActorVertexPaint",
+          "sourceKey": "material:MobileActorVertexPaint"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a2159c-2f7d-769e-80f8-40b5989923f0",
+      "kind": "mesh",
+      "name": "BrokenVest",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:BrokenVest"
+    },
+    {
+      "guid": "01a2159c-2f7e-7d7c-8502-21cc92c250ab",
+      "kind": "mesh",
+      "name": "Cube.075",
+      "sourceIndex": 1,
+      "sourceKey": "mesh:Cube.075"
+    },
+    {
+      "guid": "01a2159c-2f7e-7d7c-8502-21cd6b769fe4",
+      "kind": "mesh",
+      "name": "Head",
+      "sourceIndex": 2,
+      "sourceKey": "mesh:Head"
+    },
+    {
+      "guid": "01a2159c-2f7e-7d7c-8502-21ce98e6e466",
+      "kind": "mesh",
+      "name": "Helmet",
+      "sourceIndex": 3,
+      "sourceKey": "mesh:Helmet"
+    },
+    {
+      "guid": "01a2159c-2f7e-7d7c-8502-21cf1ac52223",
+      "kind": "mesh",
+      "name": "LeftPad",
+      "sourceIndex": 4,
+      "sourceKey": "mesh:LeftPad"
+    },
+    {
+      "guid": "01a2159c-2f7e-7d7c-8502-21d04906de46",
+      "kind": "mesh",
+      "name": "LeftPadTrim",
+      "sourceIndex": 5,
+      "sourceKey": "mesh:LeftPadTrim"
+    },
+    {
+      "guid": "01a2159c-2f7e-7d7c-8502-21d1d6657b3d",
+      "kind": "mesh",
+      "name": "LeftArm",
+      "sourceIndex": 6,
+      "sourceKey": "mesh:LeftArm"
+    },
+    {
+      "guid": "01a2159c-2f7e-7d7c-8502-21d2ddab835a",
+      "kind": "mesh",
+      "name": "LeftLeg",
+      "sourceIndex": 7,
+      "sourceKey": "mesh:LeftLeg"
+    },
+    {
+      "guid": "01a2159c-2f7e-7d7c-8502-21d33cd88515",
+      "kind": "mesh",
+      "name": "RightPad",
+      "sourceIndex": 8,
+      "sourceKey": "mesh:RightPad"
+    },
+    {
+      "guid": "01a2159c-2f7e-7d7c-8502-21d43e47d7cd",
+      "kind": "mesh",
+      "name": "RightArm",
+      "sourceIndex": 9,
+      "sourceKey": "mesh:RightArm"
+    },
+    {
+      "guid": "01a2159c-2f7e-7d7c-8502-21d538f2718e",
+      "kind": "mesh",
+      "name": "RightLeg",
+      "sourceIndex": 10,
+      "sourceKey": "mesh:RightLeg"
+    },
+    {
+      "guid": "01a2159c-2f7e-7d7c-8502-21d61cb66a60",
+      "kind": "mesh",
+      "name": "Torso",
+      "sourceIndex": 11,
+      "sourceKey": "mesh:Torso"
+    },
+    {
+      "guid": "01a2159c-2f7e-7d7c-8502-21d7f62f8a33",
+      "kind": "mesh",
+      "name": "Vest",
+      "sourceIndex": 12,
+      "sourceKey": "mesh:Vest"
+    },
+    {
+      "guid": "01a2159c-2f7e-7d7c-8502-21d89de52cc5",
+      "kind": "mesh",
+      "name": "Cube.058",
+      "sourceIndex": 13,
+      "sourceKey": "mesh:Cube.058"
+    },
+    {
+      "guid": "01a2159c-2f7e-7d7c-8502-21d973fe4b4a",
+      "kind": "material",
+      "name": "MobileActorVertexPaint",
+      "sourceIndex": 0,
+      "sourceKey": "material:MobileActorVertexPaint"
+    },
+    {
+      "guid": "01a2159c-2f7e-7d7c-8502-21da074ee0e7",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}

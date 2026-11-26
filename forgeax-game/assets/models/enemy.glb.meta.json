@@ -1,0 +1,1033 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "ChestMark",
+        "EnemyGun",
+        "Head",
+        "Helmet",
+        "LeftArm",
+        "LeftFoot",
+        "LeftHand",
+        "LeftLeg",
+        "Neck",
+        "Pelvis",
+        "RightArm",
+        "RightFoot",
+        "RightHand",
+        "RightLeg",
+        "Torso",
+        "Vest",
+        "Visor",
+        "enemy"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "enemy.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:Cube.277"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:Cube.288"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:Cylinder.003"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:Cylinder.004"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:Cube.284"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:Cube.281"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:Cube.285"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:Cube.280"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:Cylinder.002"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:Cube.278"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:Cube.286"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:Cube.283"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:Cube.287"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:Cube.282"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:Cube.275"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:Cube.276"
+    },
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:Cube.279"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:Cube.275": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a21599-65a9-73d6-945d-bb50df228543",
+          "slotName": "ink",
+          "sourceKey": "material:ink"
+        }
+      ]
+    },
+    "mesh:Cube.276": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a21599-65a9-73d6-945d-bb5163ccc645",
+          "slotName": "sole",
+          "sourceKey": "material:sole"
+        }
+      ]
+    },
+    "mesh:Cube.277": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a21599-65a9-73d6-945d-bb4e495c5e8c",
+          "slotName": "yellow",
+          "sourceKey": "material:yellow"
+        }
+      ]
+    },
+    "mesh:Cube.278": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a21599-65a9-73d6-945d-bb4fcf4e4f61",
+          "slotName": "dark",
+          "sourceKey": "material:dark"
+        }
+      ]
+    },
+    "mesh:Cube.279": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a21599-65a9-73d6-945d-bb52f29a60bc",
+          "slotName": "cream",
+          "sourceKey": "material:cream"
+        }
+      ]
+    },
+    "mesh:Cube.280": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a21599-65a9-73d6-945d-bb50df228543",
+          "slotName": "ink",
+          "sourceKey": "material:ink"
+        }
+      ]
+    },
+    "mesh:Cube.281": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a21599-65a9-73d6-945d-bb4fcf4e4f61",
+          "slotName": "dark",
+          "sourceKey": "material:dark"
+        }
+      ]
+    },
+    "mesh:Cube.282": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a21599-65a9-73d6-945d-bb50df228543",
+          "slotName": "ink",
+          "sourceKey": "material:ink"
+        }
+      ]
+    },
+    "mesh:Cube.283": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a21599-65a9-73d6-945d-bb4fcf4e4f61",
+          "slotName": "dark",
+          "sourceKey": "material:dark"
+        }
+      ]
+    },
+    "mesh:Cube.284": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a21599-65a9-73d6-945d-bb50df228543",
+          "slotName": "ink",
+          "sourceKey": "material:ink"
+        }
+      ]
+    },
+    "mesh:Cube.285": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a21599-65a9-73d6-945d-bb4fcf4e4f61",
+          "slotName": "dark",
+          "sourceKey": "material:dark"
+        }
+      ]
+    },
+    "mesh:Cube.286": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a21599-65a9-73d6-945d-bb50df228543",
+          "slotName": "ink",
+          "sourceKey": "material:ink"
+        }
+      ]
+    },
+    "mesh:Cube.287": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a21599-65a9-73d6-945d-bb4fcf4e4f61",
+          "slotName": "dark",
+          "sourceKey": "material:dark"
+        }
+      ]
+    },
+    "mesh:Cube.288": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a21599-65a9-73d6-945d-bb4fcf4e4f61",
+          "slotName": "dark",
+          "sourceKey": "material:dark"
+        }
+      ]
+    },
+    "mesh:Cylinder.002": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a21599-65a9-73d6-945d-bb4fcf4e4f61",
+          "slotName": "dark",
+          "sourceKey": "material:dark"
+        }
+      ]
+    },
+    "mesh:Cylinder.003": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a21599-65a9-73d6-945d-bb50df228543",
+          "slotName": "ink",
+          "sourceKey": "material:ink"
+        }
+      ]
+    },
+    "mesh:Cylinder.004": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a21599-65a9-73d6-945d-bb4fcf4e4f61",
+          "slotName": "dark",
+          "sourceKey": "material:dark"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a21599-65a8-72b4-aac7-0b77d3675f3b",
+      "kind": "mesh",
+      "name": "Cube.277",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:Cube.277"
+    },
+    {
+      "guid": "01a21599-65a9-73d6-945d-bb3ec9366391",
+      "kind": "mesh",
+      "name": "Cube.288",
+      "sourceIndex": 1,
+      "sourceKey": "mesh:Cube.288"
+    },
+    {
+      "guid": "01a21599-65a9-73d6-945d-bb3f331bf20c",
+      "kind": "mesh",
+      "name": "Cylinder.003",
+      "sourceIndex": 2,
+      "sourceKey": "mesh:Cylinder.003"
+    },
+    {
+      "guid": "01a21599-65a9-73d6-945d-bb40df2d4e6c",
+      "kind": "mesh",
+      "name": "Cylinder.004",
+      "sourceIndex": 3,
+      "sourceKey": "mesh:Cylinder.004"
+    },
+    {
+      "guid": "01a21599-65a9-73d6-945d-bb413aa82fbd",
+      "kind": "mesh",
+      "name": "Cube.284",
+      "sourceIndex": 4,
+      "sourceKey": "mesh:Cube.284"
+    },
+    {
+      "guid": "01a21599-65a9-73d6-945d-bb42652baa5f",
+      "kind": "mesh",
+      "name": "Cube.281",
+      "sourceIndex": 5,
+      "sourceKey": "mesh:Cube.281"
+    },
+    {
+      "guid": "01a21599-65a9-73d6-945d-bb432c8ef11c",
+      "kind": "mesh",
+      "name": "Cube.285",
+      "sourceIndex": 6,
+      "sourceKey": "mesh:Cube.285"
+    },
+    {
+      "guid": "01a21599-65a9-73d6-945d-bb447fcd8ad7",
+      "kind": "mesh",
+      "name": "Cube.280",
+      "sourceIndex": 7,
+      "sourceKey": "mesh:Cube.280"
+    },
+    {
+      "guid": "01a21599-65a9-73d6-945d-bb4546d5194b",
+      "kind": "mesh",
+      "name": "Cylinder.002",
+      "sourceIndex": 8,
+      "sourceKey": "mesh:Cylinder.002"
+    },
+    {
+      "guid": "01a21599-65a9-73d6-945d-bb460684e109",
+      "kind": "mesh",
+      "name": "Cube.278",
+      "sourceIndex": 9,
+      "sourceKey": "mesh:Cube.278"
+    },
+    {
+      "guid": "01a21599-65a9-73d6-945d-bb471e5995f9",
+      "kind": "mesh",
+      "name": "Cube.286",
+      "sourceIndex": 10,
+      "sourceKey": "mesh:Cube.286"
+    },
+    {
+      "guid": "01a21599-65a9-73d6-945d-bb48a362ab9f",
+      "kind": "mesh",
+      "name": "Cube.283",
+      "sourceIndex": 11,
+      "sourceKey": "mesh:Cube.283"
+    },
+    {
+      "guid": "01a21599-65a9-73d6-945d-bb497cf01d10",
+      "kind": "mesh",
+      "name": "Cube.287",
+      "sourceIndex": 12,
+      "sourceKey": "mesh:Cube.287"
+    },
+    {
+      "guid": "01a21599-65a9-73d6-945d-bb4a2b5d1527",
+      "kind": "mesh",
+      "name": "Cube.282",
+      "sourceIndex": 13,
+      "sourceKey": "mesh:Cube.282"
+    },
+    {
+      "guid": "01a21599-65a9-73d6-945d-bb4b8ef1b0eb",
+      "kind": "mesh",
+      "name": "Cube.275",
+      "sourceIndex": 14,
+      "sourceKey": "mesh:Cube.275"
+    },
+    {
+      "guid": "01a21599-65a9-73d6-945d-bb4cad88afaf",
+      "kind": "mesh",
+      "name": "Cube.276",
+      "sourceIndex": 15,
+      "sourceKey": "mesh:Cube.276"
+    },
+    {
+      "guid": "01a21599-65a9-73d6-945d-bb4d63b0d523",
+      "kind": "mesh",
+      "name": "Cube.279",
+      "sourceIndex": 16,
+      "sourceKey": "mesh:Cube.279"
+    },
+    {
+      "guid": "01a21599-65a9-73d6-945d-bb4e495c5e8c",
+      "kind": "material",
+      "name": "yellow",
+      "sourceIndex": 0,
+      "sourceKey": "material:yellow"
+    },
+    {
+      "guid": "01a21599-65a9-73d6-945d-bb4fcf4e4f61",
+      "kind": "material",
+      "name": "dark",
+      "sourceIndex": 1,
+      "sourceKey": "material:dark"
+    },
+    {
+      "guid": "01a21599-65a9-73d6-945d-bb50df228543",
+      "kind": "material",
+      "name": "ink",
+      "sourceIndex": 2,
+      "sourceKey": "material:ink"
+    },
+    {
+      "guid": "01a21599-65a9-73d6-945d-bb5163ccc645",
+      "kind": "material",
+      "name": "sole",
+      "sourceIndex": 3,
+      "sourceKey": "material:sole"
+    },
+    {
+      "guid": "01a21599-65a9-73d6-945d-bb52f29a60bc",
+      "kind": "material",
+      "name": "cream",
+      "sourceIndex": 4,
+      "sourceKey": "material:cream"
+    },
+    {
+      "guid": "01a21599-65a9-73d6-945d-bb53b8b19a61",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "cloud_cream",
+        "cloud"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "cloud.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:Icosphere"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:Icosphere": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a21599-7f15-7868-866d-dfb3a8cda752",
+          "slotName": "cream",
+          "sourceKey": "material:cream"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a21599-7f15-7868-866d-dfb275fb46fd",
+      "kind": "mesh",
+      "name": "Icosphere",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:Icosphere"
+    },
+    {
+      "guid": "01a21599-7f15-7868-866d-dfb3a8cda752",
+      "kind": "material",
+      "name": "cream",
+      "sourceIndex": 0,
+      "sourceKey": "material:cream"
+    },
+    {
+      "guid": "01a21599-7f15-7868-866d-dfb49d000b21",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}

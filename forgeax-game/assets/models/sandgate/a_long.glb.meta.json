@@ -1,0 +1,308 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "a_long"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "a_long.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:a_long"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:a_long": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a21598-5c11-7449-b175-fcc53aaa2704",
+          "slotName": "pale.001",
+          "sourceKey": "material:pale.001"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-5c11-7449-b175-fcc612916d5a",
+          "slotName": "stone.001",
+          "sourceKey": "material:stone.001"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-5c11-7449-b175-fcc7017f660e",
+          "slotName": "cap.001",
+          "sourceKey": "material:cap.001"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-5c11-7449-b175-fcc8ea8ec23c",
+          "slotName": "shade.001",
+          "sourceKey": "material:shade.001"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-5c11-7449-b175-fcc93a12f2f6",
+          "slotName": "clay_light",
+          "sourceKey": "material:clay_light"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-5c11-7449-b175-fcca8ebcdce9",
+          "slotName": "plaster.001",
+          "sourceKey": "material:plaster.001"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-5c11-7449-b175-fccba09ed5a4",
+          "slotName": "wood",
+          "sourceKey": "material:wood"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-5c11-7449-b175-fcccf9ecd132",
+          "slotName": "wood_light",
+          "sourceKey": "material:wood_light"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-5c11-7449-b175-fccd3c39e5bc",
+          "slotName": "iron.001",
+          "sourceKey": "material:iron.001"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-5c11-7449-b175-fcce998a4fbc",
+          "slotName": "red",
+          "sourceKey": "material:red"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-5c11-7449-b175-fccf54812e71",
+          "slotName": "teal.001",
+          "sourceKey": "material:teal.001"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-5c11-7449-b175-fcd08eb58c07",
+          "slotName": "blue",
+          "sourceKey": "material:blue"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-5c11-7449-b175-fcd175e68757",
+          "slotName": "blue_light",
+          "sourceKey": "material:blue_light"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-5c11-7449-b175-fcd231b22768",
+          "slotName": "purple.001",
+          "sourceKey": "material:purple.001"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-5c11-7449-b175-fcd3bc29550f",
+          "slotName": "stripe",
+          "sourceKey": "material:stripe"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-5c11-7449-b175-fcd4edb4ea07",
+          "slotName": "clay",
+          "sourceKey": "material:clay"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-5c11-7449-b175-fcd5107852d6",
+          "slotName": "leaf",
+          "sourceKey": "material:leaf"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-5c11-7449-b175-fcd67c923be2",
+          "slotName": "leaf_light",
+          "sourceKey": "material:leaf_light"
+        },
+        {
+          "defaultMaterialGuid": "01a21598-5c11-7449-b175-fcd7155a0589",
+          "slotName": "sand.001",
+          "sourceKey": "material:sand.001"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a21598-5c11-7449-b175-fcc4ff9209cc",
+      "kind": "mesh",
+      "name": "a_long",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:a_long"
+    },
+    {
+      "guid": "01a21598-5c11-7449-b175-fcc53aaa2704",
+      "kind": "material",
+      "name": "pale.001",
+      "sourceIndex": 0,
+      "sourceKey": "material:pale.001"
+    },
+    {
+      "guid": "01a21598-5c11-7449-b175-fcc612916d5a",
+      "kind": "material",
+      "name": "stone.001",
+      "sourceIndex": 1,
+      "sourceKey": "material:stone.001"
+    },
+    {
+      "guid": "01a21598-5c11-7449-b175-fcc7017f660e",
+      "kind": "material",
+      "name": "cap.001",
+      "sourceIndex": 2,
+      "sourceKey": "material:cap.001"
+    },
+    {
+      "guid": "01a21598-5c11-7449-b175-fcc8ea8ec23c",
+      "kind": "material",
+      "name": "shade.001",
+      "sourceIndex": 3,
+      "sourceKey": "material:shade.001"
+    },
+    {
+      "guid": "01a21598-5c11-7449-b175-fcc93a12f2f6",
+      "kind": "material",
+      "name": "clay_light",
+      "sourceIndex": 4,
+      "sourceKey": "material:clay_light"
+    },
+    {
+      "guid": "01a21598-5c11-7449-b175-fcca8ebcdce9",
+      "kind": "material",
+      "name": "plaster.001",
+      "sourceIndex": 5,
+      "sourceKey": "material:plaster.001"
+    },
+    {
+      "guid": "01a21598-5c11-7449-b175-fccba09ed5a4",
+      "kind": "material",
+      "name": "wood",
+      "sourceIndex": 6,
+      "sourceKey": "material:wood"
+    },
+    {
+      "guid": "01a21598-5c11-7449-b175-fcccf9ecd132",
+      "kind": "material",
+      "name": "wood_light",
+      "sourceIndex": 7,
+      "sourceKey": "material:wood_light"
+    },
+    {
+      "guid": "01a21598-5c11-7449-b175-fccd3c39e5bc",
+      "kind": "material",
+      "name": "iron.001",
+      "sourceIndex": 8,
+      "sourceKey": "material:iron.001"
+    },
+    {
+      "guid": "01a21598-5c11-7449-b175-fcce998a4fbc",
+      "kind": "material",
+      "name": "red",
+      "sourceIndex": 9,
+      "sourceKey": "material:red"
+    },
+    {
+      "guid": "01a21598-5c11-7449-b175-fccf54812e71",
+      "kind": "material",
+      "name": "teal.001",
+      "sourceIndex": 10,
+      "sourceKey": "material:teal.001"
+    },
+    {
+      "guid": "01a21598-5c11-7449-b175-fcd08eb58c07",
+      "kind": "material",
+      "name": "blue",
+      "sourceIndex": 11,
+      "sourceKey": "material:blue"
+    },
+    {
+      "guid": "01a21598-5c11-7449-b175-fcd175e68757",
+      "kind": "material",
+      "name": "blue_light",
+      "sourceIndex": 12,
+      "sourceKey": "material:blue_light"
+    },
+    {
+      "guid": "01a21598-5c11-7449-b175-fcd231b22768",
+      "kind": "material",
+      "name": "purple.001",
+      "sourceIndex": 13,
+      "sourceKey": "material:purple.001"
+    },
+    {
+      "guid": "01a21598-5c11-7449-b175-fcd3bc29550f",
+      "kind": "material",
+      "name": "stripe",
+      "sourceIndex": 14,
+      "sourceKey": "material:stripe"
+    },
+    {
+      "guid": "01a21598-5c11-7449-b175-fcd4edb4ea07",
+      "kind": "material",
+      "name": "clay",
+      "sourceIndex": 15,
+      "sourceKey": "material:clay"
+    },
+    {
+      "guid": "01a21598-5c11-7449-b175-fcd5107852d6",
+      "kind": "material",
+      "name": "leaf",
+      "sourceIndex": 16,
+      "sourceKey": "material:leaf"
+    },
+    {
+      "guid": "01a21598-5c11-7449-b175-fcd67c923be2",
+      "kind": "material",
+      "name": "leaf_light",
+      "sourceIndex": 17,
+      "sourceKey": "material:leaf_light"
+    },
+    {
+      "guid": "01a21598-5c11-7449-b175-fcd7155a0589",
+      "kind": "material",
+      "name": "sand.001",
+      "sourceIndex": 18,
+      "sourceKey": "material:sand.001"
+    },
+    {
+      "guid": "01a21598-5c11-7449-b175-fcd8281fdbb8",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}
