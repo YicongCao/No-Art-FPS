@@ -14,6 +14,25 @@ interface HudState {
 }
 
 const PHASES = ['ready', 'countdown', 'running', 'paused', 'results'] as const;
+const BEST_KEY = 'no-art-fps.best.sandgate';
+
+function readStoredBest(): number {
+  try {
+    const raw = globalThis.localStorage?.getItem(BEST_KEY);
+    const value = raw ? Math.floor(Number(raw)) : 0;
+    return Number.isFinite(value) && value > 0 ? value : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function writeStoredBest(value: number): void {
+  try {
+    globalThis.localStorage?.setItem(BEST_KEY, String(Math.floor(value)));
+  } catch {
+    // Storage can be unavailable in a private or embedded context.
+  }
+}
 
 export async function createGuideUi(
   asset: UiAsset,
@@ -43,16 +62,28 @@ export async function createGuideUi(
   const restart = query<HTMLButtonElement>('restart');
   const port = host.presentationPort ?? host.port;
   let disposed = false;
+  let storedBest = readStoredBest();
+  let bestAnnouncements = 0;
+
+  const announceBest = () => {
+    if (bestAnnouncements >= 2) return;
+    bestAnnouncements += 1;
+    port?.postMessage({ channel: CONTROL_CHANNEL, kind: 'best', value: storedBest });
+  };
 
   const update = (state: HudState) => {
     for (const phase of PHASES) ui.host.classList.toggle(phase, state.phase === phase);
     ui.host.classList.toggle('low-health', state.health <= 1);
     ui.host.classList.toggle('show-ammo', state.reloading || state.ammo < 20);
+    if (state.phase === 'results' && state.best > storedBest) {
+      storedBest = state.best;
+      writeStoredBest(storedBest);
+    }
     time.textContent = String(Math.ceil(state.time));
     kills.textContent = String(state.kills);
     countdown.textContent = String(Math.max(1, Math.ceil(state.countdown)));
     resultKills.textContent = String(state.kills);
-    resultBest.textContent = `BEST ${state.best}`;
+    resultBest.textContent = `BEST ${Math.max(state.best, storedBest)}`;
     ammo.textContent = state.reloading ? 'RELOAD' : String(state.ammo);
     ammo.classList.toggle('reloading', state.reloading);
     restart.hidden = state.phase !== 'results';
@@ -60,6 +91,7 @@ export async function createGuideUi(
   const receive = (event: MessageEvent) => {
     const data = event.data as { channel?: string; state?: HudState } | undefined;
     if (data?.channel !== HUD_CHANNEL || !data.state) return;
+    announceBest();
     update(data.state);
   };
   const restartRun = () => {
@@ -72,6 +104,7 @@ export async function createGuideUi(
   restart.addEventListener('click', restartRun);
   port?.addEventListener('message', receive);
   port?.start();
+  announceBest();
 
   let closed = false;
   const dispose = () => {

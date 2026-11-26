@@ -33,6 +33,7 @@ import {
   PLAYER_START,
   REINFORCEMENT_POINTS,
 } from './map-data.ts';
+import { populationTarget, RUN_SECONDS, wantsRusher } from './rules.ts';
 
 type Phase = 'ready' | 'countdown' | 'running' | 'paused' | 'results';
 
@@ -47,8 +48,7 @@ interface EnemyState {
 
 const PLAYER_CENTER_HEIGHT = 0.93;
 const ENEMY_CENTER_HEIGHT = 0.93;
-const MAX_ENEMIES = 8;
-const RUN_SECONDS = 60;
+const MAX_ENEMIES = 12;
 const COUNTDOWN_SECONDS = 3;
 const MAGAZINE_SIZE = 20;
 const FIRE_INTERVAL = 0.09;
@@ -306,8 +306,12 @@ export const fps: Plugin = {
       };
 
       const receive = (event: MessageEvent) => {
-        const data = event.data as { channel?: string; kind?: string } | undefined;
-        if (data?.channel === CONTROL_CHANNEL && data.kind === 'restart') restartRequested = true;
+        const data = event.data as { channel?: string; kind?: string; value?: unknown } | undefined;
+        if (data?.channel !== CONTROL_CHANNEL) return;
+        if (data.kind === 'restart') restartRequested = true;
+        if (data.kind === 'best' && typeof data.value === 'number' && Number.isFinite(data.value)) {
+          best = Math.max(best, Math.floor(data.value));
+        }
       };
       host.port?.addEventListener('message', receive);
       host.port?.start();
@@ -447,9 +451,12 @@ export const fps: Plugin = {
             } else {
               time = Math.max(0, time - dt);
               spawnTimer -= dt;
-              if (spawnTimer <= 0 && enemies.size < MAX_ENEMIES) {
-                spawnEnemy(enemies.size >= 5);
-                spawnTimer = 1.15;
+              const elapsed = RUN_SECONDS - time;
+              if (spawnTimer <= 0 && enemies.size < populationTarget(elapsed)) {
+                let rushers = 0;
+                for (const enemy of enemies.values()) if (enemy.speed > 3) rushers += 1;
+                spawnEnemy(wantsRusher(elapsed, rushers, Math.random()));
+                spawnTimer = 0.2;
               }
               if (time <= 0) {
                 phase = 'results';

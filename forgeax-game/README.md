@@ -14,9 +14,12 @@ Runtime split:
   magazine, 0.9 s reload, up to eight enemies that spawn at least 8 m away, and headshots above the
   enemy centre. The aim ray uses packed collision groups so it never hits the shooter.
 - `assets/fps/aim.ts` holds the shared collision groups and the eye-level aim ray.
+- `assets/fps/rules.ts` holds the ported pacing: 8 live enemies before 20 s, 10 before 40 s, then
+  12, with rushers limited to two before 40 s and three after (`wantsRusher`).
 - `assets/ui/guide-controller.ts` renders the HUD from `assets/guide.ui.html`: time and kills, a
   crosshair, contextual ammo, a low-health edge vignette, and the ready, paused, countdown and
-  results overlays.
+  results overlays. The presentation realm keeps the Sandgate best score in
+  `localStorage['no-art-fps.best.sandgate']` and announces it over the control channel.
 - `assets/audio/` carries the Godot project's shot, hit, headshot, kill, hurt, tick, reload and
   round-end effects plus `sixty.ogg`. The fps plugin plays them through `AudioSource` voices and
   loops the music from the countdown to the results screen.
