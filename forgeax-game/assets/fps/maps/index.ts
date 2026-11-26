@@ -1,5 +1,5 @@
 import { MAP_MUSIC } from '../assets.ts';
-import type { MapCollider, MapPoint, MapVisual } from './types.ts';
+import type { MapCollider, MapEnvironment, MapPoint, MapVisual } from './types.ts';
 import * as bbOffice from './bb_office.ts';
 import * as sandgate from './sandgate.ts';
 
@@ -12,6 +12,7 @@ export interface MapDefinition {
   readonly openings: readonly MapPoint[];
   readonly reinforcements: readonly MapPoint[];
   readonly respawns: readonly MapPoint[];
+  readonly environment: MapEnvironment;
   readonly music: string;
 }
 
@@ -28,6 +29,7 @@ export const MAPS: Record<MapId, MapDefinition> = {
     openings: sandgate.OPENING_POINTS,
     reinforcements: sandgate.REINFORCEMENT_POINTS,
     respawns: sandgate.RESPAWN_POINTS,
+    environment: sandgate.ENVIRONMENT,
     music: MAP_MUSIC.sandgate,
   },
   bb_office: {
@@ -39,6 +41,7 @@ export const MAPS: Record<MapId, MapDefinition> = {
     openings: bbOffice.OPENING_POINTS,
     reinforcements: bbOffice.REINFORCEMENT_POINTS,
     respawns: bbOffice.RESPAWN_POINTS,
+    environment: bbOffice.ENVIRONMENT,
     music: MAP_MUSIC.bb_office,
   },
 };

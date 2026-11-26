@@ -11,6 +11,7 @@ import {
   type PhysicsWorld,
 } from '@forgeax/engine/physics';
 import type { Plugin } from '@forgeax/engine/plugin';
+import { Camera, Skylight } from '@forgeax/engine/render';
 import { ChildOf, Name, Transform, worldDespawnScene } from '@forgeax/engine/scene';
 import type { AssetHandle } from '@forgeax/engine/types';
 import type {} from '@forgeax/engine/app';
@@ -79,6 +80,7 @@ export const fps: Plugin = {
     if (!playerService) throw new Error('no-art-fps/combat requires the player service');
     const player = playerService.entity;
     const camera = resolveGameEntity(world, ctx.gameScene, 'camera');
+    const skylight = resolveGameEntity(world, ctx.gameScene, 'skylight');
     let mapId: MapId = 'sandgate';
     let map: MapDefinition = MAPS[mapId];
 
@@ -170,6 +172,19 @@ export const fps: Plugin = {
         playMusic(false);
         mapId = id;
         map = MAPS[id];
+        const environment = map.environment;
+        world.set(camera, Camera, {
+          clearColor: [
+            environment.background[0],
+            environment.background[1],
+            environment.background[2],
+            1,
+          ],
+        }).unwrap();
+        world.set(skylight, Skylight, {
+          color: [environment.ambient[0], environment.ambient[1], environment.ambient[2]],
+          intensity: environment.ambientEnergy,
+        }).unwrap();
         for (const visual of map.visuals) {
           const loaded = await assets.load(visual.guid, 'scene');
           if (!loaded.ok) throw loaded.error;
@@ -195,8 +210,7 @@ export const fps: Plugin = {
           ).unwrap());
         }
         const musicLoaded = await assets.load(map.music, 'audio');
-        if (!musicLoaded.ok) throw musicLoaded.error;
-        if (musicClip !== undefined) assets.release(musicClip).unwrap();
+        if (!musicLoaded.ok) throw musicLoaded.error;        if (musicClip !== undefined) assets.release(musicClip).unwrap();
         musicClip = musicLoaded.value;
         if (music === undefined) {
           music = world.spawn({

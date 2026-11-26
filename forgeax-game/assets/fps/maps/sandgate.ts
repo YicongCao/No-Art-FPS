@@ -5,6 +5,19 @@ import type { MapCollider, MapVisual } from './types.ts';
 
 export const MAP_ID = "sandgate";
 export const MAP_TITLE = "SANDGATE";
+export const ENVIRONMENT = {
+  "background": [
+    0.32156864,
+    0.49019608,
+    0.7764706
+  ],
+  "ambient": [
+    0.88235295,
+    0.90588236,
+    1
+  ],
+  "ambientEnergy": 0.54
+} as const;
 export const PLAYER_START = [
   15.73,
   0.05,

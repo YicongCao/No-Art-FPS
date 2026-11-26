@@ -14,3 +14,10 @@ export interface MapCollider {
 }
 
 export type MapPoint = readonly [number, number, number];
+
+/** Godot WorldEnvironment values that drive the sky clear colour and ambient light. */
+export interface MapEnvironment {
+  readonly background: readonly [number, number, number];
+  readonly ambient: readonly [number, number, number];
+  readonly ambientEnergy: number;
+}

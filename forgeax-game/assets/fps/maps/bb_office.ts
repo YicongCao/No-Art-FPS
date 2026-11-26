@@ -5,6 +5,19 @@ import type { MapCollider, MapVisual } from './types.ts';
 
 export const MAP_ID = "bb_office";
 export const MAP_TITLE = "BB OFFICE";
+export const ENVIRONMENT = {
+  "background": [
+    0.47058824,
+    0.6156863,
+    0.75686276
+  ],
+  "ambient": [
+    0.9019608,
+    0.93333334,
+    1
+  ],
+  "ambientEnergy": 0.82
+} as const;
 export const PLAYER_START = [
   7,
   0.05,

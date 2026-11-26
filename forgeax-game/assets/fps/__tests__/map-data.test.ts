@@ -51,4 +51,12 @@ describe.each(MAP_ORDER)('ported map data: %s', (id) => {
     expect(map.title.length).toBeGreaterThan(0);
     expect(map.music).toMatch(GUID);
   });
+
+  it('ports the authored environment colour and ambient energy', () => {
+    const { background, ambient, ambientEnergy } = map.environment;
+    expect(background.every((value) => value >= 0 && value <= 1)).toBe(true);
+    expect(ambient.every((value) => value >= 0 && value <= 1)).toBe(true);
+    expect(ambientEnergy).toBeGreaterThan(0);
+    expect(ambientEnergy).toBeLessThanOrEqual(4);
+  });
 });
