@@ -1,4 +1,5 @@
 import { FixedTime, FixedUpdate, Time, Update, type EntityHandle } from '@forgeax/engine/ecs';
+import { AudioSource } from '@forgeax/engine/audio';
 import { INPUT_SNAPSHOT_RESOURCE_KEY, type InputSnapshot } from '@forgeax/engine/input';
 import { quat, vec3 } from '@forgeax/engine/math';
 import {
@@ -11,11 +12,20 @@ import {
 } from '@forgeax/engine/physics';
 import type { Plugin } from '@forgeax/engine/plugin';
 import { ChildOf, Name, Transform, worldDespawnScene } from '@forgeax/engine/scene';
+import type { AssetHandle } from '@forgeax/engine/types';
 import type {} from '@forgeax/engine/app';
 import { resolveGameEntity } from '../shared/scene-refs.ts';
 import { EYE_HEIGHT, type Game3dPlayerService } from '../player/player.ts';
 import { AIM_DISTANCE, AIM_FILTER_MASK, aimRay } from './aim.ts';
-import { CONTROL_CHANNEL, ENEMY_SCENE, HUD_CHANNEL, RIFLE_SCENE, RUSHER_SCENE } from './assets.ts';
+import {
+  CONTROL_CHANNEL,
+  COMBAT_MUSIC,
+  ENEMY_SCENE,
+  HUD_CHANNEL,
+  RIFLE_SCENE,
+  RUSHER_SCENE,
+  SOUND_GUIDS,
+} from './assets.ts';
 import {
   MAP_COLLIDERS,
   MAP_VISUALS,
@@ -44,6 +54,24 @@ const MAGAZINE_SIZE = 20;
 const FIRE_INTERVAL = 0.09;
 const RELOAD_SECONDS = 0.9;
 const MAX_HEALTH = 3;
+const MAX_VOICES = 14;
+const VOICE_SECONDS = 1.5;
+const MUSIC_VOLUME = 0.5;
+
+/** Linear volumes converted from the Godot project's decibel values. */
+const SOUNDS = {
+  shot: { guid: SOUND_GUIDS.shot, volume: 0.32 },
+  hit: { guid: SOUND_GUIDS.hit, volume: 0.2 },
+  headshot: { guid: SOUND_GUIDS.headshot, volume: 0.45 },
+  kill: { guid: SOUND_GUIDS.kill, volume: 0.45 },
+  hurt: { guid: SOUND_GUIDS.hurt, volume: 0.28 },
+  end: { guid: SOUND_GUIDS.end, volume: 0.45 },
+  tick: { guid: SOUND_GUIDS.tick, volume: 0.25 },
+  reload: { guid: SOUND_GUIDS.reload, volume: 0.4 },
+  magazineLatch: { guid: SOUND_GUIDS.magazineLatch, volume: 0.35 },
+} as const;
+
+type SoundId = keyof typeof SOUNDS;
 
 export const fps: Plugin = {
   name: 'no-art-fps/combat',
@@ -89,6 +117,56 @@ export const fps: Plugin = {
       if (!rifleLoaded.ok) throw rifleLoaded.error;
       const rifleHandle = rifleLoaded.value;
       yield () => assets.release(rifleHandle).unwrap();
+
+      const clips = new Map<SoundId, AssetHandle<'audio'>>();
+      for (const id of Object.keys(SOUNDS) as SoundId[]) {
+        const loaded = await assets.load(SOUNDS[id].guid, 'audio');
+        if (!loaded.ok) throw loaded.error;
+        clips.set(id, loaded.value);
+        yield () => assets.release(loaded.value).unwrap();
+      }
+
+      const voices: { entity: EntityHandle; remaining: number }[] = [];
+      const playSound = (id: SoundId, rate = 1) => {
+        const clip = clips.get(id);
+        if (clip === undefined) return;
+        if (voices.length >= MAX_VOICES) {
+          const oldest = voices.shift();
+          if (oldest !== undefined) world.despawn(oldest.entity).unwrap();
+        }
+        const entity = world.spawn({
+          component: AudioSource,
+          data: {
+            clip,
+            playing: true,
+            volume: SOUNDS[id].volume,
+            playbackRate: rate,
+            spatialBlend: 0,
+          },
+        }).unwrap();
+        voices.push({ entity, remaining: VOICE_SECONDS });
+      };
+      yield () => {
+        for (const voice of voices.splice(0)) world.despawn(voice.entity).unwrap();
+      };
+
+      const musicLoaded = await assets.load(COMBAT_MUSIC, 'audio');
+      if (!musicLoaded.ok) throw musicLoaded.error;
+      const music = world.spawn({
+        component: AudioSource,
+        data: {
+          clip: musicLoaded.value,
+          playing: false,
+          loop: true,
+          volume: MUSIC_VOLUME,
+          spatialBlend: 0,
+        },
+      }).unwrap();
+      yield () => {
+        world.despawn(music).unwrap();
+        assets.release(musicLoaded.value).unwrap();
+      };
+      const playMusic = (on: boolean) => world.set(music, AudioSource, { playing: on }).unwrap();
 
       const mapRoots: EntityHandle[] = [];
       for (const visual of MAP_VISUALS) {
@@ -175,6 +253,7 @@ export const fps: Plugin = {
       const resetRun = () => {
         clearEnemies();
         phase = 'ready';
+        playMusic(false);
         time = RUN_SECONDS;
         countdown = COUNTDOWN_SECONDS;
         kills = 0;
@@ -246,16 +325,21 @@ export const fps: Plugin = {
         const hit = physics.raycast(origin, direction, AIM_DISTANCE, AIM_FILTER_MASK);
         ammo -= 1;
         fireCooldown = FIRE_INTERVAL;
+        playSound('shot', 0.94 + Math.random() * 0.11);
         if (!hit) return;
         const enemy = enemies.get(hit.entity as EntityHandle);
         if (!enemy) return;
         const body = world.get(enemy.entity, Transform).unwrap();
         const headshot = (hit.point[1] ?? 0) > (body.pos[1] ?? 0) + 0.55;
         enemy.health -= headshot ? 3 : 1;
-        if (enemy.health > 0) return;
+        if (enemy.health > 0) {
+          if (!headshot) playSound('hit');
+          return;
+        }
         removeEnemy(enemy.entity);
         kills += 1;
         spawnTimer = 0.2;
+        playSound(headshot ? 'headshot' : 'kill', 0.96 + Math.random() * 0.08);
       };
 
       world.addSystem(FixedUpdate, {
@@ -295,6 +379,7 @@ export const fps: Plugin = {
               enemy.attackCooldown = 0.9;
               health = Math.max(0, health - 1);
               hurtCooldown = 0.7;
+              playSound('hurt');
               if (health === 0) {
                 const spawn = vec3.create(PLAYER_START[0], PLAYER_START[1] + PLAYER_CENTER_HEIGHT, PLAYER_START[2]);
                 world.set(player, Transform, { pos: [spawn[0], spawn[1], spawn[2]] }).unwrap();
@@ -320,23 +405,36 @@ export const fps: Plugin = {
           }
           fireCooldown = Math.max(0, fireCooldown - dt);
           hurtCooldown = Math.max(0, hurtCooldown - dt);
+          for (let index = voices.length - 1; index >= 0; index -= 1) {
+            const voice = voices[index];
+            if (voice === undefined) continue;
+            voice.remaining -= dt;
+            if (voice.remaining > 0) continue;
+            voices.splice(index, 1);
+            world.despawn(voice.entity).unwrap();
+          }
           if (reload > 0) {
             reload -= dt;
             if (reload <= 0) {
               reload = 0;
               ammo = MAGAZINE_SIZE;
+              playSound('magazineLatch');
             }
           }
           const locked = input.mouse.pointerLocked;
           if (phase === 'ready' && locked) {
             phase = 'countdown';
             countdown = COUNTDOWN_SECONDS;
+            playMusic(true);
+            playSound('tick');
           } else if (phase === 'countdown') {
             if (!locked) {
               resumePhase = 'countdown';
               phase = 'paused';
             } else {
+              const previousSecond = Math.ceil(countdown);
               countdown -= dt;
+              if (countdown > 0 && Math.ceil(countdown) !== previousSecond) playSound('tick');
               if (countdown <= 0) {
                 phase = 'running';
                 countdown = 0;
@@ -357,6 +455,8 @@ export const fps: Plugin = {
                 phase = 'results';
                 best = Math.max(best, kills);
                 host.setPointerLockAllowed?.(false);
+                playMusic(false);
+                playSound('end');
               }
             }
           } else if (phase === 'paused' && locked) {
@@ -365,8 +465,14 @@ export const fps: Plugin = {
 
           if (phase === 'running' && locked) {
             if ((input.mouse.button(0) || input.mouse.justPressed(0)) && fireCooldown <= 0 && ammo > 0) fire();
-            if (input.keyboard.justPressedCode('KeyR') && reload <= 0 && ammo < MAGAZINE_SIZE) reload = RELOAD_SECONDS;
-            if (ammo <= 0 && reload <= 0) reload = RELOAD_SECONDS;
+            if (input.keyboard.justPressedCode('KeyR') && reload <= 0 && ammo < MAGAZINE_SIZE) {
+              reload = RELOAD_SECONDS;
+              playSound('reload');
+            }
+            if (ammo <= 0 && reload <= 0) {
+              reload = RELOAD_SECONDS;
+              playSound('reload');
+            }
           }
 
           hudTimer -= dt;

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "external-asset-package",
+  "importer": "audio",
+  "source": "cartridge_insert.wav",
+  "importSettings": {
+    "playback": "buffer"
+  },
+  "subAssets": [
+    {
+      "guid": "01a215d3-072d-7a2d-b89d-3d69ed9dc718",
+      "sourceIndex": 0,
+      "kind": "audio",
+      "sourceKey": "audio:audio"
+    }
+  ]
+}

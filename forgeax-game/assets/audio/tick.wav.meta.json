@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "external-asset-package",
+  "importer": "audio",
+  "source": "tick.wav",
+  "importSettings": {
+    "playback": "buffer"
+  },
+  "subAssets": [
+    {
+      "guid": "01a215d3-8c90-73bd-9801-cded16c81fcc",
+      "sourceIndex": 0,
+      "kind": "audio",
+      "sourceKey": "audio:audio"
+    }
+  ]
+}

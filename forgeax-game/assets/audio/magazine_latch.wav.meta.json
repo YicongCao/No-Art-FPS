@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "external-asset-package",
+  "importer": "audio",
+  "source": "magazine_latch.wav",
+  "importSettings": {
+    "playback": "buffer"
+  },
+  "subAssets": [
+    {
+      "guid": "01a215d3-6119-706d-9980-108c76c216d9",
+      "sourceIndex": 0,
+      "kind": "audio",
+      "sourceKey": "audio:audio"
+    }
+  ]
+}

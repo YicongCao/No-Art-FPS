@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "external-asset-package",
+  "importer": "audio",
+  "source": "end.wav",
+  "importSettings": {
+    "playback": "buffer"
+  },
+  "subAssets": [
+    {
+      "guid": "01a215d3-15b2-7ecb-b1e9-f9fd9bae8aec",
+      "sourceIndex": 0,
+      "kind": "audio",
+      "sourceKey": "audio:audio"
+    }
+  ]
+}

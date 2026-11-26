@@ -17,6 +17,9 @@ Runtime split:
 - `assets/ui/guide-controller.ts` renders the HUD from `assets/guide.ui.html`: time and kills, a
   crosshair, contextual ammo, a low-health edge vignette, and the ready, paused, countdown and
   results overlays.
+- `assets/audio/` carries the Godot project's shot, hit, headshot, kill, hurt, tick, reload and
+  round-end effects plus `sixty.ogg`. The fps plugin plays them through `AudioSource` voices and
+  loops the music from the countdown to the results screen.
 
 > [!IMPORTANT]
 > Click the game to lock the pointer and start the countdown. Move with <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>,
