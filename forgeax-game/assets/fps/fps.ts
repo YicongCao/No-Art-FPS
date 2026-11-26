@@ -86,6 +86,7 @@ export const fps: Plugin = {
 
     let phase: Phase = 'ready';
     let resumePhase: Phase = 'running';
+    let pointerRun = false;
     let time = RUN_SECONDS;
     let countdown = COUNTDOWN_SECONDS;
     let kills = 0;
@@ -280,6 +281,7 @@ export const fps: Plugin = {
       const resetRun = () => {
         clearEnemies();
         phase = 'ready';
+        pointerRun = false;
         playMusic(false);
         time = RUN_SECONDS;
         countdown = COUNTDOWN_SECONDS;
@@ -470,13 +472,14 @@ export const fps: Plugin = {
             }
           }
           const locked = input.mouse.pointerLocked;
-          if (phase === 'ready' && locked) {
+          if (phase === 'ready' && (locked || input.mouse.justPressed(0))) {
+            pointerRun = locked;
             phase = 'countdown';
             countdown = COUNTDOWN_SECONDS;
             playMusic(true);
             playSound('tick');
           } else if (phase === 'countdown') {
-            if (!locked) {
+            if (pointerRun && !locked) {
               resumePhase = 'countdown';
               phase = 'paused';
             } else {
@@ -489,7 +492,7 @@ export const fps: Plugin = {
               }
             }
           } else if (phase === 'running') {
-            if (!locked) {
+            if (pointerRun && !locked) {
               resumePhase = 'running';
               phase = 'paused';
             } else {
@@ -510,11 +513,11 @@ export const fps: Plugin = {
                 playSound('end');
               }
             }
-          } else if (phase === 'paused' && locked) {
+          } else if (phase === 'paused' && (locked || !pointerRun)) {
             phase = resumePhase;
           }
 
-          if (phase === 'running' && locked) {
+          if (phase === 'running' && (locked || !pointerRun)) {
             if ((input.mouse.button(0) || input.mouse.justPressed(0)) && fireCooldown <= 0 && ammo > 0) fire();
             if (input.keyboard.justPressedCode('KeyR') && reload <= 0 && ammo < MAGAZINE_SIZE) {
               reload = RELOAD_SECONDS;
