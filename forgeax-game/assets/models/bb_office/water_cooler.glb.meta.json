@@ -1,0 +1,176 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "water_cooler"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "water_cooler.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:water_cooler"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:water_cooler": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a215ea-a4ae-7662-be57-0fd515c696d9",
+          "slotName": "ivory",
+          "sourceKey": "material:ivory"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-a4ae-7662-be57-0fd61626d1da",
+          "slotName": "navy",
+          "sourceKey": "material:navy"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-a4ae-7662-be57-0fd77c0e9857",
+          "slotName": "galvanized",
+          "sourceKey": "material:galvanized"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-a4ae-7662-be57-0fd8f31eb612",
+          "slotName": "blue",
+          "sourceKey": "material:blue"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-a4ae-7662-be57-0fd9222393b2",
+          "slotName": "red",
+          "sourceKey": "material:red"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-a4ae-7662-be57-0fda7d12d62a",
+          "slotName": "screen",
+          "sourceKey": "material:screen"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-a4ae-7662-be57-0fdb036dce83",
+          "slotName": "laptop_glass",
+          "sourceKey": "material:laptop_glass"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-a4ae-7662-be57-0fdc4e42c3a2",
+          "slotName": "paper",
+          "sourceKey": "material:paper"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a215ea-a4ad-77dc-a7b8-7f4a9068829a",
+      "kind": "mesh",
+      "name": "water_cooler",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:water_cooler"
+    },
+    {
+      "guid": "01a215ea-a4ae-7662-be57-0fd515c696d9",
+      "kind": "material",
+      "name": "ivory",
+      "sourceIndex": 0,
+      "sourceKey": "material:ivory"
+    },
+    {
+      "guid": "01a215ea-a4ae-7662-be57-0fd61626d1da",
+      "kind": "material",
+      "name": "navy",
+      "sourceIndex": 1,
+      "sourceKey": "material:navy"
+    },
+    {
+      "guid": "01a215ea-a4ae-7662-be57-0fd77c0e9857",
+      "kind": "material",
+      "name": "galvanized",
+      "sourceIndex": 2,
+      "sourceKey": "material:galvanized"
+    },
+    {
+      "guid": "01a215ea-a4ae-7662-be57-0fd8f31eb612",
+      "kind": "material",
+      "name": "blue",
+      "sourceIndex": 3,
+      "sourceKey": "material:blue"
+    },
+    {
+      "guid": "01a215ea-a4ae-7662-be57-0fd9222393b2",
+      "kind": "material",
+      "name": "red",
+      "sourceIndex": 4,
+      "sourceKey": "material:red"
+    },
+    {
+      "guid": "01a215ea-a4ae-7662-be57-0fda7d12d62a",
+      "kind": "material",
+      "name": "screen",
+      "sourceIndex": 5,
+      "sourceKey": "material:screen"
+    },
+    {
+      "guid": "01a215ea-a4ae-7662-be57-0fdb036dce83",
+      "kind": "material",
+      "name": "laptop_glass",
+      "sourceIndex": 6,
+      "sourceKey": "material:laptop_glass"
+    },
+    {
+      "guid": "01a215ea-a4ae-7662-be57-0fdc4e42c3a2",
+      "kind": "material",
+      "name": "paper",
+      "sourceIndex": 7,
+      "sourceKey": "material:paper"
+    },
+    {
+      "guid": "01a215ea-a4ae-7662-be57-0fdd4123992e",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}

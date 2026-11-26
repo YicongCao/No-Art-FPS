@@ -1,0 +1,152 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "chair"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "chair.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:chair"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:chair": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a215e9-b85a-74bb-8a9e-4528be51d6bc",
+          "slotName": "dark_teal",
+          "sourceKey": "material:dark_teal"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-b85a-74bb-8a9e-452982a03bf6",
+          "slotName": "orange",
+          "sourceKey": "material:orange"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-b85a-74bb-8a9e-452a0566c04f",
+          "slotName": "slate",
+          "sourceKey": "material:slate"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-b85a-74bb-8a9e-452b5623af97",
+          "slotName": "teal",
+          "sourceKey": "material:teal"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-b85a-74bb-8a9e-452c7d28f2f9",
+          "slotName": "ink",
+          "sourceKey": "material:ink"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-b85a-74bb-8a9e-452d14112a06",
+          "slotName": "galvanized",
+          "sourceKey": "material:galvanized"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a215e9-b859-737f-87c5-bd00862678ca",
+      "kind": "mesh",
+      "name": "chair",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:chair"
+    },
+    {
+      "guid": "01a215e9-b85a-74bb-8a9e-4528be51d6bc",
+      "kind": "material",
+      "name": "dark_teal",
+      "sourceIndex": 0,
+      "sourceKey": "material:dark_teal"
+    },
+    {
+      "guid": "01a215e9-b85a-74bb-8a9e-452982a03bf6",
+      "kind": "material",
+      "name": "orange",
+      "sourceIndex": 1,
+      "sourceKey": "material:orange"
+    },
+    {
+      "guid": "01a215e9-b85a-74bb-8a9e-452a0566c04f",
+      "kind": "material",
+      "name": "slate",
+      "sourceIndex": 2,
+      "sourceKey": "material:slate"
+    },
+    {
+      "guid": "01a215e9-b85a-74bb-8a9e-452b5623af97",
+      "kind": "material",
+      "name": "teal",
+      "sourceIndex": 3,
+      "sourceKey": "material:teal"
+    },
+    {
+      "guid": "01a215e9-b85a-74bb-8a9e-452c7d28f2f9",
+      "kind": "material",
+      "name": "ink",
+      "sourceIndex": 4,
+      "sourceKey": "material:ink"
+    },
+    {
+      "guid": "01a215e9-b85a-74bb-8a9e-452d14112a06",
+      "kind": "material",
+      "name": "galvanized",
+      "sourceIndex": 5,
+      "sourceKey": "material:galvanized"
+    },
+    {
+      "guid": "01a215e9-b85a-74bb-8a9e-452efd02e470",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}

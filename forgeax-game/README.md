@@ -1,9 +1,10 @@
 # No-Art-FPS on ForgeAX
 
-Port of the Godot `No-Art-FPS` score-attack shooter to the ForgeAX engine. The Sandgate map, its
-111 authored static bodies, eight opening points, sixteen reinforcement points and seven respawn
-points are extracted from `../scenes/maps/sandgate.tscn` by `scripts/port-sandgate.mjs` into
-`assets/fps/map-data.ts`; Godot space is reused as-is (1 unit = 1 m, Y up, -Z forward).
+Port of the Godot `No-Art-FPS` score-attack shooter to the ForgeAX engine. Two maps are ported:
+Sandgate (26 visuals, 111 static bodies) and BB Office (106 visuals, 263 static bodies). Each keeps
+its authored start, opening, reinforcement and respawn markers; `scripts/port-map.mjs --map <id>`
+extracts them from `../scenes/maps/<id>.tscn` into `assets/fps/maps/<id>.ts`; Godot space is reused
+as-is (1 unit = 1 m, Y up, -Z forward).
 
 Runtime split:
 
@@ -11,15 +12,18 @@ Runtime split:
   pointer-lock look angles, exposed as the `game3dPlayer` service.
 - `assets/camera/camera.pack.ts` places the camera at eye height each frame; pitch is clamped to 70 degrees.
 - `assets/fps/fps.ts` runs the round: 3 s countdown, 60 s timer, 3 HP with timed respawn, 20-round
-  magazine, 0.9 s reload, up to eight enemies that spawn at least 8 m away, and headshots above the
-  enemy centre. The aim ray uses packed collision groups so it never hits the shooter.
+  magazine, 0.9 s reload, enemies that spawn at least 8 m away, and headshots above the enemy centre.
+  The aim ray uses packed collision groups so it never hits the shooter.
 - `assets/fps/aim.ts` holds the shared collision groups and the eye-level aim ray.
 - `assets/fps/rules.ts` holds the ported pacing: 8 live enemies before 20 s, 10 before 40 s, then
   12, with rushers limited to two before 40 s and three after (`wantsRusher`).
+- `assets/fps/maps/index.ts` registers both maps with their combat loop; the fps plugin loads one
+  map at a time and can swap it while the round is not running.
 - `assets/ui/guide-controller.ts` renders the HUD from `assets/guide.ui.html`: time and kills, a
   crosshair, contextual ammo, a low-health edge vignette, and the ready, paused, countdown and
-  results overlays. The presentation realm keeps the Sandgate best score in
-  `localStorage['no-art-fps.best.sandgate']` and announces it over the control channel.
+  results overlays. The ready overlay carries the two map buttons. The presentation realm keeps one
+  best score per map in `localStorage['no-art-fps.best.<map>']` and announces it over the control
+  channel.
 - `assets/audio/` carries the Godot project's shot, hit, headshot, kill, hurt, tick, reload and
   round-end effects plus `sixty.ogg`. The fps plugin plays them through `AudioSource` voices and
   loops the music from the countdown to the results screen.

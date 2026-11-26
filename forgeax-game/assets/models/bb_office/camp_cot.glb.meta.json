@@ -1,0 +1,176 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "camp_cot"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "camp_cot.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:camp_cot"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:camp_cot": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a215e9-ad3e-7fe5-be82-357720d4eaba",
+          "slotName": "mint",
+          "sourceKey": "material:mint"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-ad3e-7fe5-be82-3578becf9169",
+          "slotName": "slate",
+          "sourceKey": "material:slate"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-ad3e-7fe5-be82-35797d8357ed",
+          "slotName": "ink",
+          "sourceKey": "material:ink"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-ad3e-7fe5-be82-357af1943477",
+          "slotName": "white",
+          "sourceKey": "material:white"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-ad3e-7fe5-be82-357b393cd491",
+          "slotName": "red",
+          "sourceKey": "material:red"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-ad3e-7fe5-be82-357cc1f255a3",
+          "slotName": "orange",
+          "sourceKey": "material:orange"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-ad3e-7fe5-be82-357d04ef1534",
+          "slotName": "gold",
+          "sourceKey": "material:gold"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-ad3e-7fe5-be82-357ec323b712",
+          "slotName": "violet",
+          "sourceKey": "material:violet"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a215e9-ad3d-7921-a436-57222c31762f",
+      "kind": "mesh",
+      "name": "camp_cot",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:camp_cot"
+    },
+    {
+      "guid": "01a215e9-ad3e-7fe5-be82-357720d4eaba",
+      "kind": "material",
+      "name": "mint",
+      "sourceIndex": 0,
+      "sourceKey": "material:mint"
+    },
+    {
+      "guid": "01a215e9-ad3e-7fe5-be82-3578becf9169",
+      "kind": "material",
+      "name": "slate",
+      "sourceIndex": 1,
+      "sourceKey": "material:slate"
+    },
+    {
+      "guid": "01a215e9-ad3e-7fe5-be82-35797d8357ed",
+      "kind": "material",
+      "name": "ink",
+      "sourceIndex": 2,
+      "sourceKey": "material:ink"
+    },
+    {
+      "guid": "01a215e9-ad3e-7fe5-be82-357af1943477",
+      "kind": "material",
+      "name": "white",
+      "sourceIndex": 3,
+      "sourceKey": "material:white"
+    },
+    {
+      "guid": "01a215e9-ad3e-7fe5-be82-357b393cd491",
+      "kind": "material",
+      "name": "red",
+      "sourceIndex": 4,
+      "sourceKey": "material:red"
+    },
+    {
+      "guid": "01a215e9-ad3e-7fe5-be82-357cc1f255a3",
+      "kind": "material",
+      "name": "orange",
+      "sourceIndex": 5,
+      "sourceKey": "material:orange"
+    },
+    {
+      "guid": "01a215e9-ad3e-7fe5-be82-357d04ef1534",
+      "kind": "material",
+      "name": "gold",
+      "sourceIndex": 6,
+      "sourceKey": "material:gold"
+    },
+    {
+      "guid": "01a215e9-ad3e-7fe5-be82-357ec323b712",
+      "kind": "material",
+      "name": "violet",
+      "sourceIndex": 7,
+      "sourceKey": "material:violet"
+    },
+    {
+      "guid": "01a215e9-ad3e-7fe5-be82-357f5b183e62",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}

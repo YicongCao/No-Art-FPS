@@ -1,0 +1,188 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "meeting_table"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "meeting_table.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:meeting_table"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:meeting_table": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a215ea-0258-79aa-8b50-8c6f628b7e1b",
+          "slotName": "ivory",
+          "sourceKey": "material:ivory"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-0258-79aa-8b50-8c7090295dc6",
+          "slotName": "teal",
+          "sourceKey": "material:teal"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-0258-79aa-8b50-8c71442ba935",
+          "slotName": "slate",
+          "sourceKey": "material:slate"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-0258-79aa-8b50-8c721d8c1f17",
+          "slotName": "navy",
+          "sourceKey": "material:navy"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-0258-79aa-8b50-8c73800b0db8",
+          "slotName": "dark_teal",
+          "sourceKey": "material:dark_teal"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-0258-79aa-8b50-8c74c10cf000",
+          "slotName": "orange",
+          "sourceKey": "material:orange"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-0258-79aa-8b50-8c75ba0d6691",
+          "slotName": "ink",
+          "sourceKey": "material:ink"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-0258-79aa-8b50-8c7604ebf819",
+          "slotName": "galvanized",
+          "sourceKey": "material:galvanized"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-0258-79aa-8b50-8c77051176a1",
+          "slotName": "paper",
+          "sourceKey": "material:paper"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a215ea-0257-738b-a2c7-ebfab1664168",
+      "kind": "mesh",
+      "name": "meeting_table",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:meeting_table"
+    },
+    {
+      "guid": "01a215ea-0258-79aa-8b50-8c6f628b7e1b",
+      "kind": "material",
+      "name": "ivory",
+      "sourceIndex": 0,
+      "sourceKey": "material:ivory"
+    },
+    {
+      "guid": "01a215ea-0258-79aa-8b50-8c7090295dc6",
+      "kind": "material",
+      "name": "teal",
+      "sourceIndex": 1,
+      "sourceKey": "material:teal"
+    },
+    {
+      "guid": "01a215ea-0258-79aa-8b50-8c71442ba935",
+      "kind": "material",
+      "name": "slate",
+      "sourceIndex": 2,
+      "sourceKey": "material:slate"
+    },
+    {
+      "guid": "01a215ea-0258-79aa-8b50-8c721d8c1f17",
+      "kind": "material",
+      "name": "navy",
+      "sourceIndex": 3,
+      "sourceKey": "material:navy"
+    },
+    {
+      "guid": "01a215ea-0258-79aa-8b50-8c73800b0db8",
+      "kind": "material",
+      "name": "dark_teal",
+      "sourceIndex": 4,
+      "sourceKey": "material:dark_teal"
+    },
+    {
+      "guid": "01a215ea-0258-79aa-8b50-8c74c10cf000",
+      "kind": "material",
+      "name": "orange",
+      "sourceIndex": 5,
+      "sourceKey": "material:orange"
+    },
+    {
+      "guid": "01a215ea-0258-79aa-8b50-8c75ba0d6691",
+      "kind": "material",
+      "name": "ink",
+      "sourceIndex": 6,
+      "sourceKey": "material:ink"
+    },
+    {
+      "guid": "01a215ea-0258-79aa-8b50-8c7604ebf819",
+      "kind": "material",
+      "name": "galvanized",
+      "sourceIndex": 7,
+      "sourceKey": "material:galvanized"
+    },
+    {
+      "guid": "01a215ea-0258-79aa-8b50-8c77051176a1",
+      "kind": "material",
+      "name": "paper",
+      "sourceIndex": 8,
+      "sourceKey": "material:paper"
+    },
+    {
+      "guid": "01a215ea-0258-79aa-8b50-8c787059b553",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}

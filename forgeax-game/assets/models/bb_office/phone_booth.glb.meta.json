@@ -1,0 +1,164 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "phone_booth"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "phone_booth.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:phone_booth"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:phone_booth": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a215ea-3a9f-7513-adcb-134bba4be813",
+          "slotName": "teal",
+          "sourceKey": "material:teal"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-3a9f-7513-adcb-134cbb3cf57e",
+          "slotName": "slate",
+          "sourceKey": "material:slate"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-3a9f-7513-adcb-134d00f41749",
+          "slotName": "navy",
+          "sourceKey": "material:navy"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-3a9f-7513-adcb-134e6d188d0e",
+          "slotName": "ivory",
+          "sourceKey": "material:ivory"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-3a9f-7513-adcb-134fa9ab1ae4",
+          "slotName": "ink",
+          "sourceKey": "material:ink"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-3a9f-7513-adcb-1350388ff5d9",
+          "slotName": "lamp",
+          "sourceKey": "material:lamp"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-3a9f-7513-adcb-1351b95ff286",
+          "slotName": "orange",
+          "sourceKey": "material:orange"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a215ea-3a9f-7513-adcb-134aa25c186d",
+      "kind": "mesh",
+      "name": "phone_booth",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:phone_booth"
+    },
+    {
+      "guid": "01a215ea-3a9f-7513-adcb-134bba4be813",
+      "kind": "material",
+      "name": "teal",
+      "sourceIndex": 0,
+      "sourceKey": "material:teal"
+    },
+    {
+      "guid": "01a215ea-3a9f-7513-adcb-134cbb3cf57e",
+      "kind": "material",
+      "name": "slate",
+      "sourceIndex": 1,
+      "sourceKey": "material:slate"
+    },
+    {
+      "guid": "01a215ea-3a9f-7513-adcb-134d00f41749",
+      "kind": "material",
+      "name": "navy",
+      "sourceIndex": 2,
+      "sourceKey": "material:navy"
+    },
+    {
+      "guid": "01a215ea-3a9f-7513-adcb-134e6d188d0e",
+      "kind": "material",
+      "name": "ivory",
+      "sourceIndex": 3,
+      "sourceKey": "material:ivory"
+    },
+    {
+      "guid": "01a215ea-3a9f-7513-adcb-134fa9ab1ae4",
+      "kind": "material",
+      "name": "ink",
+      "sourceIndex": 4,
+      "sourceKey": "material:ink"
+    },
+    {
+      "guid": "01a215ea-3a9f-7513-adcb-1350388ff5d9",
+      "kind": "material",
+      "name": "lamp",
+      "sourceIndex": 5,
+      "sourceKey": "material:lamp"
+    },
+    {
+      "guid": "01a215ea-3a9f-7513-adcb-1351b95ff286",
+      "kind": "material",
+      "name": "orange",
+      "sourceIndex": 6,
+      "sourceKey": "material:orange"
+    },
+    {
+      "guid": "01a215ea-3a9f-7513-adcb-1352439c6694",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}

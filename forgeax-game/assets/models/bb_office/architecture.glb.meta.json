@@ -1,0 +1,176 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "architecture"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "architecture.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:architecture"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:architecture": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a215e9-9847-75a9-9240-503c29bd8f87",
+          "slotName": "carpet",
+          "sourceKey": "material:carpet"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-9847-75a9-9240-503d0d9e9a3c",
+          "slotName": "soffit",
+          "sourceKey": "material:soffit"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-9847-75a9-9240-503e7b716d4d",
+          "slotName": "slate",
+          "sourceKey": "material:slate"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-9847-75a9-9240-503f59e00ebc",
+          "slotName": "ivory",
+          "sourceKey": "material:ivory"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-9847-75a9-9240-5040203efca3",
+          "slotName": "navy",
+          "sourceKey": "material:navy"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-9847-75a9-9240-5041214304c6",
+          "slotName": "carpet_dark",
+          "sourceKey": "material:carpet_dark"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-9847-75a9-9240-5042ee14f23d",
+          "slotName": "carpet_light",
+          "sourceKey": "material:carpet_light"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-9847-75a9-9240-5043982e37c4",
+          "slotName": "lamp",
+          "sourceKey": "material:lamp"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a215e9-9846-78c3-a8fe-b25004552429",
+      "kind": "mesh",
+      "name": "architecture",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:architecture"
+    },
+    {
+      "guid": "01a215e9-9847-75a9-9240-503c29bd8f87",
+      "kind": "material",
+      "name": "carpet",
+      "sourceIndex": 0,
+      "sourceKey": "material:carpet"
+    },
+    {
+      "guid": "01a215e9-9847-75a9-9240-503d0d9e9a3c",
+      "kind": "material",
+      "name": "soffit",
+      "sourceIndex": 1,
+      "sourceKey": "material:soffit"
+    },
+    {
+      "guid": "01a215e9-9847-75a9-9240-503e7b716d4d",
+      "kind": "material",
+      "name": "slate",
+      "sourceIndex": 2,
+      "sourceKey": "material:slate"
+    },
+    {
+      "guid": "01a215e9-9847-75a9-9240-503f59e00ebc",
+      "kind": "material",
+      "name": "ivory",
+      "sourceIndex": 3,
+      "sourceKey": "material:ivory"
+    },
+    {
+      "guid": "01a215e9-9847-75a9-9240-5040203efca3",
+      "kind": "material",
+      "name": "navy",
+      "sourceIndex": 4,
+      "sourceKey": "material:navy"
+    },
+    {
+      "guid": "01a215e9-9847-75a9-9240-5041214304c6",
+      "kind": "material",
+      "name": "carpet_dark",
+      "sourceIndex": 5,
+      "sourceKey": "material:carpet_dark"
+    },
+    {
+      "guid": "01a215e9-9847-75a9-9240-5042ee14f23d",
+      "kind": "material",
+      "name": "carpet_light",
+      "sourceIndex": 6,
+      "sourceKey": "material:carpet_light"
+    },
+    {
+      "guid": "01a215e9-9847-75a9-9240-5043982e37c4",
+      "kind": "material",
+      "name": "lamp",
+      "sourceIndex": 7,
+      "sourceKey": "material:lamp"
+    },
+    {
+      "guid": "01a215e9-9847-75a9-9240-5044a014b777",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}

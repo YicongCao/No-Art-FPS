@@ -1,0 +1,152 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "city"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "city.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:city"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:city": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a215e9-c2ae-7600-b6cc-1bb6fabbc4b9",
+          "slotName": "slate",
+          "sourceKey": "material:slate"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-c2ae-7600-b6cc-1bb712f2c01e",
+          "slotName": "glass_blue",
+          "sourceKey": "material:glass_blue"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-c2ae-7600-b6cc-1bb88c223df8",
+          "slotName": "screen",
+          "sourceKey": "material:screen"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-c2ae-7600-b6cc-1bb9bdd0d838",
+          "slotName": "ivory",
+          "sourceKey": "material:ivory"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-c2ae-7600-b6cc-1bba072f95d2",
+          "slotName": "facade",
+          "sourceKey": "material:facade"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-c2ae-7600-b6cc-1bbb9491734e",
+          "slotName": "carpet_dark",
+          "sourceKey": "material:carpet_dark"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a215e9-c2ae-7600-b6cc-1bb5601b1106",
+      "kind": "mesh",
+      "name": "city",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:city"
+    },
+    {
+      "guid": "01a215e9-c2ae-7600-b6cc-1bb6fabbc4b9",
+      "kind": "material",
+      "name": "slate",
+      "sourceIndex": 0,
+      "sourceKey": "material:slate"
+    },
+    {
+      "guid": "01a215e9-c2ae-7600-b6cc-1bb712f2c01e",
+      "kind": "material",
+      "name": "glass_blue",
+      "sourceIndex": 1,
+      "sourceKey": "material:glass_blue"
+    },
+    {
+      "guid": "01a215e9-c2ae-7600-b6cc-1bb88c223df8",
+      "kind": "material",
+      "name": "screen",
+      "sourceIndex": 2,
+      "sourceKey": "material:screen"
+    },
+    {
+      "guid": "01a215e9-c2ae-7600-b6cc-1bb9bdd0d838",
+      "kind": "material",
+      "name": "ivory",
+      "sourceIndex": 3,
+      "sourceKey": "material:ivory"
+    },
+    {
+      "guid": "01a215e9-c2ae-7600-b6cc-1bba072f95d2",
+      "kind": "material",
+      "name": "facade",
+      "sourceIndex": 4,
+      "sourceKey": "material:facade"
+    },
+    {
+      "guid": "01a215e9-c2ae-7600-b6cc-1bbb9491734e",
+      "kind": "material",
+      "name": "carpet_dark",
+      "sourceIndex": 5,
+      "sourceKey": "material:carpet_dark"
+    },
+    {
+      "guid": "01a215e9-c2ae-7600-b6cc-1bbcbd541d36",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}

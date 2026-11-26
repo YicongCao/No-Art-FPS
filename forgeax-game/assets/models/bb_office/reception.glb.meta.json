@@ -1,0 +1,164 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "reception"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "reception.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:reception"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:reception": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a215ea-7a42-7952-aa69-27e0055ca3c1",
+          "slotName": "violet",
+          "sourceKey": "material:violet"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-7a42-7952-aa69-27e1e544a745",
+          "slotName": "slate.002",
+          "sourceKey": "material:slate.002"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-7a42-7952-aa69-27e293e610d1",
+          "slotName": "navy.001",
+          "sourceKey": "material:navy.001"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-7a42-7952-aa69-27e31446eda1",
+          "slotName": "gold.001",
+          "sourceKey": "material:gold.001"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-7a42-7952-aa69-27e458246605",
+          "slotName": "lilac",
+          "sourceKey": "material:lilac"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-7a42-7952-aa69-27e54328b493",
+          "slotName": "galvanized.001",
+          "sourceKey": "material:galvanized.001"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-7a42-7952-aa69-27e69a86683f",
+          "slotName": "pink",
+          "sourceKey": "material:pink"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a215ea-7a42-7952-aa69-27df7b1c3a29",
+      "kind": "mesh",
+      "name": "reception",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:reception"
+    },
+    {
+      "guid": "01a215ea-7a42-7952-aa69-27e0055ca3c1",
+      "kind": "material",
+      "name": "violet",
+      "sourceIndex": 0,
+      "sourceKey": "material:violet"
+    },
+    {
+      "guid": "01a215ea-7a42-7952-aa69-27e1e544a745",
+      "kind": "material",
+      "name": "slate.002",
+      "sourceIndex": 1,
+      "sourceKey": "material:slate.002"
+    },
+    {
+      "guid": "01a215ea-7a42-7952-aa69-27e293e610d1",
+      "kind": "material",
+      "name": "navy.001",
+      "sourceIndex": 2,
+      "sourceKey": "material:navy.001"
+    },
+    {
+      "guid": "01a215ea-7a42-7952-aa69-27e31446eda1",
+      "kind": "material",
+      "name": "gold.001",
+      "sourceIndex": 3,
+      "sourceKey": "material:gold.001"
+    },
+    {
+      "guid": "01a215ea-7a42-7952-aa69-27e458246605",
+      "kind": "material",
+      "name": "lilac",
+      "sourceIndex": 4,
+      "sourceKey": "material:lilac"
+    },
+    {
+      "guid": "01a215ea-7a42-7952-aa69-27e54328b493",
+      "kind": "material",
+      "name": "galvanized.001",
+      "sourceIndex": 5,
+      "sourceKey": "material:galvanized.001"
+    },
+    {
+      "guid": "01a215ea-7a42-7952-aa69-27e69a86683f",
+      "kind": "material",
+      "name": "pink",
+      "sourceIndex": 6,
+      "sourceKey": "material:pink"
+    },
+    {
+      "guid": "01a215ea-7a42-7952-aa69-27e7f1779a9f",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}

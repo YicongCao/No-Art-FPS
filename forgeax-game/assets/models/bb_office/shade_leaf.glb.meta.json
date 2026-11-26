@@ -1,0 +1,116 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "shade_leaf"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "shade_leaf.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:shade_leaf"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:shade_leaf": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a215ea-8fb8-7be0-81f0-25a06d338f8d",
+          "slotName": "green",
+          "sourceKey": "material:green"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-8fb8-7be0-81f0-25a169f9ec12",
+          "slotName": "leaf",
+          "sourceKey": "material:leaf"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-8fb8-7be0-81f0-25a2be9c62c0",
+          "slotName": "mint",
+          "sourceKey": "material:mint"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a215ea-8fb8-7be0-81f0-259fac0a5e6c",
+      "kind": "mesh",
+      "name": "shade_leaf",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:shade_leaf"
+    },
+    {
+      "guid": "01a215ea-8fb8-7be0-81f0-25a06d338f8d",
+      "kind": "material",
+      "name": "green",
+      "sourceIndex": 0,
+      "sourceKey": "material:green"
+    },
+    {
+      "guid": "01a215ea-8fb8-7be0-81f0-25a169f9ec12",
+      "kind": "material",
+      "name": "leaf",
+      "sourceIndex": 1,
+      "sourceKey": "material:leaf"
+    },
+    {
+      "guid": "01a215ea-8fb8-7be0-81f0-25a2be9c62c0",
+      "kind": "material",
+      "name": "mint",
+      "sourceIndex": 2,
+      "sourceKey": "material:mint"
+    },
+    {
+      "guid": "01a215ea-8fb8-7be0-81f0-25a36d016187",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}

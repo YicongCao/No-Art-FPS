@@ -19,5 +19,11 @@ export const SOUND_GUIDS = {
 /** sixty.ogg, the 60-second combat loop. */
 export const COMBAT_MUSIC = '01a215d3-9bca-771a-b2f2-4e123171290b';
 
+/** One combat loop per ported map. */
+export const MAP_MUSIC = {
+  sandgate: COMBAT_MUSIC,
+  bb_office: '01a215ed-2bd9-7881-8704-effe8c095fe8',
+} as const;
+
 export const HUD_CHANNEL = 'no-art-fps/hud';
 export const CONTROL_CHANNEL = 'no-art-fps/control';

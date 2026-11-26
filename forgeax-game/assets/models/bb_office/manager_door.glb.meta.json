@@ -1,0 +1,128 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "manager_door"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "manager_door.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:manager_door"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:manager_door": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a215e9-f7be-7bdf-8fad-305bf5bd7712",
+          "slotName": "wood",
+          "sourceKey": "material:wood"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-f7be-7bdf-8fad-305c47e542c3",
+          "slotName": "timber",
+          "sourceKey": "material:timber"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-f7be-7bdf-8fad-305d2cbb539b",
+          "slotName": "navy",
+          "sourceKey": "material:navy"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-f7be-7bdf-8fad-305e310cb7a1",
+          "slotName": "gold",
+          "sourceKey": "material:gold"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a215e9-f7bd-7cec-806b-79f69b3a942f",
+      "kind": "mesh",
+      "name": "manager_door",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:manager_door"
+    },
+    {
+      "guid": "01a215e9-f7be-7bdf-8fad-305bf5bd7712",
+      "kind": "material",
+      "name": "wood",
+      "sourceIndex": 0,
+      "sourceKey": "material:wood"
+    },
+    {
+      "guid": "01a215e9-f7be-7bdf-8fad-305c47e542c3",
+      "kind": "material",
+      "name": "timber",
+      "sourceIndex": 1,
+      "sourceKey": "material:timber"
+    },
+    {
+      "guid": "01a215e9-f7be-7bdf-8fad-305d2cbb539b",
+      "kind": "material",
+      "name": "navy",
+      "sourceIndex": 2,
+      "sourceKey": "material:navy"
+    },
+    {
+      "guid": "01a215e9-f7be-7bdf-8fad-305e310cb7a1",
+      "kind": "material",
+      "name": "gold",
+      "sourceIndex": 3,
+      "sourceKey": "material:gold"
+    },
+    {
+      "guid": "01a215e9-f7be-7bdf-8fad-305f924d2fe5",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}

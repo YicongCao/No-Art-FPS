@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "external-asset-package",
+  "importer": "audio",
+  "source": "bb_office.ogg",
+  "importSettings": {
+    "playback": "buffer"
+  },
+  "subAssets": [
+    {
+      "guid": "01a215ed-2bd9-7881-8704-effe8c095fe8",
+      "sourceIndex": 0,
+      "kind": "audio",
+      "sourceKey": "audio:audio"
+    }
+  ]
+}

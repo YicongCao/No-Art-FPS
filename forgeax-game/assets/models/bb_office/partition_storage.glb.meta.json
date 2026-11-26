@@ -1,0 +1,164 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "partition_storage"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "partition_storage.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:partition_storage"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:partition_storage": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a215ea-2fcf-7b97-9b32-b11a3d09ea31",
+          "slotName": "navy",
+          "sourceKey": "material:navy"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-2fcf-7b97-9b32-b11bf6096e9e",
+          "slotName": "slate",
+          "sourceKey": "material:slate"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-2fcf-7b97-9b32-b11c720bce44",
+          "slotName": "teal",
+          "sourceKey": "material:teal"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-2fcf-7b97-9b32-b11d99dbd52c",
+          "slotName": "ivory",
+          "sourceKey": "material:ivory"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-2fcf-7b97-9b32-b11e8b97a50f",
+          "slotName": "gold",
+          "sourceKey": "material:gold"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-2fcf-7b97-9b32-b11f4f115ebe",
+          "slotName": "paper",
+          "sourceKey": "material:paper"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-2fcf-7b97-9b32-b120411b56a0",
+          "slotName": "dark_teal",
+          "sourceKey": "material:dark_teal"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a215ea-2fcf-7b97-9b32-b119f869df92",
+      "kind": "mesh",
+      "name": "partition_storage",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:partition_storage"
+    },
+    {
+      "guid": "01a215ea-2fcf-7b97-9b32-b11a3d09ea31",
+      "kind": "material",
+      "name": "navy",
+      "sourceIndex": 0,
+      "sourceKey": "material:navy"
+    },
+    {
+      "guid": "01a215ea-2fcf-7b97-9b32-b11bf6096e9e",
+      "kind": "material",
+      "name": "slate",
+      "sourceIndex": 1,
+      "sourceKey": "material:slate"
+    },
+    {
+      "guid": "01a215ea-2fcf-7b97-9b32-b11c720bce44",
+      "kind": "material",
+      "name": "teal",
+      "sourceIndex": 2,
+      "sourceKey": "material:teal"
+    },
+    {
+      "guid": "01a215ea-2fcf-7b97-9b32-b11d99dbd52c",
+      "kind": "material",
+      "name": "ivory",
+      "sourceIndex": 3,
+      "sourceKey": "material:ivory"
+    },
+    {
+      "guid": "01a215ea-2fcf-7b97-9b32-b11e8b97a50f",
+      "kind": "material",
+      "name": "gold",
+      "sourceIndex": 4,
+      "sourceKey": "material:gold"
+    },
+    {
+      "guid": "01a215ea-2fcf-7b97-9b32-b11f4f115ebe",
+      "kind": "material",
+      "name": "paper",
+      "sourceIndex": 5,
+      "sourceKey": "material:paper"
+    },
+    {
+      "guid": "01a215ea-2fcf-7b97-9b32-b120411b56a0",
+      "kind": "material",
+      "name": "dark_teal",
+      "sourceIndex": 6,
+      "sourceKey": "material:dark_teal"
+    },
+    {
+      "guid": "01a215ea-2fcf-7b97-9b32-b12167e310aa",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}

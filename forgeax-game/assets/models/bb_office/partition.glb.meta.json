@@ -1,0 +1,176 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "partition"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "partition.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:partition"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:partition": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a215ea-17e7-7cf1-96dd-12336214c126",
+          "slotName": "navy",
+          "sourceKey": "material:navy"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-17e7-7cf1-96dd-1234998d6875",
+          "slotName": "slate",
+          "sourceKey": "material:slate"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-17e7-7cf1-96dd-12354df87f60",
+          "slotName": "teal",
+          "sourceKey": "material:teal"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-17e7-7cf1-96dd-1236de0e96da",
+          "slotName": "ivory",
+          "sourceKey": "material:ivory"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-17e7-7cf1-96dd-1237a58fd845",
+          "slotName": "gold",
+          "sourceKey": "material:gold"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-17e7-7cf1-96dd-12380f429822",
+          "slotName": "paper",
+          "sourceKey": "material:paper"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-17e7-7cf1-96dd-1239eca91d54",
+          "slotName": "dark_teal",
+          "sourceKey": "material:dark_teal"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-17e7-7cf1-96dd-123ad25c90d6",
+          "slotName": "screen",
+          "sourceKey": "material:screen"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a215ea-17e6-77da-aaa4-d79e0bc557bc",
+      "kind": "mesh",
+      "name": "partition",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:partition"
+    },
+    {
+      "guid": "01a215ea-17e7-7cf1-96dd-12336214c126",
+      "kind": "material",
+      "name": "navy",
+      "sourceIndex": 0,
+      "sourceKey": "material:navy"
+    },
+    {
+      "guid": "01a215ea-17e7-7cf1-96dd-1234998d6875",
+      "kind": "material",
+      "name": "slate",
+      "sourceIndex": 1,
+      "sourceKey": "material:slate"
+    },
+    {
+      "guid": "01a215ea-17e7-7cf1-96dd-12354df87f60",
+      "kind": "material",
+      "name": "teal",
+      "sourceIndex": 2,
+      "sourceKey": "material:teal"
+    },
+    {
+      "guid": "01a215ea-17e7-7cf1-96dd-1236de0e96da",
+      "kind": "material",
+      "name": "ivory",
+      "sourceIndex": 3,
+      "sourceKey": "material:ivory"
+    },
+    {
+      "guid": "01a215ea-17e7-7cf1-96dd-1237a58fd845",
+      "kind": "material",
+      "name": "gold",
+      "sourceIndex": 4,
+      "sourceKey": "material:gold"
+    },
+    {
+      "guid": "01a215ea-17e7-7cf1-96dd-12380f429822",
+      "kind": "material",
+      "name": "paper",
+      "sourceIndex": 5,
+      "sourceKey": "material:paper"
+    },
+    {
+      "guid": "01a215ea-17e7-7cf1-96dd-1239eca91d54",
+      "kind": "material",
+      "name": "dark_teal",
+      "sourceIndex": 6,
+      "sourceKey": "material:dark_teal"
+    },
+    {
+      "guid": "01a215ea-17e7-7cf1-96dd-123ad25c90d6",
+      "kind": "material",
+      "name": "screen",
+      "sourceIndex": 7,
+      "sourceKey": "material:screen"
+    },
+    {
+      "guid": "01a215ea-17e7-7cf1-96dd-123b42c71bcd",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}

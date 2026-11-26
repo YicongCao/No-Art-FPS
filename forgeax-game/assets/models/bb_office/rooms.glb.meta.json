@@ -1,0 +1,224 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "rooms"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "rooms.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:rooms"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:rooms": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a215ea-84cf-7d63-a23c-73b25a33af9b",
+          "slotName": "navy.002",
+          "sourceKey": "material:navy.002"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-84cf-7d63-a23c-73b3948ffbd3",
+          "slotName": "violet.001",
+          "sourceKey": "material:violet.001"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-84cf-7d63-a23c-73b4b3729544",
+          "slotName": "slate.003",
+          "sourceKey": "material:slate.003"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-84cf-7d63-a23c-73b57b737176",
+          "slotName": "lilac.001",
+          "sourceKey": "material:lilac.001"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-84cf-7d63-a23c-73b6dffd3037",
+          "slotName": "ivory.002",
+          "sourceKey": "material:ivory.002"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-84cf-7d63-a23c-73b7079dd3f5",
+          "slotName": "wood",
+          "sourceKey": "material:wood"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-84cf-7d63-a23c-73b802c20ecc",
+          "slotName": "timber",
+          "sourceKey": "material:timber"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-84cf-7d63-a23c-73b93b853907",
+          "slotName": "gold.002",
+          "sourceKey": "material:gold.002"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-84cf-7d63-a23c-73bacffb4139",
+          "slotName": "ink",
+          "sourceKey": "material:ink"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-84cf-7d63-a23c-73bb52dc42e3",
+          "slotName": "white",
+          "sourceKey": "material:white"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-84cf-7d63-a23c-73bcd141befa",
+          "slotName": "screen",
+          "sourceKey": "material:screen"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-84cf-7d63-a23c-73bdb241d47d",
+          "slotName": "screen_dark",
+          "sourceKey": "material:screen_dark"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a215ea-84cf-7d63-a23c-73b18012d176",
+      "kind": "mesh",
+      "name": "rooms",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:rooms"
+    },
+    {
+      "guid": "01a215ea-84cf-7d63-a23c-73b25a33af9b",
+      "kind": "material",
+      "name": "navy.002",
+      "sourceIndex": 0,
+      "sourceKey": "material:navy.002"
+    },
+    {
+      "guid": "01a215ea-84cf-7d63-a23c-73b3948ffbd3",
+      "kind": "material",
+      "name": "violet.001",
+      "sourceIndex": 1,
+      "sourceKey": "material:violet.001"
+    },
+    {
+      "guid": "01a215ea-84cf-7d63-a23c-73b4b3729544",
+      "kind": "material",
+      "name": "slate.003",
+      "sourceIndex": 2,
+      "sourceKey": "material:slate.003"
+    },
+    {
+      "guid": "01a215ea-84cf-7d63-a23c-73b57b737176",
+      "kind": "material",
+      "name": "lilac.001",
+      "sourceIndex": 3,
+      "sourceKey": "material:lilac.001"
+    },
+    {
+      "guid": "01a215ea-84cf-7d63-a23c-73b6dffd3037",
+      "kind": "material",
+      "name": "ivory.002",
+      "sourceIndex": 4,
+      "sourceKey": "material:ivory.002"
+    },
+    {
+      "guid": "01a215ea-84cf-7d63-a23c-73b7079dd3f5",
+      "kind": "material",
+      "name": "wood",
+      "sourceIndex": 5,
+      "sourceKey": "material:wood"
+    },
+    {
+      "guid": "01a215ea-84cf-7d63-a23c-73b802c20ecc",
+      "kind": "material",
+      "name": "timber",
+      "sourceIndex": 6,
+      "sourceKey": "material:timber"
+    },
+    {
+      "guid": "01a215ea-84cf-7d63-a23c-73b93b853907",
+      "kind": "material",
+      "name": "gold.002",
+      "sourceIndex": 7,
+      "sourceKey": "material:gold.002"
+    },
+    {
+      "guid": "01a215ea-84cf-7d63-a23c-73bacffb4139",
+      "kind": "material",
+      "name": "ink",
+      "sourceIndex": 8,
+      "sourceKey": "material:ink"
+    },
+    {
+      "guid": "01a215ea-84cf-7d63-a23c-73bb52dc42e3",
+      "kind": "material",
+      "name": "white",
+      "sourceIndex": 9,
+      "sourceKey": "material:white"
+    },
+    {
+      "guid": "01a215ea-84cf-7d63-a23c-73bcd141befa",
+      "kind": "material",
+      "name": "screen",
+      "sourceIndex": 10,
+      "sourceKey": "material:screen"
+    },
+    {
+      "guid": "01a215ea-84cf-7d63-a23c-73bdb241d47d",
+      "kind": "material",
+      "name": "screen_dark",
+      "sourceIndex": 11,
+      "sourceKey": "material:screen_dark"
+    },
+    {
+      "guid": "01a215ea-84cf-7d63-a23c-73be12cda224",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}

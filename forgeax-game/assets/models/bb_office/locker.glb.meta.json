@@ -1,0 +1,164 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "locker"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "locker.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:locker"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:locker": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a215e9-ed2f-7255-9041-7f5293c39626",
+          "slotName": "slate",
+          "sourceKey": "material:slate"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-ed2f-7255-9041-7f5313a2274f",
+          "slotName": "teal",
+          "sourceKey": "material:teal"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-ed2f-7255-9041-7f54aba2497d",
+          "slotName": "ink",
+          "sourceKey": "material:ink"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-ed2f-7255-9041-7f552613e674",
+          "slotName": "paper",
+          "sourceKey": "material:paper"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-ed2f-7255-9041-7f563e558ddf",
+          "slotName": "navy",
+          "sourceKey": "material:navy"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-ed2f-7255-9041-7f57ac377e37",
+          "slotName": "galvanized",
+          "sourceKey": "material:galvanized"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-ed2f-7255-9041-7f58ae800343",
+          "slotName": "card",
+          "sourceKey": "material:card"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a215e9-ed2e-728b-a274-76e2ef49e730",
+      "kind": "mesh",
+      "name": "locker",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:locker"
+    },
+    {
+      "guid": "01a215e9-ed2f-7255-9041-7f5293c39626",
+      "kind": "material",
+      "name": "slate",
+      "sourceIndex": 0,
+      "sourceKey": "material:slate"
+    },
+    {
+      "guid": "01a215e9-ed2f-7255-9041-7f5313a2274f",
+      "kind": "material",
+      "name": "teal",
+      "sourceIndex": 1,
+      "sourceKey": "material:teal"
+    },
+    {
+      "guid": "01a215e9-ed2f-7255-9041-7f54aba2497d",
+      "kind": "material",
+      "name": "ink",
+      "sourceIndex": 2,
+      "sourceKey": "material:ink"
+    },
+    {
+      "guid": "01a215e9-ed2f-7255-9041-7f552613e674",
+      "kind": "material",
+      "name": "paper",
+      "sourceIndex": 3,
+      "sourceKey": "material:paper"
+    },
+    {
+      "guid": "01a215e9-ed2f-7255-9041-7f563e558ddf",
+      "kind": "material",
+      "name": "navy",
+      "sourceIndex": 4,
+      "sourceKey": "material:navy"
+    },
+    {
+      "guid": "01a215e9-ed2f-7255-9041-7f57ac377e37",
+      "kind": "material",
+      "name": "galvanized",
+      "sourceIndex": 5,
+      "sourceKey": "material:galvanized"
+    },
+    {
+      "guid": "01a215e9-ed2f-7255-9041-7f58ae800343",
+      "kind": "material",
+      "name": "card",
+      "sourceIndex": 6,
+      "sourceKey": "material:card"
+    },
+    {
+      "guid": "01a215e9-ed2f-7255-9041-7f59b1a1f079",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}

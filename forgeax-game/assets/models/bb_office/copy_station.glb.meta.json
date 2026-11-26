@@ -1,0 +1,176 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "copy_station"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "copy_station.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:copy_station"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:copy_station": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a215e9-cd2c-77b0-8b6a-8dc071b2b893",
+          "slotName": "slate",
+          "sourceKey": "material:slate"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-cd2c-77b0-8b6a-8dc144ff8abb",
+          "slotName": "ivory",
+          "sourceKey": "material:ivory"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-cd2c-77b0-8b6a-8dc21b5950b5",
+          "slotName": "carpet_dark",
+          "sourceKey": "material:carpet_dark"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-cd2c-77b0-8b6a-8dc3417cf845",
+          "slotName": "ink",
+          "sourceKey": "material:ink"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-cd2c-77b0-8b6a-8dc46cd70dcb",
+          "slotName": "paper",
+          "sourceKey": "material:paper"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-cd2c-77b0-8b6a-8dc5304900b1",
+          "slotName": "screen",
+          "sourceKey": "material:screen"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-cd2c-77b0-8b6a-8dc6fa1d67e4",
+          "slotName": "galvanized",
+          "sourceKey": "material:galvanized"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-cd2c-77b0-8b6a-8dc7c68419b7",
+          "slotName": "card",
+          "sourceKey": "material:card"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a215e9-cd2c-77b0-8b6a-8dbfa780194a",
+      "kind": "mesh",
+      "name": "copy_station",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:copy_station"
+    },
+    {
+      "guid": "01a215e9-cd2c-77b0-8b6a-8dc071b2b893",
+      "kind": "material",
+      "name": "slate",
+      "sourceIndex": 0,
+      "sourceKey": "material:slate"
+    },
+    {
+      "guid": "01a215e9-cd2c-77b0-8b6a-8dc144ff8abb",
+      "kind": "material",
+      "name": "ivory",
+      "sourceIndex": 1,
+      "sourceKey": "material:ivory"
+    },
+    {
+      "guid": "01a215e9-cd2c-77b0-8b6a-8dc21b5950b5",
+      "kind": "material",
+      "name": "carpet_dark",
+      "sourceIndex": 2,
+      "sourceKey": "material:carpet_dark"
+    },
+    {
+      "guid": "01a215e9-cd2c-77b0-8b6a-8dc3417cf845",
+      "kind": "material",
+      "name": "ink",
+      "sourceIndex": 3,
+      "sourceKey": "material:ink"
+    },
+    {
+      "guid": "01a215e9-cd2c-77b0-8b6a-8dc46cd70dcb",
+      "kind": "material",
+      "name": "paper",
+      "sourceIndex": 4,
+      "sourceKey": "material:paper"
+    },
+    {
+      "guid": "01a215e9-cd2c-77b0-8b6a-8dc5304900b1",
+      "kind": "material",
+      "name": "screen",
+      "sourceIndex": 5,
+      "sourceKey": "material:screen"
+    },
+    {
+      "guid": "01a215e9-cd2c-77b0-8b6a-8dc6fa1d67e4",
+      "kind": "material",
+      "name": "galvanized",
+      "sourceIndex": 6,
+      "sourceKey": "material:galvanized"
+    },
+    {
+      "guid": "01a215e9-cd2c-77b0-8b6a-8dc7c68419b7",
+      "kind": "material",
+      "name": "card",
+      "sourceIndex": 7,
+      "sourceKey": "material:card"
+    },
+    {
+      "guid": "01a215e9-cd2c-77b0-8b6a-8dc820a168e5",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}

@@ -1,0 +1,200 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "pantry_counter"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "pantry_counter.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:pantry_counter"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:pantry_counter": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a215ea-0d65-7824-b538-858e15c22849",
+          "slotName": "teal",
+          "sourceKey": "material:teal"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-0d65-7824-b538-858f08c5da1b",
+          "slotName": "ivory",
+          "sourceKey": "material:ivory"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-0d65-7824-b538-8590283f2746",
+          "slotName": "gold",
+          "sourceKey": "material:gold"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-0d65-7824-b538-8591a2cd33a5",
+          "slotName": "navy",
+          "sourceKey": "material:navy"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-0d65-7824-b538-85929402e62a",
+          "slotName": "ink",
+          "sourceKey": "material:ink"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-0d65-7824-b538-85936065bce0",
+          "slotName": "slate",
+          "sourceKey": "material:slate"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-0d65-7824-b538-8594d6fe7bfc",
+          "slotName": "carpet_dark",
+          "sourceKey": "material:carpet_dark"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-0d65-7824-b538-85957aa89372",
+          "slotName": "screen",
+          "sourceKey": "material:screen"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-0d65-7824-b538-85963e796053",
+          "slotName": "coffee",
+          "sourceKey": "material:coffee"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-0d65-7824-b538-85978f067646",
+          "slotName": "screen_dark",
+          "sourceKey": "material:screen_dark"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a215ea-0d65-7824-b538-858dae677a80",
+      "kind": "mesh",
+      "name": "pantry_counter",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:pantry_counter"
+    },
+    {
+      "guid": "01a215ea-0d65-7824-b538-858e15c22849",
+      "kind": "material",
+      "name": "teal",
+      "sourceIndex": 0,
+      "sourceKey": "material:teal"
+    },
+    {
+      "guid": "01a215ea-0d65-7824-b538-858f08c5da1b",
+      "kind": "material",
+      "name": "ivory",
+      "sourceIndex": 1,
+      "sourceKey": "material:ivory"
+    },
+    {
+      "guid": "01a215ea-0d65-7824-b538-8590283f2746",
+      "kind": "material",
+      "name": "gold",
+      "sourceIndex": 2,
+      "sourceKey": "material:gold"
+    },
+    {
+      "guid": "01a215ea-0d65-7824-b538-8591a2cd33a5",
+      "kind": "material",
+      "name": "navy",
+      "sourceIndex": 3,
+      "sourceKey": "material:navy"
+    },
+    {
+      "guid": "01a215ea-0d65-7824-b538-85929402e62a",
+      "kind": "material",
+      "name": "ink",
+      "sourceIndex": 4,
+      "sourceKey": "material:ink"
+    },
+    {
+      "guid": "01a215ea-0d65-7824-b538-85936065bce0",
+      "kind": "material",
+      "name": "slate",
+      "sourceIndex": 5,
+      "sourceKey": "material:slate"
+    },
+    {
+      "guid": "01a215ea-0d65-7824-b538-8594d6fe7bfc",
+      "kind": "material",
+      "name": "carpet_dark",
+      "sourceIndex": 6,
+      "sourceKey": "material:carpet_dark"
+    },
+    {
+      "guid": "01a215ea-0d65-7824-b538-85957aa89372",
+      "kind": "material",
+      "name": "screen",
+      "sourceIndex": 7,
+      "sourceKey": "material:screen"
+    },
+    {
+      "guid": "01a215ea-0d65-7824-b538-85963e796053",
+      "kind": "material",
+      "name": "coffee",
+      "sourceIndex": 8,
+      "sourceKey": "material:coffee"
+    },
+    {
+      "guid": "01a215ea-0d65-7824-b538-85978f067646",
+      "kind": "material",
+      "name": "screen_dark",
+      "sourceIndex": 9,
+      "sourceKey": "material:screen_dark"
+    },
+    {
+      "guid": "01a215ea-0d65-7824-b538-85983595ef22",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}

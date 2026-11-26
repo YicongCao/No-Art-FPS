@@ -19,20 +19,13 @@ import { EYE_HEIGHT, type Game3dPlayerService } from '../player/player.ts';
 import { AIM_DISTANCE, AIM_FILTER_MASK, aimRay } from './aim.ts';
 import {
   CONTROL_CHANNEL,
-  COMBAT_MUSIC,
   ENEMY_SCENE,
   HUD_CHANNEL,
   RIFLE_SCENE,
   RUSHER_SCENE,
   SOUND_GUIDS,
 } from './assets.ts';
-import {
-  MAP_COLLIDERS,
-  MAP_VISUALS,
-  OPENING_POINTS,
-  PLAYER_START,
-  REINFORCEMENT_POINTS,
-} from './map-data.ts';
+import { MAPS, type MapDefinition, type MapId } from './maps/index.ts';
 import { populationTarget, RUN_SECONDS, wantsRusher } from './rules.ts';
 
 type Phase = 'ready' | 'countdown' | 'running' | 'paused' | 'results';
@@ -86,6 +79,8 @@ export const fps: Plugin = {
     if (!playerService) throw new Error('no-art-fps/combat requires the player service');
     const player = playerService.entity;
     const camera = resolveGameEntity(world, ctx.gameScene, 'camera');
+    let mapId: MapId = 'sandgate';
+    let map: MapDefinition = MAPS[mapId];
 
     let phase: Phase = 'ready';
     let resumePhase: Phase = 'running';
@@ -150,57 +145,75 @@ export const fps: Plugin = {
         for (const voice of voices.splice(0)) world.despawn(voice.entity).unwrap();
       };
 
-      const musicLoaded = await assets.load(COMBAT_MUSIC, 'audio');
-      if (!musicLoaded.ok) throw musicLoaded.error;
-      const music = world.spawn({
-        component: AudioSource,
-        data: {
-          clip: musicLoaded.value,
-          playing: false,
-          loop: true,
-          volume: MUSIC_VOLUME,
-          spatialBlend: 0,
-        },
-      }).unwrap();
-      yield () => {
-        world.despawn(music).unwrap();
-        assets.release(musicLoaded.value).unwrap();
+      let music: EntityHandle | undefined;
+      let musicClip: AssetHandle<'audio'> | undefined;
+      const playMusic = (on: boolean) => {
+        if (music !== undefined) world.set(music, AudioSource, { playing: on }).unwrap();
       };
-      const playMusic = (on: boolean) => world.set(music, AudioSource, { playing: on }).unwrap();
-
-      const mapRoots: EntityHandle[] = [];
-      for (const visual of MAP_VISUALS) {
-        const loaded = await assets.load(visual.guid, 'scene');
-        if (!loaded.ok) throw loaded.error;
-        const root = assets.instantiate(loaded.value, world).unwrap();
-        assets.release(loaded.value).unwrap();
-        place(world, root, visual.pos, visual.quat, visual.scale);
-        mapRoots.push(root);
-      }
       yield () => {
+        if (music !== undefined) world.despawn(music).unwrap();
+        if (musicClip !== undefined) assets.release(musicClip).unwrap();
+      };
+
+      let mapRoots: EntityHandle[] = [];
+      let mapColliders: EntityHandle[] = [];
+      const unloadMap = () => {
         for (const root of mapRoots.reverse()) worldDespawnScene(world, root).unwrap();
+        mapRoots = [];
+        for (const entity of mapColliders.reverse()) world.despawn(entity).unwrap();
+        mapColliders = [];
       };
+      yield unloadMap;
 
-      const colliders: EntityHandle[] = [];
-      for (const box of MAP_COLLIDERS) {
-        if (box.half.some((value) => value <= 0)) continue;
-        colliders.push(world.spawn(
-          { component: Transform, data: { pos: box.pos, quat: box.quat } },
-          { component: RigidBody, data: { type: RigidBodyTypeValue.static } },
-          {
-            component: Collider,
-            data: {
-              shape: ColliderShapeValue.cuboid,
-              halfExtents: box.half,
-              friction: 0.86,
-              restitution: 0,
+      const applyMap = async (id: MapId) => {
+        unloadMap();
+        playMusic(false);
+        mapId = id;
+        map = MAPS[id];
+        for (const visual of map.visuals) {
+          const loaded = await assets.load(visual.guid, 'scene');
+          if (!loaded.ok) throw loaded.error;
+          const root = assets.instantiate(loaded.value, world).unwrap();
+          assets.release(loaded.value).unwrap();
+          place(world, root, visual.pos, visual.quat, visual.scale);
+          mapRoots.push(root);
+        }
+        for (const box of map.colliders) {
+          if (box.half.some((value) => value <= 0)) continue;
+          mapColliders.push(world.spawn(
+            { component: Transform, data: { pos: box.pos, quat: box.quat } },
+            { component: RigidBody, data: { type: RigidBodyTypeValue.static } },
+            {
+              component: Collider,
+              data: {
+                shape: ColliderShapeValue.cuboid,
+                halfExtents: box.half,
+                friction: 0.86,
+                restitution: 0,
+              },
             },
-          },
-        ).unwrap());
-      }
-      yield () => {
-        for (const entity of colliders.reverse()) world.despawn(entity).unwrap();
+          ).unwrap());
+        }
+        const musicLoaded = await assets.load(map.music, 'audio');
+        if (!musicLoaded.ok) throw musicLoaded.error;
+        if (musicClip !== undefined) assets.release(musicClip).unwrap();
+        musicClip = musicLoaded.value;
+        if (music === undefined) {
+          music = world.spawn({
+            component: AudioSource,
+            data: {
+              clip: musicClip,
+              playing: false,
+              loop: true,
+              volume: MUSIC_VOLUME,
+              spatialBlend: 0,
+            },
+          }).unwrap();
+        } else {
+          world.set(music, AudioSource, { clip: musicClip, playing: false }).unwrap();
+        }
       };
+      await applyMap(mapId);
 
       const weapon = assets.instantiate(rifleHandle, world).unwrap();
       world.addComponent(weapon, { component: ChildOf, data: { parent: camera } }).unwrap();
@@ -264,7 +277,7 @@ export const fps: Plugin = {
         hurtCooldown = 0;
         spawnTimer = 0;
         spawnCursor = 0;
-        const position = vec3.create(PLAYER_START[0], PLAYER_START[1] + PLAYER_CENTER_HEIGHT, PLAYER_START[2]);
+        const position = vec3.create(map.start[0], map.start[1] + PLAYER_CENTER_HEIGHT, map.start[2]);
         world.set(player, Transform, { pos: [position[0], position[1], position[2]], quat: [0, 0, 0, 1] }).unwrap();
         const physics = world.getResource<PhysicsWorld>('PhysicsWorld');
         physics.teleport(player, position);
@@ -274,8 +287,21 @@ export const fps: Plugin = {
         publishHud();
       };
 
+      let switching = false;
+      const switchMap = async (id: MapId) => {
+        if (switching || id === mapId) return;
+        switching = true;
+        try {
+          best = 0;
+          await applyMap(id);
+          resetRun();
+        } finally {
+          switching = false;
+        }
+      };
+
       const nextSpawnPoint = () => {
-        const points = [...OPENING_POINTS, ...REINFORCEMENT_POINTS];
+        const points = [...map.openings, ...map.reinforcements];
         const playerPosition = world.get(player, Transform).unwrap().pos;
         for (let attempt = 0; attempt < points.length; attempt += 1) {
           const point = points[(spawnCursor + attempt) % points.length];
@@ -286,7 +312,7 @@ export const fps: Plugin = {
           return point;
         }
         spawnCursor = (spawnCursor + 1) % points.length;
-        return points[spawnCursor] ?? PLAYER_START;
+        return points[spawnCursor] ?? map.start;
       };
 
       const publishHud = () => {
@@ -294,6 +320,7 @@ export const fps: Plugin = {
           channel: HUD_CHANNEL,
           state: {
             phase,
+            map: mapId,
             time: Math.max(0, time),
             countdown: Math.max(0, countdown),
             kills,
@@ -306,10 +333,13 @@ export const fps: Plugin = {
       };
 
       const receive = (event: MessageEvent) => {
-        const data = event.data as { channel?: string; kind?: string; value?: unknown } | undefined;
+        const data = event.data as { channel?: string; kind?: string; value?: unknown; map?: string } | undefined;
         if (data?.channel !== CONTROL_CHANNEL) return;
         if (data.kind === 'restart') restartRequested = true;
-        if (data.kind === 'best' && typeof data.value === 'number' && Number.isFinite(data.value)) {
+        if (data.kind === 'map' && typeof data.value === 'string' && data.value in MAPS) {
+          if (phase === 'ready' || phase === 'results') void switchMap(data.value as MapId);
+        }
+        if (data.kind === 'best' && data.map === mapId && typeof data.value === 'number' && Number.isFinite(data.value)) {
           best = Math.max(best, Math.floor(data.value));
         }
       };
@@ -385,7 +415,7 @@ export const fps: Plugin = {
               hurtCooldown = 0.7;
               playSound('hurt');
               if (health === 0) {
-                const spawn = vec3.create(PLAYER_START[0], PLAYER_START[1] + PLAYER_CENTER_HEIGHT, PLAYER_START[2]);
+                const spawn = vec3.create(map.start[0], map.start[1] + PLAYER_CENTER_HEIGHT, map.start[2]);
                 world.set(player, Transform, { pos: [spawn[0], spawn[1], spawn[2]] }).unwrap();
                 physicsWorld.teleport(player, spawn);
                 health = MAX_HEALTH;
@@ -517,6 +547,7 @@ export const fps: Plugin = {
         description: 'Phase, remaining time, score, ammunition, health, live enemies and the nearest aim point.',
         read: () => ({
           phase,
+          map: mapId,
           time,
           kills,
           best: Math.max(best, kills),

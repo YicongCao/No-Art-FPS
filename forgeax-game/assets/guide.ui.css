@@ -198,6 +198,30 @@
   letter-spacing: 0.14em;
 }
 
+.maps {
+  display: none;
+  gap: 10px;
+}
+
+:host(.ready) .maps {
+  display: flex;
+}
+
+.maps button {
+  padding: 8px 18px;
+  border-color: rgb(255 248 230 / 45%);
+  background: transparent;
+  color: #fff8e6;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+}
+
+.maps button.selected {
+  border-color: #fff0ad;
+  background: #f2d084;
+  color: #243440;
+}
+
 button {
   pointer-events: auto;
   cursor: pointer;

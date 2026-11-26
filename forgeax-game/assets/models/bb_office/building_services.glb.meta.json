@@ -1,0 +1,200 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "building_services"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "building_services.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:building_services"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:building_services": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a215e9-a2b7-749e-a0d2-a1dc4b8126a9",
+          "slotName": "galvanized",
+          "sourceKey": "material:galvanized"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-a2b7-749e-a0d2-a1dd082b390d",
+          "slotName": "duct_joint",
+          "sourceKey": "material:duct_joint"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-a2b7-749e-a0d2-a1def6bbd150",
+          "slotName": "ivory.001",
+          "sourceKey": "material:ivory.001"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-a2b7-749e-a0d2-a1df58273461",
+          "slotName": "gold",
+          "sourceKey": "material:gold"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-a2b7-749e-a0d2-a1e04c0b4975",
+          "slotName": "slate.001",
+          "sourceKey": "material:slate.001"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-a2b7-749e-a0d2-a1e1511999c3",
+          "slotName": "sprinkler",
+          "sourceKey": "material:sprinkler"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-a2b7-749e-a0d2-a1e27a173283",
+          "slotName": "copper",
+          "sourceKey": "material:copper"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-a2b7-749e-a0d2-a1e3d6dbd296",
+          "slotName": "blue",
+          "sourceKey": "material:blue"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-a2b7-749e-a0d2-a1e4883bdaf1",
+          "slotName": "cable",
+          "sourceKey": "material:cable"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-a2b7-749e-a0d2-a1e547662d91",
+          "slotName": "code",
+          "sourceKey": "material:code"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a215e9-a2b7-749e-a0d2-a1dbea97e99f",
+      "kind": "mesh",
+      "name": "building_services",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:building_services"
+    },
+    {
+      "guid": "01a215e9-a2b7-749e-a0d2-a1dc4b8126a9",
+      "kind": "material",
+      "name": "galvanized",
+      "sourceIndex": 0,
+      "sourceKey": "material:galvanized"
+    },
+    {
+      "guid": "01a215e9-a2b7-749e-a0d2-a1dd082b390d",
+      "kind": "material",
+      "name": "duct_joint",
+      "sourceIndex": 1,
+      "sourceKey": "material:duct_joint"
+    },
+    {
+      "guid": "01a215e9-a2b7-749e-a0d2-a1def6bbd150",
+      "kind": "material",
+      "name": "ivory.001",
+      "sourceIndex": 2,
+      "sourceKey": "material:ivory.001"
+    },
+    {
+      "guid": "01a215e9-a2b7-749e-a0d2-a1df58273461",
+      "kind": "material",
+      "name": "gold",
+      "sourceIndex": 3,
+      "sourceKey": "material:gold"
+    },
+    {
+      "guid": "01a215e9-a2b7-749e-a0d2-a1e04c0b4975",
+      "kind": "material",
+      "name": "slate.001",
+      "sourceIndex": 4,
+      "sourceKey": "material:slate.001"
+    },
+    {
+      "guid": "01a215e9-a2b7-749e-a0d2-a1e1511999c3",
+      "kind": "material",
+      "name": "sprinkler",
+      "sourceIndex": 5,
+      "sourceKey": "material:sprinkler"
+    },
+    {
+      "guid": "01a215e9-a2b7-749e-a0d2-a1e27a173283",
+      "kind": "material",
+      "name": "copper",
+      "sourceIndex": 6,
+      "sourceKey": "material:copper"
+    },
+    {
+      "guid": "01a215e9-a2b7-749e-a0d2-a1e3d6dbd296",
+      "kind": "material",
+      "name": "blue",
+      "sourceIndex": 7,
+      "sourceKey": "material:blue"
+    },
+    {
+      "guid": "01a215e9-a2b7-749e-a0d2-a1e4883bdaf1",
+      "kind": "material",
+      "name": "cable",
+      "sourceIndex": 8,
+      "sourceKey": "material:cable"
+    },
+    {
+      "guid": "01a215e9-a2b7-749e-a0d2-a1e547662d91",
+      "kind": "material",
+      "name": "code",
+      "sourceIndex": 9,
+      "sourceKey": "material:code"
+    },
+    {
+      "guid": "01a215e9-a2b7-749e-a0d2-a1e61da0caac",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}

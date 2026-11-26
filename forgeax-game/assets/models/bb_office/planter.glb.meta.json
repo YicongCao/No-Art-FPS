@@ -1,0 +1,128 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "planter"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "planter.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:planter"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:planter": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a215ea-4525-7169-bbfb-2223975ff933",
+          "slotName": "ivory",
+          "sourceKey": "material:ivory"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-4525-7169-bbfb-222402ec9943",
+          "slotName": "coffee",
+          "sourceKey": "material:coffee"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-4525-7169-bbfb-2225feece93d",
+          "slotName": "green",
+          "sourceKey": "material:green"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-4525-7169-bbfb-222668fc6633",
+          "slotName": "leaf",
+          "sourceKey": "material:leaf"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a215ea-4525-7169-bbfb-2222832b96a9",
+      "kind": "mesh",
+      "name": "planter",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:planter"
+    },
+    {
+      "guid": "01a215ea-4525-7169-bbfb-2223975ff933",
+      "kind": "material",
+      "name": "ivory",
+      "sourceIndex": 0,
+      "sourceKey": "material:ivory"
+    },
+    {
+      "guid": "01a215ea-4525-7169-bbfb-222402ec9943",
+      "kind": "material",
+      "name": "coffee",
+      "sourceIndex": 1,
+      "sourceKey": "material:coffee"
+    },
+    {
+      "guid": "01a215ea-4525-7169-bbfb-2225feece93d",
+      "kind": "material",
+      "name": "green",
+      "sourceIndex": 2,
+      "sourceKey": "material:green"
+    },
+    {
+      "guid": "01a215ea-4525-7169-bbfb-222668fc6633",
+      "kind": "material",
+      "name": "leaf",
+      "sourceIndex": 3,
+      "sourceKey": "material:leaf"
+    },
+    {
+      "guid": "01a215ea-4525-7169-bbfb-2227aadd5c83",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}

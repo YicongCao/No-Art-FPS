@@ -1,0 +1,356 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "project_manager_lunch"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "project_manager_lunch.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:project_manager_lunch"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:project_manager_lunch": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a215ea-6fc1-7101-a0a7-fe8ff8092bd1",
+          "slotName": "ivory",
+          "sourceKey": "material:ivory"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-6fc1-7101-a0a7-fe90d028f680",
+          "slotName": "teal",
+          "sourceKey": "material:teal"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-6fc1-7101-a0a7-fe915ad36f1e",
+          "slotName": "slate",
+          "sourceKey": "material:slate"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-6fc1-7101-a0a7-fe92d4e4c557",
+          "slotName": "navy",
+          "sourceKey": "material:navy"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-6fc1-7101-a0a7-fe93030651b8",
+          "slotName": "paper",
+          "sourceKey": "material:paper"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-6fc1-7101-a0a7-fe9410cf10ae",
+          "slotName": "gold",
+          "sourceKey": "material:gold"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-6fc1-7101-a0a7-fe955c8e0342",
+          "slotName": "carpet_dark",
+          "sourceKey": "material:carpet_dark"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-6fc1-7101-a0a7-fe96c754fe3c",
+          "slotName": "ink",
+          "sourceKey": "material:ink"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-6fc1-7101-a0a7-fe97609ed6cb",
+          "slotName": "dark_teal",
+          "sourceKey": "material:dark_teal"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-6fc1-7101-a0a7-fe98f4ca1756",
+          "slotName": "galvanized",
+          "sourceKey": "material:galvanized"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-6fc1-7101-a0a7-fe993dc25a2c",
+          "slotName": "orange",
+          "sourceKey": "material:orange"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-6fc1-7101-a0a7-fe9ad4b52af3",
+          "slotName": "laptop_glass",
+          "sourceKey": "material:laptop_glass"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-6fc1-7101-a0a7-fe9b7054c4df",
+          "slotName": "code",
+          "sourceKey": "material:code"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-6fc1-7101-a0a7-fe9c24035355",
+          "slotName": "screen",
+          "sourceKey": "material:screen"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-6fc1-7101-a0a7-fe9da5a20dc3",
+          "slotName": "white",
+          "sourceKey": "material:white"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-6fc1-7101-a0a7-fe9ea28ed0ee",
+          "slotName": "blue",
+          "sourceKey": "material:blue"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-6fc1-7101-a0a7-fe9f6d59e6ff",
+          "slotName": "lilac",
+          "sourceKey": "material:lilac"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-6fc1-7101-a0a7-fea08db8c35d",
+          "slotName": "red",
+          "sourceKey": "material:red"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-6fc1-7101-a0a7-fea16b0f251c",
+          "slotName": "screen_dark",
+          "sourceKey": "material:screen_dark"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-6fc1-7101-a0a7-fea2ac8adafc",
+          "slotName": "card",
+          "sourceKey": "material:card"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-6fc1-7101-a0a7-fea3f341455e",
+          "slotName": "amber",
+          "sourceKey": "material:amber"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-6fc1-7101-a0a7-fea4955d821c",
+          "slotName": "coffee",
+          "sourceKey": "material:coffee"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-6fc1-7101-a0a7-fea5020a4203",
+          "slotName": "leaf",
+          "sourceKey": "material:leaf"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a215ea-6fc0-762c-8ff8-e030863f123f",
+      "kind": "mesh",
+      "name": "project_manager_lunch",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:project_manager_lunch"
+    },
+    {
+      "guid": "01a215ea-6fc1-7101-a0a7-fe8ff8092bd1",
+      "kind": "material",
+      "name": "ivory",
+      "sourceIndex": 0,
+      "sourceKey": "material:ivory"
+    },
+    {
+      "guid": "01a215ea-6fc1-7101-a0a7-fe90d028f680",
+      "kind": "material",
+      "name": "teal",
+      "sourceIndex": 1,
+      "sourceKey": "material:teal"
+    },
+    {
+      "guid": "01a215ea-6fc1-7101-a0a7-fe915ad36f1e",
+      "kind": "material",
+      "name": "slate",
+      "sourceIndex": 2,
+      "sourceKey": "material:slate"
+    },
+    {
+      "guid": "01a215ea-6fc1-7101-a0a7-fe92d4e4c557",
+      "kind": "material",
+      "name": "navy",
+      "sourceIndex": 3,
+      "sourceKey": "material:navy"
+    },
+    {
+      "guid": "01a215ea-6fc1-7101-a0a7-fe93030651b8",
+      "kind": "material",
+      "name": "paper",
+      "sourceIndex": 4,
+      "sourceKey": "material:paper"
+    },
+    {
+      "guid": "01a215ea-6fc1-7101-a0a7-fe9410cf10ae",
+      "kind": "material",
+      "name": "gold",
+      "sourceIndex": 5,
+      "sourceKey": "material:gold"
+    },
+    {
+      "guid": "01a215ea-6fc1-7101-a0a7-fe955c8e0342",
+      "kind": "material",
+      "name": "carpet_dark",
+      "sourceIndex": 6,
+      "sourceKey": "material:carpet_dark"
+    },
+    {
+      "guid": "01a215ea-6fc1-7101-a0a7-fe96c754fe3c",
+      "kind": "material",
+      "name": "ink",
+      "sourceIndex": 7,
+      "sourceKey": "material:ink"
+    },
+    {
+      "guid": "01a215ea-6fc1-7101-a0a7-fe97609ed6cb",
+      "kind": "material",
+      "name": "dark_teal",
+      "sourceIndex": 8,
+      "sourceKey": "material:dark_teal"
+    },
+    {
+      "guid": "01a215ea-6fc1-7101-a0a7-fe98f4ca1756",
+      "kind": "material",
+      "name": "galvanized",
+      "sourceIndex": 9,
+      "sourceKey": "material:galvanized"
+    },
+    {
+      "guid": "01a215ea-6fc1-7101-a0a7-fe993dc25a2c",
+      "kind": "material",
+      "name": "orange",
+      "sourceIndex": 10,
+      "sourceKey": "material:orange"
+    },
+    {
+      "guid": "01a215ea-6fc1-7101-a0a7-fe9ad4b52af3",
+      "kind": "material",
+      "name": "laptop_glass",
+      "sourceIndex": 11,
+      "sourceKey": "material:laptop_glass"
+    },
+    {
+      "guid": "01a215ea-6fc1-7101-a0a7-fe9b7054c4df",
+      "kind": "material",
+      "name": "code",
+      "sourceIndex": 12,
+      "sourceKey": "material:code"
+    },
+    {
+      "guid": "01a215ea-6fc1-7101-a0a7-fe9c24035355",
+      "kind": "material",
+      "name": "screen",
+      "sourceIndex": 13,
+      "sourceKey": "material:screen"
+    },
+    {
+      "guid": "01a215ea-6fc1-7101-a0a7-fe9da5a20dc3",
+      "kind": "material",
+      "name": "white",
+      "sourceIndex": 14,
+      "sourceKey": "material:white"
+    },
+    {
+      "guid": "01a215ea-6fc1-7101-a0a7-fe9ea28ed0ee",
+      "kind": "material",
+      "name": "blue",
+      "sourceIndex": 15,
+      "sourceKey": "material:blue"
+    },
+    {
+      "guid": "01a215ea-6fc1-7101-a0a7-fe9f6d59e6ff",
+      "kind": "material",
+      "name": "lilac",
+      "sourceIndex": 16,
+      "sourceKey": "material:lilac"
+    },
+    {
+      "guid": "01a215ea-6fc1-7101-a0a7-fea08db8c35d",
+      "kind": "material",
+      "name": "red",
+      "sourceIndex": 17,
+      "sourceKey": "material:red"
+    },
+    {
+      "guid": "01a215ea-6fc1-7101-a0a7-fea16b0f251c",
+      "kind": "material",
+      "name": "screen_dark",
+      "sourceIndex": 18,
+      "sourceKey": "material:screen_dark"
+    },
+    {
+      "guid": "01a215ea-6fc1-7101-a0a7-fea2ac8adafc",
+      "kind": "material",
+      "name": "card",
+      "sourceIndex": 19,
+      "sourceKey": "material:card"
+    },
+    {
+      "guid": "01a215ea-6fc1-7101-a0a7-fea3f341455e",
+      "kind": "material",
+      "name": "amber",
+      "sourceIndex": 20,
+      "sourceKey": "material:amber"
+    },
+    {
+      "guid": "01a215ea-6fc1-7101-a0a7-fea4955d821c",
+      "kind": "material",
+      "name": "coffee",
+      "sourceIndex": 21,
+      "sourceKey": "material:coffee"
+    },
+    {
+      "guid": "01a215ea-6fc1-7101-a0a7-fea5020a4203",
+      "kind": "material",
+      "name": "leaf",
+      "sourceIndex": 22,
+      "sourceKey": "material:leaf"
+    },
+    {
+      "guid": "01a215ea-6fc1-7101-a0a7-fea616febe36",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}

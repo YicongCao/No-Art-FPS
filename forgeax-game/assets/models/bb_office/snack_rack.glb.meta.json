@@ -1,0 +1,200 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "snack_rack"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "snack_rack.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:snack_rack"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:snack_rack": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a215ea-9a29-7fb1-8740-4084169209a3",
+          "slotName": "slate",
+          "sourceKey": "material:slate"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-9a29-7fb1-8740-4085fe46a5fd",
+          "slotName": "teal",
+          "sourceKey": "material:teal"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-9a29-7fb1-8740-4086e24d83dd",
+          "slotName": "ivory",
+          "sourceKey": "material:ivory"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-9a29-7fb1-8740-4087b3d4de39",
+          "slotName": "orange",
+          "sourceKey": "material:orange"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-9a29-7fb1-8740-4088af9e0812",
+          "slotName": "white",
+          "sourceKey": "material:white"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-9a29-7fb1-8740-40897aa93c88",
+          "slotName": "gold",
+          "sourceKey": "material:gold"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-9a29-7fb1-8740-408a5a35c740",
+          "slotName": "lilac",
+          "sourceKey": "material:lilac"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-9a29-7fb1-8740-408b41a3b5e2",
+          "slotName": "blue",
+          "sourceKey": "material:blue"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-9a29-7fb1-8740-408cd90a9587",
+          "slotName": "green",
+          "sourceKey": "material:green"
+        },
+        {
+          "defaultMaterialGuid": "01a215ea-9a29-7fb1-8740-408de24f1cce",
+          "slotName": "red",
+          "sourceKey": "material:red"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a215ea-9a29-7fb1-8740-40836e20a300",
+      "kind": "mesh",
+      "name": "snack_rack",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:snack_rack"
+    },
+    {
+      "guid": "01a215ea-9a29-7fb1-8740-4084169209a3",
+      "kind": "material",
+      "name": "slate",
+      "sourceIndex": 0,
+      "sourceKey": "material:slate"
+    },
+    {
+      "guid": "01a215ea-9a29-7fb1-8740-4085fe46a5fd",
+      "kind": "material",
+      "name": "teal",
+      "sourceIndex": 1,
+      "sourceKey": "material:teal"
+    },
+    {
+      "guid": "01a215ea-9a29-7fb1-8740-4086e24d83dd",
+      "kind": "material",
+      "name": "ivory",
+      "sourceIndex": 2,
+      "sourceKey": "material:ivory"
+    },
+    {
+      "guid": "01a215ea-9a29-7fb1-8740-4087b3d4de39",
+      "kind": "material",
+      "name": "orange",
+      "sourceIndex": 3,
+      "sourceKey": "material:orange"
+    },
+    {
+      "guid": "01a215ea-9a29-7fb1-8740-4088af9e0812",
+      "kind": "material",
+      "name": "white",
+      "sourceIndex": 4,
+      "sourceKey": "material:white"
+    },
+    {
+      "guid": "01a215ea-9a29-7fb1-8740-40897aa93c88",
+      "kind": "material",
+      "name": "gold",
+      "sourceIndex": 5,
+      "sourceKey": "material:gold"
+    },
+    {
+      "guid": "01a215ea-9a29-7fb1-8740-408a5a35c740",
+      "kind": "material",
+      "name": "lilac",
+      "sourceIndex": 6,
+      "sourceKey": "material:lilac"
+    },
+    {
+      "guid": "01a215ea-9a29-7fb1-8740-408b41a3b5e2",
+      "kind": "material",
+      "name": "blue",
+      "sourceIndex": 7,
+      "sourceKey": "material:blue"
+    },
+    {
+      "guid": "01a215ea-9a29-7fb1-8740-408cd90a9587",
+      "kind": "material",
+      "name": "green",
+      "sourceIndex": 8,
+      "sourceKey": "material:green"
+    },
+    {
+      "guid": "01a215ea-9a29-7fb1-8740-408de24f1cce",
+      "kind": "material",
+      "name": "red",
+      "sourceIndex": 9,
+      "sourceKey": "material:red"
+    },
+    {
+      "guid": "01a215ea-9a29-7fb1-8740-408e1f91a717",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}

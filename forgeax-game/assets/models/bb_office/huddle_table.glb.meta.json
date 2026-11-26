@@ -1,0 +1,176 @@
+{
+  "importSettings": {
+    "defaultSceneIndex": 0,
+    "diagnostics": {
+      "matrixTrsCoexistNodes": [],
+      "nodeNames": [
+        "huddle_table"
+      ],
+      "unsupportedExtensions": []
+    }
+  },
+  "importer": "gltf",
+  "kind": "external-asset-package",
+  "schemaVersion": 1,
+  "source": "huddle_table.glb",
+  "sourceOverrideDescriptors": [
+    {
+      "payloadSchema": {
+        "additionalProperties": true,
+        "properties": {
+          "materialSlotDefaultOverrides": {
+            "additionalProperties": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "materialSlots": {
+            "items": {
+              "additionalProperties": true,
+              "properties": {
+                "defaultMaterialGuid": {
+                  "type": "string"
+                },
+                "slotName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "sourceKey": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slotName"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "semantic": "mesh-material-slot-defaults",
+      "sourceKey": "mesh:huddle_table"
+    }
+  ],
+  "sourceOverrides": {
+    "mesh:huddle_table": {
+      "materialSlots": [
+        {
+          "defaultMaterialGuid": "01a215e9-e2af-7abc-91af-1774aee8e2d6",
+          "slotName": "ivory",
+          "sourceKey": "material:ivory"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-e2af-7abc-91af-1775a2610186",
+          "slotName": "dark_teal",
+          "sourceKey": "material:dark_teal"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-e2af-7abc-91af-1776f322153a",
+          "slotName": "violet",
+          "sourceKey": "material:violet"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-e2af-7abc-91af-1777a259c700",
+          "slotName": "pink",
+          "sourceKey": "material:pink"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-e2af-7abc-91af-17780c062d38",
+          "slotName": "gold",
+          "sourceKey": "material:gold"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-e2af-7abc-91af-177980386746",
+          "slotName": "card",
+          "sourceKey": "material:card"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-e2af-7abc-91af-177a3e449b77",
+          "slotName": "ink",
+          "sourceKey": "material:ink"
+        },
+        {
+          "defaultMaterialGuid": "01a215e9-e2af-7abc-91af-177b43a186af",
+          "slotName": "slate",
+          "sourceKey": "material:slate"
+        }
+      ]
+    }
+  },
+  "subAssets": [
+    {
+      "guid": "01a215e9-e2af-7abc-91af-177373f3e35b",
+      "kind": "mesh",
+      "name": "huddle_table",
+      "sourceIndex": 0,
+      "sourceKey": "mesh:huddle_table"
+    },
+    {
+      "guid": "01a215e9-e2af-7abc-91af-1774aee8e2d6",
+      "kind": "material",
+      "name": "ivory",
+      "sourceIndex": 0,
+      "sourceKey": "material:ivory"
+    },
+    {
+      "guid": "01a215e9-e2af-7abc-91af-1775a2610186",
+      "kind": "material",
+      "name": "dark_teal",
+      "sourceIndex": 1,
+      "sourceKey": "material:dark_teal"
+    },
+    {
+      "guid": "01a215e9-e2af-7abc-91af-1776f322153a",
+      "kind": "material",
+      "name": "violet",
+      "sourceIndex": 2,
+      "sourceKey": "material:violet"
+    },
+    {
+      "guid": "01a215e9-e2af-7abc-91af-1777a259c700",
+      "kind": "material",
+      "name": "pink",
+      "sourceIndex": 3,
+      "sourceKey": "material:pink"
+    },
+    {
+      "guid": "01a215e9-e2af-7abc-91af-17780c062d38",
+      "kind": "material",
+      "name": "gold",
+      "sourceIndex": 4,
+      "sourceKey": "material:gold"
+    },
+    {
+      "guid": "01a215e9-e2af-7abc-91af-177980386746",
+      "kind": "material",
+      "name": "card",
+      "sourceIndex": 5,
+      "sourceKey": "material:card"
+    },
+    {
+      "guid": "01a215e9-e2af-7abc-91af-177a3e449b77",
+      "kind": "material",
+      "name": "ink",
+      "sourceIndex": 6,
+      "sourceKey": "material:ink"
+    },
+    {
+      "guid": "01a215e9-e2af-7abc-91af-177b43a186af",
+      "kind": "material",
+      "name": "slate",
+      "sourceIndex": 7,
+      "sourceKey": "material:slate"
+    },
+    {
+      "guid": "01a215e9-e2af-7abc-91af-177c9960b3b7",
+      "kind": "scene",
+      "name": "Scene",
+      "sourceIndex": 0,
+      "sourceKey": "scene:Scene"
+    }
+  ]
+}
